@@ -1,0 +1,6 @@
+[submodule "BackEnd/apiFunctions/util/barcode"]
+	path = BackEnd/apiFunctions/util/barcode
+	url = git@github.com:davidscotttufts/php-barcode.git
+[submodule "BackEnd/apiFunctions/util/escpos"]
+	path = BackEnd/apiFunctions/util/escpos
+	url = git@github.com:mike42/escpos-php.git
