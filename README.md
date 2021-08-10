@@ -35,4 +35,7 @@ https://github.com/davidscotttufts/php-barcode
 PHP Bon-Printer driver:
 https://github.com/mike42/escpos-php
 
+Swagger for API documentation (as an external tool not  part of the project):
+https://github.com/swagger-api/swagger-editor
+
 

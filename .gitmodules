@@ -4,3 +4,6 @@
 [submodule "BackEnd/apiFunctions/util/escpos"]
 	path = BackEnd/apiFunctions/util/escpos
 	url = git@github.com:mike42/escpos-php.git
+[submodule "Documentation/swagger"]
+	path = Documentation/swagger
+	url = git@github.com:swagger-api/swagger-editor.git
