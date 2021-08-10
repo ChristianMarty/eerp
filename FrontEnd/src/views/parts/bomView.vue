@@ -1,0 +1,116 @@
+<template>
+  <div class="app-container">
+    <el-input v-model="csv" type="textarea" placeholder="Insert CSV data" />
+
+    <el-button type="primary" @click="onSubmit">Analyse</el-button>
+
+    <p>
+      Build Quantity:
+      <el-input-number
+        v-model="buildQuantity"
+        :min="1"
+        :max="1000"
+        @change="onQuantityChange"
+      />
+    </p>
+    <el-button
+      type="primary"
+      plain
+      icon="el-icon-printer"
+      style="float: right;"
+      @click="onPrint"
+    >Print</el-button>
+
+    <el-table
+      :data="bom"
+      :cell-style="{ padding: '0', height: '15px' }"
+      style="width: 100%"
+      :row-class-name="tableAnalyzer"
+    ><el-table-column prop="PartNo" label="Part No" width="150" sortable>
+       <template slot-scope="{ row }">
+         <router-link
+           :to="'/prodParts/prodPartView/' + row.PartNo"
+           class="link-type"
+         >
+           <span>{{ row.PartNo }}</span>
+         </router-link>
+       </template>
+     </el-table-column>
+      <el-table-column prop="RefDes" label="RefDes" />
+      <el-table-column prop="Quantity" label="Quantity" width="100" />
+      <el-table-column prop="TotalQuantity" label="Total" width="100" />
+
+      <el-table-column prop="Value" label="Description from CSV" />
+      <el-table-column prop="Name" label="Manufacturer Part" />
+      <el-table-column prop="Price" label="Price" width="100" />
+      <el-table-column prop="Stock" label="Stock" width="100" />
+    </el-table>
+  </div>
+</template>
+
+<script>
+import requestBN from '@/utils/requestBN'
+
+export default {
+  name: 'BomView',
+  components: {},
+  data() {
+    return {
+      csv: null,
+      bom: null,
+      buildQuantity: 1
+    }
+  },
+  methods: {
+    tableAnalyzer({ row, rowIndex }) {
+      if (row.PartNo.includes('Unknown')) {
+        return 'error-row'
+      }
+      if (row.TotalQuantity > row.Stock) {
+        return 'warning-row'
+      }
+      return ''
+    },
+    onQuantityChange() {
+      this.bom.forEach(
+        row => (row.TotalQuantity = row.Quantity * this.buildQuantity)
+      )
+    },
+    onSubmit() {
+      requestBN({
+        method: 'post',
+        url: '/productionPart/bomView',
+        data: { csv: this.csv, BuildQuantity: this.buildQuantity }
+      }).then(response => {
+        this.bom = response.data.bom
+        this.onQuantityChange()
+      })
+    },
+    onPrint() {
+      requestBN({
+        method: 'post',
+        url: '/bomPrint/',
+        data: { data: this.bom }
+      }).then(response => {
+        if (response.error !== null) {
+          this.$message({
+            showClose: true,
+            duration: 0,
+            message: response.error,
+            type: 'error'
+          })
+        }
+      })
+    }
+  }
+}
+</script>
+
+<style>
+.el-table .warning-row {
+  background: oldlace;
+}
+.el-table .error-row {
+  background: Lavenderblush;
+}
+</style>
