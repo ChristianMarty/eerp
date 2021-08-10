@@ -358,7 +358,7 @@ export default {
         $StockId: printData.StockNo,
         $Mfr: printData.ManufacturerName,
         $MPN: printData.ManufacturerPartNumber,
-        $PartNo: printData.PartNo,
+        $PartNo: printData.OrderReference,
         $Description: printData.Description
       }
 

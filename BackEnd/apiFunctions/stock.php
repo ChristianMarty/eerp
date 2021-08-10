@@ -46,6 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$date = new DateTime($r['Date']);
 		$r['DateCode'] = $date->format("yW");
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
+		$r['OrderReference']  = "GCT-".$r['OrderReference'];
 		
 		array_push($output, $r);
 		$stockNoValid = true;
@@ -176,7 +177,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($stockPart != false)
 	{
 		$stockPart['Barcode'] = "STK-".$stockPart['StockNo'];
-		$stockPart['PartNo']  = "GCT-".$stockPart['OrderReference'];
+		$stockPart['OrderReference']  = "GCT-".$stockPart['OrderReference'];
 
 		$stockPart['Description'] = "";
 		
