@@ -116,5 +116,40 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($rows);
 }
+else if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+	$data = json_decode(file_get_contents('php://input'),true);
+	
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$manufacturerName = dbEscapeString($dbLink,$data['data']['ManufacturerName']);
+	$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
+
+	$inserData['ManufacturerId']['raw']  = "(SELECT Id FROM partManufacturer WHERE Name = '".$manufacturerName."')";
+	$inserData['ManufacturerPartNumber']  = $manufacturerPartNumber;
+	
+	$query = dbBuildInsertQuery($dbLink, "manufacturerPart", $inserData);
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$error = null;
+	$manufacturerPart = array();
+	if($result == false)
+	{
+		$error = "Error description: " . dbGetErrorString($dbLink);
+	}
+	
+	$query = "SELECT Id FROM manufacturerPart WHERE Id = LAST_INSERT_ID();";
+	$result = dbRunQuery($dbLink,$query);
+	
+	$manufacturerPart['ManufacturerPartId'] = dbGetResult($result)['Id'];
+	
+	$result = dbRunQuery($dbLink,$query);
+	$stockPart = dbGetResult($result);
+	
+	dbClose($dbLink);	
+	sendResponse($manufacturerPart, $error);
+}
 
 ?>

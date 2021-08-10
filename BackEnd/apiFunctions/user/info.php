@@ -17,7 +17,7 @@ $returnData = array();
 
 if($devMode)
 {
-	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create");
+	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create","manufacturerPart.create","manufacturerPart.edit");
 	$returnData['introduction'] = "I am Dev Mode";
 	$returnData['avatar'] ="";
 	$returnData['name'] = "DevMode";
@@ -27,7 +27,7 @@ if($devMode)
 
 if($_SESSION["username"] == "admin")
 {	
-	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create");
+	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create","manufacturerPart.create","manufacturerPart.edit");
 	$returnData['introduction'] = "I am a super administrator";
 	$returnData['avatar'] ="";
 	$returnData['name'] ="Admin";

@@ -70,6 +70,11 @@ function dbRunQuery($dbLink, $query)
 	return mysqli_query($dbLink,$query);
 }
 
+function dbGetErrorString($dbLink)
+{
+	return  mysqli_error($dbLink);
+}
+
 function dbBuildQuery($dbLink, $baseQuery, $queryParam)
 {
 	$query = $baseQuery;

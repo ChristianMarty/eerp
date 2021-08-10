@@ -15,13 +15,12 @@ const partsRouter = {
       name: 'partBrowser',
       meta: { title: 'Part Browser', icon: 'list' }
     },
-    /* {
-      path: "partCreate",
-      component: () => import("@/views/parts/partCreate"),
-      name: "createPart",
-      meta: { title: "Create Part", icon: "edit" }
-    },*/
-
+    {
+      path: 'create',
+      component: () => import('@/views/parts/create'),
+      name: 'create',
+      meta: { title: 'Create Part', icon: 'edit', roles: ['manufacturerPart.create'] }
+    },
     {
       path: 'partView/:partId(.*)',
       component: () => import('@/views/parts/partView'),
