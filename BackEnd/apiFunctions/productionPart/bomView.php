@@ -81,7 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$result = false;
 			if($PartNo!= Null)
 			{
-				$query = "SELECT *, sum(partStock.Quantity) AS StockQuantity FROM manufacturerPart ";
+				$query = "SELECT *, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity FROM manufacturerPart ";
 				$query .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";
 				$query .= "LEFT JOIN productionPart ON productionPart.ManufacturerPartId = manufacturerPart.Id ";
 				$query .= "WHERE productionPart.PartNo ='".dbEscapeString($dbLink, $PartNo)."'";  
@@ -98,7 +98,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 				while($r = mysqli_fetch_assoc($result)) 
 				{
 					$PartData = $r;
-					$TotalQuantity += $PartData["StockQuantity"];
+					$TotalQuantity = $PartData["StockQuantity"];
 					$ManufacturerParts = $ManufacturerParts.", ".$PartData["ManufacturerPartNumber"];
 				}
 			}
