@@ -110,11 +110,13 @@ function buildLocationPath($rows, $id, $depth)
 	$nextLocId = $id;
 	$i = 0;
 	while($i < $depth) 
-	{
-		
+	{	
 		$nextParentId = $nextLocId;
 		$itemDepth = $lines[$nextLocId]['RecursionDepth'];
 		$nextLocId = $lines[$nextLocId]['LocationId'];
+		
+		if($nextLocId == 0) break;
+		if($nextLocId == NULL) break;
 		
 		while($nextParentId != 0 AND $itemDepth >= 0)
 		{
@@ -126,17 +128,15 @@ function buildLocationPath($rows, $id, $depth)
 		
 		$descriptionString = "-> ".$descriptionString;
 		
-		if($lines[$nextLocId]['Movable'] == 0 ) 
+		if($lines[$nextLocId]['Movable'] == 0 )
 		{
 			$nextParentId = $nextLocId;
-		$itemDepth = $lines[$nextLocId]['RecursionDepth'];
-		$nextLocId = $lines[$nextLocId]['LocationId'];
-			while($nextParentId != 0)// AND $itemDepth >= 0)
+			$itemDepth = $lines[$nextLocId]['RecursionDepth'];
+			$nextLocId = $lines[$nextLocId]['LocationId'];
+			while($nextParentId != 0)
 			{
 				$descriptionString = $lines[$nextParentId]['Name']." ".$descriptionString;
 				$nextParentId = $lines[$nextParentId]['ParentId'];
-			
-			//$itemDepth --;
 			}
 			break;
 		}

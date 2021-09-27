@@ -58,7 +58,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	$baseQuery = "SELECT ";
-	$baseQuery .="PicturePath, InvNo, Titel, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Status,";
+	$baseQuery .="PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Status,";
 	$baseQuery .="supplier.name AS SupplierName, ";
 	$baseQuery .="location_getName(LocationId) AS LocationName ";
 	$baseQuery .="FROM `inventory` ";

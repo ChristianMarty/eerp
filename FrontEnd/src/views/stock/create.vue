@@ -15,7 +15,7 @@
           v-model="formData.ManufacturerName"
           filterable
           placeholder="Select"
-          @change="getParts(formData.Manufacturer)"
+          @change="getParts(formData.ManufacturerName)"
         >
           <el-option
             v-for="item in manufacturer"
@@ -78,6 +78,7 @@
           v-model="formData.Date"
           type="week"
           format="yyyy Week WW"
+          value-format="yyyy-MM-dd"
         >
           >
         </el-date-picker>
@@ -305,9 +306,6 @@ export default {
           type: 'error'
         })
       } else {
-        this.formData.Date = new Date(this.formData.Date)
-        this.formData.Date = this.formData.Date.toISOString().split('T')[0]
-
         requestBN({
           method: 'post',
           url: '/stock',

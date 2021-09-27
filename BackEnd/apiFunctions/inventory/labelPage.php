@@ -80,7 +80,7 @@
 
 	}
 	
-	$query = "SELECT `InvNo`,`Titel`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN(".implode(", ",$invNo).")";
+	$query = "SELECT `InvNo`,`Title`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN(".implode(", ",$invNo).")";
 	$result = dbRunQuery($dbLink,$query);
 
 	if($result == false)
@@ -110,10 +110,10 @@
 	{
 		$category = $row['Manufacturer']." ".$row['Type'];
 		$invNo = $row['InvNo']." ";
-		$titel = $row['Titel']." ";
+		$title = $row['Title']." ";
 
 		$content  = "<h1>".$companyName."</h1>";
-		$content .= "<p>".$titel." </p>";
+		$content .= "<p>".$title." </p>";
 		$content .= "<p>".$category." </p>";
 		$content .= "<p>Inv Nr. ".$invNo." </p>";
 		$content .="<img src='".$dataRootPath."/apiFunctions/utils/barcode/barcode.php?text=Inv-".$invNo."'/>";

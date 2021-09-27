@@ -6,9 +6,9 @@
       class="form-container"
       label-width="130px"
     >
-      <el-form-item label="Titel:">
+      <el-form-item label="Title:">
         <el-input
-          v-model="postForm.Titel"
+          v-model="postForm.Title"
           placeholder="Please input"
         />
       </el-form-item>
@@ -45,6 +45,7 @@
           v-model="postForm.PurchaseDate"
           type="date"
           placeholder="Pick a day"
+          value-format="yyyy-MM-dd"
         />
       </el-form-item>
       <el-form-item label="Purchase Price:">
@@ -89,13 +90,8 @@
 <script>
 import requestBN from '@/utils/requestBN'
 
-const partAttribute = {
-  name: '',
-  vlaue: ''
-}
-
 const defaultForm = {
-  Titel: '',
+  Title: '',
   Manufacturer: '',
   Type: '',
   SerialNumber: '',
@@ -133,7 +129,7 @@ export default {
         methood: 'get',
         params: { InvNo: this.$route.params.invNo }
       }).then(response => {
-        this.postForm.Titel = response.data.Titel
+        this.postForm.Title = response.data.Title
         this.postForm.Manufacturer = response.data.Manufacturer
         this.postForm.Type = response.data.Type
         this.postForm.Supplier = response.data.SupplierName
