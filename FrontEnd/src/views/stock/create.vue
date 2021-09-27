@@ -316,7 +316,7 @@ export default {
           if (response.error == null) {
             this.partData = response.data
             if (this.autoPrint === true) {
-              this.print()
+              this.print(this.partData)
             } else {
               this.printDialogVisible = true
             }

@@ -176,12 +176,13 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$error = null;
 	if($stockPart != false)
 	{
+		$orderReference = $stockPart['OrderReference'];
 		$stockPart['Barcode'] = "STK-".$stockPart['StockNo'];
 		$stockPart['OrderReference']  = "GCT-".$stockPart['OrderReference'];
 
 		$stockPart['Description'] = "";
 		
-		$orderReference = $stockPart['OrderReference'];
+		
 		if(!empty($orderReference) )
 		{
 			// Get Description -> Still a hack

@@ -11,7 +11,7 @@
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/../config.php";
 
-require_once __DIR__ . "/utils/extractVariable.php";
+require_once __DIR__ . "/util/extractVariable.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
