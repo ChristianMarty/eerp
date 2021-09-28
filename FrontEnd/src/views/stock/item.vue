@@ -18,58 +18,22 @@
       </el-input>
     </p>
     <p><el-button type="danger" @click="clear">Clear</el-button></p>
+
     <el-card v-if="showItem">
-      <el-form>
-        <el-form-item label="Manufacturer:">
-          {{ partData.ManufacturerName }}
-        </el-form-item>
-        <el-form-item label="Manufacturer Part Number:">
-          <router-link
-            :to="'/mfrParts/partView/' + partData.ManufacturerPartId"
-            class="link-type"
-          >
-            {{ partData.ManufacturerPartNumber }}
-          </router-link>
-        </el-form-item>
-        <el-form-item label="Supplier:">
-          {{ partData.SupplierName }}
-        </el-form-item>
-        <el-form-item label="Supplier Part Number:">
-          {{ partData.SupplierPartNumber }}
-        </el-form-item>
-        <el-form-item label="Order Reference:">
-          {{ partData.OrderReference }}
-        </el-form-item>
-        <el-form-item label="Description:">
-          {{ partData.Description }}
-        </el-form-item>
-        <el-form-item label="Quantity:">
-          {{ partData.Quantity }}
-        </el-form-item>
-        <el-form-item label="Date Code:">
-          {{ partData.DateCode }}
-        </el-form-item>
-        <el-form-item label="Location:">
-          {{ partData.Location }}
-        </el-form-item>
-        <el-form-item label="Location Path:">
-          {{ partData.LocationPath }}
-        </el-form-item>
-        <el-form-item label="Stock No:"> {{ partData.StockNo }}</el-form-item>
-      </el-form>
+      <h3>Part Information</h3>
+      <el-divider />
+      <p><b>Manufacturer: </b>{{ partData.ManufacturerName }}</p>
 
-      <el-radio-group v-model="labelTemplate">
-        <el-radio-button :label="smallLabel">Small Label</el-radio-button>
-        <el-radio-button :label="largeLabel">Large Label</el-radio-button>
-      </el-radio-group>
-
-      <el-button
-        type="primary"
-        style="margin-left: 20px"
-        @click="printDialogVisible = true"
-      >Print</el-button>
-
-      <h3>Production Parts</h3>
+      <p><b>Part Number: </b>
+        <router-link
+          :to="'/mfrParts/partView/' + partData.ManufacturerPartId"
+          class="link-type"
+        >
+          {{ partData.ManufacturerPartNumber }}
+        </router-link>
+      </p>
+      <el-divider />
+      <h4>Production Parts:</h4>
       <el-table :data="productionPartData" style="width: 100%">
         <el-table-column prop="PartNo" label="Part No" sortable width="100">
           <template slot-scope="{ row }">
@@ -84,7 +48,46 @@
         <el-table-column prop="Description" label="Description" sortable />
       </el-table>
 
+    </el-card>
+
+    <el-card v-if="showItem">
+      <h3>Supplier Information</h3>
+      <el-divider />
+      <p><b>Supplier: </b>{{ partData.SupplierName }}</p>
+      <p><b>Part Number: </b>{{ partData.SupplierPartNumber }}</p>
+      <p><b>OrderReference: </b>{{ partData.OrderReference }}</p>
+    </el-card>
+
+    <el-card v-if="showItem">
+      <h3>Stock Information {{ partData.Barcode }}</h3>
+      <el-divider />
+      <p><b>Location: </b>{{ partData.Location }}</p>
+      <p><b>Location Path: </b>{{ partData.LocationPath }}</p>
+      <p><b>Quantity: </b>{{ partData.Quantity }}</p>
+      <p><b>Last Count: </b>{{ partData.LastCountDate }}</p>
+      <el-divider />
+      <h4>Stock Movement</h4>
+
+      <el-button
+        style="margin-right: 20px"
+        icon="el-icon-plus"
+        @click="addStockDialogVisible = true"
+      >Add</el-button>
+
+      <el-button
+        style="margin-right: 20px"
+        icon="el-icon-minus"
+        @click="removeStockDialogVisible = true"
+      >Remove</el-button>
+
+      <el-button
+        style="margin-right: 20px"
+        icon="el-icon-finished"
+        @click="countStockDialogVisible = true"
+      >Count</el-button>
+      <el-divider />
       <h3>History</h3>
+
       <el-timeline reverse="true">
         <el-timeline-item
           v-for="(line, index) in history"
@@ -97,10 +100,39 @@
       </el-timeline>
     </el-card>
 
+    <el-card v-if="showItem">
+      <h3>Print Label</h3>
+      <el-divider />
+      <el-radio-group v-model="labelTemplate">
+        <el-radio-button :label="smallLabel">Small Label</el-radio-button>
+        <el-radio-button :label="largeLabel">Large Label</el-radio-button>
+      </el-radio-group>
+
+      <el-button
+        type="primary"
+        style="margin-left: 20px"
+        @click="printDialogVisible = true"
+      >Print</el-button>
+
+    </el-card>
+
     <printDialog
       :visible.sync="printDialogVisible"
       :data="partData"
       @print="print"
+    />
+
+    <addStockDialog
+      :visible.sync="addStockDialogVisible"
+      :item="partData"
+    />
+    <removeStockDialog
+      :visible.sync="removeStockDialogVisible"
+      :item="partData"
+    />
+    <countStockDialog
+      :visible.sync="countStockDialogVisible"
+      :item="partData"
     />
 
   </div>
@@ -110,6 +142,9 @@
 import requestBN from '@/utils/requestBN'
 import * as print from '@/utils/printLabel'
 import printDialog from './components/printDialog'
+import addStockDialog from './components/addStockDialog'
+import removeStockDialog from './components/removeStockDialog'
+import countStockDialog from './components/countStockDialog'
 
 const returnData = {
   StockId: '',
@@ -123,7 +158,7 @@ const returnData = {
 
 export default {
   name: 'LocationAssignment',
-  components: { printDialog },
+  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog },
   data() {
     return {
       inputStockId: null,
@@ -134,7 +169,10 @@ export default {
       smallLabel: null,
       largeLabel: null,
       productionPartData: null,
-      printDialogVisible: false
+      printDialogVisible: false,
+      addStockDialogVisible: false,
+      removeStockDialogVisible: false,
+      countStockDialogVisible: false
     }
   },
   mounted() {
@@ -155,9 +193,9 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
-    setTagsViewTitle() {
+    setTagsViewTitle(title) {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.partData.Barcode}`
+        title: `${title}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
@@ -188,7 +226,7 @@ export default {
         } else {
           this.partData = response.data[0]
           this.getProductionPartData()
-          this.setTagsViewTitle()
+          this.setTagsViewTitle(this.partData.Barcode)
         }
       })
     },
@@ -238,6 +276,7 @@ export default {
       this.showItem = false
       this.$refs.itemNrInput.focus()
       this.printDialogVisible = false
+      this.setTagsViewTitle('Stock Item')
     },
     getLabel() {
       requestBN({
@@ -271,3 +310,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.el-card {
+  margin-top: 20px;
+  }
+</style>
