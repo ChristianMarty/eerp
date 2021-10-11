@@ -11,8 +11,8 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-$titel = "Match Parts by Order Reference ";
-$description = "Match Manufacturer Part against PartLookup by OrderReference  and create production parts.";
+$titel = "Match Parts";
+$description = "Match Manufacturer Part against PartLookup and create production parts.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -80,7 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	foreach($matches as  $line)
 	{
-		addProdPart($line['PartNo'],$line['MpnId']);
+		addProdPart($line['PartNo'],$line['MpnId'],$line['MatchCertainty']);
 	}
 	
 	// Add manualy enterd PartNo if no found
@@ -94,7 +94,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($part = mysqli_fetch_assoc($queryResult))
 	{
-		addProdPart($part['OrderReference'],$part['ManufacturerPartId']);
+		addProdPart($part['OrderReference'],$part['ManufacturerPartId'],"5");
 		array_push($matches,$part);
 	}
 	
@@ -118,6 +118,8 @@ function findMatch($lookup, $part)
 		$temp['MpnId'] = $mfrPartId;
 		$temp['MfrId'] = $mfrId;
 		
+		$temp['MatchCertainty'] = "0";
+		
 		return $temp;
 	}
 	
@@ -133,6 +135,8 @@ function findMatch($lookup, $part)
 		$temp['MpnId'] = $mfrPartId;
 		$temp['MfrId'] = $mfrId;
 		
+		$temp['MatchCertainty'] = "1";
+		
 		return $temp;
 	}
 	
@@ -144,6 +148,8 @@ function findMatch($lookup, $part)
 		$temp['PartNo'] = $lookup['PartNo'];
 		$temp['MpnId'] = $mfrPartId;
 		$temp['MfrId'] = $mfrId;
+		
+		$temp['MatchCertainty'] = "2";
 		
 		return $temp;
 	}
@@ -162,11 +168,14 @@ function findMatch($lookup, $part)
 			$temp['MpnId'] = $mfrPartId;
 			$temp['MfrId'] = $mfrId;
 			
+			$temp['MatchCertainty'] = "3";
+			
 			return $temp;
 		}
 	}
 	
-	if((strstr($tempMfrPartNr, $templookupPartNr) OR strstr($templookupPartNr, $tempMfrPartNr)) AND $tempMfrPartNr != $templookupPartNr)
+	// produces wrong matches
+	/*if((strstr($tempMfrPartNr, $templookupPartNr) OR strstr($templookupPartNr, $tempMfrPartNr)) AND $tempMfrPartNr != $templookupPartNr)
 	{
 		$temp = array();
 		$temp['$mfrPartNr'] = $mfrPartNr;
@@ -175,8 +184,10 @@ function findMatch($lookup, $part)
 		$temp['MpnId'] = $mfrPartId;
 		$temp['MfrId'] = $mfrId;
 		
+		$temp['MatchCertainty'] = "4";
+		
 		return $temp;
-	}
+	}*/
 
 	return null;
 }
@@ -187,9 +198,9 @@ function like_match($pattern, $subject)
     return (bool) preg_match("/^{$pattern}$/i", $subject);
 }
 
-function addProdPart($partNo, $mfrPartId)
+function addProdPart($partNo, $mfrPartId, $matchCertainty)
 {
-	$query = "INSERT IGNORE INTO productionPart(PartNo, ManufacturerPartId) VALUES('".$partNo."', ".$mfrPartId.")";
+	$query = "INSERT IGNORE INTO productionPart(PartNo, ManufacturerPartId, MatchCertainty) VALUES('".$partNo."', ".$mfrPartId.", '".$matchCertainty."')";
 		
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
