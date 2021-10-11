@@ -95,12 +95,15 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	if(isset($data["RemoveQuantity"]))
 	{
 		$RemoveQuantity = dbEscapeString($dbLink, $data["RemoveQuantity"]);
+		$workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
+		
+		if($workOrderId == null) $workOrderId = 0;
 		
 		if(!is_numeric($RemoveQuantity))sendResponse($output,"Quantity is not numeric");
 		$RemoveQuantity = intval($RemoveQuantity);
 		$output["RemoveQuantity"] = $RemoveQuantity;
 		
-		$query = "CALL partStock_quantityRemove('".$StockId."','".$RemoveQuantity."')";
+		$query = "CALL partStock_quantityRemove('".$StockId."','".$RemoveQuantity."','".$workOrderId."')";
 	}
 	else if(isset($data["AddQuantity"]))
 	{

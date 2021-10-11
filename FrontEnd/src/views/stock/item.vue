@@ -175,6 +175,11 @@ export default {
       countStockDialogVisible: false
     }
   },
+  watch: {
+    addStockDialogVisible: function() { this.loadItem() },
+    removeStockDialogVisible: function() { this.loadItem() },
+    countStockDialogVisible: function() { this.loadItem() }
+  },
   mounted() {
     this.clear()
 

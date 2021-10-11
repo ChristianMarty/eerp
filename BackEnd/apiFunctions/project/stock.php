@@ -26,6 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "WHERE ProjectId = ".$projectId;
 	$query .= " GROUP BY ProductionPartNo ";
 	
+
 	$bomStock = array();
 	$bom = array();
 	
@@ -54,7 +55,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);
 	
 	$bomStock['Bom'] = $bom;
-	$bomStock['StockItemsAvailability'] = $numberOfLinesAvailable/$numberOfLines*100;
+	if($numberOfLines != 0)$bomStock['StockItemsAvailability'] = $numberOfLinesAvailable/$numberOfLines*100;
+	else $bomStock['StockItemsAvailability'] = 0;
 	$bomStock['TotalNumberOfComponents'] = $numberOfComponents;
 	
 	sendResponse($bomStock);

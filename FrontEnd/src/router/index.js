@@ -19,6 +19,7 @@ import labelRouter from './modules/label'
 import processRouter from './modules/process'
 import reportRouter from './modules/report'
 import projectRouter from './modules/project'
+import workOrderRouter from './modules/workOrder'
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -126,6 +127,7 @@ export const constantRoutes = [
 export const asyncRoutes = [
   purchasingRouter,
   projectRouter,
+  workOrderRouter,
   prodPartsRouter,
   mfrPartsRouter,
   partMetadataRouter,

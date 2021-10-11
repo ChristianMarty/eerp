@@ -4,10 +4,15 @@
     <p>{{ projectData.Description }}</p>
     <el-button type="primary" @click="upload">Upload</el-button>
 
-    <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+    <el-menu
+      :default-active="activeIndex"
+      class="el-menu-demo"
+      mode="horizontal"
+      @select="handleSelect"
+    >
       <el-menu-item index="1">Availability</el-menu-item>
     </el-menu>
-    <stock project-no="1" />
+    <stock project-no="2" />
 
     <el-dialog title="Bom Upload" :visible.sync="showUploadDialog">
       <bomUpload />
@@ -86,7 +91,6 @@ export default {
     upload() {
       this.showUploadDialog = true
     }
-
   }
 }
 </script>

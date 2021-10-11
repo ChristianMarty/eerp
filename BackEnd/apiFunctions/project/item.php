@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query = "SELECT *,productionPart_getQuantity(ProductionPartNo) AS Stock FROM project ";
 	$query .= "LEFT JOIN project_bom ON project.Id = project_bom.ProjectId ";
 	$query .= "WHERE project.ProjectNo = ".$projectNo;
-	
+
 	$bom = array();
 	
 	$result = mysqli_query($dbLink,$query);

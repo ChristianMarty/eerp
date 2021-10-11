@@ -1,6 +1,5 @@
 <template>
   <div class="add-stock-dialog">
-
     <el-dialog
       title="Remove Stock"
       :visible.sync="visible"
@@ -18,6 +17,17 @@
             :max="item.Quantity"
           />
         </el-form-item>
+
+        <el-form-item label="Work Order:">
+          <el-select v-model="workOrderId" filterable>
+            <el-option
+              v-for="wo in workOrders"
+              :key="wo.Id"
+              :label="wo.Titel"
+              :value="wo.Id"
+            />
+          </el-select>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -28,7 +38,6 @@
   </div>
 </template>
 <script>
-
 const itemData = {
   StockNo: '',
   Quantity: 0
@@ -37,25 +46,42 @@ const itemData = {
 import requestBN from '@/utils/requestBN'
 
 export default {
-  props: { item: { type: Object, default: itemData }, visible: { type: Boolean, default: false }},
+  props: {
+    item: { type: Object, default: itemData },
+    visible: { type: Boolean, default: false }
+  },
   data() {
     return {
-      removeQuantity: 0
+      removeQuantity: 0,
+      workOrders: null,
+      workOrderId: null
     }
   },
   mounted() {
+    this.getWorkOrders()
   },
   methods: {
     closeDialog() {
       this.visible = false
       this.$emit('update:visible', this.visible)
     },
+    getWorkOrders() {
+      requestBN({
+        url: '/workOrder',
+        methood: 'get'
+      }).then(response => {
+        this.workOrders = response.data
+      })
+    },
     removeStock() {
       requestBN({
         method: 'patch',
         url: '/stock',
-        params: { StockNo: this.inputItemNr },
-        data: { RemoveQuantity: this.removeQuantity }
+        params: { StockNo: this.item.StockNo },
+        data: {
+          RemoveQuantity: this.removeQuantity,
+          WorkOrderId: this.workOrderId
+        }
       }).then(response => {
         if (response.error != null) {
           this.$message({
