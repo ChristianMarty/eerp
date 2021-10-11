@@ -19,9 +19,7 @@
                 <p><b>Total Stock Quantity: </b>{{ partData.StockQuantity }}</p>
 
                 <el-collapse @change="handleChange">
-                  <el-collapse-item
-                    name="elChar"
-                  >
+                  <el-collapse-item name="elChar">
                     <template slot="title">
                       <b>Electrical Characteristics</b>
                     </template>
@@ -30,10 +28,24 @@
                       :default-sort="{ prop: 'Package', order: 'descending' }"
                       style="width: 100%"
                     >
-                      <el-table-column prop="Name" />
-                      <el-table-column prop="Value" label="Value" />
-                      <el-table-column prop="Unit" label="Unit" />
+                      <el-table-column prop="Name" width="200px" />
+                      <el-table-column prop="Value.Minimum" label="Minimum" align="center" />
+                      <el-table-column prop="Value.Typical" label="Typical" align="center" />
+                      <el-table-column prop="Value.Maximum" label="Maximum" align="center" />
+                      <el-table-column prop="Symbol" label="Unit" />
                     </el-table>
+                    <el-button
+                      type="primary"
+                      icon="el-icon-edit"
+                      circle
+                      style="margin-top: 20px"
+                      @click="attributeEditVisible = true"
+                    />
+
+                    <attributeEdit
+                      :part-id="partData.partId"
+                      :visible.sync="attributeEditVisible"
+                    />
                   </el-collapse-item>
 
                   <el-collapse-item name="documents">
@@ -55,11 +67,7 @@
                       :data="supplierPartData"
                       style="width: 100%; margin-top:10px"
                     >
-                      <el-table-column
-                        prop="Name"
-                        label="Name"
-                        sortable
-                      />
+                      <el-table-column prop="Name" label="Name" sortable />
                       <el-table-column
                         prop="SupplierPartNumber"
                         label="Part Number"
@@ -82,10 +90,7 @@
                           label="Distributor"
                           width="150"
                         />
-                        <el-table-column
-                          prop="SKU"
-                          label="SKU"
-                        >
+                        <el-table-column prop="SKU" label="SKU">
                           <template slot-scope="{ row }">
                             <a :href="row.URL" target="blank">
                               {{ row.SKU }}
@@ -108,12 +113,13 @@
                           width="120"
                         />
                       </el-table>
-                      <p><b>Timestamp:</b> {{ availabilityData.Timestamp }}, Data provided by Octopart</p>
+                      <p>
+                        <b>Timestamp:</b> {{ availabilityData.Timestamp }}, Data
+                        provided by Octopart
+                      </p>
                     </template>
                   </el-collapse-item>
-                  <el-collapse-item
-                    name="productionPart"
-                  >
+                  <el-collapse-item name="productionPart">
                     <template slot="title">
                       <b>Production Parts</b>
                     </template>
@@ -188,11 +194,12 @@
 import requestBN from '@/utils/requestBN'
 import SupplierDetail from './components/SupplierDetail'
 import PartDocuments from './components/PartDocuments'
+import attributeEdit from './components/attributeEditDialog'
 import splitPane from 'vue-splitpane'
 
 export default {
   name: 'PartDetail',
-  components: { splitPane, SupplierDetail, PartDocuments },
+  components: { splitPane, SupplierDetail, PartDocuments, attributeEdit },
   props: {
     isEdit: {
       type: Boolean,
@@ -207,7 +214,9 @@ export default {
       documentPath: null,
       stockData: null,
       productionPartData: null,
-      availabilityData: null
+      availabilityData: null,
+
+      attributeEditVisible: false
     }
   },
   mounted() {
@@ -227,6 +236,18 @@ export default {
         params: { PartId: this.$route.params.partId }
       }).then(response => {
         this.partData = response.data[0]
+
+        this.partData = response.data[0]
+
+        this.partData.PartData.forEach(element => {
+          const valArr = { Minimum: null, Maximum: null, Typical: null }
+
+          if (typeof element.Value !== 'object') {
+            valArr.Typical = element.Value
+            element.Value = valArr
+          }
+        })
+
         this.documents = this.partData.Documents
         this.setTagsViewTitle()
         this.setPageTitle()
@@ -254,8 +275,14 @@ export default {
     },
     resize() {},
     handleChange(val) {
-      if (val.includes('suppliers') && this.supplierData == null) this.getSupplierPart()
-      else if (val.includes('availability') && this.availabilityData == null) this.getAvailabilityData()
+      if (val.includes('suppliers') && this.supplierData == null) {
+        this.getSupplierPart()
+      } else if (
+        val.includes('availability') &&
+        this.availabilityData == null
+      ) {
+        this.getAvailabilityData()
+      }
     },
     getSupplierPart() {
       requestBN({
