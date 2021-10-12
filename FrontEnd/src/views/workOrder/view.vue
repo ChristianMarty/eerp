@@ -4,6 +4,39 @@
       WO-{{ workOrderData.WorkOrderNo }} --- {{ workOrderData.Titel }} ---
       {{ workOrderData.ProjectTitel }}
     </h1>
+    <el-divider />
+    <p><b>Build Quantity:</b> {{ workOrderData.Quantity }}</p>
+    <p><b>Status:</b> {{ workOrderData.Status }}</p>
+    <h2>Used Parts</h2>
+
+    <el-table :data="workOrderData.PartsUsed" style="width: 100%">
+      <el-table-column prop="StockNo" label="Stock No" width="120" sortable>
+        <template slot-scope="{ row }">
+          <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
+            <span>{{ row.StockNo }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="ManufacturerName" label="Manufacturer" sortable />
+      <el-table-column
+        prop="ManufacturerPartNumber"
+        sortable
+        label="Manufacturer Part No"
+        width="220"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+            class="link-type"
+          >
+            <span>{{ row.ManufacturerPartNumber }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="Quantity" label="Quantity" sortable />
+      <el-table-column prop="RemovalDate" label="Remove Date" sortable />
+    </el-table>
   </div>
 </template>
 

@@ -15,7 +15,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT * FROM workOrder ";
+	$query = "SELECT project.Titel AS ProjectTitel, workOrder.Titel, Quantity, WorkOrderNo, Status  FROM workOrder ";
+	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
 	
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();

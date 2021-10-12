@@ -23,11 +23,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$workOrderNo = dbEscapeString($dbLink, $_GET["WorkOrderNo"]);
 	
-	$query = "SELECT project.Titel AS ProjectTitel, workOrder.Titel, Quantity, WorkOrderNo, Status FROM workOrder ";
+	$query = "SELECT workOrder.Id AS WorkOrderId, project.Titel AS ProjectTitel, workOrder.Titel, Quantity, WorkOrderNo, Status FROM workOrder ";
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
 	$query .= "WHERE workOrder.workOrderNo = ".$workOrderNo;
 	
-	$bom = array();
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
@@ -35,10 +34,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$workOrderData = $r;
 	}
 	
-	dbClose($dbLink);
+	$workOrderId = $workOrderData['WorkOrderId'];
 	
+	$partUsed = array();
+	
+	$query = "SELECT *,partManufacturer.Name as ManufacturerName, partStock_history.Date AS RemovalDate FROM partStock_history ";
+	$query .= "LEFT JOIN partStock On partStock.Id = partStock_history.StockId ";
+	$query .= "LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId ";
+	$query .= "LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query .= "WHERE partStock_history.workOrderId = ".$workOrderId;
 
+	$result = mysqli_query($dbLink,$query);
+	while($r = mysqli_fetch_assoc($result)) 
+	{
+		array_push($partUsed,$r);
+	}
 	
+	$workOrderId = $workOrderData['WorkOrderId'];
+	
+	$workOrderData['PartsUsed'] = $partUsed;
+	dbClose($dbLink);	
 	sendResponse($workOrderData);
 }
 
