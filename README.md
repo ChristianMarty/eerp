@@ -22,7 +22,9 @@ The E-ERP project was started with the following requirements:
 Maybe, someday. However, If you are mainly interested in accounting, then this is not for you.
 
 # Technology
-Vue.js in the front, PHP / MariaDB in the back.
+E-ERP was designed to run on the LAMP (Linux, Apache, MariaDB, PHP) Stack. Therefore it should run on most web hosting services.
+
+For the frontend Vue.js, is used.
 
 ## Used projects
 
