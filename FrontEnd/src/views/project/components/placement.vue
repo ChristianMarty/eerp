@@ -1,10 +1,8 @@
 <template>
-  <div class="placerd-container">
+  <div class="placement-container">
 
-    <p><b>Stock Availability:</b><el-progress :percentage="stockBom.StockItemsAvailability" /></p>
-    <p><b>Total Number Of Components:</b> {{ stockBom.TotalNumberOfComponents }}</p>
     <el-table
-      :data="stockBom.Bom"
+      :data="stockBom"
       :cell-style="{ padding: '0', height: '15px' }"
       style="width: 100%"
       :row-class-name="tableAnalyzer"
@@ -19,13 +17,11 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Quantity" label="Quantity" width="150" sortable />
-      <el-table-column prop="StockQuantity" label="On Stock" width="150" sortable />
-      <el-table-column prop="Availability" label="Availability" width="300" sortable>
-        <template slot-scope="{ row }">
-          <el-progress :percentage="row.Availability" />
-        </template>
-      </el-table-column>
+      <el-table-column prop="ReferenceDesignator" label="Ref Des" width="150" sortable />
+      <el-table-column prop="Layer" label="Layer" width="150" sortable />
+      <el-table-column prop="PositionX" label="Position X" width="150" sortable />
+      <el-table-column prop="PositionY" label="Position Y" width="150" sortable />
+      <el-table-column prop="Rotation" label="Rotation" width="150" sortable />
     </el-table>
   </div>
 </template>
@@ -34,7 +30,7 @@
 import requestBN from '@/utils/requestBN'
 
 export default {
-  props: { projectNo: { type: Number, default: 0 }},
+  props: { projectId: { type: Number, default: 0 }},
   data() {
     return {
       stockBom: null
@@ -46,10 +42,10 @@ export default {
   methods: {
     getBomStock() {
       requestBN({
-        url: '/project/stock',
+        url: '/project/placement',
         methood: 'get',
         params: {
-          ProjectId: this.$props.projectNo
+          ProjectId: this.$props.projectId
         }
       }).then(response => {
         this.stockBom = response.data

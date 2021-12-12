@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$projectNo = dbEscapeString($dbLink, $_GET["ProjectNo"]);
 	
-	$query = "SELECT *,productionPart_getQuantity(ProductionPartNo) AS Stock FROM project ";
+	$query = "SELECT *,productionPart_getQuantity(ProductionPartNo) AS Stock, project.Id as ProjectId FROM project ";
 	$query .= "LEFT JOIN project_bom ON project.Id = project_bom.ProjectId ";
 	$query .= "WHERE project.ProjectNo = ".$projectNo;
 
@@ -34,7 +34,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$projectData['Titel'] = $r['Titel'];
 		$projectData['Description'] = $r['Description'];
-		$projectData['Id'] = $r['Id'];
+		$projectData['Id'] = $r['ProjectId'];
 		$bomLine = array();
 		$bomLine["PartNo"] = $r['ProductionPartNo'];
 		$bomLine["ReferenceDesignator"] = $r['ReferenceDesignator'];

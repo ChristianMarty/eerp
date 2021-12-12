@@ -5,36 +5,41 @@
     <el-button type="primary" @click="upload">Upload</el-button>
 
     <el-menu
-      :default-active="activeIndex"
+      default-active="availability"
       class="el-menu-demo"
       mode="horizontal"
       @select="handleSelect"
     >
-      <el-menu-item index="1">Availability</el-menu-item>
+      <el-menu-item index="availability">Availability</el-menu-item>
+      <el-menu-item index="placement">Placement</el-menu-item>
     </el-menu>
-    <stock project-no="2" />
+
+    <availability v-if="activeIndex == 'availability'" :project-id="projectData.Id" />
+    <placement v-if="activeIndex == 'placement'" :project-id="projectData.Id" />
 
     <el-dialog title="Bom Upload" :visible.sync="showUploadDialog">
-      <bomUpload />
+      <bomUpload :project-id="projectData.Id" />
     </el-dialog>
   </div>
 </template>
 
 <script>
 import requestBN from '@/utils/requestBN'
-import stock from './components/stock'
+import availability from './components/availability'
+import placement from './components/placement'
 import bomUpload from './components/upload'
 
 export default {
   name: 'ProjectView',
-  components: { stock, bomUpload },
+  components: { availability, placement, bomUpload },
   data() {
     return {
       csv: null,
       bom: null,
       buildQuantity: 1,
       projectData: null,
-      showUploadDialog: false
+      showUploadDialog: false,
+      activeIndex: 'availability'
     }
   },
   mounted() {
@@ -48,6 +53,9 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    handleSelect(key, keyPath) {
+      this.activeIndex = key
+    },
     getProjectData() {
       requestBN({
         url: '/project/item',

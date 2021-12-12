@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : stock.php
+// FileName : availability.php
 // FilePath : apiFunctions/project/
 // Author   : Christian Marty
 // Date		: 01.08.2020
