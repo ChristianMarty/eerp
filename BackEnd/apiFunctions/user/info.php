@@ -11,36 +11,30 @@
 require_once __DIR__ . "/../../config.php";
 global $devMode;
 
-// TODO: This is fundamentally broken -> fix it
+
 
 $returnData = array();
 
-if($devMode)
+if($devMode) // TODO: This is fundamentally broken -> fix it
 {
+	
 	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create","manufacturerPart.create","manufacturerPart.edit");
 	$returnData['introduction'] = "I am Dev Mode";
 	$returnData['avatar'] ="";
 	$returnData['name'] = "DevMode";
 	
-	sendResponse($returnData);
-}
+	$returnData['rolesJson'] = json_decode( '{  "inventory": { "print": true,"create": true},"purchasing":{"create": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true}}');
 
-if($_SESSION["username"] == "admin")
-{	
-	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create","manufacturerPart.create","manufacturerPart.edit");
-	$returnData['introduction'] = "I am a super administrator";
-	$returnData['avatar'] ="";
-	$returnData['name'] ="Admin";
-	
+	sendResponse($returnData);
 }
 else
 {
-	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","document.create");//$_SESSION['roles'];
+	$returnData['roles'] = $_SESSION['UserRolesString'];
+	$returnData['rolesJson'] = $_SESSION['UserRoles'];
 	$returnData['introduction'] = "I am ".$_SESSION["username"];
 	$returnData['avatar'] ="";
 	$returnData['name'] = $_SESSION["username"];
+	
+	sendResponse($returnData);
 }
-
-sendResponse($returnData);
-
 ?>

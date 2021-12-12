@@ -8,6 +8,7 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
+require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
 
@@ -59,7 +60,26 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			if(!is_array($userRolesTree[$temp[0]])) $userRolesTree[$temp[0]] = array();
 			array_push($userRolesTree[$temp[0]], $temp[1]);
 		}*/
+		
 		$userRolesTree = array();
+		
+		$dbLink = dbConnect();
+		if($dbLink == null) return null;
+
+		$query = "SELECT * FROM user WHERE UserID = '".$username."'";
+
+		$result = mysqli_query($dbLink,$query);
+		
+		$rows = array();
+
+		while($r = mysqli_fetch_assoc($result)) 
+		{
+			$userRolesTree = json_decode($r['Roles']);
+		}
+
+		dbClose($dbLink);
+		
+		
 		$_SESSION["username"] = $username;
 		$_SESSION['loggedin'] = true;
 		$_SESSION['UserRoles'] = $userRolesTree;
@@ -67,12 +87,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$returnData = array();
 		$returnData['DisplayName'] = "User";//$userAttributes['displayName'][0];
 		$returnData['UserRoles'] = $userRolesTree;
-		$returnData['token'] = 'admin-token';
 		
+		$roles_array = array();
+		$roles = $_SESSION['UserRoles'];
+
+		foreach($roles as $key => $category)
+		{
+			$categoryName = $key;
+			foreach($category as $key => $role)
+			{
+				$roleStr = $categoryName.".".$key;
+				if($role == true) array_push($roles_array, $roleStr);
+			}
+		}
+		
+		$_SESSION['UserRolesString'] = $roles_array;
+
 		sendResponse($returnData);
 	}
 	else
 	{
+		$_SESSION['loggedin'] = false;
 		sendResponse(null, "Username or Password Wrong");
 	}	
 }
