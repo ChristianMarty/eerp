@@ -34,9 +34,9 @@
           <router-link to="/profile/index">
             <el-dropdown-item>Profile</el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://www.office.com">
+          <!--<a target="_blank" href="https://www.office.com">
             <el-dropdown-item>Office 365</el-dropdown-item>
-          </a>
+          </a>-->
           <el-dropdown-item divided @click.native="logout">
             <span style="display:block;">Log Out</span>
           </el-dropdown-item>
