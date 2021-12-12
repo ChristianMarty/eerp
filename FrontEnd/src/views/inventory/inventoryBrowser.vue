@@ -16,7 +16,7 @@
                 :options="inventoryCategories"
                 :props="{
                   emitPath: false,
-                  value: 'Name',
+                  value: 'Id',
                   label: 'Name',
                   children: 'Children',
                   checkStrictly: true
@@ -59,14 +59,14 @@
           <el-button type="primary" @click="addPrint">Print Label</el-button>
         </el-collapse-item>
       </el-collapse>
-
+      <p><b>Number of Results: </b>{{ numberOfResults }}</p>
       <el-table :data="inventory" style="width: 100%">
         <el-table-column prop="GroupSelect" label="Select" width="70">
           <template slot-scope="scope">
             <el-checkbox v-model="scope.row.GroupSelect" />
           </template>
         </el-table-column>
-        <el-table-column prop="InvNo" label="Inventory No" width="120">
+        <el-table-column prop="InvNo" label="Inventory No" width="140" sortable>
           <template slot-scope="{ row }">
             <router-link
               :to="'/inventory/inventoryView/' + row.InvNo"
@@ -82,14 +82,14 @@
             <el-image style="width: 100px;" :src="row.PicturePath" :fit="fit" />
           </template>
         </el-table-column>
-        <el-table-column prop="Titel" label="Titel" />
-        <el-table-column prop="Manufacturer" label="Manufacturer" />
-        <el-table-column prop="Type" label="Type" />
-        <el-table-column prop="SerialNumber" label="Serial Number" />
-        <el-table-column prop="LocationName" label="Location" />
-        <el-table-column prop="PurchasePrice" label="Purchase Price" />
-        <el-table-column prop="PurchaseDate" label="Purchase Date" />
-        <el-table-column prop="Status" label="Status" />
+        <el-table-column prop="Title" label="Title" sortable />
+        <el-table-column prop="Manufacturer" label="Manufacturer" sortable />
+        <el-table-column prop="Type" label="Type" sortable />
+        <el-table-column prop="SerialNumber" label="Serial Number" sortable />
+        <el-table-column prop="LocationName" label="Location" sortable />
+        <el-table-column prop="PurchasePrice" label="Purchase Price" sortable />
+        <el-table-column prop="PurchaseDate" label="Purchase Date" sortable />
+        <el-table-column prop="Status" label="Status" sortable />
       </el-table>
     </template>
   </div>
@@ -112,6 +112,7 @@ export default {
     return {
       filter: Object.assign({}, FilterSettings),
       inventory: null,
+      numberOfResults: 0,
       locations: null,
       categories: null,
       selected: null
@@ -139,10 +140,11 @@ export default {
         params: {
           InvNo: this.filter.InventoryNo,
           LocNr: this.filter.Location,
-          Category: this.filter.Category
+          CategoryId: this.filter.Category
         }
       }).then(response => {
-        this.inventory = response.data
+        this.inventory = response.data.InventoryItems
+        this.numberOfResults = response.data.NumberOfResults
       })
     },
     getLocations() {
@@ -167,7 +169,7 @@ export default {
 
       this.inventory.forEach(element => {
         if (typeof element.GroupSelect !== 'undefined') {
-          if (element.GroupSelect == true) {
+          if (element.GroupSelect === true) {
             invNoList.push(element.InvNo)
           }
         }

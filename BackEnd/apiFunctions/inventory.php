@@ -12,7 +12,11 @@ require_once __DIR__ . "/util/getChildren.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(isset($_GET["Category"]))
+	if(isset($_GET["CategoryId"]))
+	{
+		$categoryId = intval($_GET["CategoryId"]);
+	}
+	else if(isset($_GET["Category"]))
 	{	
 		$dbLink = dbConnect();
 		if($dbLink == null) return null;
@@ -28,8 +32,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		dbClose($dbLink);
 		
-		$categories =  getChildren("inventory_categorie", $categoryId);
+		
 	}
+	
+	if(isset($categoryId))$categories =  getChildren("inventory_categorie", $categoryId);
 	
 	if(isset($_GET["LocNr"]))
 	{	
@@ -86,20 +92,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($queryParam, "InventoryCategoryId IN (".$categories.")");
 	}
 
-	$output = array();
+	
 	$PictureRootPath = $dataRootPath."/data/pictures/";
 
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 
-
+	$numberOfResults = 0;
+	$inventoryItems = array();
+	
 	$result = dbRunQuery($dbLink,$query);
+	
 	while($r = dbGetResult($result)) 
 	{
 		$r['InvNo'] = "Inv-".$r['InvNo'];
 		$r['PicturePath'] = $PictureRootPath.$r['PicturePath'];
-		$output[] = $r;
+		$inventoryItems[] = $r;
+		$numberOfResults++;
 	}
-
+	
+	$output = array();
+	$output['NumberOfResults'] = $numberOfResults;
+	$output['InventoryItems'] = $inventoryItems;
 	dbClose($dbLink);	
 	sendResponse($output);
 }
