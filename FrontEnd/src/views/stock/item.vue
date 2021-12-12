@@ -64,7 +64,7 @@
       <p><b>Location: </b>{{ partData.Location }}</p>
       <p><b>Location Path: </b>{{ partData.LocationPath }}</p>
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
-      <p><b>Last Count: </b>{{ partData.LastCountDate }}</p>
+      <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
       <el-divider />
       <h4>Stock Movement</h4>
 

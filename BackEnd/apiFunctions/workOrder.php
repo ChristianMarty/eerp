@@ -14,10 +14,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
+	
+	if(isset($_GET["Status"])) $status = dbEscapeString($dbLink, $_GET["Status"]);
+	
 
 	$query = "SELECT project.Titel AS ProjectTitel, workOrder.Titel, Quantity, WorkOrderNo, Status  FROM workOrder ";
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
-	
+	if(isset($status)) $query .=  "WHERE Status = '".$status."'";
+
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	

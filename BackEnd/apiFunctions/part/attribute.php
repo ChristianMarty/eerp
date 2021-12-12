@@ -83,6 +83,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($attributeList);
 }
+else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+{
+	
+}
 
 function getUnitType($attributes, $id)
 {	

@@ -69,10 +69,16 @@
                     >
                       <el-table-column prop="Name" label="Name" sortable />
                       <el-table-column
-                        prop="SupplierPartNumber"
+        
                         label="Part Number"
                         sortable
-                      />
+                      >
+                        <template slot-scope="{ row }">
+                          <a :href="row.SupplierPartLink" target="blank">
+                            {{ row.SupplierPartNumber }}
+                          </a>
+                        </template>
+                      </el-table-column>
                     </el-table>
                   </el-collapse-item>
                   <el-collapse-item name="availability">
@@ -150,6 +156,7 @@
                     <template slot="title">
                       <b>Stock</b>
                     </template>
+
                     <el-table :data="stockData" style="width: 100%">
                       <el-table-column prop="StockNo" label="Stock No" sortable>
                         <template slot-scope="{ row }">

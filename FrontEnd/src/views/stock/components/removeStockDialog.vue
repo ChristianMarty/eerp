@@ -68,7 +68,8 @@ export default {
     getWorkOrders() {
       requestBN({
         url: '/workOrder',
-        methood: 'get'
+        methood: 'get',
+        params: { Status: 'InProgress' }
       }).then(response => {
         this.workOrders = response.data
       })
@@ -77,7 +78,7 @@ export default {
       requestBN({
         method: 'patch',
         url: '/stock',
-        params: { StockNo: this.item.StockNo },
+        
         data: {
           RemoveQuantity: this.removeQuantity,
           WorkOrderId: this.workOrderId

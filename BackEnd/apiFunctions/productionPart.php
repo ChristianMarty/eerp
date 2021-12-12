@@ -16,7 +16,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT DISTINCT productionPart.PartNo, Description FROM productionPart LEFT JOIN partLookup ON partLookup.PartNo = productionPart.PartNo ";
+	$query  = "SELECT DISTINCT productionPart.PartNo, Description FROM productionPart ";
+	$query .= "LEFT JOIN partLookup ON partLookup.PartNo = productionPart.PartNo ";
 	
 	if(isset($_GET["ManufacturerPartId"]))
 	{

@@ -28,7 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, partAttribute.Type, partAttribute.Scale, unitsOfMeasure.Name AS UnitName, unitsOfMeasure.Unit, unitsOfMeasure.Symbol ";
 	$query .= "FROM partAttribute ";
-	$query .= "LEFT JOIN unitsOfMeasure On unitsOfMeasure.Id = partAttribute.ParentId";
+	$query .= "LEFT JOIN unitsOfMeasure On unitsOfMeasure.Id = partAttribute.UnitId";
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))
@@ -104,6 +104,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				}
 				
 				$dataSet['Name'] = $attributeName;
+				$dataSet['AttributeId'] = $key;
 				$dataSet['Value']= $value;
 				$dataSet['Unit']= $attributes[$key]['Unit'];
 				$dataSet['Symbol']= $attributes[$key]['Symbol'];
@@ -119,6 +120,36 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	dbClose($dbLink);	
 	sendResponse($rows);
+}
+else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+{
+	$data = json_decode(file_get_contents('php://input'),true);
+	
+	if(!isset($data['data']['PartId'])) sendResponse(NULL, "No Part Id specified");
+	if(!is_numeric($data['data']['PartId'])) sendResponse(NULL, "Part Id is not numeric");
+	$partId = intval($data['data']['PartId']);
+	
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$partData = array();
+	
+	foreach($data['data']['PartData'] as $attributeData)
+	{
+		$attributeId = dbEscapeString($dbLink, $attributeData['AttributeId']);
+		$value = dbEscapeString($dbLink, $attributeData['Value']);
+		
+		$partData[$attributeId] = $value;
+	}
+	
+	$query = "UPDATE manufacturerPart SET PartData = '".json_encode($partData)."' WHERE  Id = ".$partId;
+	
+	//dbRunQuery($dbLink,$query);
+	echo $query;
+	
+	
+	dbClose($dbLink);	
+	sendResponse();
 }
 
 ?>
