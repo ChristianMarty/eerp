@@ -16,6 +16,12 @@ const partsRouter = {
       meta: { title: 'Production Part Browser', icon: 'list' }
     },
     {
+      path: 'prodPartNotification',
+      component: () => import('@/views/parts/prodPartNotification'),
+      name: 'prodPartNotification',
+      meta: { title: 'Stock Notification', icon: 'list' }
+    },
+    {
       path: 'bomView',
       component: () => import('@/views/parts/bomView'),
       name: 'bomView',

@@ -21,10 +21,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$partNo = dbEscapeString($dbLink, $_GET["PartNo"]);
 
-	$query = "SELECT manufacturerPart.Id AS PartId, partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart "; 
+	$query = "SELECT manufacturerPart.Id AS PartId, partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, productionPart_stockNotification.StockMinimum, productionPart_stockNotification.StockMaximum, productionPart_stockNotification.StockWarning, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart "; 
 	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Id = manufacturerPart.ManufacturerId ";
 	$query .= "LEFT JOIN partStock ON partStock.ManufacturerPartId = manufacturerPart.Id ";
 	$query .= "LEFT JOIN productionPart ON productionPart.ManufacturerPartId = manufacturerPart.Id ";
+	$query .= "LEFT JOIN productionPart_stockNotification ON productionPart_stockNotification.PartNo = productionPart.PartNo ";
 	$query .= "WHERE productionPart.PartNo = '".$partNo."'";
 	
 
@@ -38,6 +39,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$rows['StockMinimum'] = $r['StockMinimum'];
+		$rows['StockMaximum'] = $r['StockMaximum'];
+		$rows['StockWarning'] = $r['StockWarning'];
+	
 		if(!array_key_exists($r['PartId'],$rows['Stock']))
 		{
 			$Part = array();
@@ -45,6 +50,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$Part['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
 			$Part['LifecycleStatus'] = $r['LifecycleStatus'];
 			$Part['PartId'] = $r['PartId'];
+			
 		
 			$rows['Stock'][$r['PartId']] = $Part;
 			$rows['Stock'][$r['PartId']]['Stock'] = array();
@@ -73,6 +79,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$rows['TotalStockQuantity'] = $totalStockQuantity;
 	
+	
 	dbClose($dbLink);
 	
 	
@@ -95,7 +102,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($rows['ManufacturerPart'], $r);
 	}
 	
-dbClose($dbLink);
+	dbClose($dbLink);
 
 	sendResponse($rows);
 }

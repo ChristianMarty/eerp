@@ -66,6 +66,12 @@
     </el-table>
 
     <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
+
+    <h3>Stock Notification</h3>
+    <p><b>Stock Minimum:</b> {{ partData.StockMinimum }}</p>
+    <p><b>Stock Warning:</b> {{ partData.StockWarning }}</p>
+    <p><b>Stock Maximum:</b> {{ partData.StockMaximum }}</p>
+
   </div>
 </template>
 
