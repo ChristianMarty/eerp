@@ -89,6 +89,7 @@
             v-model="dialogDateReceived"
             type="date"
             placeholder="Pick a day"
+            value-format="yyyy-MM-dd"
           />
         </el-form-item>
       </el-form>
@@ -116,7 +117,7 @@ export default {
       showDialog: false,
       receiveDialog: false,
       dialogQuantityReceived: null,
-      dialogDateReceived: Date()
+      dialogDateReceived: null
     }
   },
   created() {
@@ -163,12 +164,9 @@ export default {
       })
     },
     receiveItem(received) {
-      let ReceivedDate = new Date(this.dialogDateReceived)
-      ReceivedDate = ReceivedDate.toISOString().split('T')[0]
-
       const receivedOrderData = {
         ReceivedQuantity: this.dialogQuantityReceived,
-        ReceivedDate: ReceivedDate,
+        ReceivedDate: this.dialogDateReceived,
         LineId: received.OrderLineId,
         LineNo: received.LineNo,
         PurchasOrderId: received.PurchasOrderId

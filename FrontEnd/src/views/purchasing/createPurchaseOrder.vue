@@ -30,11 +30,12 @@
           v-model="formData.PurchaseDate"
           type="date"
           placeholder="Pick a day"
+          value-format="yyyy-MM-dd"
         />
       </el-form-item>
 
-      <el-form-item label="Titel:">
-        <el-input v-model="formData.Titel" />
+      <el-form-item label="Title:">
+        <el-input v-model="formData.Title" />
       </el-form-item>
 
       <el-form-item label="Description:">
@@ -50,11 +51,10 @@
 
 <script>
 import requestBN from '@/utils/requestBN'
-import Cookies from 'js-cookie'
 
 const emptyData = {
-  Supplier: '',
-  Titel: '',
+  SupplierName: '',
+  Title: '',
   PurchaseDate: null,
   Description: ''
 }
@@ -70,33 +70,14 @@ export default {
   },
   mounted() {
     this.getSuppliers()
-    // this.getLocations();
-    //  this.getManufacturers();
-    // this.resetForm();
   },
   methods: {
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
     getSuppliers() {
       requestBN({
         url: '/supplier',
         methood: 'get'
       }).then(response => {
         this.suppliers = response.data
-      })
-    },
-    getManufacturers() {
-      requestBN({
-        url: '/part/manufacturer',
-        methood: 'get'
-      }).then(response => {
-        this.manufacturer = response.data
       })
     },
     isValid() {
@@ -118,10 +99,6 @@ export default {
           type: 'error'
         })
       } else {
-        this.formData.PurchaseDate = new Date(this.formData.PurchaseDate)
-        this.formData.PurchaseDate = this.formData.PurchaseDate.toISOString().split(
-          'T'
-        )[0]
         requestBN({
           method: 'post',
           url: '/purchasOrder',

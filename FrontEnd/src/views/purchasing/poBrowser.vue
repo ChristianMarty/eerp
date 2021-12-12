@@ -10,7 +10,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="Titel" label="Titel" sortable />
+        <el-table-column prop="Title" label="Title" sortable />
 
         <el-table-column
           prop="SupplierName"

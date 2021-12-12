@@ -13,11 +13,11 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
+
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Titel, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,suppliers.Name AS SupplierName  FROM purchasOrder ";
+	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName  FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))
@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
 		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
 	}
-
+	
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	$PoId = 0;
@@ -42,8 +42,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['Lines'] = Array();
 	$query = "SELECT *, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
 	$query .= "FROM purchasOrder_itemOrder LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id WHERE PurchasOrderId = ".$PoId;
+	$query .= " ORDER BY LineNo";
+	
 	$result = dbRunQuery($dbLink,$query);
 	
+
 	$lines = array();
 
 	while($r = mysqli_fetch_assoc($result)) 

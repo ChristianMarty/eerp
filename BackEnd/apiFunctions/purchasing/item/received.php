@@ -8,7 +8,7 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')

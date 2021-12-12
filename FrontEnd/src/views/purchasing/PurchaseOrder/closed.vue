@@ -4,21 +4,22 @@
       ref="itemTable"
       :data="lines"
       border
+      show-summary
       style="width: 100%"
       row-key="lineKey"
       :cell-style="{ padding: '0', height: '30px' }"
       :tree-props="{ children: 'Received' }"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="LineNo" label="Line" width="80" sortable />
       <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="120" />
       <el-table-column
         prop="QuantityReceived"
         label="Received Qty"
         width="120"
       />
-      <el-table-column prop="ReceivalDate" label="Receival Date" width="120" />
+      <el-table-column prop="ReceivalDate" label="Receival Date" width="150" sortable />
 
-      <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" />
+      <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" sortable />
 
       <el-table-column label="Item">
         <template slot-scope="{ row }">
@@ -32,6 +33,7 @@
           </template>
         </template>
       </el-table-column>
+      <el-table-column prop="Price" label="Price" width="120" sortable />
     </el-table>
   </div>
 </template>

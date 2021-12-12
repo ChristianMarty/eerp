@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ orderData.Titel }}, PO-{{ orderData.PoNo }}</h1>
+    <h1>{{ orderData.Title }}, PO-{{ orderData.PoNo }}</h1>
     <el-steps :active="orderStatus" finish-status="success" align-center>
       <el-step title="Editing" />
       <el-step title="Placed" />
@@ -139,8 +139,15 @@ export default {
       dialogData: { type: Object, default: this.orderData }
     }
   },
+  created() {
+    // Why need to make a copy of this.$route here?
+    // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
+    // https://github.com/PanJiaChen/vue-element-admin/issues/1221
+    this.tempRoute = Object.assign({}, this.$route)
+  },
   mounted() {
     this.getOrder()
+    this.setTagsViewTitle()
   },
   methods: {
     edit() {
@@ -218,8 +225,14 @@ export default {
         if (this.orderData.Status === 'Editing') this.orderStatus = 0
         else if (this.orderData.Status === 'Placed') this.orderStatus = 1
         else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
-        else if (this.orderData.Status === 'Closed') this.orderStatus = 3
+        else if (this.orderData.Status === 'Closed') this.orderStatus = 4
       })
+    },
+    setTagsViewTitle() {
+      const route = Object.assign({}, this.tempRoute, {
+        title: 'PO-' + `${this.$route.params.PoNo}`
+      })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
     }
   }
 }

@@ -15,8 +15,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Titel, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,suppliers.Name AS SupplierName, purchasOrder.AcknowledgementNumber FROM purchasOrder ";
-	$query .= "LEFT JOIN suppliers ON suppliers.Id = purchasOrder.SupplierId ";
+	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, purchasOrder.AcknowledgementNumber FROM purchasOrder ";
+	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))
 	{
@@ -29,25 +29,74 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		if($r['Title'] == null) $r['Title'] = $r['SupplierName']." - ".$r['PurchaseDate'];
+		
 		array_push($output, $r);
 	}
 
 	dbClose($dbLink);	
 	sendResponse($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST' or $_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$data = json_decode(file_get_contents('php://input'),true);
+	
+	$supplierName = dbEscapeString($dbLink,$data['data']['SupplierName']);
+	
+	$poCreate = array();
+	$poCreate['SupplierId']['raw'] = "(SELECT Id FROM supplier WHERE supplier.Name = '".$supplierName."' )";
+	$poCreate['PurchaseDate'] = $data['data']['PurchaseDate'];
+	
+	if($data['data']['Title'] != "") $poCreate['Title'] = $data['data']['Title'];
+	if($data['data']['Description'] != "") $poCreate['Description'] = $data['data']['Description'];
+	
+	$poCreate['PoNo']['raw'] = "purchasOrder_generatePoNo()";
+	
+	$query = dbBuildInsertQuery($dbLink, "purchasOrder", $poCreate);
+	
+	$query .= "SELECT PoNo FROM purchasOrder WHERE Id =LAST_INSERT_ID();";
+	
+	$output = array();
+	$error = null;
+	
+	if(mysqli_multi_query($dbLink,$query))
+	{
+		do {
+			if ($result = mysqli_store_result($dbLink)) {
+				while ($row = mysqli_fetch_row($result)) {
+					$output["PurchaseOrderNo"] = $row[0];
+				}
+				mysqli_free_result($result);
+			}
+			if(!mysqli_more_results($dbLink)) break;
+		} while (mysqli_next_result($dbLink));
+	}
+	else
+	{
+		$error = "Error description: " . mysqli_error($dbLink);
+	}
+	
+
+	dbClose($dbLink);	
+	sendResponse($output,$error);
+	
+}
+else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$poNo = dbEscapeString($dbLink, $data['data']['PoNo']);
+	if(isset($data['data']['PoNo']))$poNo = dbEscapeString($dbLink, $data['data']['PoNo']);
 	$supplier = dbEscapeString($dbLink,$data['data']['SupplierName']);
 	
 	$poData = array();
-	$poData['SupplierId']['raw'] = "(SELECT Id FROM suppliers WHERE suppliers.Name = '".$supplier."' )";
-	$poData['Titel'] = $data['data']['Titel'];
+	$poData['SupplierId']['raw'] = "(SELECT Id FROM supplier WHERE supplier.Name = '".$supplier."' )";
+	$poData['Title'] = $data['data']['Title'];
 	$poData['PurchaseDate'] = $data['data']['PurchaseDate'];
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
 	$poData['Description'] = $data['data']['Description'];
