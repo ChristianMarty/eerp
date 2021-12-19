@@ -293,7 +293,7 @@ export default {
     },
     getSupplierPart() {
       requestBN({
-        url: '/part/supplierPart',
+        url: '/supplier/supplierPart',
         methood: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {

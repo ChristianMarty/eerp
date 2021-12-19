@@ -8,6 +8,7 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import purchasingRouter from './modules/purchasing'
+import supplierRouter from './modules/supplier'
 import prodPartsRouter from './modules/productionPart'
 import mfrPartsRouter from './modules/manufacturerPart'
 import inventoryRouter from './modules/inventory'
@@ -126,6 +127,7 @@ export const constantRoutes = [
 
 export const asyncRoutes = [
   purchasingRouter,
+  supplierRouter,
   projectRouter,
   workOrderRouter,
   prodPartsRouter,

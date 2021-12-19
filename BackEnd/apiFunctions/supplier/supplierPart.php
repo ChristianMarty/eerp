@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : supplierPart.php
-// FilePath : apiFunctions/part/
+// FilePath : apiFunctions/supplier/
 // Author   : Christian Marty
 // Date		: 01.08.2020
 // License  : MIT
@@ -18,14 +18,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	if(isset($_GET["ManufacturerPartId"])) $manufacturerPartId =  dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-	else sendResponse(null, "ManufacturerPartId unspecified");
+	if(isset($_GET["SupplierId"])) $supplierId =  dbEscapeString($dbLink, $_GET["SupplierId"]);
+	
 	
 	$supplierData = array();
 	
 	$query = "SELECT * FROM supplierPart";
 	$query.=" LEFT JOIN supplier On supplier.Id = supplierPart.SupplierId ";
-	$query.=" WHERE supplierPart.ManufacturerPartId = ".$manufacturerPartId."";
 	
+	$parameters = array();
+	if(isset($manufacturerPartId)) array_push($parameters, 'supplierPart.ManufacturerPartId = '. $manufacturerPartId);
+	if(isset($supplierId)) array_push($parameters, 'supplierPart.SupplierId = '.$supplierId);
+	
+	$query = dbBuildQuery($dbLink, $query, $parameters);
 	
 	$supplierParts = dbRunQuery($dbLink,$query);
 	

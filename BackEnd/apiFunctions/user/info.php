@@ -18,7 +18,7 @@ $returnData = array();
 if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
-	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process","document.create","manufacturerPart.create","manufacturerPart.edit");
+	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process.run","document.create","manufacturerPart.create","manufacturerPart.edit","supplier.view");
 	$returnData['introduction'] = "I am Dev Mode";
 	$returnData['avatar'] ="";
 	$returnData['name'] = "DevMode";
