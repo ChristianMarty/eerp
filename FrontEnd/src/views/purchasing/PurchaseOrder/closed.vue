@@ -5,17 +5,19 @@
       :data="lines"
       border
       show-summary
+      :summary-method="calcSum"
       style="width: 100%"
       row-key="lineKey"
       :cell-style="{ padding: '0', height: '30px' }"
       :tree-props="{ children: 'Received' }"
     >
       <el-table-column prop="LineNo" label="Line" width="80" sortable />
-      <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="120" />
+      <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="140" sortable />
       <el-table-column
         prop="QuantityReceived"
         label="Received Qty"
-        width="120"
+        width="140"
+        sortable
       />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="150" sortable />
 
@@ -34,6 +36,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="Price" label="Price" width="120" sortable />
+      <el-table-column prop="Total" label="Total" width="120" sortable />
     </el-table>
   </div>
 </template>
@@ -65,9 +68,21 @@ export default {
         this.prepairLines(this.lines)
       })
     },
+    calcSum(param) {
+      let total = 0
+      this.lines.forEach(element => {
+        total += element.Total
+      })
+
+      const totalLine = []
+      totalLine[0] = 'Total'
+      totalLine[7] = Math.round(total * 100000) / 100000
+      return totalLine
+    },
     prepairLines(data) {
       data.forEach(line => {
         line.lineKey = line.LineNo
+        line.Total = Math.round(line.QuantityOrderd * line.Price * 100000) / 100000
 
         if ('Received' in line) {
           if (line.Received.length == 1) {

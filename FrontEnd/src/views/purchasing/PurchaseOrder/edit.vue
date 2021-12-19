@@ -161,6 +161,7 @@ export default {
         data: { data: { Lines: this.lines, PoNo: this.$props.orderData.PoNo }}
       }).then(response => {
         if (response.error == null) {
+          this.getOrderLines()
           this.$message({
             showClose: true,
             message: 'Changes saved successfully',
@@ -207,12 +208,12 @@ export default {
       let total = 0
       this.lines.forEach(element => {
         const line = element.QuantityOrderd * element.Price
-        total += Math.round(line * 100000) / 100000
+        total += line
       })
 
       const totalLine = []
       totalLine[0] = 'Total'
-      totalLine[5] = total
+      totalLine[5] = Math.round(total * 100000) / 100000
       return totalLine
     },
     getOrder() {
