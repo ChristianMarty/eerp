@@ -3,7 +3,7 @@
 // FileName : notification.php
 // FilePath : apiFunctions/productionPart
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 01.12.2021
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************

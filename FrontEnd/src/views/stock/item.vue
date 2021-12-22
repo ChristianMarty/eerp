@@ -65,22 +65,26 @@
       <p><b>Location Path: </b>{{ partData.LocationPath }}</p>
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
-      <el-divider />
-      <h4>Stock Movement</h4>
+      <el-divider  v-permission="['stock.add','stock.remove','stock.count']"/>
+      <h4 v-permission="['stock.add','stock.remove','stock.count']">Stock Movement</h4>
 
       <el-button
+        v-permission="['stock.add']"
         style="margin-right: 20px"
         icon="el-icon-plus"
         @click="addStockDialogVisible = true"
       >Add</el-button>
 
       <el-button
+        v-permission="['stock.remove']"
         style="margin-right: 20px"
         icon="el-icon-minus"
         @click="removeStockDialogVisible = true"
+ 
       >Remove</el-button>
 
       <el-button
+        v-permission="['stock.count']"
         style="margin-right: 20px"
         icon="el-icon-finished"
         @click="countStockDialogVisible = true"
@@ -139,6 +143,8 @@
 </template>
 
 <script>
+import permission from '@/directive/permission/index.js'
+
 import requestBN from '@/utils/requestBN'
 import * as print from '@/utils/printLabel'
 import printDialog from './components/printDialog'
@@ -158,7 +164,8 @@ const returnData = {
 
 export default {
   name: 'LocationAssignment',
-  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog },
+  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog  },
+  directives: { permission },
   data() {
     return {
       inputStockId: null,

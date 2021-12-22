@@ -7,7 +7,7 @@ const processRouter = {
   meta: {
     title: 'process',
     icon: 'component',
-    roles: ['process']
+    roles: ['process.run']
   },
   children: [
     {

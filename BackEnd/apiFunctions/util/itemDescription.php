@@ -61,7 +61,7 @@ function generateSummary($locationNr)
 	}
 	else if($itemPrefix == "inv")  
 	{
-		$query  = "SELECT Titel, Manufacturer, Type, LocationId FROM inventory ";
+		$query  = "SELECT Title, Manufacturer, Type, LocationId FROM inventory ";
 		$query .= "WHERE InvNo = '".$itemNr."'";
 		
 		$result = dbRunQuery($dbLink,$query);
@@ -74,7 +74,7 @@ function generateSummary($locationNr)
 		
 		$itemData = mysqli_fetch_assoc($result);
 		
-		$descriptor = $itemData["Titel"];
+		$descriptor = $itemData["Title"];
 		$descriptor .= " - ".$itemData["Manufacturer"]." ".$itemData["Type"];
 		
 		$locationId = $itemData["LocationId"];

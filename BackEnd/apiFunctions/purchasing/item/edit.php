@@ -147,7 +147,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['PurchasOrderId']['raw'] = "(SELECT Id FROM purchasOrder WHERE PoNo = '".$poNo."' )";
 			$query = dbBuildInsertQuery($dbLink,"purchasOrder_itemOrder", $sqlData);
 		}
-		
+
 		dbRunQuery($dbLink,$query);
 		dbClose($dbLink);	
 	}

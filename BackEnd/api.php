@@ -3,8 +3,7 @@
 // FileName : api.php
 // FilePath : /
 // Author   : Christian Marty
-// Date		: 01.08.2020
-// License  : MIT
+// Date		: 01.08.2021
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
@@ -20,12 +19,18 @@ if($showPhpError)
 }
 
 header("Content-Type:application/json; charset=UTF-8");
+
+
+// TODO: Fix for prod version
+
 header("Access-Control-Allow-Methods: POST, PATCH, GET, OPTIONS"); 
+
 
 if($devMode)
 {
 	header("Access-Control-Allow-Origin: *");      
 	header("Access-Control-Allow-Headers: *");
+	//header("Access-Control-Allow-Headers:{$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'OPTIONS')

@@ -30,6 +30,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$query  = "SELECT * FROM partStock_view WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
 	
+
+	
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
@@ -45,14 +47,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($response, $data);
 	}
 	
-	$query  = "SELECT InvNo, Titel, Manufacturer, Type, LocationId FROM inventory ";
+	$query  = "SELECT InvNo, Title, Manufacturer, Type, LocationId FROM inventory ";
 	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
 	
+	
+
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
 	{
-		$descriptor = $itemData["Titel"];
+		$descriptor = $itemData["Title"];
 		$descriptor .= " - ".$itemData["Manufacturer"]." ".$itemData["Type"];
 		
 		$data = array();

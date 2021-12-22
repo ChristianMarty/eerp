@@ -18,12 +18,27 @@ $returnData = array();
 if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
-	$returnData['roles'] = array("inventory.print","inventory.create","purchasing.create","process.run","document.create","manufacturerPart.create","manufacturerPart.edit","supplier.view");
+	$json =  '{"inventory": { "print": true,"create": true},"purchasing":{"create": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true},"stock":{"create": true, "add": true, "remove":true, "count":true}}';
+	
+	$roles = json_decode($json);
+	
+	$roles_array = array();
+	foreach($roles as $key => $category)
+	{
+		$categoryName = $key;
+		foreach($category as $key => $role)
+		{
+			$roleStr = $categoryName.".".$key;
+			if($role == true) array_push($roles_array, $roleStr);
+		}
+	}
+	
+	$returnData['roles'] = $roles_array;
 	$returnData['introduction'] = "I am Dev Mode";
 	$returnData['avatar'] ="";
 	$returnData['name'] = "DevMode";
 	
-	$returnData['rolesJson'] = json_decode( '{  "inventory": { "print": true,"create": true},"purchasing":{"create": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true}}');
+	$returnData['rolesJson'] = $roles;
 
 	sendResponse($returnData);
 }

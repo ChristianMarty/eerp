@@ -3,8 +3,7 @@
 // FileName : document.php
 // FilePath : /
 // Author   : Christian Marty
-// Date		: 01.08.2020
-// License  : MIT
+// Date		: 01.08.2021
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 

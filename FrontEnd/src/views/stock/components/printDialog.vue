@@ -1,7 +1,7 @@
 <template>
   <div class="print-dialog">
 
-    <el-dialog title="Print" :visible.sync="visible">
+    <el-dialog title="Print" :visible.sync="visible" :before-close="closeDialog">
       <el-form label-width="150px">
         <el-form-item label="Manufacturer:">
           <el-input

@@ -35,11 +35,12 @@
 
     <p>
       <el-table :data="itemList" border style="width: 100%">
-        <el-table-column prop="Item" label="Item Nr." width="120" />
-        <el-table-column prop="Category" label="Category" width="120" />
+        <el-table-column prop="Item" label="Item Nr." width="120" sortable/>
+        <el-table-column prop="Category" label="Category" width="120" sortable/>
         <el-table-column
           prop="Description"
           label="Description"
+          sortable
         />
       </el-table>
     </p>
@@ -62,6 +63,8 @@ export default {
     }
   },
   mounted() {
+    this.getLocations()
+
     if (this.$route.params.LocationNr != null) {
       if (this.$route.params.LocationNr != ':LocationNr(.*)') {
         this.inputLocNr = this.$route.params.LocationNr
@@ -69,7 +72,7 @@ export default {
       }
     }
 
-    this.getLocations()
+    
   },
   methods: {
     resetForm() {
