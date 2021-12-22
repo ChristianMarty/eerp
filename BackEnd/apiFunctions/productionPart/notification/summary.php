@@ -1,15 +1,15 @@
 <?php
 //*************************************************************************************************
-// FileName : notification.php
-// FilePath : apiFunctions/productionPart
+// FileName : summary.php
+// FilePath : apiFunctions/productionPart/notification
 // Author   : Christian Marty
 // Date		: 01.12.2021
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../databaseConnector.php";
+require_once __DIR__ . "/../../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -21,35 +21,38 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN productionPart_stockNotification ON productionPart_stockNotification.PartNo = productionPart.PartNo ";
 	$query .= "WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null";
 	
+	//echo $query;
+	//exit;
+	
 	$result = mysqli_query($dbLink,$query);
 	
-	$rows = array();
-
+	
+	
+	$warningNotifications = 0;
+	$minimumNotifications = 0;
+	$maximumNotifications = 0;
+	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		
-		
 		$quantity = intval($r['StockQuantity']);
 		$minimum = intval($r['StockMinimum']);
 		$maximum = intval($r['StockMaximum']);
 		$warning = intval($r['StockWarning']);
 		
-		$status = null;
-		if( $quantity < $minimum and $minimum != Null) $status = "Minimum";
-		else if( $quantity < $warning and $warning != Null) $status = "Warning";
-		else if( $quantity > $maximum  and $maximum != Null ) $status = "Maximum";
-		
-		
-		$r["Status"] = $status;
-		
-		if($status != null) array_push($rows, $r);
-		
-
+		if( $quantity < $minimum and $minimum != Null) $minimumNotifications ++;
+		else if( $quantity < $warning and $warning != Null) $warningNotifications ++;
+		else if( $quantity > $maximum  and $maximum != Null ) $maximumNotifications ++;	
 	}
 
 	dbClose($dbLink);
-
-	sendResponse($rows);
+	
+	$output = array();
+	
+	$output['Warning'] = $warningNotifications;
+	$output['Minimum'] = $minimumNotifications;
+	$output['Maximum'] = $maximumNotifications;
+	
+	sendResponse($output);
 }
 
 ?>
