@@ -29,11 +29,11 @@
       </el-form-item>
       <el-form-item label="Category:">
         <el-cascader-panel
-          v-model="postForm.InventoryCategory"
+          v-model="postForm.InventoryCategoryId"
           :options="inventoryCategories"
           :props="{
             emitPath: false,
-            value: 'Name',
+            value: 'Id',
             label: 'Name',
             children: 'Children',
             checkStrictly: true
@@ -57,23 +57,23 @@
       </el-form-item>
       <el-row>
         <el-form-item label="Supplier:">
-          <el-select v-model="postForm.Supplier" filterable>
+          <el-select v-model="postForm.SupplierId" filterable>
             <el-option
               v-for="item in suppliers"
               :key="item.Name"
               :label="item.Name"
-              :value="item.Name"
+              :value="item.Id"
             />
           </el-select>
         </el-form-item>
       </el-row>
       <el-form-item label="Location:">
         <el-cascader-panel
-          v-model="postForm.Location"
+          v-model="postForm.LocationId"
           :options="locations"
           :props="{
             emitPath: false,
-            value: 'Name',
+            value: 'Id',
             label: 'Name',
             children: 'Children',
             checkStrictly: true
@@ -95,9 +95,9 @@ const defaultForm = {
   Manufacturer: '',
   Type: '',
   SerialNumber: '',
-  Supplier: '',
-  Location: '',
-  InventoryCategory: '',
+  SupplierId: '',
+  LocationId: '',
+  InventoryCategoryId: '',
   PurchaseDate: '',
   PurchasePrice: '',
   Description: '',
@@ -132,9 +132,9 @@ export default {
         this.postForm.Title = response.data.Title
         this.postForm.Manufacturer = response.data.Manufacturer
         this.postForm.Type = response.data.Type
-        this.postForm.Supplier = response.data.SupplierName
-        this.postForm.Location = response.data.LocationName
-        this.postForm.InventoryCategory = response.data.CategorieName
+        this.postForm.SupplierId = response.data.SupplierName
+        this.postForm.LocationId = response.data.LocationName
+        this.postForm.InventoryCategoryId = response.data.CategorieName
         this.postForm.PurchaseDate = response.data.PurchaseDate
         this.postForm.PurchasePrice = response.data.PurchasePrice
         this.postForm.Description = response.data.Description

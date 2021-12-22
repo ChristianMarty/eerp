@@ -45,6 +45,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($queryParam, "partManufacturer.Name = '".$temp."'");
 	}
 	
+	if(isset($_GET["ManufacturerId"]))
+	{
+		$temp = dbEscapeString($dbLink, $_GET["ManufacturerId"]);
+		array_push($queryParam, "partManufacturer.Id = '".$temp."'");
+	}
+	
 	if(isset($_GET["ManufacturerPartNumber"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumber"]);

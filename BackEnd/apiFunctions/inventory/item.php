@@ -130,15 +130,15 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$baseQuery = "INSERT INTO `inventory`";
 	
+	$locationId = dbEscapeString($dbLink,$data['data']['LocationId']);
+	unset($data['data']['LocationId']);
+
+	$inventoryCategoryId = dbEscapeString($dbLink,$data['data']['InventoryCategoryId']);
+	unset($data['data']['InventoryCategoryId']);
 	
-	$location = dbEscapeString($dbLink,$data['data']['Location']);
-	unset($data['data']['Location']);
 	
-	$inventoryCategory = dbEscapeString($dbLink,$data['data']['InventoryCategory']);
-	unset($data['data']['InventoryCategory']);
-	
-	$supplier = dbEscapeString($dbLink,$data['data']['Supplier']);
-	unset($data['data']['Supplier']);
+	$supplierId = dbEscapeString($dbLink,$data['data']['SupplierId']);
+	unset($data['data']['SupplierId']);
 	
 	$date = date_create($data['data']['PurchaseDate']);
 	$data['data']['PurchaseDate'] = date_format($date, 'Y-m-d');
@@ -152,14 +152,15 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$values  .= "'".dbEscapeString($dbLink, $value )."',";
 	}
 	
+
 	$columns .= "`LocationId`,";
-	$values .= "(SELECT `Id` FROM `location` WHERE `Name`= '".$location."'),";
+	$values .= "'".$locationId."',";
 	
 	$columns .= "`InventoryCategoryId`,";
-	$values .= "(SELECT `Id` FROM `inventory_categorie` WHERE `Name`= '".$inventoryCategory."'),";
+	$values .= "'".$inventoryCategoryId."',";
 	
 	$columns .= "`SupplierId`";
-	$values .= "(SELECT `Id` FROM `supplier` WHERE `Name`= '".$supplier."')";
+	$values .= "'".$supplierId."'";
 	
 	$query =  $baseQuery." (".$columns.") VALUES (".$values.");"; 
 

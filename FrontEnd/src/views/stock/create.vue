@@ -12,16 +12,16 @@
     >
       <el-form-item label="Manufacturer:" prop="ManufacturerName">
         <el-select
-          v-model="formData.ManufacturerName"
+          v-model="formData.ManufacturerId"
           filterable
           placeholder="Select"
-          @change="getParts(formData.ManufacturerName)"
+          @change="getParts(formData.ManufacturerId)"
         >
           <el-option
             v-for="item in manufacturer"
-            :key="item.Name"
+            :key="item.Id"
             :label="item.Name"
-            :value="item.Name"
+            :value="item.Id"
           />
         </el-select>
       </el-form-item>
@@ -38,15 +38,15 @@
 
       <el-form-item label="Supplier:" prop="Supplier">
         <el-select
-          v-model="formData.Supplier"
+          v-model="formData.SupplierId"
           filterable
           placeholder="Select"
         >
           <el-option
             v-for="item in suppliers"
-            :key="item.Name"
+            :key="item.Id"
             :label="item.Name"
-            :value="item.Name"
+            :value="item.Id"
           />
         </el-select>
       </el-form-item>
@@ -139,9 +139,9 @@ import * as print from '@/utils/printLabel'
 import printDialog from './components/printDialog'
 
 const emptyData = {
-  ManufacturerName: '',
+  ManufacturerId: '',
   ManufacturerPartNumber: '',
-  Supplier: '',
+  SupplierId: '',
   SupplierPartNumber: '',
   OrderReference: '',
   Date: '',
@@ -269,19 +269,19 @@ export default {
         )
       )
     },
-    getParts(ManufacturerName) {
+    getParts(ManufacturerId) {
       requestBN({
         url: '/part',
         methood: 'get',
-        params: { ManufacturerName: ManufacturerName }
+        params: { ManufacturerId: ManufacturerId }
       }).then(response => {
         this.partOptions = response.data
       })
     },
     resetForm() {
-      this.formData.ManufacturerName = ''
+      this.formData.ManufacturerId = ''
       this.formData.ManufacturerPartNumber = ''
-      this.formData.SupplierName = ''
+      this.formData.SupplierId = ''
       this.formData.SupplierPartNumber = ''
       this.formData.OrderReference = ''
       this.formData.Date = ''

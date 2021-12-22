@@ -145,9 +145,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$manufacturer = dbEscapeString($dbLink,$data['data']['ManufacturerName']);
+	$manufacturerId = dbEscapeString($dbLink,$data['data']['ManufacturerId']);
 	$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
-	$supplier = dbEscapeString($dbLink,$data['data']['Supplier']);
+	$supplierId = dbEscapeString($dbLink,$data['data']['SupplierId']);
 	$supplierPartNumber = dbEscapeString($dbLink,$data['data']['SupplierPartNumber']);
 	$orderReference = dbEscapeString($dbLink,$data['data']['OrderReference']);
 	$date = dbEscapeString($dbLink,$data['data']['Date']); 
@@ -157,16 +157,16 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$location = str_replace("Loc-","",$location);
 
 	$query  = "SELECT partStock_create(";
-	$query .= "(SELECT `Id` FROM `partManufacturer` WHERE `Name`= '".$manufacturer."'),";
+	$query .= "'".$manufacturerId."',";
 	$query .= "'".$manufacturerPartNumber."',";
 	$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
 	$query .= $quantity.",";
 	$query .= "'".$date."', ";
-	$query .= "'".$orderReference."', ";
-	$query .= "(SELECT `Id` FROM `supplier` WHERE `Name`= ".dbStringNull($supplier)."), ";
+	$query .= dbStringNull($orderReference).", ";
+	$query .= dbStringNull($supplierId).", ";
 	$query .= dbStringNull($supplierPartNumber)." ";
 	$query .= ") AS StockNo; ";
-	
+
 	$result = dbRunQuery($dbLink,$query);
 
 	$stockNo = dbGetResult($result)['StockNo'];
