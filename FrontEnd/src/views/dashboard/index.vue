@@ -1,18 +1,58 @@
 <template>
   <div class="dashboard-container">
-    <el-card class="box-card">
+    <el-card class="small-box">
       <h3 style="text-align:center">Week Number</h3>
       <p style="text-align:center">
         {{ weeknumber }}
       </p>
     </el-card>
 
-    <el-card class="box-card">
+    <el-card class="small-box">
       <h3 style="text-align:center">Stock Notifications</h3>
       <p style="text-align:center">{{ StockNotification.Minimum }} / {{ StockNotification.Warning }} </p>
 
     </el-card>
 
+    <el-card class="small-box">
+      <h3 style="text-align:center">Part Pick List</h3>
+      <p style="text-align:center"> 0 </p>
+
+    </el-card>
+
+    <el-card class="mid-box">
+      <h3 style="text-align:center">Pending Orders</h3>
+      <template>
+        <el-table :data="awitingShippments" style="width: 100%">
+          <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
+                <span>PO-{{ row.PoNo }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="SupplierName"
+            label="SupplierName"
+            sortable
+          />
+          <el-table-column
+            prop="AcknowledgementNumber"
+            label="Ack Number"
+            sortable
+            width="160"
+          />
+
+          <el-table-column
+            prop="PurchaseDate"
+            label="Purchase Date"
+            width="160"
+            sortable
+          />
+
+        </el-table>
+      </template>
+    </el-card>
   </div>
 </template>
 
@@ -25,7 +65,8 @@ export default {
   data() {
     return {
       weeknumber: 0,
-      StockNotification: 0
+      StockNotification: 0,
+      awitingShippments: null
     }
   },
   computed: {},
@@ -33,6 +74,7 @@ export default {
   mounted() {
     this.weeknumber = getNumberOfWeek()
     this.getStockNotification()
+    this.getOrderStatus()
   },
   methods: {
     getStockNotification() {
@@ -42,15 +84,29 @@ export default {
       }).then(response => {
         this.StockNotification = response.data
       })
+    },
+    getOrderStatus() {
+      requestBN({
+        url: '/purchasOrder',
+        methood: 'get',
+        params: { Status: 'Confirmed' }
+      }).then(response => {
+        this.awitingShippments = response.data
+      })
     }
   }
 }
 </script>
 
 <style>
-.box-card {
+.small-box {
   float: left;
   width: 220px;
-  margin: 20px;
+  margin: 10px;
+}
+.mid-box {
+  float: left;
+  width: 700px;
+  margin: 10px;
 }
 </style>

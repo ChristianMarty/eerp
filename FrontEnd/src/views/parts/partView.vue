@@ -6,7 +6,7 @@
     </h1>
     <el-divider />
     <div class="components-container">
-      <split-pane split="vertical" @resize="resize">
+      <split-pane split="vertical" :default-percent="90" @resize="resize">
         <template slot="paneL">
           <el-container>
             <el-aside width="100%" style="background-color:white">
@@ -35,6 +35,7 @@
                       <el-table-column prop="Symbol" label="Unit" />
                     </el-table>
                     <el-button
+                      v-permission="['manufacturerPart.edit']"
                       type="primary"
                       icon="el-icon-edit"
                       circle
@@ -69,7 +70,7 @@
                     >
                       <el-table-column prop="Name" label="Name" sortable />
                       <el-table-column
-        
+
                         label="Part Number"
                         sortable
                       >
@@ -95,6 +96,7 @@
                           prop="Name"
                           label="Distributor"
                           width="150"
+                          sortable
                         />
                         <el-table-column prop="SKU" label="SKU">
                           <template slot-scope="{ row }">
@@ -107,16 +109,19 @@
                           prop="Stock"
                           label="Stock"
                           width="80"
+                          sortable
                         />
                         <el-table-column
                           prop="MinimumOrderQuantity"
                           label="MOQ"
                           width="80"
+                          sortable
                         />
                         <el-table-column
                           prop="LeadTime"
                           label="LeadTime"
                           width="120"
+                          sortable
                         />
                       </el-table>
                       <p>
@@ -203,10 +208,12 @@ import SupplierDetail from './components/SupplierDetail'
 import PartDocuments from './components/PartDocuments'
 import attributeEdit from './components/attributeEditDialog'
 import splitPane from 'vue-splitpane'
+import permission from '@/directive/permission/index.js'
 
 export default {
   name: 'PartDetail',
   components: { splitPane, SupplierDetail, PartDocuments, attributeEdit },
+  directives: { permission },
   props: {
     isEdit: {
       type: Boolean,
