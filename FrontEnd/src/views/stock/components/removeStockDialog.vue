@@ -78,7 +78,7 @@ export default {
       requestBN({
         method: 'patch',
         url: '/stock',
-        
+        params: { StockNo: this.item.StockNo },
         data: {
           RemoveQuantity: this.removeQuantity,
           WorkOrderId: this.workOrderId

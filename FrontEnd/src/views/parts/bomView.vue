@@ -41,8 +41,8 @@
       <el-table-column prop="TotalQuantity" label="Total" width="100" />
 
       <el-table-column prop="Value" label="Description from CSV" />
-      <el-table-column prop="Name" label="Manufacturer Part" />
-      <el-table-column prop="Price" label="Price" width="100" />
+      <!-- <el-table-column prop="Name" label="Manufacturer Part" />
+    <el-table-column prop="Price" label="Price" width="100" />-->
       <el-table-column prop="Stock" label="Stock" width="100" />
     </el-table>
   </div>
@@ -63,10 +63,9 @@ export default {
   },
   methods: {
     tableAnalyzer({ row, rowIndex }) {
-      if (row.PartNo.includes('Unknown')) {
+      if (String(row.PartNo).includes('Unknown')) {
         return 'error-row'
-      }
-      if (row.TotalQuantity > row.Stock) {
+      } else if (row.TotalQuantity > row.Stock) {
         return 'warning-row'
       }
       return ''
@@ -79,7 +78,7 @@ export default {
     onSubmit() {
       requestBN({
         method: 'post',
-        url: '/productionPart/bomView',
+        url: '/project/analyze/analyze_Target3001',
         data: { csv: this.csv, BuildQuantity: this.buildQuantity }
       }).then(response => {
         this.bom = response.data.bom
