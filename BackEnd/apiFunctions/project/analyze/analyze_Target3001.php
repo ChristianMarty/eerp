@@ -104,13 +104,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			
 			if(!empty($PartData))
 			{
-				
 				$BoMadd["Stock"] = $TotalQuantity;
 			}
 			else
 			{
 				$BoMadd["PartNo"] = "Unknown ".$PartDataLine["PartNo"];
-
 				$BoMadd["Stock"] = 0;
 			}
 			
@@ -131,7 +129,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$bomLine['Quantity'] = count(explode(",", $PartDataLine["RefDes"]));
 		$bomLine['PartNo'] = $PartDataLine["PartNo"];
 		$bomLine['Value'] = $PartDataLine["Value"];
-		$bomLine['Stock'] = $PartDataLine["Stock"];
+		if(isset($PartDataLine["Stock"])) $bomLine['Stock'] = $PartDataLine["Stock"];
+		else $bomLine['Stock'] = 0;
+		
 		
 		array_push($bom, $bomLine);
 	}

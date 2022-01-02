@@ -23,6 +23,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
 		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
 	}
+	else if(isset($_GET["Status"]))
+	{
+		$status = dbEscapeString($dbLink, $_GET["Status"]);
+		$query.= "WHERE Status = '".$status."'";	
+	}
 	
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
