@@ -1,15 +1,21 @@
 <?php
 //*************************************************************************************************
-// FileName : bomView.php
-// FilePath : apiFunctions/bom
+// FileName : target3001.php
+// FilePath : apiFunctions/project/analyze
 // Author   : Christian Marty
-// Date		: 30.11.2021
+// Date		: 03.01.2022
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
+
+
+$titel = "Target 3001";
+$description = "";
+
+
 
 // TODO: This is not working -> fix  it all
 

@@ -1,6 +1,14 @@
 <template>
   <div class="bom-upload-container">
     <el-input v-model="bomData" type="textarea" placeholder="Insert CSV data" />
+    <el-select v-model="analyzePath">
+      <el-option
+        v-for="item in analyzeOptions"
+        :key="item"
+        :label="item.Titel"
+        :value="item.Path"
+      />
+    </el-select>
     <el-button type="primary" @click="analyse">Analyse</el-button>
 
     <el-table
@@ -35,11 +43,13 @@ export default {
   data() {
     return {
       bom: null,
-      bomData: ''
+      bomData: '',
+      analyzeOptions: null,
+      analyzePath: ''
     }
   },
   mounted() {
-    this.getBomStock()
+    this.getAnalyzeOptions()
   },
   methods: {
     save() {
@@ -51,10 +61,18 @@ export default {
 
       })
     },
+    getAnalyzeOptions() {
+      requestBN({
+        method: 'get',
+        url: '/project/analyze'
+      }).then(response => {
+        this.analyzeOptions = response.data
+      })
+    },
     analyse() {
       requestBN({
         method: 'post',
-        url: '/project/analyze/analyze_Target3001',
+        url: this.analyzePath,
         data: { csv: this.bomData }
       }).then(response => {
         this.bom = response.data.bom

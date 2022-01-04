@@ -1,8 +1,25 @@
 <template>
   <div class="app-container">
-    <el-input v-model="csv" type="textarea" placeholder="Insert CSV data" />
 
-    <el-button type="primary" @click="onSubmit">Analyse</el-button>
+    <el-form>
+      <el-form-item label="CSV:">
+        <el-input v-model="csv" type="textarea" placeholder="Insert CSV data" />
+      </el-form-item>
+      <el-form-item label="Analyze Options:">
+        <el-select v-model="analyzePath">
+          <el-option
+            v-for="item in analyzeOptions"
+            :key="item"
+            :label="item.Titel"
+            :value="item.Path"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit">Analyse</el-button>
+      </el-form-item>
+    </el-form>
 
     <p>
       Build Quantity:
@@ -58,8 +75,13 @@ export default {
     return {
       csv: null,
       bom: null,
-      buildQuantity: 1
+      buildQuantity: 1,
+      analyzeOptions: null,
+      analyzePath: ''
     }
+  },
+  mounted() {
+    this.getAnalyzeOptions()
   },
   methods: {
     tableAnalyzer({ row, rowIndex }) {
@@ -78,11 +100,19 @@ export default {
     onSubmit() {
       requestBN({
         method: 'post',
-        url: '/project/analyze/analyze_Target3001',
+        url: this.analyzePath,
         data: { csv: this.csv, BuildQuantity: this.buildQuantity }
       }).then(response => {
         this.bom = response.data.bom
         this.onQuantityChange()
+      })
+    },
+    getAnalyzeOptions() {
+      requestBN({
+        method: 'get',
+        url: '/project/analyze'
+      }).then(response => {
+        this.analyzeOptions = response.data
       })
     },
     onPrint() {
