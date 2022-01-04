@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, purchasOrder.AcknowledgementNumber FROM purchasOrder ";
+	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, purchasOrder.Currency, purchasOrder.ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))

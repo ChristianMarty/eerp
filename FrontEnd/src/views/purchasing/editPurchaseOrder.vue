@@ -36,9 +36,11 @@
       placeholder="Supplier Order Number"
     />
 
-    <p>{{ orderData.AcknowledgementNumber }}</p>
-
-    <p>{{ orderData.Description }}</p>
+    <p><b>Order Number:</b> {{ orderData.OrderNumber }}</p>
+    <p><b>Acknowledgement Number:</b> {{ orderData.AcknowledgementNumber }}</p>
+    <p><b>Currency:</b> {{ orderData.Currency }}</p>
+    <p><b>ExchangeRate:</b> {{ orderData.ExchangeRate }}</p>
+    <p><b>Description:</b> {{ orderData.Description }}</p>
 
     <el-button
       v-if="orderData.Status == 'Editing'"
