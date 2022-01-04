@@ -46,6 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$date = new DateTime($r['Date']);
 		$r['DateCode'] = $date->format("yW");
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
+		$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
 		$r['OrderReference']  = "GCT-".$r['OrderReference'];
 		
 		array_push($output, $r);
@@ -55,6 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["StockNo"]) AND $stockNoValid == true)
 	{
 		$output[0]['LocationPath'] = buildLocationPath($locations, $output[0]['LocationId'], 100);
+		$output[0]['HomeLocationPath'] = buildLocationPath($locations, $output[0]['HomeLocationId'], 100);
 	}
 	
 	// Get Description	-> This is a hack

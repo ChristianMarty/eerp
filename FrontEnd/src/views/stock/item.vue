@@ -63,6 +63,8 @@
       <el-divider />
       <p><b>Location: </b>{{ partData.Location }}</p>
       <p><b>Location Path: </b>{{ partData.LocationPath }}</p>
+      <p><b>Home Location: </b>{{ partData.HomeLocation }}</p>
+      <p><b>Home Location Path: </b>{{ partData.HomeLocationPath }}</p>
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
       <el-divider  v-permission="['stock.add','stock.remove','stock.count']"/>

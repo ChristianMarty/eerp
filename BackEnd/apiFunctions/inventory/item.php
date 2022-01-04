@@ -37,7 +37,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$baseQuery = "SELECT ";
 	$baseQuery .="inventory.Id AS Id, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
 	$baseQuery .="supplier.name AS SupplierName, ";
-	$baseQuery .="location_getName(LocationId) AS LocationName ";
+	$baseQuery .="location_getName(LocationId) AS LocationName, ";
+	$baseQuery .="location_getName(HomeLocationId) AS HomeLocationName ";
 	$baseQuery .="FROM `inventory` ";
 	$baseQuery .="LEFT JOIN `supplier` On supplier.Id = inventory.SupplierId ";
 	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";

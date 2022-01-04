@@ -1,10 +1,10 @@
-SELECT supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date,location.Id AS LocationId, hc.CreateQuantity,  h.HistoryQuantity AS Quantity, h.LastCountDate AS LastCountDate, hc.CreateData
+SELECT supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date,
+partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, hc.CreateQuantity,  h.HistoryQuantity AS Quantity, h.LastCountDate AS LastCountDate, hc.CreateData
 FROM partStock
 LEFT JOIN manufacturerPart ON manufacturerPart.Id = partStock.ManufacturerPartId
 LEFT JOIN partManufacturer ON partManufacturer.Id = manufacturerPart.ManufacturerId
 LEFT JOIN supplierPart ON supplierPart.Id = partStock.SupplierPartId
 LEFT JOIN supplier ON supplier.Id = supplierPart.SupplierId
-LEFT JOIN location ON location.Id = partStock.LocationId
 LEFT JOIN (SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create')hc ON  hc.StockId = partStock.Id
 LEFT JOIN (
 	SELECT partStock_history.Id, partStock_history.StockId, partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, q.HistoryQuantity, q.LastCountDate

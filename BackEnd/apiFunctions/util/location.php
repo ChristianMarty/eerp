@@ -41,7 +41,7 @@ function hasChild($rows,$id)
 }
 
 function buildLocationTree($rows, $parentId)
-{  
+{
 	$treeItem = array();
 	foreach ($rows as $row)
 	{
@@ -100,6 +100,8 @@ function buildLocation($rows, $id)
 
 function buildLocationPath($rows, $id, $depth)
 {
+	if($id == NULL) return "";
+	
 	$lines = array();
 	foreach($rows as $row)
 	{

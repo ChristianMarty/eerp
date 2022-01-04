@@ -17,6 +17,7 @@
       </el-aside>
       <el-main>
         <p><b>Location: </b>{{ inventoryData.LocationName }}</p>
+        <p><b>Home Location: </b>{{ inventoryData.HomeLocationName }}</p>
         <p><b>Purchase Date: </b>{{ inventoryData.PurchaseDate }}</p>
         <p><b>Purchase Price: </b>{{ inventoryData.PurchasePrice }}</p>
         <p><b>Supplier: </b>{{ inventoryData.SupplierName }}</p>
