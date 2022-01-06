@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <h1>
-      WO-{{ workOrderData.WorkOrderNo }} --- {{ workOrderData.Titel }} ---
-      {{ workOrderData.ProjectTitel }}
+      WO-{{ workOrderData.WorkOrderNo }} --- {{ workOrderData.Title }} ---
+      {{ workOrderData.ProjectTitle }}
     </h1>
     <el-divider />
     <p><b>Build Quantity:</b> {{ workOrderData.Quantity }}</p>

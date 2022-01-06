@@ -23,7 +23,7 @@
             <el-option
               v-for="wo in workOrders"
               :key="wo.Id"
-              :label="wo.Titel"
+              :label="wo.Title"
               :value="wo.Id"
             />
           </el-select>

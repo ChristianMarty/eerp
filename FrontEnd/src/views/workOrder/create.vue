@@ -5,7 +5,7 @@
 
     <el-form label-width="150px">
       <el-form-item label="Titel:">
-        <el-input v-model="form.Titel" placeholder="Please input" />
+        <el-input v-model="form.Title" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Project:">
@@ -34,7 +34,7 @@
 import requestBN from '@/utils/requestBN'
 
 const defaultForm = {
-  Titel: '',
+  Title: '',
   ProjectId: '',
   Quantity: ''
 }

@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["Status"])) $status = dbEscapeString($dbLink, $_GET["Status"]);
 	
 
-	$query = "SELECT project.Titel AS ProjectTitel, workOrder.Titel, Quantity, WorkOrderNo, Status  FROM workOrder ";
+	$query = "SELECT project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status  FROM workOrder ";
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
 	if(isset($status)) $query .=  "WHERE Status = '".$status."'";
 
@@ -42,9 +42,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$projectId = dbEscapeString($dbLink,$data['data']['ProjectId']);
 	$quantity = dbEscapeString($dbLink,$data['data']['Quantity']);
-	$titel = dbEscapeString($dbLink,$data['data']['Titel']);
+	$title = dbEscapeString($dbLink,$data['data']['Title']);
 
-	$query = "INSERT INTO workOrder (Titel, Quantity, ProjectId) VALUES ('".$titel."', '".$quantity."', '".$projectId."');";
+	$query = "INSERT INTO workOrder (Title, Quantity, ProjectId) VALUES ('".$title."', '".$quantity."', '".$projectId."');";
 	
 	$result = dbRunQuery($dbLink,$query);
 	

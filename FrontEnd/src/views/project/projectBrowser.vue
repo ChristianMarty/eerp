@@ -9,7 +9,7 @@
             </router-link>
           </template>
         </el-table-column>
-        <el-table-column label="Titel" prop="Titel" sortable />
+        <el-table-column label="Title" prop="Title" sortable />
       </el-table>
     </template>
   </div>

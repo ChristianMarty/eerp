@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$workOrderNo = dbEscapeString($dbLink, $_GET["WorkOrderNo"]);
 	
-	$query = "SELECT workOrder.Id AS WorkOrderId, project.Titel AS ProjectTitel, workOrder.Titel, Quantity, WorkOrderNo, Status FROM workOrder ";
+	$query = "SELECT workOrder.Id AS WorkOrderId, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status FROM workOrder ";
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
 	$query .= "WHERE workOrder.workOrderNo = ".$workOrderNo;
 	

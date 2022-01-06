@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SHOW COLUMNS FROM documents LIKE 'Type'";
+	$query = "SHOW COLUMNS FROM document LIKE 'Type'";
 	
 	$output = array();
 	$option_array = array();

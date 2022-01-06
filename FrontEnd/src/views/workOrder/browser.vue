@@ -12,8 +12,8 @@
             </router-link>
           </template>
         </el-table-column>
-        <el-table-column label="Titel" prop="Titel" sortable />
-        <el-table-column label="Project" prop="ProjectTitel" sortable />
+        <el-table-column label="Title" prop="Title" sortable />
+        <el-table-column label="Project" prop="ProjectTitle" sortable />
         <el-table-column label="Build Quantity" prop="Quantity" sortable />
         <el-table-column label="Status" prop="Status" sortable />
       </el-table>

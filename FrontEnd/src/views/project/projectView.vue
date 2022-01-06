@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ projectData.Titel }}</h1>
+    <h1>{{ projectData.Title }}</h1>
     <p>{{ projectData.Description }}</p>
     <el-button type="primary" @click="upload">Upload</el-button>
 
