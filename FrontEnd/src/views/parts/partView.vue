@@ -243,6 +243,15 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    setTagsViewTitle() {
+      const route = Object.assign({}, this.tempRoute, {
+        title: `${this.partData.ManufacturerPartNumber}`
+      })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
+    },
+    setPageTitle() {
+      document.title = `${this.partData.ManufacturerName} - ${this.partData.ManufacturerPartNumber}`
+    },
     getPartData() {
       requestBN({
         url: '/part/item',
@@ -315,16 +324,6 @@ export default {
       }).then(response => {
         this.availabilityData = response.data
       })
-    },
-    setTagsViewTitle() {
-      const route = Object.assign({}, this.tempRoute, {
-        title: `${this.partData.ManufacturerPartNumber}`
-      })
-      this.$store.dispatch('tagsView/updateVisitedView', route)
-    },
-    setPageTitle() {
-      const title = 'Part View'
-      document.title = `${title} - ${this.partData.PartNo}`
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <h1>
-      {{ inventoryData.InvNo }} - {{ inventoryData.Titel }},
+      {{ inventoryData.InvNo }} - {{ inventoryData.Title }},
       {{ inventoryData.Manufacturer }}
       {{ inventoryData.Type }}
     </h1>
@@ -110,6 +110,15 @@ export default {
   },
   methods: {
     checkPermission,
+    setTagsViewTitle() {
+      const route = Object.assign({}, this.tempRoute, {
+        title: `${this.inventoryData.InvNo}`
+      })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
+    },
+    setPageTitle() {
+      document.title = `${this.inventoryData.InvNo} - ${this.inventoryData.Title}`
+    },
     getInventoryData() {
       requestBN({
         url: '/inventory/item',
@@ -147,16 +156,6 @@ export default {
         '/inventory/inventoryCreate/' + this.inventoryData.InvNo
       )
     }
-  },
-  setTagsViewTitle() {
-    const route = Object.assign({}, this.tempRoute, {
-      title: `${this.inventoryData.InvNo}`
-    })
-    this.$store.dispatch('tagsView/updateVisitedView', route)
-  },
-  setPageTitle() {
-    const title = 'Part View'
-    document.title = `${title} - ${this.inventoryData.InvNo}`
   }
 }
 </script>

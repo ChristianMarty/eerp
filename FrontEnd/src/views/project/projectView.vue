@@ -45,6 +45,7 @@ export default {
   mounted() {
     this.getProjectData()
     this.setTagsViewTitle()
+    
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -53,6 +54,15 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    setTagsViewTitle() {
+      const route = Object.assign({}, this.tempRoute, {
+        title: `${this.$route.params.projectNo}`
+      })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
+    },
+    setPageTitle() {
+      document.title = `${this.projectData.Title}`
+    },
     handleSelect(key, keyPath) {
       this.activeIndex = key
     },
@@ -63,15 +73,9 @@ export default {
         params: { ProjectNo: this.$route.params.projectNo }
       }).then(response => {
         this.projectData = response.data
+        this.setPageTitle()
       })
     },
-    setTagsViewTitle() {
-      const route = Object.assign({}, this.tempRoute, {
-        title: `${this.$route.params.projectNo}`
-      })
-      this.$store.dispatch('tagsView/updateVisitedView', route)
-    },
-
     tableAnalyzer({ row, rowIndex }) {
       if (row.PartNo.includes('Unknown')) {
         return 'error-row'

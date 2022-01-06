@@ -42,7 +42,7 @@
             v-if="row.ReceivalId"
             type="text"
             size="mini"
-            @click="openDialog(row.ReceivalId)"
+            @click="openTrackDialog(row.ReceivalId)"
           >Track</el-button>
         </template>
       </el-table-column>
@@ -126,7 +126,7 @@ export default {
         this.trackData = response.data
       })
     },
-    openDialog(ReceivalId) {
+    openTrackDialog(ReceivalId) {
       this.showDialog = true
       this.getTrackData(ReceivalId)
     },

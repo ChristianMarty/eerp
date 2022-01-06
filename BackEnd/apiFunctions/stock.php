@@ -30,6 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
 		$query.= "WHERE ManufacturerPartId = '".$temp."'";		
 	}
+	
 
 	$result = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);	
@@ -97,7 +98,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	if(isset($data["RemoveQuantity"]))
 	{
 		$RemoveQuantity = dbEscapeString($dbLink, $data["RemoveQuantity"]);
-		$workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
+		if(isset($data["WorkOrderId"])) $workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
+		else $workOrderId = null;
 		
 		if($workOrderId == null) $workOrderId = 0;
 		

@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["Status"])) $status = dbEscapeString($dbLink, $_GET["Status"]);
 	
 
-	$query = "SELECT project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status  FROM workOrder ";
+	$query = "SELECT workOrder.Id, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status  FROM workOrder ";
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
 	if(isset($status)) $query .=  "WHERE Status = '".$status."'";
 
