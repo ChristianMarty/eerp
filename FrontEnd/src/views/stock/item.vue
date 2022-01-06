@@ -51,14 +51,6 @@
     </el-card>
 
     <el-card v-if="showItem">
-      <h3>Supplier Information</h3>
-      <el-divider />
-      <p><b>Supplier: </b>{{ partData.SupplierName }}</p>
-      <p><b>Part Number: </b>{{ partData.SupplierPartNumber }}</p>
-      <p><b>OrderReference: </b>{{ partData.OrderReference }}</p>
-    </el-card>
-
-    <el-card v-if="showItem">
       <h3>Stock Information {{ partData.Barcode }}</h3>
       <el-divider />
       <p><b>Location: </b>{{ partData.Location }}</p>
@@ -66,8 +58,9 @@
       <p><b>Home Location: </b>{{ partData.HomeLocation }}</p>
       <p><b>Home Location Path: </b>{{ partData.HomeLocationPath }}</p>
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
+      <p><b>Reserved Quantity: </b>{{ partData.ReservedQuantity }}</p>
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
-      <el-divider  v-permission="['stock.add','stock.remove','stock.count']"/>
+      <el-divider v-permission="['stock.add','stock.remove','stock.count']" />
       <h4 v-permission="['stock.add','stock.remove','stock.count']">Stock Movement</h4>
 
       <el-button
@@ -82,7 +75,6 @@
         style="margin-right: 20px"
         icon="el-icon-minus"
         @click="removeStockDialogVisible = true"
- 
       >Remove</el-button>
 
       <el-button
@@ -102,8 +94,54 @@
           :timestamp="line.Date"
         >
           {{ line.Description }}
+          <template v-if="line.WorkOrderNo != NULL">
+            <span>, Work Order: </span>
+            <router-link
+              :to="'/workOrder/workOrderView/' + line.WorkOrderNo"
+              class="link-type"
+            >
+              <span>{{ line.WorkOrderNo }}</span>
+            </router-link>
+            {{ line.Title }}
+          </template>
+
         </el-timeline-item>
       </el-timeline>
+
+      <h3>Reservations</h3>
+      <el-table :data="reservation" style="width: 100%">
+        <el-table-column prop="WorkOrderNo" label="Work Order No" sortable width="150">
+          <template slot-scope="{ row }">
+            <router-link
+              :to="'/workOrder/workOrderView/' + row.WorkOrderNo"
+              class="link-type"
+            >
+              <span>{{ row.WorkOrderNo }}</span>
+            </router-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="Title" label="Title" sortable />
+        <el-table-column prop="Quantity" label="Quantity" sortable />
+      </el-table>
+    </el-card>
+
+    <el-card v-if="showItem">
+      <h3>Supplier Information</h3>
+      <el-divider />
+      <p><b>Supplier: </b>{{ partData.SupplierName }}</p>
+      <p><b>Part Number: </b>{{ partData.SupplierPartNumber }}</p>
+      <p><b>Order Reference: </b>{{ partData.OrderReference }}</p>
+    </el-card>
+
+    <el-card v-if="showItem">
+      <h3>Purchase Information</h3>
+      <el-divider />
+      <p><b>PO No: </b>
+        <router-link :to="'/purchasing/edit/' + purchaseInformation.PoNo" class="link-type">
+          <span>{{ purchaseInformation.PoNo }}</span>
+        </router-link>
+      </p>
+      <p><b>Price: </b>{{ purchaseInformation.Price }} {{ purchaseInformation.Currency }}</p>
     </el-card>
 
     <el-card v-if="showItem">
@@ -164,9 +202,15 @@ const returnData = {
   Barcode: ''
 }
 
+const purchaseInformationData = {
+  PoNo: '',
+  Price: '',
+  Currency: ''
+}
+
 export default {
   name: 'LocationAssignment',
-  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog  },
+  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog },
   directives: { permission },
   data() {
     return {
@@ -174,6 +218,8 @@ export default {
       history: null,
       showItem: false,
       partData: Object.assign({}, returnData),
+      reservation: null,
+      purchaseInformation: Object.assign({}, purchaseInformationData),
       labelTemplate: null,
       smallLabel: null,
       largeLabel: null,
@@ -216,6 +262,8 @@ export default {
     loadItem() {
       this.getStockItem()
       this.getHistory()
+      this.getReservation()
+      this.getPurchaseInformation()
       this.showItem = true
     },
     getStockItem() {
@@ -231,7 +279,7 @@ export default {
             duration: 0,
             type: 'error'
           })
-        } else if (response.data.length == 0) {
+        } else if (response.data.length === 0) {
           this.$message({
             showClose: true,
             message: 'Item dose not exist!',
@@ -274,6 +322,33 @@ export default {
             }
           })
         }
+      })
+    },
+    getReservation() {
+      requestBN({
+        url: '/stock/reservation',
+        methood: 'get',
+        params: { StockNo: this.inputStockId }
+      }).then(response => {
+        if (response.error != null) {
+          this.$message({
+            showClose: true,
+            message: response.error,
+            duration: 0,
+            type: 'error'
+          })
+        } else {
+          this.reservation = response.data
+        }
+      })
+    },
+    getPurchaseInformation() {
+      requestBN({
+        url: '/stock/purchaseInformation',
+        methood: 'get',
+        params: { StockNo: this.inputStockId }
+      }).then(response => {
+        this.purchaseInformation = response.data
       })
     },
     getProductionPartData() {

@@ -71,6 +71,8 @@ function buildLocationTree($rows, $parentId)
 
 function buildLocation($rows, $id)
 {
+	if($id == NULL) return "";
+	
 	$lines = array();
 	foreach($rows as $row)
 	{

@@ -21,10 +21,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$temp = strtolower($temp);
 	$stockNo = str_replace("stk-","",$temp);
 	
-	$query = "SELECT ChangeType, Quantity, Date FROM partStock_history ";
+	$query = "SELECT partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, workOrder.Title, workOrder.WorkOrderNo FROM partStock_history ";
+	$query .= "LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId ";
 	$query .= "WHERE StockId = (SELECT Id FROM partStock WHERE StockNo = '".$stockNo."') ";
-	$query .="ORDER BY Id ASC";
+	$query .="ORDER BY partStock_history.Id ASC";
 	
+
 
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
@@ -69,7 +71,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$description .= ", New Quantity: ".$quantity;
 		
 		$r['Type'] = $type;
-		$r['Description'] = $description;
+		$r['Description'] = trim($description);
 		array_push($output, $r);
 	}
 	

@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName  FROM purchasOrder ";
+	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, OrderNumber, Currency, ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))
@@ -74,7 +74,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			if($status == "Confirmed" or $status == "Closed")
 			{
 				$lines[$r['OrderLineId']]['QuantityReceived'] = 0;
-				$lines[$r['OrderLineId']]['ReceivalId'] = intval( $r['OrderLineId'], 10);
 			}
 		}
 		
@@ -88,6 +87,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$lines[$r['OrderLineId']]['QuantityReceived'] += $received['QuantityReceived'];
 			$received['ReceivalDate'] = $r['ReceivalDate'];
 			$received['ReceivalId'] = intval($r['ReceiveId']);
+			
 			array_push($lines[$r['OrderLineId']]['Received'],$received);
 		}
 

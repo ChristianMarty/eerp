@@ -57,7 +57,7 @@ function dbClose($dbLink)
 
 function dbEscapeString($dbLink, $string)
 {
-	return mysqli_real_escape_string($dbLink, $string);
+	return trim(mysqli_real_escape_string($dbLink, $string));
 }
 
 function dbGetResult($result)

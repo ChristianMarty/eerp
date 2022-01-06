@@ -20,7 +20,6 @@
         sortable
       />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="150" sortable />
-
       <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" sortable />
 
       <el-table-column label="Item">
@@ -37,7 +36,53 @@
       </el-table-column>
       <el-table-column prop="Price" label="Price" width="120" sortable />
       <el-table-column prop="Total" label="Total" width="120" sortable />
+      <el-table-column width="100">
+        <template slot-scope="{ row }">
+          <el-button
+            v-if="row.ReceivalId"
+            type="text"
+            size="mini"
+            @click="openDialog(row.ReceivalId)"
+          >Track</el-button>
+        </template>
+      </el-table-column>
     </el-table>
+
+    <el-dialog
+      title="Track Item"
+      :visible.sync="showDialog"
+      width="50%"
+      center
+    >
+      <el-table
+        ref="itemTable"
+        :data="trackData"
+        border
+        style="width: 100%"
+        :cell-style="{ padding: '0', height: '30px' }"
+      >
+        <el-table-column prop="Type" label="Type" width="120" sortable />
+
+        <el-table-column label="Reference" sortable>
+          <template slot-scope="{ row }">
+            <template v-if="row.Type == 'Part Stock'">
+              <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
+                <span>STK-{{ row.StockNo }}</span>
+              </router-link>
+            </template>
+            <template v-if="row.Type == 'Inventory'">
+              <router-link
+                :to="'/inventory/inventoryView/' + row.InvNo"
+                class="link-type"
+              >
+                <span>Inv-{{ row.InvNo }}</span>
+              </router-link>
+            </template>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -48,7 +93,9 @@ export default {
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
-      lines: null
+      lines: null,
+      showDialog: false,
+      trackData: null
     }
   },
   created() {
@@ -67,6 +114,21 @@ export default {
         this.lines = response.data.Lines
         this.prepairLines(this.lines)
       })
+    },
+    getTrackData(ReceivalId) {
+      requestBN({
+        url: '/purchasing/item/track',
+        methood: 'get',
+        params: {
+          ReceivalId: ReceivalId
+        }
+      }).then(response => {
+        this.trackData = response.data
+      })
+    },
+    openDialog(ReceivalId) {
+      this.showDialog = true
+      this.getTrackData(ReceivalId)
     },
     calcSum(param) {
       let total = 0
@@ -87,6 +149,7 @@ export default {
         if ('Received' in line) {
           if (line.Received.length == 1) {
             line.ReceivalDate = line.Received[0].ReceivalDate
+            line.ReceivalId = line.Received[0].ReceivalId
             delete line.Received
           } else {
             let i = 0
