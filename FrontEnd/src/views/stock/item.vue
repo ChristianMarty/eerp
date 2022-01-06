@@ -60,6 +60,12 @@
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
       <p><b>Reserved Quantity: </b>{{ partData.ReservedQuantity }}</p>
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
+      <span><p><b>Stock Certainty Factor: </b>{{ stockAccuracy.CertaintyFactor }}</p>
+        <el-rate
+          v-model="stockAccuracy.CertaintyFactor*5"
+          disabled
+        />
+      </span>
       <el-divider v-permission="['stock.add','stock.remove','stock.count']" />
       <h4 v-permission="['stock.add','stock.remove','stock.count']">Stock Movement</h4>
 
@@ -142,6 +148,7 @@
         </router-link>
       </p>
       <p><b>Price: </b>{{ purchaseInformation.Price }} {{ purchaseInformation.Currency }}</p>
+      <p><b>Date: </b>{{ purchaseInformation.PurchaseDate }}</p>
     </el-card>
 
     <el-card v-if="showItem">
@@ -208,6 +215,12 @@ const purchaseInformationData = {
   Currency: ''
 }
 
+const stockAccuracyData = {
+  CertaintyFactor: 0,
+  DaysSinceStocktaking: '',
+  LastStocktakingDate: ''
+}
+
 export default {
   name: 'LocationAssignment',
   components: { printDialog, addStockDialog, removeStockDialog, countStockDialog },
@@ -220,6 +233,7 @@ export default {
       partData: Object.assign({}, returnData),
       reservation: null,
       purchaseInformation: Object.assign({}, purchaseInformationData),
+      stockAccuracy: Object.assign({}, stockAccuracyData),
       labelTemplate: null,
       smallLabel: null,
       largeLabel: null,
@@ -259,11 +273,15 @@ export default {
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
+    setPageTitle() {
+      document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
+    },
     loadItem() {
       this.getStockItem()
       this.getHistory()
       this.getReservation()
       this.getPurchaseInformation()
+      this.getStockAccuracy()
       this.showItem = true
     },
     getStockItem() {
@@ -289,6 +307,7 @@ export default {
           this.partData = response.data[0]
           this.getProductionPartData()
           this.setTagsViewTitle(this.partData.Barcode)
+          this.setPageTitle()
         }
       })
     },
@@ -321,6 +340,24 @@ export default {
                 break
             }
           })
+        }
+      })
+    },
+    getStockAccuracy() {
+      requestBN({
+        url: '/stock/accuracy',
+        methood: 'get',
+        params: { StockNo: this.inputStockId }
+      }).then(response => {
+        if (response.error != null) {
+          this.$message({
+            showClose: true,
+            message: response.error,
+            duration: 0,
+            type: 'error'
+          })
+        } else {
+          this.stockAccuracy = response.data
         }
       })
     },
