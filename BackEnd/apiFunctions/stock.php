@@ -139,8 +139,15 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	$result = dbRunQuery($dbLink,$query);
 	
+	$error = null;
+	$msg = mysqli_error($dbLink);
+	if($msg != "")
+	{
+		$error = "Error description: " . mysqli_error($dbLink);
+	}
+
 	dbClose($dbLink);	
-	sendResponse($output);
+	sendResponse($output, $error);
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
@@ -148,29 +155,46 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$manufacturerId = dbEscapeString($dbLink,$data['data']['ManufacturerId']);
-	$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
-	$supplierId = dbEscapeString($dbLink,$data['data']['SupplierId']);
-	$supplierPartNumber = dbEscapeString($dbLink,$data['data']['SupplierPartNumber']);
+		
 	$orderReference = dbEscapeString($dbLink,$data['data']['OrderReference']);
 	$date = dbEscapeString($dbLink,$data['data']['Date']); 
 	$quantity = dbEscapeString($dbLink,$data['data']['Quantity']);
 	$location = dbEscapeString($dbLink,$data['data']['Location']);	
-	
 	$location = str_replace("Loc-","",$location);
+	
+	if(isset($data['data']['ReceivalId']))  // If part is created based on purchas recaival 
+	{
+		$receivalId = dbEscapeString($dbLink,$data['data']['ReceivalId']);
+		
+		$query  = "SELECT partStock_create_onReceival(";
+		$query .= $receivalId.", ";
+		$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
+		$query .= $quantity.",";
+		$query .= "'".$date."', ";
+		$query .= dbStringNull($orderReference);
+		$query .= ") AS StockNo; ";
+		
+	}
+	else // If part is created from scratch 
+	{
+		$manufacturerId = dbEscapeString($dbLink,$data['data']['ManufacturerId']);
+		$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
+		$supplierId = dbEscapeString($dbLink,$data['data']['SupplierId']);
+		$supplierPartNumber = dbEscapeString($dbLink,$data['data']['SupplierPartNumber']);	
 
-	$query  = "SELECT partStock_create(";
-	$query .= "'".$manufacturerId."',";
-	$query .= "'".$manufacturerPartNumber."',";
-	$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
-	$query .= $quantity.",";
-	$query .= "'".$date."', ";
-	$query .= dbStringNull($orderReference).", ";
-	$query .= dbStringNull($supplierId).", ";
-	$query .= dbStringNull($supplierPartNumber)." ";
-	$query .= ") AS StockNo; ";
+		$query  = "SELECT partStock_create(";
+		$query .= "'".$manufacturerId."',";
+		$query .= "'".$manufacturerPartNumber."',";
+		$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
+		$query .= $quantity.",";
+		$query .= "'".$date."', ";
+		$query .= dbStringNull($orderReference).", ";
+		$query .= dbStringNull($supplierId).", ";
+		$query .= dbStringNull($supplierPartNumber)." ";
+		$query .= ") AS StockNo; ";
 
+	}
+	
 	$result = dbRunQuery($dbLink,$query);
 
 	$stockNo = dbGetResult($result)['StockNo'];

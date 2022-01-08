@@ -33,7 +33,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="100">
+      <el-table-column width="150px">
         <template slot-scope="{ row }">
           <el-button
             v-if="
@@ -44,6 +44,16 @@
             size="mini"
             @click="openDialog(row)"
           >Confirm</el-button>
+
+          <el-button
+            v-if="
+              row.ReceivalId != NULL
+            "
+            style="float: right;"
+            type="text"
+            size="mini"
+            @click="addToStockDialogReceivalId = row.ReceivalId, addToStockDialogVisible = true"
+          >Add Stock</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -84,7 +94,7 @@
           >Received Quantety</el-input-number>
         </el-form-item>
 
-        <el-form-item label="Received Date:">
+        <el-form-item label="Receiving Date:">
           <el-date-picker
             v-model="dialogDateReceived"
             type="date"
@@ -98,17 +108,25 @@
         <el-button @click="showDialog = false">Cancel</el-button>
         <el-button
           type="primary"
-          @click="receiveItem(receiveDialog)"
+          @click="receiveItem(receiveDialog, false)"
         >Confirm</el-button>
       </span>
     </el-dialog>
+
+    <addToStock
+      :visible.sync="addToStockDialogVisible"
+      :receival-id="addToStockDialogReceivalId"
+    />
+
   </div>
 </template>
 
 <script>
 import requestBN from '@/utils/requestBN'
+import addToStock from './addToStockDialog'
 
 export default {
+  components: { addToStock },
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
@@ -117,11 +135,14 @@ export default {
       showDialog: false,
       receiveDialog: false,
       dialogQuantityReceived: null,
-      dialogDateReceived: null
+      dialogDateReceived: null,
+      addToStockDialogVisible: false,
+      addToStockDialogReceivalId: 0
     }
   },
   created() {
     this.getOrderLines()
+    this.dialogDateReceived = new Date().toISOString().substring(0, 10)
   },
   mounted() {},
   methods: {
@@ -150,8 +171,9 @@ export default {
         line.lineKey = line.LineNo
 
         if ('Received' in line) {
-          if (line.Received.length == 1) {
+          if (line.Received.length === 1) {
             line.ReceivalDate = line.Received[0].ReceivalDate
+            line.ReceivalId = line.Received[0].ReceivalId
             delete line.Received
           } else {
             let i = 0
@@ -163,7 +185,7 @@ export default {
         }
       })
     },
-    receiveItem(received) {
+    receiveItem(received, addToStock = false) {
       const receivedOrderData = {
         ReceivedQuantity: this.dialogQuantityReceived,
         ReceivedDate: this.dialogDateReceived,
@@ -181,12 +203,16 @@ export default {
         this.getOrderLines()
 
         if (response.error == null) {
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 2,
-            type: 'success'
-          })
+          if (addToStock === false) {
+            this.$message({
+              showClose: true,
+              message: 'Changes saved successfully',
+              duration: 2,
+              type: 'success'
+            })
+          } else {
+            this.addToStockDialogVisible = true
+          }
         } else {
           this.$message({
             showClose: true,

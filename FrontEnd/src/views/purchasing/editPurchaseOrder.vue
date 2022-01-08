@@ -121,10 +121,10 @@
 
 <script>
 import requestBN from '@/utils/requestBN'
-import editOrder from './PurchaseOrder/edit'
-import placedOrder from './PurchaseOrder/placed'
-import confirmedOrder from './PurchaseOrder/confirmed'
-import closedOrder from './PurchaseOrder/closed'
+import editOrder from './components/edit'
+import placedOrder from './components/placed'
+import confirmedOrder from './components/confirmed'
+import closedOrder from './components/closed'
 
 export default {
   name: 'PurchaseOrder',
@@ -235,7 +235,19 @@ export default {
         title: 'PO-' + `${this.$route.params.PoNo}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-    }
+    },
+    getOrderLine() {
+      requestBN({
+        url: '/purchasing/item',
+        methood: 'get',
+        params: {
+          PurchaseOrderNo: this.orderData.PoNo
+        }
+      }).then(response => {
+        this.lines = response.data.Lines
+        this.line = this.lines.length
+      })
+    },
   }
 }
 </script>
