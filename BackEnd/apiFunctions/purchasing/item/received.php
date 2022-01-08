@@ -36,6 +36,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$query = dbBuildInsertQuery($dbLink, "purchasOrder_itemReceive",$row);
 	
 	$result = dbRunQuery($dbLink,$query);
+	
 	dbClose($dbLink);	
 	
 	

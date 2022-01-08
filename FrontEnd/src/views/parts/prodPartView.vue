@@ -88,6 +88,7 @@ export default {
   mounted() {
     this.getPartData()
     this.setTagsViewTitle()
+    this.setPageTitle()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -110,6 +111,9 @@ export default {
         title: `${this.$route.params.partNo}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
+    },
+    setPageTitle() {
+      document.title = `${this.$route.params.partNo}`
     }
   }
 }

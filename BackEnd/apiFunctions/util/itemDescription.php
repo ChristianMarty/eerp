@@ -10,6 +10,7 @@
 
 require __DIR__ . "/../databaseConnector.php";
 
+
 //Generates an universal description of a item of any catogery
 
 function generateSummary($locationNr)
@@ -107,6 +108,9 @@ function generateSummary($locationNr)
 	}
 	else 
 	{
+		
+		
+		
 		$response['error'] ="Unknown Item Category";
 		return $response;
 	}

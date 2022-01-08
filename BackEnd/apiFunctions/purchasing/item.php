@@ -41,7 +41,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$output['Lines'] = Array();
 	$query = "SELECT *, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
-	$query .= "FROM purchasOrder_itemOrder LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id WHERE PurchasOrderId = ".$PoId;
+	$query .= "FROM purchasOrder_itemOrder LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
+	$query .= "WHERE PurchasOrderId = ".$PoId;
 	$query .= " ORDER BY LineNo";
 	
 	$result = dbRunQuery($dbLink,$query);
