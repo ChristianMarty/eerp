@@ -27,7 +27,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
 	$query .= "WHERE workOrder.workOrderNo = ".$workOrderNo;
 	
-	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
@@ -38,7 +37,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$partUsed = array();
 	
-	$query = "SELECT *,partManufacturer.Name as ManufacturerName, partStock_history.Date AS RemovalDate FROM partStock_history ";
+	$query = "SELECT *,partManufacturer.Name as ManufacturerName, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price ";
+	$query .= "FROM partStock_history ";
 	$query .= "LEFT JOIN partStock On partStock.Id = partStock_history.StockId ";
 	$query .= "LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId ";
 	$query .= "LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";
