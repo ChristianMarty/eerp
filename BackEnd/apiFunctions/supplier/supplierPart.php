@@ -23,8 +23,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$supplierData = array();
 	
-	$query = "SELECT * FROM supplierPart";
-	$query.=" LEFT JOIN supplier On supplier.Id = supplierPart.SupplierId ";
+	$query = "SELECT *, supplierPart.Id AS SupplierPartId FROM supplierPart ";
+	$query.="LEFT JOIN supplier On supplier.Id = supplierPart.SupplierId ";
 	
 	$parameters = array();
 	if(isset($manufacturerPartId)) array_push($parameters, 'supplierPart.ManufacturerPartId = '. $manufacturerPartId);

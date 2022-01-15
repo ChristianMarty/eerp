@@ -109,7 +109,7 @@ function dbBuildInsertQuery($dbLink, $tableName, $data)
 		}
 		else
 		{
-			if($value == null) $values .= "NULL, ";
+			if($value === null) $values .= "NULL, ";
 			else $values .= "'".mysqli_real_escape_string($dbLink,$value)."', ";
 		}
 	}
