@@ -34,8 +34,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$rows = array();
 	$rowcount = mysqli_num_rows($result);
 	
-	$rows['Stock'] = array();
-	array_push($rows['Stock'], array());
+
+	$manufacturerParts = array();
+	
+	array_push($manufacturerParts, array());
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
@@ -43,17 +45,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$rows['StockMaximum'] = $r['StockMaximum'];
 		$rows['StockWarning'] = $r['StockWarning'];
 	
-		if(!array_key_exists($r['PartId'],$rows['Stock']))
+		if(!array_key_exists($r['PartId'],$manufacturerParts))
 		{
 			$Part = array();
 			$Part['ManufacturerName'] = $r['ManufacturerName'];
 			$Part['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
 			$Part['LifecycleStatus'] = $r['LifecycleStatus'];
 			$Part['PartId'] = $r['PartId'];
+			$Part['Description'] = "";
 			
 		
-			$rows['Stock'][$r['PartId']] = $Part;
-			$rows['Stock'][$r['PartId']]['Stock'] = array();
+			$manufacturerParts[$r['PartId']] = $Part;
+			$manufacturerParts[$r['PartId']]['Stock'] = array();
 		}
 		
 		$StockRow = array();
@@ -62,14 +65,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$StockRow['Quantity'] = $r['Quantity'];
 		$StockRow['LocationName'] = $r['LocationName'];
 		$StockRow['PartId'] = $r['PartId']+10;
+		
 				
-		array_push($rows['Stock'][$r['PartId']]['Stock'], $StockRow);	
+		array_push($manufacturerParts[$r['PartId']]['Stock'], $StockRow);	
 	}
-	unset($rows['Stock'][0]);
-	$rows['Stock'] = array_values($rows['Stock']);
+	unset($manufacturerParts[0]);
+	$manufacturerParts = array_values($manufacturerParts);
 	
 	$totalStockQuantity = 0;
-	foreach($rows['Stock'] as &$item)
+	foreach($manufacturerParts as &$item)
 	{
 		$totalPartQuantity = 0;
 		foreach($item['Stock'] as $StockItem) $totalPartQuantity += $StockItem['Quantity'];
@@ -78,29 +82,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$rows['TotalStockQuantity'] = $totalStockQuantity;
+	$rows['ManufacturerParts'] = $manufacturerParts;
 	
-	
-	dbClose($dbLink);
-	
-	
-	$rows['ManufacturerPart'] = array();
-	$query = "SELECT partManufacturer.Name AS ManufacturerName, ManufacturerPartNumber, Description FROM partLookup "; 
-	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Id = partLookup.ManufacturerId ";
-	$query .= "WHERE partLookup.PartNo = '".$partNo."'";
-	
-
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	
-	$result = mysqli_query($dbLink,$query);
-	
-	
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		array_push($rows['ManufacturerPart'], $r);
-	}
 	
 	dbClose($dbLink);
 

@@ -4,7 +4,7 @@
 
     <h2>Manufacturer Parts</h2>
     <el-table
-      :data="partData.ManufacturerPart"
+      :data="partLookup"
       style="width: 100%;margin-bottom: 20px;"
       border
     >
@@ -25,7 +25,7 @@
 
     <h2>Stock List</h2>
     <el-table
-      :data="partData.Stock"
+      :data="partData.ManufacturerParts"
       style="width: 100%;margin-bottom: 20px;"
       row-key="PartId"
       border
@@ -89,6 +89,7 @@ export default {
     this.getPartData()
     this.setTagsViewTitle()
     this.setPageTitle()
+    this.getPartLookup()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -104,6 +105,15 @@ export default {
         params: { PartNo: this.$route.params.partNo }
       }).then(response => {
         this.partData = response.data
+      })
+    },
+    getPartLookup() {
+      requestBN({
+        url: '/productionPart/partLookup',
+        methood: 'get',
+        params: { PartNo: this.$route.params.partNo }
+      }).then(response => {
+        this.partLookup = response.data
       })
     },
     setTagsViewTitle() {
