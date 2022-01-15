@@ -21,6 +21,12 @@ const documentsRouter = {
       meta: { title: 'PO Browser', icon: 'list' }
     },
     {
+      path: 'orderRequest/',
+      component: () => import('@/views/purchasing/orderRequest'),
+      name: 'orderRequest',
+      meta: { title: 'Order Request', icon: 'list' }
+    },
+    {
       path: 'edit/:PoNo(.*)',
       component: () => import('@/views/purchasing/editPurchaseOrder'),
       name: 'editPurchaseOrder',

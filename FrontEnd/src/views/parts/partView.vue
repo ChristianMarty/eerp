@@ -80,6 +80,65 @@
                           </a>
                         </template>
                       </el-table-column>
+                      <el-table-column>
+                        <template slot-scope="{ row }">
+                          <el-button
+                            style="float: right;"
+                            type="text"
+                            size="mini"
+                            @click="orderReqestSupplierPartId = row.SupplierPartId, orderReqestDialogVisible = true"
+                          >Request Order</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <orderReqestDialog
+                      :visible.sync="orderReqestDialogVisible"
+                      :supplier-part-id="orderReqestSupplierPartId"
+                    />
+                  </el-collapse-item>
+                  <el-collapse-item name="orderRequest">
+                    <template slot="title">
+                      <b>Order Requests</b>
+                    </template>
+
+                    <el-table
+                      :data="orderRequests"
+                      style="width: 100%; margin-top:10px"
+                    >
+                      <el-table-column
+                        prop="SupplierName"
+                        label="Supplier"
+                        sortable
+                        width="150"
+                      />
+
+                      <el-table-column
+                        prop="SupplierPartNumber"
+                        label="Part Number"
+                        sortable
+                      >
+                        <template slot-scope="{ row }">
+                          <a :href="row.SupplierPartLink" target="blank">
+                            {{ row.SupplierPartNumber }}
+                          </a>
+                        </template>
+                      </el-table-column>
+
+                      <el-table-column
+                        prop="Quantity"
+                        label="Quantity"
+                        width="120"
+                        sortable
+                      />
+
+                      <el-table-column
+                        prop="CreationDate"
+                        label="Creation Date"
+                        width="170"
+                        sortable
+                      />
+                    </el-table>
+                  </el-collapse-item>
                     </el-table>
                   </el-collapse-item>
                   <el-collapse-item name="availability">
@@ -209,10 +268,11 @@ import PartDocuments from './components/PartDocuments'
 import attributeEdit from './components/attributeEditDialog'
 import splitPane from 'vue-splitpane'
 import permission from '@/directive/permission/index.js'
+import orderReqestDialog from '@/views/purchasing/components/orderRequestDialog'
 
 export default {
   name: 'PartDetail',
-  components: { splitPane, SupplierDetail, PartDocuments, attributeEdit },
+  components: { splitPane, SupplierDetail, PartDocuments, attributeEdit, orderReqestDialog },
   directives: { permission },
   props: {
     isEdit: {
@@ -229,8 +289,11 @@ export default {
       stockData: null,
       productionPartData: null,
       availabilityData: null,
+      orderRequests: null,
 
       attributeEditVisible: false
+      orderReqestDialogVisible: false,
+      orderReqestSupplierPartId: 0
     }
   },
   mounted() {
@@ -276,6 +339,7 @@ export default {
         this.setPageTitle()
         this.getStockItems()
         this.getProductionPartData()
+        this.getOrderRequests()
       })
     },
     getStockItems() {
@@ -324,6 +388,15 @@ export default {
       }).then(response => {
         this.availabilityData = response.data
       })
+    getOrderRequests() {
+      requestBN({
+        url: '/purchasing/orderRequest',
+        methood: 'get',
+        params: { ManufacturerPartId: this.partData.PartId }
+      }).then(response => {
+        this.orderRequests = response.data
+      })
+    },
     }
   }
 }
