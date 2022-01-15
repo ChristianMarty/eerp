@@ -12,10 +12,13 @@
     >
       <el-menu-item index="availability">Availability</el-menu-item>
       <el-menu-item index="placement">Placement</el-menu-item>
+      <el-menu-item index="cost">Cost Analysis</el-menu-item>
+      
     </el-menu>
 
     <availability v-if="activeIndex == 'availability'" :project-id="projectData.Id" />
     <placement v-if="activeIndex == 'placement'" :project-id="projectData.Id" />
+    <cost v-if="activeIndex == 'cost'" :project-id="projectData.Id" />
 
     <el-dialog title="Bom Upload" :visible.sync="showUploadDialog">
       <bomUpload :project-id="projectData.Id" />
@@ -27,11 +30,12 @@
 import requestBN from '@/utils/requestBN'
 import availability from './components/availability'
 import placement from './components/placement'
+import cost from './components/cost'
 import bomUpload from './components/upload'
 
 export default {
   name: 'ProjectView',
-  components: { availability, placement, bomUpload },
+  components: { availability, placement, bomUpload, cost },
   data() {
     return {
       csv: null,
@@ -45,7 +49,6 @@ export default {
   mounted() {
     this.getProjectData()
     this.setTagsViewTitle()
-    
   },
   created() {
     // Why need to make a copy of this.$route here?

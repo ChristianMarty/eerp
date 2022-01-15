@@ -32,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$numberOfLines = 0;
 	$numberOfLinesAvailable = 0;
-	$numberOfComponents = 0;
+	$totalComponents = 0;
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
@@ -44,12 +44,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$bomLine["Availability"] = $r["Stock"]/$r['Quantity']*100;
 		if($bomLine["Availability"] > 100) $bomLine["Availability"] = 100;
 		
+		$bomLine["StockCertaintyFactor"] = 0;  // TODO: Add real value
+		
 		array_push($bom, $bomLine);
 		
 		$numberOfLines ++;
 		if($r["Stock"] >= $r['Quantity']) $numberOfLinesAvailable++;
 		
-		$numberOfComponents+= $r['Quantity'];
+		$totalComponents+= $r['Quantity'];
+		
+		
 	}
 	
 	dbClose($dbLink);
@@ -57,7 +61,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$bomStock['Bom'] = $bom;
 	if($numberOfLines != 0)$bomStock['StockItemsAvailability'] = $numberOfLinesAvailable/$numberOfLines*100;
 	else $bomStock['StockItemsAvailability'] = 0;
-	$bomStock['TotalNumberOfComponents'] = $numberOfComponents;
+	$bomStock['TotalNumberOfComponents'] = $totalComponents;
+	$bomStock['NumberOfUniqueComponents'] = $numberOfLines;
 	
 	sendResponse($bomStock);
 }
