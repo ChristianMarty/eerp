@@ -184,19 +184,19 @@ export default {
     },
     addLine(lineType) {
       this.line++
+
       const row = {
         OrderLineId: 0,
         LineNo: this.line,
         QuantityOrderd: 1,
         SupplierSku: null,
-        Description: '',
+        Description: ' ',
         Price: 0,
         Type: lineType,
 
         PartNo: null,
         ManufacturerName: null,
         ManufacturerPartNumber: '',
-        Description: null,
 
         MfrPartIndex: null,
         PartOptions: null
@@ -258,10 +258,17 @@ export default {
     updaptePartLine(row) {
       const index = eval(row.LineNo - 1)
       const partIndex = eval(row.MfrPartIndex)
+
       this.lines[index].ManufacturerName =
         row.PartOptions[partIndex].ManufacturerName
+
       this.lines[index].ManufacturerPartNumber =
         row.PartOptions[partIndex].ManufacturerPartNumber
+
+      this.lines[index].Price = 0
+
+      this.lines[index].Description =
+        row.PartOptions[partIndex].Description
 
       this.lines[index].PartOptions = null
     },
@@ -273,10 +280,7 @@ export default {
         params: { PartNo: row.PartNo }
       }).then(response => {
         this.lines[index].PartOptions =
-          response.data.ManufacturerPart
-        this.lines[index].Description = this.lines[
-          index
-        ].PartOptions[0].Description
+          response.data.ManufacturerParts
       })
     }
   }

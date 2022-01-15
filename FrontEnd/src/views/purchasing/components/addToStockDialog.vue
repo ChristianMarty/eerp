@@ -62,7 +62,8 @@
                 emitPath: false,
                 value: 'LocNr',
                 label: 'Name',
-                children: 'Children'
+                children: 'Children',
+                checkStrictly: true
               }"
             /></span>
         </el-form-item>

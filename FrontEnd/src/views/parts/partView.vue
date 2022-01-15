@@ -17,7 +17,6 @@
                 <p><b>Package: </b>{{ partData.Package }}</p>
                 <p><b>Lifecycle Status: </b>{{ partData.Status }}</p>
                 <p><b>Total Stock Quantity: </b>{{ partData.StockQuantity }}</p>
-
                 <el-collapse @change="handleChange">
                   <el-collapse-item name="elChar">
                     <template slot="title">
@@ -139,7 +138,45 @@
                       />
                     </el-table>
                   </el-collapse-item>
+                  <el-collapse-item name="purchaseOrder">
+                    <template slot="title">
+                      <b>Purchase Order</b>
+                    </template>
+                    <el-table
+                      :data="purchaseOrderData"
+                      style="width: 100%; margin-top:10px"
+                    >
+                      <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+                        <template slot-scope="{ row }">
+                          <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
+                            <span>PO-{{ row.PoNo }}</span>
+                          </router-link>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="Title" label="PO Title" sortable />
+                      <el-table-column prop="Sku" label="Sku" sortable />
+                      <el-table-column
+                        prop="Quantity"
+                        label="Quantity"
+                        sortable
+                        width="120"
+                      />
+                      <el-table-column
+                        prop="Price"
+                        label="Price"
+                        sortable
+                        width="100"
+                      />
+                      <el-table-column
+                        prop="Status"
+                        label="Status"
+                        sortable
+                        width="100"
+                      />
+
                     </el-table>
+                    <p><b>Total Order Quantity: </b>{{ purchaseOrder.TotalOrderQuantity }}</p>
+                    <p><b>Pending Order Quantity: </b>{{ purchaseOrder.PendingOrderQuantity }}</p>
                   </el-collapse-item>
                   <el-collapse-item name="availability">
                     <template slot="title">
@@ -258,6 +295,7 @@
         </template>
       </split-pane>
     </div>
+
   </div>
 </template>
 
@@ -290,8 +328,11 @@ export default {
       productionPartData: null,
       availabilityData: null,
       orderRequests: null,
+      purchaseOrder: null,
+      purchaseOrderData: null,
 
-      attributeEditVisible: false
+      attributeEditVisible: false,
+
       orderReqestDialogVisible: false,
       orderReqestSupplierPartId: 0
     }
@@ -340,6 +381,7 @@ export default {
         this.getStockItems()
         this.getProductionPartData()
         this.getOrderRequests()
+        this.getPurchasOrder()
       })
     },
     getStockItems() {
@@ -388,6 +430,7 @@ export default {
       }).then(response => {
         this.availabilityData = response.data
       })
+    },
     getOrderRequests() {
       requestBN({
         url: '/purchasing/orderRequest',
@@ -397,6 +440,15 @@ export default {
         this.orderRequests = response.data
       })
     },
+    getPurchasOrder() {
+      requestBN({
+        url: '/purchasing/partPurchase',
+        methood: 'get',
+        params: { ManufacturerPartId: this.partData.PartId }
+      }).then(response => {
+        this.purchaseOrder = response.data
+        this.purchaseOrderData = this.purchaseOrder.PurchaseOrderData
+      })
     }
   }
 }

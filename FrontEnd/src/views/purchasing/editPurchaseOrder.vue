@@ -247,7 +247,7 @@ export default {
         this.lines = response.data.Lines
         this.line = this.lines.length
       })
-    },
+    }
   }
 }
 </script>
