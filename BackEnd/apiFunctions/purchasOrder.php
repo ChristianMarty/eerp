@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, purchasOrder.Currency, purchasOrder.ExchangeRate FROM purchasOrder ";
+	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, purchasOrder.Currency, purchasOrder.ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))
@@ -48,11 +48,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($dbLink == null) return null;
 	
 	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$supplierName = dbEscapeString($dbLink,$data['data']['SupplierName']);
-	
+
 	$poCreate = array();
-	$poCreate['SupplierId']['raw'] = "(SELECT Id FROM supplier WHERE supplier.Name = '".$supplierName."' )";
+	$poCreate['SupplierId'] = intval($data['data']['SupplierId']);
 	$poCreate['PurchaseDate'] = $data['data']['PurchaseDate'];
 	
 	if($data['data']['Title'] != "") $poCreate['Title'] = $data['data']['Title'];
@@ -96,33 +94,28 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	if(isset($data['data']['PoNo']))$poNo = dbEscapeString($dbLink, $data['data']['PoNo']);
-	$supplier = dbEscapeString($dbLink,$data['data']['SupplierName']);
+	$error = null;
 	
+	if(!isset($_GET["PurchaseOrderNo"])) $error = "PO Number not defined!";
+		
+	$poNo = dbEscapeString($dbLink, $_GET['PurchaseOrderNo']);
+
 	$poData = array();
-	$poData['SupplierId']['raw'] = "(SELECT Id FROM supplier WHERE supplier.Name = '".$supplier."' )";
+	$poData['SupplierId'] = intval($data['data']['SupplierId']);
 	$poData['Title'] = $data['data']['Title'];
 	$poData['PurchaseDate'] = $data['data']['PurchaseDate'];
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
 	$poData['Description'] = $data['data']['Description'];
 	
-	if($_SERVER['REQUEST_METHOD'] == 'PATCH')
-	{	
-		$poData['Status'] = $data['data']['Status'];
-		$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$poNo);
-	}
-	else if($_SERVER['REQUEST_METHOD'] == 'POST')
-	{
-		$poData['PoNo']['raw'] = "purchasOrder_generatePoNo()";
-		$query = dbBuildInsertQuery($dbLink, "purchasOrder", $poData);
-	}
 	
-	$query .= "SELECT PoNo FROM purchasOrder WHERE Id =LAST_INSERT_ID();";
+	$poData['Status'] = $data['data']['Status'];
+	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$poNo);
 	
-	$error = null;
+	$result = dbRunQuery($dbLink,$query);
+	
 	$output = array();
 	
-	$purchaseOrderNo = 0;
+	/*$purchaseOrderNo = 0;
 	
 	if(mysqli_multi_query($dbLink,$query))
 	{
@@ -138,7 +131,7 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	else
 	{
 		$error = "Error description: " . mysqli_error($dbLink);
-	}
+	}*/
 	
 	dbClose($dbLink);	
 	sendResponse($output,$error);

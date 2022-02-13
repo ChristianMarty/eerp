@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ $route.params.partNo }}</h1>
+    <h1>{{ $route.params.partNo }} - {{ partData.Description }}</h1>
 
     <h2>Manufacturer Parts</h2>
     <el-table
@@ -67,10 +67,48 @@
 
     <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
 
-    <h3>Stock Notification</h3>
+    <h2>Stock Notification</h2>
     <p><b>Stock Minimum:</b> {{ partData.StockMinimum }}</p>
     <p><b>Stock Warning:</b> {{ partData.StockWarning }}</p>
     <p><b>Stock Maximum:</b> {{ partData.StockMaximum }}</p>
+
+    <h2>Purchase Orders</h2>
+
+    <el-table
+      :data="purchaseOrderData"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+        <template slot-scope="{ row }">
+          <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
+            <span>PO-{{ row.PoNo }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Title" label="PO Title" sortable />
+      <el-table-column prop="Sku" label="Sku" sortable />
+      <el-table-column
+        prop="Quantity"
+        label="Quantity"
+        sortable
+        width="120"
+      />
+      <el-table-column
+        prop="Price"
+        label="Price"
+        sortable
+        width="100"
+      />
+      <el-table-column
+        prop="Status"
+        label="Status"
+        sortable
+        width="100"
+      />
+
+    </el-table>
+    <p><b>Total Order Quantity: </b>{{ purchaseOrder.TotalOrderQuantity }}</p>
+    <p><b>Pending Order Quantity: </b>{{ purchaseOrder.PendingOrderQuantity }}</p>
 
   </div>
 </template>
@@ -82,7 +120,9 @@ export default {
   name: 'ProdPartBrowser',
   data() {
     return {
-      partData: null
+      partData: null,
+      purchaseOrder: null,
+      purchaseOrderData: null
     }
   },
   mounted() {
@@ -105,6 +145,7 @@ export default {
         params: { PartNo: this.$route.params.partNo }
       }).then(response => {
         this.partData = response.data
+        this.getPurchasOrder()
       })
     },
     getPartLookup() {
@@ -114,6 +155,16 @@ export default {
         params: { PartNo: this.$route.params.partNo }
       }).then(response => {
         this.partLookup = response.data
+      })
+    },
+    getPurchasOrder() {
+      requestBN({
+        url: '/purchasing/partPurchase',
+        methood: 'get',
+        params: { ProductionPartNo: this.$route.params.partNo }
+      }).then(response => {
+        this.purchaseOrder = response.data
+        this.purchaseOrderData = this.purchaseOrder.PurchaseOrderData
       })
     },
     setTagsViewTitle() {

@@ -11,18 +11,17 @@
       label-width="130px"
     >
       <el-form-item label="Supplier:" prop="suppliers">
-        <el-select
-          v-model="formData.SupplierName"
-          filterable
-          placeholder="Select"
-        >
-          <el-option
-            v-for="item in suppliers"
-            :key="item.Name"
-            :label="item.Name"
-            :value="item.Name"
-          />
-        </el-select>
+        <el-cascader
+          v-model="formData.SupplierId"
+          :options="suppliers"
+          :props="{
+            emitPath: false,
+            value: 'Id',
+            label: 'Name',
+            children: 'Children',
+            checkStrictly: true
+          }"
+        />
       </el-form-item>
 
       <el-form-item label="Purchase Date:">
@@ -53,14 +52,14 @@
 import requestBN from '@/utils/requestBN'
 
 const emptyData = {
-  SupplierName: '',
+  SupplierId: '',
   Title: '',
   PurchaseDate: null,
   Description: ''
 }
 
 export default {
-  name: 'LocationAssignment',
+  name: 'CreatePO',
   components: {},
   data() {
     return {

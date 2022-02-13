@@ -6,6 +6,11 @@
         <el-button type="primary" @click="save">Save</el-button>
         <el-button @click="addLine('Part')">Add Part</el-button>
         <el-button @click="addLine('Generic')">Add Generic Item</el-button>
+        <!-- <el-badge :value="1" type="primary"> -->
+        <el-button @click="orderReqestDialogVisible = true">
+          Order Reqests
+        </el-button>
+        <!-- </el-badge> -->
       </el-form-item>
     </el-form>
     <el-table
@@ -32,11 +37,17 @@
       </el-table-column>
 
       <el-table-column label="SKU" width="220">
-        <template slot-scope="{ row }">
+
+        <template v-if="row.Type !== 'ManufacturerPart'" slot-scope="{ row }">
           <el-input
             v-model="row.SupplierSku"
           />
         </template>
+
+        <template v-if="row.Type === 'ManufacturerPart'" slot-scope="{ row }">
+          {{ row.SupplierSku }}
+        </template>
+
       </el-table-column>
 
       <el-table-column label="Item">
@@ -47,6 +58,10 @@
               v-model="row.Description"
               placeholder="Description"
             />
+          </template>
+
+          <template v-if="row.Type == 'ManufacturerPart'">
+            {{ row.ManufacturerName }} {{ row.ManufacturerPartNumber }} {{ row.Description }}
           </template>
 
           <template v-if="row.Type == 'Part'">
@@ -122,13 +137,50 @@
           />
         </template>
       </el-table-column>
-      </el-table-column>
+
       <el-table-column label="Total" width="120">
         <template slot-scope="{ row }">
           <span>{{ (Math.round((row.QuantityOrderd*row.Price) * 100000)/100000) }}</span>
         </template>
       </el-table-column>
     </el-table>
+
+    <el-dialog title="Pending Order Request" :visible.sync="orderReqestDialogVisible" :before-close="closeDialog" @open="getOrderRequests(orderData.SupplierId)()">
+      <el-table
+        ref="itemTable"
+        :key="tableKey"
+        :data="orderRequests"
+        border
+        style="width: 100%"
+      >
+        <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" />
+
+        <el-table-column prop="ManufacturerPartNumber" label="Manufacturer Part Number" width="250">
+          <template slot-scope="{ row }">
+            <router-link
+              :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+              class="link-type"
+            >
+              <span>{{ row.ManufacturerPartNumber }}</span>
+            </router-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="250" />
+        <el-table-column prop="Quantity" label="Quantity" width="100" />
+        <el-table-column prop="PartNoList" label="Production Part" />
+        <el-table-column width="100">
+          <template slot-scope="{ row }">
+            <el-button
+              style="float: right;"
+              type="text"
+              size="mini"
+              @click="addRequestToOrder(row)"
+            >Add To Order</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -145,11 +197,11 @@ export default {
       tableKey: 0,
       line: 0,
       orderStatus: 0,
-      suppliers: null
+      orderRequests: null,
+      orderReqestDialogVisible: false
     }
   },
   mounted() {
-    this.getSuppliers()
     this.getManufacturers()
     this.getOrderLines()
   },
@@ -181,6 +233,28 @@ export default {
     updateTable() {
       this.tableKey += 1
       this.$forceUpdate()
+    },
+    addRequestToOrder(orderRequestData) {
+      this.line++
+
+      const row = {
+        OrderLineId: 0,
+        LineNo: this.line,
+        QuantityOrderd: orderRequestData.Quantity,
+        SupplierSku: orderRequestData.SupplierPartNumber,
+        Description: '',
+        Price: 0,
+        Type: 'ManufacturerPart',
+
+        PartNo: null,
+        ManufacturerName: orderRequestData.ManufacturerName,
+        ManufacturerPartNumber: orderRequestData.ManufacturerPartNumber,
+
+        MfrPartIndex: null,
+        PartOptions: null
+      }
+
+      this.lines.push(row)
     },
     addLine(lineType) {
       this.line++
@@ -216,17 +290,6 @@ export default {
       totalLine[5] = Math.round(total * 100000) / 100000
       return totalLine
     },
-    getOrder() {
-      requestBN({
-        url: '/purchasOrder',
-        methood: 'get',
-        params: {
-          PurchaseOrderNo: this.$props.data.orderNumber
-        }
-      }).then(response => {
-        this.orderData = response.data[0]
-      })
-    },
     getOrderLines() {
       requestBN({
         url: '/purchasing/item',
@@ -245,14 +308,6 @@ export default {
         methood: 'get'
       }).then(response => {
         this.partManufacturer = response.data
-      })
-    },
-    getSuppliers() {
-      requestBN({
-        url: '/supplier',
-        methood: 'get'
-      }).then(response => {
-        this.suppliers = response.data
       })
     },
     updaptePartLine(row) {
@@ -281,6 +336,15 @@ export default {
       }).then(response => {
         this.lines[index].PartOptions =
           response.data.ManufacturerParts
+      })
+    },
+    getOrderRequests(supplierId) {
+      requestBN({
+        url: '/purchasing/orderRequest',
+        methood: 'get',
+        params: { SupplierId: supplierId }
+      }).then(response => {
+        this.orderRequests = response.data
       })
     }
   }

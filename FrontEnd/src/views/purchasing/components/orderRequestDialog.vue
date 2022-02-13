@@ -8,6 +8,9 @@
         class="form-container"
         label-width="150px"
       >
+
+
+
         <el-form-item label="Quantity:" prop="Quantity">
           <el-input-number
             v-model="quantity"
@@ -50,7 +53,7 @@ export default {
 
   },
   methods: {
-    loadData(){
+    loadData() {
 
     },
     sendOrderRequest() {

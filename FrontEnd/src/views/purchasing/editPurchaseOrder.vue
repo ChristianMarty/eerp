@@ -66,25 +66,25 @@
       <el-form size="mini" label-width="220px">
         <el-form-item label="Titel:">
           <el-input
-            v-model="dialogData.Titel"
+            v-model="dialogData.Title"
             style="width: 350px"
             placeholder="Titel"
           />
         </el-form-item>
 
         <el-form-item label="Supplier:">
-          <el-select
-            v-model="dialogData.SupplierName"
-            filterable
+          <el-cascader
+            v-model="dialogData.SupplierId"
+            :options="suppliers"
             placeholder="Supplier"
-          >
-            <el-option
-              v-for="item in suppliers"
-              :key="item.Name"
-              :label="item.Name"
-              :value="item.Name"
-            />
-          </el-select>
+            :props="{
+              emitPath: false,
+              value: 'Id',
+              label: 'Name',
+              children: 'Children',
+              checkStrictly: true
+            }"
+          />
         </el-form-item>
 
         <el-form-item label="Acknowledgement Number:">
@@ -100,6 +100,7 @@
             v-model="dialogData.PurchaseDate"
             type="date"
             placeholder="Pick a day"
+            value-format="yyyy-MM-dd"
           />
         </el-form-item>
         <el-form-item label="Description:">
@@ -181,12 +182,10 @@ export default {
       this.saveData(data)
     },
     saveData(data) {
-      let PurchaseDate = new Date(data.PurchaseDate)
-      PurchaseDate = PurchaseDate.toISOString().split('T')[0]
-      data.PurchaseDate = PurchaseDate
       requestBN({
         method: 'PATCH',
         url: '/purchasOrder',
+        params: { PurchaseOrderNo: this.PoNo },
         data: { data: data }
       }).then(response => {
         if (response.error == null) {
@@ -224,6 +223,7 @@ export default {
         }
       }).then(response => {
         this.orderData = response.data[0]
+        this.dialogData = this.orderData
         if (this.orderData.Status === 'Editing') this.orderStatus = 0
         else if (this.orderData.Status === 'Placed') this.orderStatus = 1
         else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
