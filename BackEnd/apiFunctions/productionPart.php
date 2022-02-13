@@ -16,19 +16,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query  = "SELECT DISTINCT productionPart.PartNo, Description FROM productionPart ";
-	$query .= "LEFT JOIN partLookup ON partLookup.PartNo = productionPart.PartNo ";
+	$query  = "SELECT productionPart.PartNo, Description FROM productionPart ";
+	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id ";
 	
 	if(isset($_GET["ManufacturerPartId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		$query.= "WHERE productionPart.ManufacturerPartId = '".$temp."'";		
+		$query.= "WHERE productionPartMapping.ManufacturerPartId = '".$temp."'";		
 	}
 	else if(isset($_GET["ProductionPartNo"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
 		$query.= "WHERE  productionPart.PartNo LIKE '".$temp."'";	
 	}
+
 
 	$result = mysqli_query($dbLink,$query);
 	

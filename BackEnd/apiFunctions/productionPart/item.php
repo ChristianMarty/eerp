@@ -21,12 +21,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$partNo = dbEscapeString($dbLink, $_GET["PartNo"]);
 
-	$query = "SELECT manufacturerPart.Id AS PartId, partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, productionPart_stockNotification.StockMinimum, productionPart_stockNotification.StockMaximum, productionPart_stockNotification.StockWarning, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart "; 
+	$query = "SELECT productionPart.Description AS ProductionPartDescription, manufacturerPart.Id AS PartId, partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, productionPart_stockNotification.StockMinimum, productionPart_stockNotification.StockMaximum, productionPart_stockNotification.StockWarning, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart "; 
 	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
 	$query .= "LEFT JOIN partStock ON partStock.ManufacturerPartId = manufacturerPart.Id ";
-	$query .= "LEFT JOIN productionPart ON productionPart.ManufacturerPartId = manufacturerPart.Id ";
+	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
 	$query .= "LEFT JOIN productionPart_stockNotification ON productionPart_stockNotification.PartNo = productionPart.PartNo ";
 	$query .= "WHERE productionPart.PartNo = '".$partNo."'";
+	
+
 	
 
 	$result = mysqli_query($dbLink,$query);
@@ -44,7 +47,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$rows['StockMinimum'] = $r['StockMinimum'];
 		$rows['StockMaximum'] = $r['StockMaximum'];
 		$rows['StockWarning'] = $r['StockWarning'];
-	
+		$rows['Description'] = $r['ProductionPartDescription'];
+		
 		if(!array_key_exists($r['PartId'],$manufacturerParts))
 		{
 			$Part = array();
