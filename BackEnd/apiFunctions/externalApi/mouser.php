@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../config.php";
 
-function getMouserPartData($mouserPartNumber)
+function mouser_getPartData($mouserPartNumber)
 {
 	global $mouserApiPath;
 	global $mouserApiKey;
@@ -32,5 +32,99 @@ function getMouserPartData($mouserPartNumber)
 
     return json_decode($result);
 }
+
+function mouser_getOrderHistory( )
+{
+	global $mouserApiPath;
+	global $mouserApiKey;
+
+	$url = $mouserApiPath.'orderhistory/ByDateFilter?apiKey='.$mouserApiKey.'&dateFilter=YearToDate';
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+    $result = curl_exec($curl);
+
+    curl_close($curl);
+
+	$mouserData = json_decode($result,true);
+	
+	$data = Array();
+	$data['NumberOfOrders'] = $mouserData["NumberOfOrders"];
+	
+	$orders = array();
+	foreach($mouserData["OrderHistoryItems"] as $order)
+	{
+		$dateTime = explode("T", $order["DateCreated"]);
+		
+		$temp = array();
+		$temp['OrderDate'] = $dateTime[0];
+		$temp['OrderTime'] = $dateTime[1];
+		$temp['OrderNumber'] = $order["WebOrderNumber"];
+		
+		$orders[$temp['OrderNumber']] = $temp;
+	}
+	
+	$data['Orders'] = $orders;
+	
+	return $data;
+}
+
+function mouser_getOrderInformation($mouserOrderNumber )
+{
+	global $mouserApiPath;
+	global $mouserApiKey;
+
+	$url = $mouserApiPath.'order/'.$mouserOrderNumber.'?apiKey='.$mouserApiKey;
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+    $result = curl_exec($curl);
+
+    curl_close($curl);
+
+	$mouserData = json_decode($result,true);
+	
+	$data = Array();
+	
+	$data['VatPrice'] = $mouserData["TaxAmount"];
+	$data['TotalPrice'] = $mouserData["OrderTotal"];
+	$data['ShippingPrice'] = 0;
+	$data['MerchandisePrice'] = $mouserData["MerchandiseTotal"];
+	$data['CurrencyCode'] = $mouserData["CurrencyCode"];
+	$data['OrderDate'] = mouser_getOrderHistory()['Orders'][$mouserOrderNumber]['OrderDate'];
+	
+	$lineIndex = 1;
+	$lines = array();
+	foreach($mouserData["OrderLines"] as $line)
+	{
+		$temp = array();
+		$temp['ManufacturerPartNumber'] = $line["MfrPartNumber"];
+		$temp['ManufacturerName'] = $line["Manufacturer"];
+		$temp['SupplierPartNumber'] = $line["MouserPartNumber"];
+		$temp['SupplierDescription'] = $line["Description"];
+		$temp['OrderReference'] = $line["CartItemCustPartNumber"];
+		$temp['Quantity'] = $line["Quantity"];
+		$temp['Price'] = $line["UnitPrice"];
+		$temp['TotalPrice'] = $line["ExtendedPrice"];
+		$temp['LineNo'] =  $lineIndex;
+		
+		$lineIndex++;
+		
+		array_push($lines, $temp);
+	}
+	
+	$data['Lines'] = $lines;
+
+	
+    return $data; 
+}
+
+
+	
+
 
 ?>

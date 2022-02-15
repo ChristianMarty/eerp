@@ -15,6 +15,12 @@ const documentsRouter = {
       meta: { title: 'Create PO', icon: 'el-icon-sold-out', roles: ['purchasing.create'] }
     },
     {
+      path: 'import/',
+      component: () => import('@/views/purchasing/importPurchaseOrder'),
+      name: 'importPurchaseOrder',
+      meta: { title: 'Import PO', icon: 'el-icon-sold-out', roles: ['purchasing.create'] }
+    },
+    {
       path: 'browser/',
       component: () => import('@/views/purchasing/poBrowser'),
       name: 'purchaseBrowser',

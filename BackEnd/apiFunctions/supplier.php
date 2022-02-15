@@ -16,7 +16,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT * FROM supplier ORDER BY `Name` ASC";	
+	$query = "SELECT * FROM supplier ";	
+	
+	
+	if(isset($_GET["OrderImportSupported"]))
+	{
+		$query .= "WHERE OrderImportSupported = true ";
+	}
+	
+	$query .= "ORDER BY `Name` ASC ";
 	
 	$classId = 0;
 	
