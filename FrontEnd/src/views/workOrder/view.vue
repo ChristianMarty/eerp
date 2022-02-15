@@ -64,7 +64,6 @@ export default {
   },
   mounted() {
     this.getWorkOrderData()
-    // this.setTagsViewTitle();
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -80,13 +79,18 @@ export default {
         params: { WorkOrderNo: this.$route.params.workOrderNo }
       }).then(response => {
         this.workOrderData = response.data
+        this.setTagsViewTitle()
+        this.setPageTitle()
       })
     },
     setTagsViewTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.$route.params.projectNo}`
+        title: `WO-${this.$route.params.workOrderNo}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
+    },
+    setPageTitle() {
+      document.title = `${this.projectData.Title}`
     },
     calcSum(param) {
       let total = 0

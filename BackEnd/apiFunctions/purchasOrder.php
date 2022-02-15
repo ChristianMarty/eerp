@@ -29,6 +29,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$query.= "WHERE Status = '".$status."'";	
 	}
 	
+	$query.= " ORDER BY purchasOrder.PurchaseDate DESC";	
+	
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	
@@ -60,7 +62,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$query = dbBuildInsertQuery($dbLink, "purchasOrder", $poCreate);
 	
-	$query .= "SELECT PoNo FROM purchasOrder WHERE Id =LAST_INSERT_ID();";
+	$query .= "SELECT PoNo FROM purchasOrder WHERE Id = LAST_INSERT_ID();";
 	
 	$output = array();
 	$error = null;
@@ -105,8 +107,8 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData['Title'] = $data['data']['Title'];
 	$poData['PurchaseDate'] = $data['data']['PurchaseDate'];
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
+	$poData['OrderNumber'] = $data['data']['OrderNumber'];
 	$poData['Description'] = $data['data']['Description'];
-	
 	
 	$poData['Status'] = $data['data']['Status'];
 	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$poNo);

@@ -87,6 +87,14 @@
           />
         </el-form-item>
 
+        <el-form-item label="Order Number:">
+          <el-input
+            v-model="dialogData.OrderNumber"
+            style="width: 350px"
+            placeholder="Supplier Order Number"
+          />
+        </el-form-item>
+
         <el-form-item label="Acknowledgement Number:">
           <el-input
             v-model="dialogData.AcknowledgementNumber"
@@ -126,6 +134,7 @@ import editOrder from './components/edit'
 import placedOrder from './components/placed'
 import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
+
 
 export default {
   name: 'PurchaseOrder',

@@ -90,7 +90,7 @@ export default {
       //  });
     },
     save() {
-      if (this.isValid() == false) {
+      if (this.isValid() === false) {
         this.$message({
           showClose: true,
           message: 'Input Invalide',

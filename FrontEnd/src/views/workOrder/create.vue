@@ -13,7 +13,7 @@
           <el-option
             v-for="item in projects"
             :key="item.Id"
-            :label="item.Titel"
+            :label="item.Title"
             :value="item.Id"
           />
         </el-select>
@@ -74,7 +74,7 @@ export default {
           })
         } else {
           this.$router.push(
-            '/workOrder/workOrderView/' + response.data.WorkOrderId
+            '/workOrder/workOrderView/' + response.data.WorkOrderNo
           )
         }
       })

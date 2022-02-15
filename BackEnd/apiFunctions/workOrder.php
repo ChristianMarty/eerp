@@ -55,10 +55,13 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}
 	
-	$query = "SELECT Id FROM workOrder WHERE Id = LAST_INSERT_ID();";
+	$query = "SELECT Id, WorkOrderNo FROM workOrder WHERE Id = LAST_INSERT_ID();";
 	$result = dbRunQuery($dbLink,$query);
 	
-	$workOrder['WorkOrderId'] = dbGetResult($result)['Id'];
+	$result = dbGetResult($result);
+	
+	$workOrder['WorkOrderId'] = $result['Id'];
+	$workOrder['WorkOrderNo'] = $result['WorkOrderNo'];
 	
 	$result = dbRunQuery($dbLink,$query);
 	$stockPart = dbGetResult($result);
