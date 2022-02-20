@@ -48,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$r['DateCode'] = $date->format("yW");
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
 		$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
-		$r['OrderReference']  = "GCT-".$r['OrderReference'];
+		$r['OrderReference']  = $r['OrderReference'];
 		
 		array_push($output, $r);
 		$stockNoValid = true;
@@ -162,7 +162,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$location = dbEscapeString($dbLink,$data['data']['Location']);	
 	$location = str_replace("Loc-","",$location);
 	
-	if(isset($data['data']['ReceivalId']))  // If part is created based on purchas recaival 
+	if(isset($data['data']['ReceivalId']))  // If part is created based on purchas receival id 
 	{
 		$receivalId = dbEscapeString($dbLink,$data['data']['ReceivalId']);
 		
@@ -170,7 +170,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= $receivalId.", ";
 		$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
 		$query .= $quantity.",";
-		$query .= "'".$date."', ";
+		$query .= dbStringNull($date).", ";
 		$query .= dbStringNull($orderReference);
 		$query .= ") AS StockNo; ";
 		
@@ -232,6 +232,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	}
 	
 	dbClose($dbLink);	
+	
 	sendResponse($stockPart, $error);
 }
 

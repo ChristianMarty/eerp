@@ -33,7 +33,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	sendResponse($data);
 }
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
