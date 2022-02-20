@@ -79,6 +79,7 @@
                           </a>
                         </template>
                       </el-table-column>
+                      <el-table-column prop="Note" label="Note" sortable />
                       <el-table-column>
                         <template slot-scope="{ row }">
                           <el-button
