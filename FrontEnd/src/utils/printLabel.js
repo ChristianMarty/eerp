@@ -33,10 +33,10 @@ export function printLabel(zplCode, data) {
 
   BrowserPrint.getDefaultDevice(
     'printer',
-    function(device) {
+    function (device) {
       device.send(zplCode, undefined, undefined)
     },
-    function() { }
+    function () { }
   )
 
   return true

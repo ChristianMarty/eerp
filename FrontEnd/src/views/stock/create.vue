@@ -104,14 +104,25 @@
       </el-form-item>
 
       <el-form-item label="Print settings:">
-        <el-radio-group v-model="labelTemplate">
-          <el-radio-button
-            :label="smallLabel"
-          >Small Label</el-radio-button>
-          <el-radio-button
-            :label="largeLabel"
-          >Large Label</el-radio-button>
-        </el-radio-group>
+        
+        <el-select v-model="selectedLabelId">
+          <el-option
+            v-for="item in label"
+            :key="Number(item.Id)"
+            :label="item.Name"
+            :value="Number(item.Id)"
+          />
+        </el-select>
+
+        <el-select v-model="selectedPrinterId">
+          <el-option
+            v-for="item in printer"
+            :key="Number(item.Id)"
+            :label="item.Name"
+            :value="Number(item.Id)"
+          />
+        </el-select>
+
         <el-checkbox
           v-model="autoPrint"
           style="margin-left: 20px"
@@ -134,6 +145,9 @@
 </template>
 
 <script>
+import * as labelTemplate from '@/utils/labelTemplate'
+import * as defaultSetting from '@/utils/defaultSetting'
+
 import requestBN from '@/utils/requestBN'
 import * as print from '@/utils/printLabel'
 import printDialog from './components/printDialog'
@@ -211,14 +225,16 @@ export default {
         ]
       },
       autoPrint: false,
-      labelTemplate: 'Small Label',
       inputError: false,
       manufacturer: null,
       locations: null,
-      smallLabel: null,
-      largeLabel: null,
       partOptions: null,
       suppliers: null,
+
+      label: null,
+      printer: {},
+      selectedPrinterId: 0,
+      selectedLabelId: 0,
 
       printDialogVisible: false
     }
@@ -228,8 +244,8 @@ export default {
     this.getManufacturers()
     this.resetForm()
     this.getLabel()
+    this.getPrinter()
     this.getSuppliers()
-    print.loadPrinter()
   },
   methods: {
     getLocations() {
@@ -337,17 +353,20 @@ export default {
       requestBN({
         url: '/label',
         methood: 'get',
-        params: { Id: 1 }
+        params: { Tag: 'Stock' }
       }).then(response => {
-        this.smallLabel = response.data[0]
+        this.label = response.data
       })
-
+    },
+    getPrinter() {
       requestBN({
-        url: '/label',
-        methood: 'get',
-        params: { Id: 2 }
+        url: '/printer',
+        methood: 'get'
       }).then(response => {
-        this.largeLabel = response.data[0]
+        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
+        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+
+        this.printer = response.data
       })
     },
     print(printData) {
@@ -359,8 +378,24 @@ export default {
         $PartNo: printData.OrderReference,
         $Description: printData.Description
       }
+      console.log(this.label)
+      var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
 
-      print.printLabel(this.labelTemplate.Code, labelData)
+      console.log(labelTemplateObject)
+      var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
+
+      requestBN({
+        method: 'post',
+        url: '/print/print',
+        data: {
+          Driver: 'raw',
+          Language: labelTemplateObject.Language,
+          PrinterId: this.selectedPrinterId,
+          Data: labelCode
+        }
+      }).then(response => {
+
+      })
 
       this.resetForm()
     }

@@ -118,7 +118,7 @@ export default {
     onPrint() {
       requestBN({
         method: 'post',
-        url: '/bomPrint/',
+        url: '/print/bonPrint',
         data: { data: this.bom }
       }).then(response => {
         if (response.error !== null) {

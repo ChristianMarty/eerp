@@ -151,20 +151,34 @@
       <p><b>Date: </b>{{ purchaseInformation.PurchaseDate }}</p>
     </el-card>
 
-    <el-card v-if="showItem">
+    <el-card v-if="showItem ">
       <h3>Print Label</h3>
       <el-divider />
-      <el-radio-group v-model="labelTemplate">
-        <el-radio-button :label="smallLabel">Small Label</el-radio-button>
-        <el-radio-button :label="largeLabel">Large Label</el-radio-button>
-      </el-radio-group>
+      <template v-if="label !== null">
 
-      <el-button
-        type="primary"
-        style="margin-left: 20px"
-        @click="printDialogVisible = true"
-      >Print</el-button>
+        <el-select v-model="selectedLabelId">
+          <el-option
+            v-for="item in label"
+            :key="Number(item.Id)"
+            :label="item.Name"
+            :value="Number(item.Id)"
+          />
+        </el-select>
 
+        <el-select v-model="selectedPrinterId">
+          <el-option
+            v-for="item in printer"
+            :key="Number(item.Id)"
+            :label="item.Name"
+            :value="Number(item.Id)"
+          />
+        </el-select>
+        <el-button
+          type="primary"
+          style="margin-left: 20px"
+          @click="printDialogVisible = true"
+        >Print</el-button>
+      </template>
     </el-card>
 
     <printDialog
@@ -192,14 +206,16 @@
 <script>
 import permission from '@/directive/permission/index.js'
 
+import * as labelTemplate from '@/utils/labelTemplate'
+import * as defaultSetting from '@/utils/defaultSetting'
 import requestBN from '@/utils/requestBN'
-import * as print from '@/utils/printLabel'
+
 import printDialog from './components/printDialog'
 import addStockDialog from './components/addStockDialog'
 import removeStockDialog from './components/removeStockDialog'
 import countStockDialog from './components/countStockDialog'
 
-const returnData = {
+const partDataEmpty = {
   StockId: '',
   Manufacturer: '',
   ManufacturerPartNumber: '',
@@ -230,13 +246,14 @@ export default {
       inputStockId: null,
       history: null,
       showItem: false,
-      partData: Object.assign({}, returnData),
+      partData: Object.assign({}, partDataEmpty),
       reservation: null,
       purchaseInformation: Object.assign({}, purchaseInformationData),
       stockAccuracy: Object.assign({}, stockAccuracyData),
-      labelTemplate: null,
-      smallLabel: null,
-      largeLabel: null,
+      label: null,
+      printer: {},
+      selectedPrinterId: 0,
+      selectedLabelId: 0,
       productionPartData: null,
       printDialogVisible: false,
       addStockDialogVisible: false,
@@ -258,6 +275,7 @@ export default {
     }
 
     this.getLabel()
+    this.getPrinter()
     print.loadPrinter()
   },
   created() {
@@ -408,17 +426,20 @@ export default {
       requestBN({
         url: '/label',
         methood: 'get',
-        params: { Id: 1 }
+        params: { Tag: 'Stock' }
       }).then(response => {
-        this.smallLabel = response.data[0]
+        this.label = response.data
       })
-
+    },
+    getPrinter() {
       requestBN({
-        url: '/label',
-        methood: 'get',
-        params: { Id: 2 }
+        url: '/printer',
+        methood: 'get'
       }).then(response => {
-        this.largeLabel = response.data[0]
+        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
+        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+
+        this.printer = response.data
       })
     },
     print(printData) {
@@ -430,8 +451,23 @@ export default {
         $PartNo: printData.OrderReference,
         $Description: printData.Description
       }
+      console.log(this.label)
+      var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
 
-      print.printLabel(this.labelTemplate.Code, labelData)
+      console.log(labelTemplateObject)
+      var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
+
+      requestBN({
+        method: 'post',
+        url: '/print/print',
+        data: {
+          Driver: 'raw',
+          PrinterId: this.selectedPrinterId,
+          Data: labelCode
+        }
+      }).then(response => {
+
+      })
     }
   }
 }
