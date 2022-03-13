@@ -19,7 +19,9 @@ if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
 	$json =  '{"inventory": { "print": true,"create": true},"purchasing":{"create": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true},"stock":{"create": true, "add": true, "remove":true, "count":true}}';
+	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2}}';
 	
+	$settings = json_decode($settingsJson);
 	$roles = json_decode($json);
 	
 	$roles_array = array();
@@ -39,12 +41,14 @@ if($devMode) // TODO: This is fundamentally broken -> fix it
 	$returnData['name'] = "DevMode";
 	
 	$returnData['rolesJson'] = $roles;
+	$returnData['settings'] = $settings;
 
 	sendResponse($returnData);
 }
 else
 {
 	$returnData['roles'] = $_SESSION['UserRolesString'];
+	$returnData['settings'] = $_SESSION["settings"];
 	$returnData['rolesJson'] = $_SESSION['UserRoles'];
 	$returnData['introduction'] = "I am ".$_SESSION["username"];
 	$returnData['avatar'] ="";
