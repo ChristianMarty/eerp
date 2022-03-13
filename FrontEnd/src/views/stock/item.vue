@@ -8,12 +8,12 @@
         ref="itemNrInput"
         v-model="inputStockId"
         placeholder="Please input"
-        @keyup.enter.native="loadItem"
+        @keyup.enter.native="setItem"
       >
         <el-button
           slot="append"
           icon="el-icon-search"
-          @click="loadItem"
+          @click="setItem"
         />
       </el-input>
     </p>
@@ -294,6 +294,10 @@ export default {
     setPageTitle() {
       document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
     },
+    setItem()
+    {
+      this.$router.push('/stock/item/' + this.inputStockId)
+    },
     loadItem() {
       this.getStockItem()
       this.getHistory()
@@ -451,10 +455,9 @@ export default {
         $PartNo: printData.OrderReference,
         $Description: printData.Description
       }
-      console.log(this.label)
+
       var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
 
-      console.log(labelTemplateObject)
       var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
 
       requestBN({
@@ -462,6 +465,7 @@ export default {
         url: '/print/print',
         data: {
           Driver: 'raw',
+          Language: labelTemplateObject.Language,
           PrinterId: this.selectedPrinterId,
           Data: labelCode
         }
