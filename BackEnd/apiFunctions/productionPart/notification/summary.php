@@ -17,8 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT productionPart.PartNo, productionPart_getQuantity(productionPart.PartNo) as StockQuantity, productionPart_stockNotification.StockMinimum, productionPart_stockNotification.StockMaximum, productionPart_stockNotification.StockWarning FROM productionPart "; 
-	$query .= "LEFT JOIN productionPart_stockNotification ON productionPart_stockNotification.PartNo = productionPart.PartNo ";
+	$query = "SELECT productionPart.PartNo, productionPart_getQuantity(productionPart.PartNo) as StockQuantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning FROM productionPart "; 
 	$query .= "WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null";
 	
 	//echo $query;
