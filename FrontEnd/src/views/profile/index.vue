@@ -4,14 +4,21 @@
 
     <h2>Roles</h2>
 
-    <h3 v-for="(value, name) in userData.rolesJson">
+    <p v-for="(value, name) in userData.rolesJson">
       {{ name }} {{ value }}
-    </h3>
+    </p>
+
+    <h2>Settings</h2>
+
+    <p v-for="(value, name) in userData.settings">
+      {{ name }} {{ value }}
+    </p>
 
   </div>
 </template>
 
 <script>
+
 import requestBN from '@/utils/requestBN'
 
 import { mapGetters } from 'vuex'
@@ -21,7 +28,8 @@ export default {
   data() {
     return {
       user: {},
-      userData: {}
+      userData: {},
+      settings: {}
     }
   },
   computed: {

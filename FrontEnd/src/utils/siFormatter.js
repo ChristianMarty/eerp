@@ -8,7 +8,7 @@ export default function siFormatter(value, unit) {
   var output = ''
   var si = ''
 
-  if (value == 0) {
+  if (value === 0) {
     output = 0
   } else if (value < 0.000000001) {
     output = (value * 1000000000000)

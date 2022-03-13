@@ -104,7 +104,7 @@
       </el-form-item>
 
       <el-form-item label="Print settings:">
-        
+
         <el-select v-model="selectedLabelId">
           <el-option
             v-for="item in label"
