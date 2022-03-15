@@ -19,9 +19,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	$driver = $data['Driver'];
-	$language = $data['Language'];
+	if(!isset($data['PrinterId'])) sendResponse(null, "Printer ID missing");
+	
 	$printerId = intval($data['PrinterId']);
+	
+	if(isset($data['Driver']))$driver = $data['Driver'];
+	else $driver = "raw";
+	
+	if(isset($data['Language'])) $language = $data['Language'];
+	else $language = "";
+	
 	$data = $data['Data'];
 	
 	$query = "SELECT * FROM printer WHERE Id =".$printerId;
@@ -32,11 +39,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$output = array();
 	$output['Printer'] = $printer;
-	
-	if($language == 'ESCPOS')
-	{
+
+
+	if(strtoupper($language) == 'ESCPOS')
+	{	
 		$data =  mb_convert_encoding($data, "ASCII");
+		$parts = explode('\\', $data);
+		if(strlen($parts[0]) == 0) unset($parts[0]);
 		
+		$data = "";
+		foreach($parts as $part)
+		{
+			if(strtolower(substr($part, 0,1)) === "x")
+			{
+				$data .= hex2bin(substr($part,1,2));
+				if(strlen($part) > 3) $data .= substr($part,3);
+			}
+			else
+			{
+				$data .= "\\".$part;
+			}
+		}
 	}
 	
 	if($driver == 'raw')
@@ -49,8 +72,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		socket_write($socket, $data, strlen($data));
 		
-		socket_close($socket);
-		
+		socket_close($socket);	
 	}
 
 	sendResponse($output);
