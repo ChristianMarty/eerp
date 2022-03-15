@@ -8,8 +8,8 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require __DIR__ . "/databaseConnector.php";
-require __DIR__ . "/../config.php";
+require_once __DIR__ . "/databaseConnector.php";
+require_once __DIR__ . "/../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -19,10 +19,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	// Query attributes
 
 	$attributes  = array();
-
+	
 	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, partAttribute.Type, partAttribute.Scale, unitsOfMeasure.Name AS UnitName, unitsOfMeasure.Unit, unitsOfMeasure.Symbol ";
 	$query .= "FROM partAttribute ";
-	$query .= "LEFT JOIN unitsOfMeasure On unitsOfMeasure.Id = partAttribute.ParentId";
+	$query .= "LEFT JOIN unitsOfMeasure On unitsOfMeasure.Id = partAttribute.UnitId";
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))
@@ -108,6 +108,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				}
 				
 				$dataSet['Name'] = $attributeName;
+				$dataSet['AttributeId'] = $key;
 				$dataSet['Value']= $value;
 				$dataSet['Unit']= $attributes[$key]['Unit'];
 				$dataSet['Symbol']= $attributes[$key]['Symbol'];
