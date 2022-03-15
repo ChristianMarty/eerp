@@ -60,7 +60,6 @@
 
     <el-table
       :data="partData"
-      :default-sort="{ prop: 'Package', order: 'descending' }"
       height="80vh"
       border
       style="width: 100%"
@@ -95,9 +94,10 @@
         :prop="attribute.Name"
         sortable
         :formatter="siRowFormater"
+        :sort-method="tableSort(attribute.Name)"
       />
 
-      <el-table-column prop="StockQuantity" label="Stock" />
+      <el-table-column prop="StockQuantity" label="Stock" sortable :sort-method="tableSort('StockQuantity')" />
       <el-table-column sortable prop="Package" label="Package" width="120" />
       <el-table-column sortable prop="Status" label="Lifecycle" width="120" />
     </el-table>
@@ -129,22 +129,6 @@ export default {
     this.getManufacturers()
   },
   methods: {
-    getAttributeValue_old(partData, attribute) {
-      var i
-      for (i = 0; i < partData.length; i++) {
-        if (partData[i].Name === attribute) break
-      }
-      if (i === partData.length) return '' // No Attribute found, Return empty string
-
-      if (typeof partData[i].Value === 'object') {
-        var out = partData[i].Value.Minimum
-        if (partData[i].Value.Typical) out += ' - ' + partData[i].Value.Typical
-        out += ' - ' + partData[i].Value.Maximum
-        return out
-      } else {
-        return partData[i].Value
-      }
-    },
     getAttributeValue(value) {
       if (value === null) return ''
 
@@ -252,14 +236,18 @@ export default {
       this.MfrPartNoFilter = ''
       this.getPartData()
     },
-    tableSort(a, b) {
-      const valA = 0
-      if (a.StockQuantity != null) parseFloat(a.StockQuantity)
+    tableSort(property) {
+      return function(a, b) {
+        if (a.[property] === undefined || b.[property] === undefined) return -1
 
-      const valB = 0
-      if (b.StockQuantity != null) parseFloat(b.StockQuantity)
+        var valA = 0
+        if (a.[property] != null) valA = parseFloat(a.[property])
 
-      return valA - valB
+        var valB = 0
+        if (b.[property] != null) valB = parseFloat(b.[property])
+
+        return valA - valB
+      }
     },
     siRowFormater(row, column, cellValue, index) {
       return siFormatter(cellValue, '')
