@@ -48,7 +48,7 @@ if($devMode) // TODO: This is fundamentally broken -> fix it
 else
 {
 	$returnData['roles'] = $_SESSION['UserRolesString'];
-	$returnData['settings'] = $_SESSION["settings"];
+	$returnData['settings'] = $_SESSION["Settings"];
 	$returnData['rolesJson'] = $_SESSION['UserRoles'];
 	$returnData['introduction'] = "I am ".$_SESSION["username"];
 	$returnData['avatar'] ="";

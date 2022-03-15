@@ -74,6 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 		while($r = mysqli_fetch_assoc($result)) 
 		{
+			$settings = json_decode($r['Settings']);
 			$userRolesTree = json_decode($r['Roles']);
 		}
 
@@ -83,6 +84,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$_SESSION["username"] = $username;
 		$_SESSION['loggedin'] = true;
 		$_SESSION['UserRoles'] = $userRolesTree;
+		$_SESSION["Settings"] = $settings;
 		
 		$returnData = array();
 		$returnData['DisplayName'] = "User";//$userAttributes['displayName'][0];
