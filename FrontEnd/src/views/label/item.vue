@@ -11,9 +11,25 @@
           <el-input v-model="row.Value" placeholder="Please input" @input="updateCode" />
         </template>
       </el-table-column>
-
     </el-table>
-    <el-button type="primary" plain icon="el-icon-printer" style="margin-top: 20px; margin-bottom: 20px;"@click="print">Print</el-button>
+
+    <el-select v-model="selectedPrinterId">
+      <el-option
+        v-for="item in printer"
+        :key="Number(item.Id)"
+        :label="item.Name"
+        :value="Number(item.Id)"
+      />
+    </el-select>
+    <el-button
+      type="primary" 
+      plain icon="el-icon-printer"
+      style="margin-left: 20px"
+      @click="print()"
+    >Print</el-button>
+
+
+
     <el-collapse>
       <el-collapse-item title="Code">
         <template slot="title">
@@ -47,7 +63,9 @@ export default {
       previewHeight: '0mm',
       previewWidth: '0mm',
       previewStyle: '',
-      rotation: '90'
+      rotation: '90', 
+      printer: [],
+      selectedPrinterId: 1
     }
   },
   mounted() {
@@ -57,6 +75,7 @@ export default {
     }
 
     print.loadPrinter()
+    this.getPrinter()
   },
   methods: {
     prepairData() {
@@ -90,7 +109,16 @@ export default {
         }
       })
     },
+    getPrinter() {
+      requestBN({
+        url: '/printer',
+        methood: 'get'
+      }).then(response => {
+        this.printer = response.data
+      })
+    },
     updateCode() {
+
       this.code = JSON.parse(JSON.stringify(this.labelData.Code))
       this.variables.forEach(element => {
         this.code = this.code.replaceAll(element.Name, element.Value)
@@ -98,6 +126,8 @@ export default {
       this.updateImage()
     },
     updateImage() {
+      if(this.labelData.Language != 'ZPL') return;
+
       this.previewPath = 'https://api.labelary.com/v1/printers/'
       this.previewPath += this.labelData.Resolution
       this.previewPath += '/labels/'
@@ -114,7 +144,19 @@ export default {
       }
     },
     print() {
-      print.printLabel(this.code, {})
+
+      requestBN({
+        method: 'post',
+        url: '/print/print',
+        data: {
+          Driver: 'raw',
+          Language: this.labelData.Language,
+          PrinterId: this.selectedPrinterId,
+          Data: this.code
+        }
+      }).then(response => {
+
+      })
     }
   }
 }
