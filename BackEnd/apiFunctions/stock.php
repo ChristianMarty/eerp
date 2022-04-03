@@ -94,15 +94,15 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$StockId = strtolower($StockId);
 	$StockId = str_replace("stk-","",$StockId);
 
-	
+	if(isset($data["WorkOrderId"])) $workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
+	else $workOrderId = null;
+		
+	if($workOrderId == null) $workOrderId = 0;
+		
 	if(isset($data["RemoveQuantity"]))
 	{
 		$RemoveQuantity = dbEscapeString($dbLink, $data["RemoveQuantity"]);
-		if(isset($data["WorkOrderId"])) $workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
-		else $workOrderId = null;
-		
-		if($workOrderId == null) $workOrderId = 0;
-		
+	
 		if(!is_numeric($RemoveQuantity))sendResponse($output,"Quantity is not numeric");
 		$RemoveQuantity = intval($RemoveQuantity);
 		$output["RemoveQuantity"] = $RemoveQuantity;
@@ -117,7 +117,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 		$AddQuantity = intval($AddQuantity);
 		$output["AddQuantity"] = $AddQuantity;
 		
-		$query = "CALL partStock_quantityAdd('".$StockId."','".$AddQuantity."')";
+		$query = "CALL partStock_quantityAdd('".$StockId."','".$AddQuantity."','".$workOrderId."')";
 	}
 	else if(isset($data["Quantity"]))
 	{

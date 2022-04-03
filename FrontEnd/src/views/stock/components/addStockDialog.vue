@@ -18,6 +18,19 @@
             :max="100000"
           />
         </el-form-item>
+
+        <el-form-item label="Work Order:">
+          <el-select v-model="workOrderId" filterable>
+            <el-option
+              v-for="wo in workOrders"
+              :key="wo.Id"
+              :label="wo.Title"
+              :value="wo.Id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -40,22 +53,35 @@ export default {
   props: { item: { type: Object, default: itemData }, visible: { type: Boolean, default: false }},
   data() {
     return {
-      addQuantity: 0
+      addQuantity: 0,
+      workOrders: null,
+      workOrderId: null
     }
   },
   mounted() {
+    this.getWorkOrders()
   },
   methods: {
     closeDialog() {
       this.visible = false
       this.$emit('update:visible', this.visible)
     },
+    getWorkOrders() {
+      requestBN({
+        url: '/workOrder',
+        methood: 'get',
+        params: { Status: 'InProgress' }
+      }).then(response => {
+        this.workOrders = response.data
+      })
+    },
     addStock() {
       requestBN({
         method: 'patch',
         url: '/stock',
         params: { StockNo: this.item.StockNo },
-        data: { AddQuantity: this.addQuantity }
+        data: { AddQuantity: this.addQuantity,
+                WorkOrderId: this.workOrderId }
       }).then(response => {
         if (response.error != null) {
           this.$message({
