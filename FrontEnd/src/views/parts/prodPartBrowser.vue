@@ -24,6 +24,9 @@
       <el-form-item>
         <el-button type="info" plain @click="resetFilter">Reset</el-button>
       </el-form-item>
+
+      <p><el-checkbox v-model="fliterNoMfp">Hide entries without assigned manufacturer parts</el-checkbox>
+      </p>
       <p>Use MySQL LIKE syntax for search queries</p>
     </el-form>
 
@@ -57,7 +60,8 @@ export default {
   data() {
     return {
       partData: null,
-      ProdPartNoFilter: ''
+      ProdPartNoFilter: '',
+      fliterNoMfp: true
     }
   },
   mounted() {
@@ -70,6 +74,7 @@ export default {
       if (this.ProdPartNoFilter.length !== 0) {
         this.$set(filterList, 'ProductionPartNo', this.ProdPartNoFilter)
       }
+      filterList.HideNoManufacturerPart = this.fliterNoMfp
 
       requestBN({
         url: '/productionPart',
