@@ -1,21 +1,11 @@
 <template>
   <div class="add-stock-dialog">
-    <el-dialog
-      title="Remove Stock"
-      :visible.sync="visible"
-      :before-close="closeDialog"
-    >
+    <el-dialog title="Remove Stock" :visible.sync="visible" :before-close="closeDialog">
       <el-form label-width="150px">
-        <el-form-item label="Stock Quantity:">
-          {{ item.Quantity }}
-        </el-form-item>
+        <el-form-item label="Stock Quantity:">{{ item.Quantity }}</el-form-item>
 
         <el-form-item label="Remove Quantity:">
-          <el-input-number
-            v-model="removeQuantity"
-            :min="1"
-            :max="item.Quantity"
-          />
+          <el-input-number v-model="removeQuantity" :min="1" :max="item.Quantity" />
         </el-form-item>
 
         <el-form-item label="Work Order:">
@@ -23,7 +13,7 @@
             <el-option
               v-for="wo in workOrders"
               :key="wo.Id"
-              :label="wo.Title"
+              :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
               :value="wo.Id"
             />
           </el-select>
