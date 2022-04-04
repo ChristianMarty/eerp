@@ -22,13 +22,12 @@
       />
     </el-select>
     <el-button
-      type="primary" 
-      plain icon="el-icon-printer"
+      type="primary"
+      plain
+      icon="el-icon-printer"
       style="margin-left: 20px"
       @click="print()"
     >Print</el-button>
-
-
 
     <el-collapse>
       <el-collapse-item title="Code">
@@ -63,7 +62,7 @@ export default {
       previewHeight: '0mm',
       previewWidth: '0mm',
       previewStyle: '',
-      rotation: '90', 
+      rotation: '90',
       printer: [],
       selectedPrinterId: 1
     }
@@ -118,7 +117,6 @@ export default {
       })
     },
     updateCode() {
-
       this.code = JSON.parse(JSON.stringify(this.labelData.Code))
       this.variables.forEach(element => {
         this.code = this.code.replaceAll(element.Name, element.Value)
@@ -126,7 +124,7 @@ export default {
       this.updateImage()
     },
     updateImage() {
-      if(this.labelData.Language != 'ZPL') return;
+      if (this.labelData.Language != 'ZPL') return
 
       this.previewPath = 'https://api.labelary.com/v1/printers/'
       this.previewPath += this.labelData.Resolution
@@ -144,7 +142,6 @@ export default {
       }
     },
     print() {
-
       requestBN({
         method: 'post',
         url: '/print/print',

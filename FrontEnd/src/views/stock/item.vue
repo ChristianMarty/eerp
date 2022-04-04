@@ -294,8 +294,7 @@ export default {
     setPageTitle() {
       document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
     },
-    setItem()
-    {
+    setItem() {
       this.$router.push('/stock/item/' + this.inputStockId)
     },
     loadItem() {
