@@ -14,11 +14,19 @@
       <el-main>
         <p>
           <b>Location:</b>
-          {{ inventoryData.LocationName }}
+          {{ inventoryData.Location }}
+        </p>
+        <p>
+          <b>Location Path:</b>
+          {{ inventoryData.LocationPath }}
         </p>
         <p>
           <b>Home Location:</b>
-          {{ inventoryData.HomeLocationName }}
+          {{ inventoryData.HomeLocation }}
+        </p>
+        <p>
+          <b>Home Location Path:</b>
+          {{ inventoryData.HomeLocationPath }}
         </p>
         <p>
           <b>Purchase Date:</b>

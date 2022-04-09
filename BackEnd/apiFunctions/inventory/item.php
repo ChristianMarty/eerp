@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/location.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -28,6 +29,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		sendResponse($output,"No inventory item specified");
 	}
 	
+	$locations = getLocations();
+	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
@@ -36,9 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$baseQuery = "SELECT ";
 	$baseQuery .="inventory.Id AS Id, ReceivalId, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
-	$baseQuery .="supplier.name AS SupplierName, ";
-	$baseQuery .="location_getName(LocationId) AS LocationName, ";
-	$baseQuery .="location_getName(HomeLocationId) AS HomeLocationName ";
+	$baseQuery .="supplier.name AS SupplierName, LocationId, HomeLocationId ";
 	$baseQuery .="FROM `inventory` ";
 	$baseQuery .="LEFT JOIN `supplier` On supplier.Id = inventory.SupplierId ";
 	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
@@ -52,9 +53,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = dbRunQuery($dbLink,$baseQuery);
 	$r = mysqli_fetch_assoc($result);
 	
-	
 	$r['InvNo'] = "Inv-".$r['InvNo'];
 	$r['PicturePath'] = $PictureRootPath.$r['PicturePath'];
+	
+	$r['Location'] =  buildLocation($locations, $r['LocationId']);
+	$r['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
+	$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
+	$r['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
+	
 	$id = $r['Id'];
 	unset($r['Id']);
 	
