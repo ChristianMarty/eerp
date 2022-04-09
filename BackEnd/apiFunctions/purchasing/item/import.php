@@ -11,7 +11,9 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../externalApi/mouser.php";
+require_once __DIR__ . "/../../externalApi/digikey.php";
 
+global $digikeySupplierId;
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	
@@ -24,6 +26,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($supplierId == 17) // 17 = mouser,  TODO: make this better
 	{
 		$data = mouser_getOrderInformation($orderNumber);
+	}
+	else if($supplierId == $digikeySupplierId)
+	{
+		$data = digikey_getOrderInformation($orderNumber);
 	}
 	else
 	{
@@ -48,6 +54,10 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($supplierId == 17) // 17 = mouser,  TODO: make this better
 	{
 		$supplierData = mouser_getOrderInformation($orderNumber);
+	}
+	else if($supplierId == $digikeySupplierId)
+	{
+		$supplierData = digikey_getOrderInformation($orderNumber);
 	}
 	
 	$poCreate = array();

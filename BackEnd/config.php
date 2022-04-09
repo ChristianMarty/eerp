@@ -43,5 +43,12 @@ $octopartApiToken = '';
 $enableMouser  = false;
 $mouserApiPath = 'https://api.mouser.com/api/v1';
 $mouserApiKey  = '';
+// Digikey API
+$enableDigikey  = false;
+$digikeyApiPath = '';
+$digikeyClientId = '';
+$digikeyClientSecret = '';
+$digikeyCallbackPath = '';
+$digikeySupplierId = 0;
 
 ?>
