@@ -9,26 +9,78 @@
 
     <el-container>
       <el-aside>
-        <el-image
-          style="width: 250px;"
-          :src="inventoryData.PicturePath"
-          :fit="fit"
-        />
+        <el-image style="width: 250px;" :src="inventoryData.PicturePath" :fit="fit" />
       </el-aside>
       <el-main>
-        <p><b>Location: </b>{{ inventoryData.LocationName }}</p>
-        <p><b>Home Location: </b>{{ inventoryData.HomeLocationName }}</p>
-        <p><b>Purchase Date: </b>{{ inventoryData.PurchaseDate }}</p>
-        <p><b>Purchase Price: </b>{{ inventoryData.PurchasePrice }}</p>
-        <p><b>Supplier: </b>{{ inventoryData.SupplierName }}</p>
-        <p><b>Serial Number: </b>{{ inventoryData.SerialNumber }}</p>
-        <p><b>MAC Address Wired: </b>{{ inventoryData.MacAddressWired }}</p>
         <p>
-          <b>MAC Address Wireless: </b>{{ inventoryData.MacAddressWireless }}
+          <b>Location:</b>
+          {{ inventoryData.LocationName }}
         </p>
-        <p><b>Status: </b>{{ inventoryData.Status }}</p>
+        <p>
+          <b>Home Location:</b>
+          {{ inventoryData.HomeLocationName }}
+        </p>
+        <p>
+          <b>Purchase Date:</b>
+          {{ inventoryData.PurchaseDate }}
+        </p>
+        <p>
+          <b>Purchase Price:</b>
+          {{ inventoryData.PurchasePrice }}
+        </p>
+        <p>
+          <b>Supplier:</b>
+          {{ inventoryData.SupplierName }}
+        </p>
+        <p>
+          <b>Serial Number:</b>
+          {{ inventoryData.SerialNumber }}
+        </p>
+        <p>
+          <b>MAC Address Wired:</b>
+          {{ inventoryData.MacAddressWired }}
+        </p>
+        <p>
+          <b>MAC Address Wireless:</b>
+          {{ inventoryData.MacAddressWireless }}
+        </p>
+        <p>
+          <b>Status:</b>
+          {{ inventoryData.Status }}
+        </p>
       </el-main>
     </el-container>
+    <el-divider />
+
+    <h2>Purchase Information</h2>
+
+    <p>
+      <b>PO No:</b>
+      <router-link :to="'/purchasing/edit/' + purchaseInformation.PoNo" class="link-type">
+        <span>{{ purchaseInformation.PoNo }}</span>
+      </router-link>
+    </p>
+    <p>
+      <b>Price:</b>
+      {{ purchaseInformation.Price }} {{ purchaseInformation.Currency }}
+    </p>
+    <p>
+      <b>Date:</b>
+      {{ purchaseInformation.PurchaseDate }}
+    </p>
+
+    <p>
+      <b>Supplier:</b>
+      {{ purchaseInformation.SupplierName }}
+    </p>
+    <p>
+      <b>Part Number:</b>
+      {{ purchaseInformation.SupplierPartNumber }}
+    </p>
+    <p>
+      <b>Order Reference:</b>
+      {{ purchaseInformation.OrderReference }}
+    </p>
     <el-divider />
     <h2>Description</h2>
     <pre>
@@ -42,9 +94,7 @@
       <el-table-column prop="Document" label="Document">
         <template slot-scope="{ row }">
           <a :href="row.Path" target="blank">
-            <el-button icon="el-icon-document">
-              Open in new tab
-            </el-button>
+            <el-button icon="el-icon-document">Open in new tab</el-button>
           </a>
         </template>
       </el-table-column>
@@ -65,14 +115,9 @@
         <el-card>
           <b>{{ line.Type }}</b>
           <p>{{ line.Description }}</p>
-          <p
-            v-for="(doc, index2) in line.Documents"
-            :key="index2"
-          >
+          <p v-for="(doc, index2) in line.Documents" :key="index2">
             <a :href="doc.Path" target="blank">
-              <el-button icon="el-icon-document">
-                {{ doc.Description }}
-              </el-button>
+              <el-button icon="el-icon-document">{{ doc.Description }}</el-button>
             </a>
           </p>
           <p v-if="line.NextDate">Next {{ line.Type }}: {{ line.NextDate }}</p>
@@ -96,11 +141,13 @@ export default {
   components: {},
   data() {
     return {
-      inventoryData: null
+      inventoryData: null,
+      purchaseInformation: null
     }
   },
   mounted() {
     this.getInventoryData()
+    this.getPurchaseInformation()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -128,6 +175,15 @@ export default {
         this.inventoryData = response.data
         this.setTagsViewTitle()
         this.setPageTitle()
+      })
+    },
+    getPurchaseInformation() {
+      requestBN({
+        url: '/inventory/purchaseInformation',
+        methood: 'get',
+        params: { InvNo: this.$route.params.invNo }
+      }).then(response => {
+        this.purchaseInformation = response.data
       })
     },
     addPrint() {
