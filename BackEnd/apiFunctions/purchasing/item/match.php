@@ -20,7 +20,7 @@ function loadDatabaseData($purchaseOrderNo)
 	$query  = "SELECT LineNo, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, partManufacturer.Name AS ManufacturerNameDatabase, partManufacturer.Id AS PartManufacturerId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId ";
 	$query .= "FROM purchasOrder_itemOrder ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Name = purchasOrder_itemOrder.ManufacturerName OR partManufacturer.Alias = purchasOrder_itemOrder.ManufacturerName ";
+	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Name = purchasOrder_itemOrder.ManufacturerName OR partManufacturer.Alias = purchasOrder_itemOrder.ManufacturerName OR partManufacturer.AliasDigikey = purchasOrder_itemOrder.ManufacturerName ";
 	$query .= "LEFT JOIN manufacturerPart ON manufacturerPart.ManufacturerId = partManufacturer.Id AND manufacturerPart.ManufacturerPartNumber = purchasOrder_itemOrder.ManufacturerPartNumber ";
 	$query .= "LEFT JOIN supplierPart ON supplierPart.SupplierId = purchasOrder.SupplierId AND supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku ";
 	$query .= "WHERE purchasOrder.PoNo = ".$purchaseOrderNo;
@@ -69,7 +69,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query  = "UPDATE purchasOrder_itemOrder ";
 		$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
 		$query .= "SET SupplierPartId = ";
-		$query .= "(SELECT supplierPart.Id FROM supplierPart LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId "; 
+		$query .= "(SELECT supplierPart.Id FROM supplierPart "; 
 		$query .= "WHERE supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku AND supplierPart.SupplierId = purchasOrder.SupplierId ";
 		$query .= ") ";
 		$query .= "WHERE purchasOrder_itemOrder.Type = 'Part' AND purchasOrder.PoNo = ".$purchaseOrderNo;
