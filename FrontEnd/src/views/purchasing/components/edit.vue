@@ -1,166 +1,184 @@
 <template>
   <div class="edit-container">
-
-    <el-form :inline="true" style="margin-top: 20px">
+    <el-form :inline="true" style="margin-top: 20px" v-permission="['purchasing.edit']">
       <el-form-item>
-        <el-button type="primary" @click="save">Save</el-button>
+        <el-button type="primary" @click="save(lines)">Save All</el-button>
         <el-button @click="addLine('Part')">Add Part</el-button>
         <el-button @click="addLine('Generic')">Add Generic Item</el-button>
         <!-- <el-badge :value="1" type="primary"> -->
-        <el-button @click="orderReqestDialogVisible = true">
-          Order Reqests
-        </el-button>
+        <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
         <!-- </el-badge> -->
       </el-form-item>
     </el-form>
+
     <el-table
       ref="itemTable"
       :key="tableKey"
       :data="lines"
       border
+      :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
       :summary-method="calcSum"
       show-summary
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-
-      <el-table-column label="Quantity" width="120">
-        <template slot-scope="{ row }">
-          <el-input-number
-            v-model="row.QuantityOrderd"
-            :controls="false"
-            :min="1"
-            :max="999999"
-            style="width: 70pt"
-          />
-        </template>
-      </el-table-column>
-
-      <el-table-column label="SKU" width="220">
-
-        <template v-if="row.Type !== 'ManufacturerPart'" slot-scope="{ row }">
-          <el-input
-            v-model="row.SupplierSku"
-          />
-        </template>
-
-        <template v-if="row.Type === 'ManufacturerPart'" slot-scope="{ row }">
-          {{ row.SupplierSku }}
-        </template>
-
-      </el-table-column>
-
+      <el-table-column prop="QuantityOrderd" label="Quantity" width="120" />
+      <el-table-column label="SKU" prop="SupplierSku" width="220" />
       <el-table-column label="Item">
         <template slot-scope="{ row }">
-
-          <template v-if="row.Type == 'Generic'">
-            <el-input
-              v-model="row.Description"
-              placeholder="Description"
-            />
-          </template>
-
-          <template v-if="row.Type == 'ManufacturerPart'">
-            {{ row.ManufacturerName }} {{ row.ManufacturerPartNumber }} {{ row.Description }}
-          </template>
-
+          <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
           <template v-if="row.Type == 'Part'">
-            <el-row type="flex">
-
-              <el-popover
-                placement="right"
-                width="400"
-                trigger="click"
-              >
-                <el-select
-                  v-model="row.MfrPartIndex"
-                  placeholder="Manufacturer Part"
-                  style="min-width: 300px; margin-right: 10px;"
-                  @change="updaptePartLine(row)"
-                >
-                  <el-option
-                    v-for="(item, index) in row.PartOptions"
-                    :key="index"
-                    :label="item.ManufacturerName +' - ' +item.ManufacturerPartNumber"
-                    :value="index"
-                  />
-                </el-select>
-
-                <el-input
-                  slot="reference"
-                  v-model="row.PartNo"
-                  placeholder="PartNo"
-                  style="width: 150px; margin-right: 10px;"
-                  @change="getPartData(row)"
-                />
-              </el-popover>
-
-              <el-select
-                v-model="row.ManufacturerName"
-                placeholder="Manufacturer"
-                filterable
-                style="min-width: 200px; margin-right: 10px;"
-              >
-                <el-option
-                  v-for="item in partManufacturer"
-                  :key="item.Name"
-                  :label="item.Name"
-                  :value="item.Name"
-                />
-              </el-select>
-
-              <el-input
-                v-model="row.ManufacturerPartNumber"
-                placeholder="Part Number"
-                style="min-width: 250px; max-width: 250px; margin-right: 10px;"
-              />
-
-              <el-input
-                v-model="row.Description"
-                placeholder="Description"
-              />
-            </el-row>
+            {{ row.PartNo }} - {{ row.ManufacturerName }} - {{
+              row.ManufacturerPartNumber
+            }} - {{ row.Description }}
           </template>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Price" label="Price" width="120" />
 
+      <el-table-column label="Total" width="120">
+        <template slot-scope="{ row }">
+          <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 100000) / 100000) }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="Price" label="Price" width="120">
-        <template slot-scope="{ row }">
+      <template v-permission="['purchasing.edidt']">
+        <el-table-column width="70">
+          <template slot-scope=" { row }">
+            <el-button
+              type="text"
+              size="mini"
+              @click="orderLineEditData = JSON.parse(JSON.stringify(row)), orderLineEditDialogVisible = true"
+            >Edit</el-button>
+          </template>
+        </el-table-column>
+      </template>
+    </el-table>
+
+    <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible">
+      <template v-if="orderLineEditData.Type == 'Part'">
+        <p>Part</p>
+      </template>
+      <template v-if="orderLineEditData.Type == 'Generic'">
+        <p>Generic</p>
+      </template>
+
+      <el-form label-width="150px">
+        <el-form-item label="Line:">{{ orderLineEditData.LineNo }}</el-form-item>
+        <el-form-item label="Quantity:">
+          <template slot-scope="{ row }">
+            <el-input-number
+              v-model="orderLineEditData.QuantityOrderd"
+              :controls="false"
+              :min="1"
+              :max="999999"
+              style="width: 70pt"
+            />
+          </template>
+        </el-form-item>
+
+        <el-form-item label="Price:">
           <el-input-number
-            v-model="row.Price"
+            v-model="orderLineEditData.Price"
             :controls="false"
             :precision="4"
             :min="0.0000"
             :max="999999"
             style="width: 70pt"
           />
-        </template>
-      </el-table-column>
+        </el-form-item>
 
-      <el-table-column label="Total" width="120">
-        <template slot-scope="{ row }">
-          <span>{{ (Math.round((row.QuantityOrderd*row.Price) * 100000)/100000) }}</span>
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-form-item label="Total:">
+          <span>{{ (Math.round((orderLineEditData.QuantityOrderd * orderLineEditData.Price) * 100000) / 100000) }}</span>
+        </el-form-item>
 
-    <el-dialog title="Pending Order Request" :visible.sync="orderReqestDialogVisible" :before-close="closeDialog" @open="getOrderRequests(orderData.SupplierId)()">
-      <el-table
-        ref="itemTable"
-        :key="tableKey"
-        :data="orderRequests"
-        border
-        style="width: 100%"
-      >
+        <el-form-item label="Sku:">
+          <el-input v-model="orderLineEditData.SupplierSku" />
+        </el-form-item>
+
+        <el-form-item label="Part Number:">
+          <el-popover placement="right" width="400" trigger="click">
+            <el-select
+              v-model="orderLineEditData.MfrPartIndex"
+              placeholder="Manufacturer Part"
+              style="min-width: 300px; margin-right: 10px;"
+              @change="updaptePartLine(orderLineEditData)"
+            >
+              <el-option
+                v-for="(item, index) in orderLineEditData.PartOptions"
+                :key="index"
+                :label="item.ManufacturerName + ' - ' + item.ManufacturerPartNumber"
+                :value="index"
+              />
+            </el-select>
+
+            <el-input
+              slot="reference"
+              v-model="orderLineEditData.PartNo"
+              placeholder="PartNo"
+              style="width: 150px; margin-right: 10px;"
+              @change="getPartData(orderLineEditData)"
+            />
+          </el-popover>
+        </el-form-item>
+
+        <el-form-item label="Order Reference:">
+          <el-input v-model="orderLineEditData.OrderReference" />
+        </el-form-item>
+
+        <el-form-item label="Manufacturer:">
+          <el-select
+            v-model="orderLineEditData.ManufacturerName"
+            placeholder="Manufacturer"
+            filterable
+            style="min-width: 200px; margin-right: 10px;"
+          >
+            <el-option
+              v-for="item in partManufacturer"
+              :key="item.Name"
+              :label="item.Name"
+              :value="item.Name"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="MPN:">
+          <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
+        </el-form-item>
+
+        <el-form-item label="Description:">
+          <el-input v-model="orderLineEditData.Description" />
+        </el-form-item>
+        <el-form-item label="Note:">
+          <el-input v-model="orderLineEditData.Note" type="textarea" placeholder="Note" />
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button
+          type="danger"
+          @click="orderLineEditDialogVisible = false, deleteLine(orderLineEditData.LineNo)"
+        >Delete</el-button>
+        <el-button
+          type="primary"
+          @click="orderLineEditDialogVisible = false, save([orderLineEditData])"
+        >Save</el-button>
+        <el-button @click="orderLineEditDialogVisible = false">Cancel</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      title="Pending Order Request"
+      :visible.sync="orderReqestDialogVisible"
+      :before-close="closeDialog"
+      @open="getOrderRequests(orderData.SupplierId)()"
+    >
+      <el-table ref="itemTable" :key="tableKey" :data="orderRequests" border style="width: 100%">
         <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" />
 
         <el-table-column prop="ManufacturerPartNumber" label="Manufacturer Part Number" width="250">
           <template slot-scope="{ row }">
-            <router-link
-              :to="'/mfrParts/partView/' + row.ManufacturerPartId"
-              class="link-type"
-            >
+            <router-link :to="'/mfrParts/partView/' + row.ManufacturerPartId" class="link-type">
               <span>{{ row.ManufacturerPartNumber }}</span>
             </router-link>
           </template>
@@ -180,16 +198,18 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
 import requestBN from '@/utils/requestBN'
 
+import permission from '@/directive/permission/index.js'
+
 export default {
   name: 'PurchaseOrderEdit',
-  props: { orderData: { type: Object, default: null }},
+  props: { orderData: { type: Object, default: null } },
+  directives: { permission },
   data() {
     return {
       orderData: this.$props.orderData,
@@ -198,7 +218,9 @@ export default {
       line: 0,
       orderStatus: 0,
       orderRequests: null,
-      orderReqestDialogVisible: false
+      orderReqestDialogVisible: false,
+      orderLineEditDialogVisible: false,
+      orderLineEditData: {}
     }
   },
   mounted() {
@@ -206,11 +228,11 @@ export default {
     this.getOrderLines()
   },
   methods: {
-    save() {
+    save(lines) {
       requestBN({
         method: 'post',
         url: '/purchasing/item/edit',
-        data: { data: { Lines: this.lines, PoNo: this.$props.orderData.PoNo }}
+        data: { data: { Action: "save", Lines: lines, PoNo: this.$props.orderData.PoNo } }
       }).then(response => {
         if (response.error == null) {
           this.getOrderLines()
@@ -229,6 +251,45 @@ export default {
           })
         }
       })
+    },
+    deleteLine(lineNo) {
+
+      this.$confirm('This will permanently delete line ' + lineNo + '. Continue?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        requestBN({
+          method: 'post',
+          url: '/purchasing/item/edit',
+          data: { data: { Action: "delete", LineNo: lineNo, PoNo: this.$props.orderData.PoNo } }
+        }).then(response => {
+          if (response.error == null) {
+            this.getOrderLines()
+            this.$message({
+              showClose: true,
+              message: 'Changes saved successfully',
+              duration: 1500,
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: response.error,
+              duration: 0,
+              type: 'error'
+            })
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: 'Delete canceled'
+        });
+      });
+
+
+
     },
     updateTable() {
       this.tableKey += 1

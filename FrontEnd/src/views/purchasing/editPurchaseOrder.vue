@@ -8,16 +8,16 @@
       <el-step title="Closed" />
     </el-steps>
 
-    <template v-if="orderData.Status == 'Editing'">
+    <template v-if="orderData.Status == 'Editing'" v-permission="['purchasing.edit']">
       <el-button type="info" @click="place">Place Order</el-button>
     </template>
 
-    <template v-if="orderData.Status == 'Placed'">
+    <template v-if="orderData.Status == 'Placed'" v-permission="['purchasing.edit']">
       <el-button type="info" @click="edit">Edit Order</el-button>
       <el-button type="info" @click="confirm">Confirm Order</el-button>
     </template>
 
-    <template v-if="orderData.Status == 'Confirmed'">
+    <template v-if="orderData.Status == 'Confirmed'" v-permission="['purchasing.edit']">
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
@@ -28,21 +28,29 @@
         {{ orderData.PurchaseDate }}
       </b>
     </p>
-
-    <el-input
-      v-if="orderData.Status == 'Placed'"
-      v-model="orderData.AcknowledgementNumber"
-      style="width: 350px"
-      placeholder="Supplier Order Number"
-    />
-
-    <p><b>Order Number:</b> {{ orderData.OrderNumber }}</p>
-    <p><b>Acknowledgement Number:</b> {{ orderData.AcknowledgementNumber }}</p>
-    <p><b>Currency:</b> {{ orderData.Currency }}</p>
-    <p><b>ExchangeRate:</b> {{ orderData.ExchangeRate }}</p>
-    <p><b>Description:</b> {{ orderData.Description }}</p>
+    <p>
+      <b>Order Number:</b>
+      {{ orderData.OrderNumber }}
+    </p>
+    <p>
+      <b>Acknowledgement Number:</b>
+      {{ orderData.AcknowledgementNumber }}
+    </p>
+    <p>
+      <b>Currency:</b>
+      {{ orderData.Currency }}
+    </p>
+    <p>
+      <b>Exchange Rate:</b>
+      {{ orderData.ExchangeRate }}
+    </p>
+    <p>
+      <b>Description:</b>
+      {{ orderData.Description }}
+    </p>
 
     <el-button
+      v-permission="['purchasing.edit']"
       v-if="orderData.Status == 'Editing'"
       style="margin-top: 20px"
       type="primary"
@@ -55,27 +63,21 @@
 
     <placedOrder v-if="orderData.Status == 'Placed'" :order-data="orderData" />
 
-    <confirmedOrder
-      v-if="orderData.Status == 'Confirmed'"
-      :order-data="orderData"
-    />
+    <confirmedOrder v-if="orderData.Status == 'Confirmed'" :order-data="orderData" />
 
     <closedOrder v-if="orderData.Status == 'Closed'" :order-data="orderData" />
 
     <el-dialog title="Edit Order" :visible.sync="showDialog" width="50%" center>
       <el-form size="mini" label-width="220px">
         <el-form-item label="Titel:">
-          <el-input
-            v-model="dialogData.Title"
-            style="width: 350px"
-            placeholder="Titel"
-          />
+          <el-input v-model="dialogData.Title" style="width: 350px" placeholder="Titel" />
         </el-form-item>
 
         <el-form-item label="Supplier:">
           <el-cascader
             v-model="dialogData.SupplierId"
             :options="suppliers"
+            filterable
             placeholder="Supplier"
             :props="{
               emitPath: false,
@@ -111,18 +113,32 @@
             value-format="yyyy-MM-dd"
           />
         </el-form-item>
-        <el-form-item label="Description:">
-          <el-input
-            v-model="dialogData.Description"
-            type="textarea"
-            placeholder="Description"
+
+        <el-form-item label="Currency">
+          <el-select v-model="dialogData.Currency" placeholder="Currency" filterable>
+            <el-option v-for="item in currencies" :key="item" :label="item" :value="item" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Exchange Rate">
+          <el-input-number
+            v-model="dialogData.ExchangeRate"
+            :controls="false"
+            :precision="4"
+            :min="0.0000"
+            :max="999999"
+            style="width: 70pt"
+            filterable
           />
+        </el-form-item>
+        <el-form-item label="Description:">
+          <el-input v-model="dialogData.Description" type="textarea" placeholder="Description" />
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDialog = false">Cancel</el-button>
         <el-button type="primary" @click="saveEditMeta()">Save</el-button>
+        <el-button @click="showDialog = false">Cancel</el-button>
       </span>
     </el-dialog>
   </div>
@@ -135,17 +151,21 @@ import placedOrder from './components/placed'
 import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
+import permission from '@/directive/permission/index.js'
+
 
 export default {
   name: 'PurchaseOrder',
   components: { editOrder, placedOrder, confirmedOrder, closedOrder },
+  directives: { permission },
   data() {
     return {
       PoNo: this.$route.params.PoNo,
       orderData: null,
 
       orderStatus: 0,
-      suppliers: null,
+      suppliers: {},
+      currencies: {},
 
       showDialog: false,
       dialogData: { type: Object, default: this.orderData }
@@ -160,6 +180,7 @@ export default {
   mounted() {
     this.getOrder()
     this.setTagsViewTitle()
+    this.getCurrency()
   },
   methods: {
     edit() {
@@ -221,6 +242,14 @@ export default {
         methood: 'get'
       }).then(response => {
         this.suppliers = response.data
+      })
+    },
+    getCurrency() {
+      requestBN({
+        url: '/purchasing/currency',
+        methood: 'get'
+      }).then(response => {
+        this.currencies = response.data
       })
     },
     getOrder() {

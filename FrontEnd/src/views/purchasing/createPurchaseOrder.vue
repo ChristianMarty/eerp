@@ -13,6 +13,7 @@
       <el-form-item label="Supplier:" prop="suppliers">
         <el-cascader
           v-model="formData.SupplierId"
+          filterable
           :options="suppliers"
           :props="{
             emitPath: false,
@@ -42,7 +43,6 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="save">Create</el-button>
-        <el-button>Cancel</el-button>
       </el-form-item>
     </el-form>
   </div>

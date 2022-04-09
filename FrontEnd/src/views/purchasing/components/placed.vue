@@ -1,15 +1,19 @@
 <template>
   <div class="placerd-container">
-    <el-button type="primary" @click="match()">Match parts against Database</el-button>
-    <p><b>TO DO:</b> Add purchase order document rendering</p>
+    <el-button
+      type="primary"
+      @click="match()"
+      v-permission="['purchasing.edit']"
+    >Match parts against Database</el-button>
+    <p></p>
     <el-table
       ref="itemTable"
       :key="tableKey"
       :data="lines"
       border
+      :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
       :summary-method="calcSum"
-      :cell-style="{ padding: '0', height: '15px' }"
       show-summary
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
@@ -18,9 +22,7 @@
 
       <el-table-column label="Item">
         <template slot-scope="{ row }">
-          <template v-if="row.Type == 'Generic'">
-            {{ row.Description }}
-          </template>
+          <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
 
           <template v-if="row.Type == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
@@ -33,17 +35,18 @@
 
       <el-table-column label="Total" width="120">
         <template slot-scope="{ row }">
-          <span>{{
-            Math.round(row.QuantityOrderd * row.Price * 100000) / 100000
-          }}</span>
+          <span>
+            {{
+              Math.round(row.QuantityOrderd * row.Price * 100000) / 100000
+            }}
+          </span>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog title="Match Parts" :visible.sync="matchDialogVisible" width="80%">
-
       <el-table
-        v-if="matchData!== null"
+        v-if="matchData !== null"
         :key="LineNo"
         :data="matchData.Lines"
         border
@@ -79,9 +82,11 @@
 
 <script>
 import requestBN from '@/utils/requestBN'
+import permission from '@/directive/permission/index.js'
 
 export default {
-  props: { orderData: { type: Object, default: null }},
+  props: { orderData: { type: Object, default: null } },
+  directives: { permission },
   data() {
     return {
       orderData: this.$props.orderData,
@@ -149,14 +154,14 @@ export default {
     },
     calcSum(param) {
       let total = 0
-      this.data.Lines.forEach(element => {
+      this.lines.forEach(element => {
         const line = element.QuantityOrderd * element.Price
-        total += Math.round(line * 100000) / 100000
+        total += line
       })
 
       const totalLine = []
       totalLine[0] = 'Total'
-      totalLine[5] = total
+      totalLine[5] = Math.round(total * 100000) / 100000
       return totalLine
     }
   }

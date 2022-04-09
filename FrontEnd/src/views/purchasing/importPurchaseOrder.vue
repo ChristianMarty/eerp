@@ -22,6 +22,7 @@
         <el-cascader
           v-model="formData.SupplierId"
           :options="suppliers"
+          filterable
           :props="{
             emitPath: false,
             value: 'Id',
@@ -42,13 +43,7 @@
     </el-form>
 
     <template v-if="orderData !== null">
-      <el-table
-        ref="itemTable"
-        :key="tableKey"
-        :data="orderData.Lines"
-        border
-        style="width: 100%"
-      >
+      <el-table ref="itemTable" :key="tableKey" :data="orderData.Lines" border style="width: 100%">
         <el-table-column prop="LineNo" label="Line" width="70" />
         <el-table-column prop="Quantity" label="Quantity" width="100" />
         <el-table-column prop="SupplierPartNumber" label="SKU" width="220" />
@@ -58,15 +53,32 @@
         <el-table-column prop="Price" label="Price" width="100" />
         <el-table-column prop="TotalPrice" label="TotalPrice" width="100" />
       </el-table>
-      <p><b>Order Date:</b> {{ orderData.OrderDate }}</p>
-      <p><b>Currency:</b> {{ orderData.CurrencyCode }}</p>
-      <p><b>Merchandise Cost:</b> {{ orderData.MerchandisePrice }}</p>
-      <p><b>Shipping Cost:</b> {{ orderData.ShippingPrice }}</p>
-      <p><b>VAT Cost:</b> {{ orderData.VatPrice }}</p>
-      <p><b>Total Cost:</b> {{ orderData.TotalPrice }}</p>
+      <p>
+        <b>Order Date:</b>
+        {{ orderData.OrderDate }}
+      </p>
+      <p>
+        <b>Currency:</b>
+        {{ orderData.CurrencyCode }}
+      </p>
+      <p>
+        <b>Merchandise Cost:</b>
+        {{ orderData.MerchandisePrice }}
+      </p>
+      <p>
+        <b>Shipping Cost:</b>
+        {{ orderData.ShippingPrice }}
+      </p>
+      <p>
+        <b>VAT Cost:</b>
+        {{ orderData.VatPrice }}
+      </p>
+      <p>
+        <b>Total Cost:</b>
+        {{ orderData.TotalPrice }}
+      </p>
 
       <el-button type="primary" @click="createPo">Create Purchas Order</el-button>
-
     </template>
   </div>
 </template>

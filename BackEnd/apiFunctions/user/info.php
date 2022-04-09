@@ -18,7 +18,7 @@ $returnData = array();
 if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
-	$json =  '{"inventory": { "print": true,"create": true},"purchasing":{"create": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true},"stock":{"create": true, "add": true, "remove":true, "count":true}}';
+	$json =  '{"inventory": { "print": true,"create": true},"purchasing":{"create": true, "edit": true, "confirm": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true},"stock":{"create": true, "add": true, "remove":true, "count":true}}';
 	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2}}';
 	
 	$settings = json_decode($settingsJson);

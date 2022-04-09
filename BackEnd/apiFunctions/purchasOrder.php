@@ -109,6 +109,8 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
 	$poData['OrderNumber'] = $data['data']['OrderNumber'];
 	$poData['Description'] = $data['data']['Description'];
+	$poData['Currency'] = $data['data']['Currency'];
+	$poData['ExchangeRate'] = $data['data']['ExchangeRate'];
 	
 	$poData['Status'] = $data['data']['Status'];
 	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$poNo);
