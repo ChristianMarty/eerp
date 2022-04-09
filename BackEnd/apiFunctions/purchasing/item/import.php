@@ -13,17 +13,17 @@ require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../externalApi/mouser.php";
 require_once __DIR__ . "/../../externalApi/digikey.php";
 
+global $mouserSupplierId;
 global $digikeySupplierId;
+	
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
 	if(!isset($_GET["SupplierId"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "SupplierId or OrderNumber missing!");
 	
 	$supplierId = $_GET["SupplierId"];
 	$orderNumber = $_GET["OrderNumber"];
 	
-	
-	if($supplierId == 17) // 17 = mouser,  TODO: make this better
+	if($supplierId == $mouserSupplierId)
 	{
 		$data = mouser_getOrderInformation($orderNumber);
 	}
@@ -36,7 +36,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		sendResponse(null, "Supplier not supported!");
 	}
 		
-	
 	sendResponse($data);
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -51,7 +50,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$supplierId = intval($data["SupplierId"]);
 	$orderNumber = $data["OrderNumber"];
 	
-	if($supplierId == 17) // 17 = mouser,  TODO: make this better
+	if($supplierId == $mouserSupplierId)
 	{
 		$supplierData = mouser_getOrderInformation($orderNumber);
 	}
@@ -128,7 +127,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	}
 	$output = array();
 	$output["PurchaseOrderNo"] = $poNo;
-	sendResponse($output);
+	sendResponse($output, $error);
 }
 
 ?>
