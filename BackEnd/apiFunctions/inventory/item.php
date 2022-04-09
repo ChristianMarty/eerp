@@ -35,7 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($SerNo)) $SerNo = dbEscapeString($dbLink, $SerNo );
 	
 	$baseQuery = "SELECT ";
-	$baseQuery .="inventory.Id AS Id, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
+	$baseQuery .="inventory.Id AS Id, ReceivalId, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
 	$baseQuery .="supplier.name AS SupplierName, ";
 	$baseQuery .="location_getName(LocationId) AS LocationName, ";
 	$baseQuery .="location_getName(HomeLocationId) AS HomeLocationName ";
