@@ -1,6 +1,6 @@
 <template>
   <div class="edit-container">
-    <el-form :inline="true" style="margin-top: 20px" v-permission="['purchasing.edit']">
+    <el-form v-permission="['purchasing.edit']" :inline="true" style="margin-top: 20px">
       <el-form-item>
         <el-button type="primary" @click="save(lines)">Save All</el-button>
         <el-button @click="addLine('Part')">Add Part</el-button>
@@ -208,8 +208,8 @@ import permission from '@/directive/permission/index.js'
 
 export default {
   name: 'PurchaseOrderEdit',
-  props: { orderData: { type: Object, default: null } },
   directives: { permission },
+  props: { orderData: { type: Object, default: null }},
   data() {
     return {
       orderData: this.$props.orderData,
@@ -232,7 +232,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/item/edit',
-        data: { data: { Action: "save", Lines: lines, PoNo: this.$props.orderData.PoNo } }
+        data: { data: { Action: 'save', Lines: lines, PoNo: this.$props.orderData.PoNo }}
       }).then(response => {
         if (response.error == null) {
           this.getOrderLines()
@@ -253,7 +253,6 @@ export default {
       })
     },
     deleteLine(lineNo) {
-
       this.$confirm('This will permanently delete line ' + lineNo + '. Continue?', 'Warning', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
@@ -262,7 +261,7 @@ export default {
         requestBN({
           method: 'post',
           url: '/purchasing/item/edit',
-          data: { data: { Action: "delete", LineNo: lineNo, PoNo: this.$props.orderData.PoNo } }
+          data: { data: { Action: 'delete', LineNo: lineNo, PoNo: this.$props.orderData.PoNo }}
         }).then(response => {
           if (response.error == null) {
             this.getOrderLines()
@@ -285,11 +284,8 @@ export default {
         this.$message({
           type: 'info',
           message: 'Delete canceled'
-        });
-      });
-
-
-
+        })
+      })
     },
     updateTable() {
       this.tableKey += 1

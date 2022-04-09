@@ -1,11 +1,11 @@
 <template>
   <div class="placerd-container">
     <el-button
+      v-permission="['purchasing.edit']"
       type="primary"
       @click="match()"
-      v-permission="['purchasing.edit']"
     >Match parts against Database</el-button>
-    <p></p>
+    <p />
     <el-table
       ref="itemTable"
       :key="tableKey"
@@ -85,8 +85,8 @@ import requestBN from '@/utils/requestBN'
 import permission from '@/directive/permission/index.js'
 
 export default {
-  props: { orderData: { type: Object, default: null } },
   directives: { permission },
+  props: { orderData: { type: Object, default: null }},
   data() {
     return {
       orderData: this.$props.orderData,

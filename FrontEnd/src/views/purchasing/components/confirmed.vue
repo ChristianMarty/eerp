@@ -30,21 +30,21 @@
       <el-table-column width="150px">
         <template slot-scope="{ row }">
           <el-button
-            v-permission="['purchasing.confirm']"
             v-if="
               parseInt(row.QuantityOrderd, 10) >
-              parseInt(row.QuantityReceived, 10)
+                parseInt(row.QuantityReceived, 10)
             "
+            v-permission="['purchasing.confirm']"
             type="text"
             size="mini"
             @click="openDialog(row)"
           >Confirm</el-button>
 
           <el-button
-            v-permission="['stock.create']"
             v-if="
               row.ReceivalId != NULL
             "
+            v-permission="['stock.create']"
             style="float: right;"
             type="text"
             size="mini"
@@ -100,8 +100,8 @@ import permission from '@/directive/permission/index.js'
 
 export default {
   components: { addToStock },
-  props: { orderData: { type: Object, default: null } },
   directives: { permission },
+  props: { orderData: { type: Object, default: null }},
   data() {
     return {
       lines: null,

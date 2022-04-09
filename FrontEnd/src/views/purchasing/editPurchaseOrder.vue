@@ -50,8 +50,8 @@
     </p>
 
     <el-button
-      v-permission="['purchasing.edit']"
       v-if="orderData.Status == 'Editing'"
+      v-permission="['purchasing.edit']"
       style="margin-top: 20px"
       type="primary"
       @click="editMeta"
@@ -152,7 +152,6 @@ import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
 import permission from '@/directive/permission/index.js'
-
 
 export default {
   name: 'PurchaseOrder',
