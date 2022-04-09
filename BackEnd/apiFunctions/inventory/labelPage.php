@@ -116,7 +116,7 @@
 		$content .= "<p>".$title." </p>";
 		$content .= "<p>".$category." </p>";
 		$content .= "<p>Inv Nr. ".$invNo." </p>";
-		$content .="<img src='".$dataRootPath."/apiFunctions/utils/barcode/barcode.php?text=Inv-".$invNo."'/>";
+		$content .="<img src='".$dataRootPath."/apiFunctions/util/barcode/barcode.php?text=Inv-".$invNo."'/>";
 		
 		echo"<div>";
 		echo $content;
