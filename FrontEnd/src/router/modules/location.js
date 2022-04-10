@@ -12,7 +12,7 @@ const inventoryRouter = {
       path: 'locationBrowser',
       component: () => import('@/views/location/locationBrowser'),
       name: 'locationBrowser',
-      meta: { title: 'Location Browser', icon: 'list' }
+      meta: { title: 'Browser', icon: 'list' }
     },
     {
       path: 'summary/:LocationNr(.*)',
@@ -31,13 +31,21 @@ const inventoryRouter = {
       path: 'locationLabel',
       component: () => import('@/views/location/locationLabel'),
       name: 'locationLabel',
-      meta: { title: 'Label ', icon: 'el-icon-tickets' }
+      meta: {
+        title: 'Label ', icon: 'el-icon-tickets', roles: ['location.print']
+      }
     },
     {
       path: 'locationTransfer/',
       component: () => import('@/views/location/locationTransfer'),
       name: 'locationTransfer',
-      meta: { title: 'Location Transfer', noCache: true, icon: 'el-icon-right' }
+      meta: { title: 'Transfer', noCache: true, icon: 'el-icon-right', roles: ['location.transfer'] }
+    },
+    {
+      path: 'locationBulkTransfer/',
+      component: () => import('@/views/location/locationBulkTransfer'),
+      name: 'locationBulkTransfer',
+      meta: { title: 'Bulk Transfer', noCache: true, icon: 'el-icon-right', roles: ['location.bulkTransfer'] }
     }/*, {
       path: "inventorize/",
       component: () => import("@/views/locations/inventorize"),
