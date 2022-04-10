@@ -11,12 +11,30 @@
           <el-container>
             <el-aside width="100%" style="background-color:white">
               <div class="left-container">
-                <p><b>Manufacturer: </b>{{ partData.ManufacturerName }}</p>
-                <p><b>Part Number: </b>{{ partData.ManufacturerPartNumber }}</p>
-                <p><b>Category: </b>{{ partData.PartClassName }}</p>
-                <p><b>Package: </b>{{ partData.Package }}</p>
-                <p><b>Lifecycle Status: </b>{{ partData.Status }}</p>
-                <p><b>Total Stock Quantity: </b>{{ partData.StockQuantity }}</p>
+                <p>
+                  <b>Manufacturer:</b>
+                  {{ partData.ManufacturerName }}
+                </p>
+                <p>
+                  <b>Part Number:</b>
+                  {{ partData.ManufacturerPartNumber }}
+                </p>
+                <p>
+                  <b>Category:</b>
+                  {{ partData.PartClassName }}
+                </p>
+                <p>
+                  <b>Package:</b>
+                  {{ partData.Package }}
+                </p>
+                <p>
+                  <b>Lifecycle Status:</b>
+                  {{ partData.Status }}
+                </p>
+                <p>
+                  <b>Total Stock Quantity:</b>
+                  {{ partData.StockQuantity }}
+                </p>
                 <el-collapse @change="handleChange">
                   <el-collapse-item name="elChar">
                     <template slot="title">
@@ -42,10 +60,7 @@
                       @click="attributeEditVisible = true"
                     />
 
-                    <attributeEdit
-                      :part-id="partData.partId"
-                      :visible.sync="attributeEditVisible"
-                    />
+                    <attributeEdit :part-id="partData.partId" :visible.sync="attributeEditVisible" />
                   </el-collapse-item>
 
                   <el-collapse-item name="documents">
@@ -63,20 +78,14 @@
                     <template slot="title">
                       <b>Suppliers</b>
                     </template>
-                    <el-table
-                      :data="supplierPartData"
-                      style="width: 100%; margin-top:10px"
-                    >
+                    <el-table :data="supplierPartData" style="width: 100%; margin-top:10px">
                       <el-table-column prop="Name" label="Name" sortable />
-                      <el-table-column
-
-                        label="Part Number"
-                        sortable
-                      >
+                      <el-table-column label="Part Number" sortable>
                         <template slot-scope="{ row }">
-                          <a :href="row.SupplierPartLink" target="blank">
-                            {{ row.SupplierPartNumber }}
-                          </a>
+                          <a
+                            :href="row.SupplierPartLink"
+                            target="blank"
+                          >{{ row.SupplierPartNumber }}</a>
                         </template>
                       </el-table-column>
                       <el-table-column prop="Note" label="Note" sortable />
@@ -91,6 +100,19 @@
                         </template>
                       </el-table-column>
                     </el-table>
+                    <el-button
+                      v-permission="['supplierPart.create']"
+                      type="primary"
+                      icon="el-icon-plus"
+                      circle
+                      style="margin-top: 20px"
+                      @click="createSupplierPartDialogVisible = true"
+                    />
+                    <createSupplierPartDialog
+                      :visible.sync="createSupplierPartDialogVisible"
+                      :manufacturer-part-id="partData.PartId"
+                      v-on:update:visible="getSupplierPart()"
+                    />
                     <orderReqestDialog
                       :visible.sync="orderReqestDialogVisible"
                       :supplier-part-id="orderReqestSupplierPartId"
@@ -101,35 +123,19 @@
                       <b>Order Requests</b>
                     </template>
 
-                    <el-table
-                      :data="orderRequests"
-                      style="width: 100%; margin-top:10px"
-                    >
-                      <el-table-column
-                        prop="SupplierName"
-                        label="Supplier"
-                        sortable
-                        width="150"
-                      />
+                    <el-table :data="orderRequests" style="width: 100%; margin-top:10px">
+                      <el-table-column prop="SupplierName" label="Supplier" sortable width="150" />
 
-                      <el-table-column
-                        prop="SupplierPartNumber"
-                        label="Part Number"
-                        sortable
-                      >
+                      <el-table-column prop="SupplierPartNumber" label="Part Number" sortable>
                         <template slot-scope="{ row }">
-                          <a :href="row.SupplierPartLink" target="blank">
-                            {{ row.SupplierPartNumber }}
-                          </a>
+                          <a
+                            :href="row.SupplierPartLink"
+                            target="blank"
+                          >{{ row.SupplierPartNumber }}</a>
                         </template>
                       </el-table-column>
 
-                      <el-table-column
-                        prop="Quantity"
-                        label="Quantity"
-                        width="120"
-                        sortable
-                      />
+                      <el-table-column prop="Quantity" label="Quantity" width="120" sortable />
 
                       <el-table-column
                         prop="CreationDate"
@@ -143,10 +149,7 @@
                     <template slot="title">
                       <b>Purchase Order</b>
                     </template>
-                    <el-table
-                      :data="purchaseOrderData"
-                      style="width: 100%; margin-top:10px"
-                    >
+                    <el-table :data="purchaseOrderData" style="width: 100%; margin-top:10px">
                       <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
                         <template slot-scope="{ row }">
                           <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
@@ -156,28 +159,18 @@
                       </el-table-column>
                       <el-table-column prop="Title" label="PO Title" sortable />
                       <el-table-column prop="Sku" label="Sku" sortable />
-                      <el-table-column
-                        prop="Quantity"
-                        label="Quantity"
-                        sortable
-                        width="120"
-                      />
-                      <el-table-column
-                        prop="Price"
-                        label="Price"
-                        sortable
-                        width="100"
-                      />
-                      <el-table-column
-                        prop="Status"
-                        label="Status"
-                        sortable
-                        width="100"
-                      />
-
+                      <el-table-column prop="Quantity" label="Quantity" sortable width="120" />
+                      <el-table-column prop="Price" label="Price" sortable width="100" />
+                      <el-table-column prop="Status" label="Status" sortable width="100" />
                     </el-table>
-                    <p><b>Total Order Quantity: </b>{{ purchaseOrder.TotalOrderQuantity }}</p>
-                    <p><b>Pending Order Quantity: </b>{{ purchaseOrder.PendingOrderQuantity }}</p>
+                    <p>
+                      <b>Total Order Quantity:</b>
+                      {{ purchaseOrder.TotalOrderQuantity }}
+                    </p>
+                    <p>
+                      <b>Pending Order Quantity:</b>
+                      {{ purchaseOrder.PendingOrderQuantity }}
+                    </p>
                   </el-collapse-item>
                   <el-collapse-item name="availability">
                     <template slot="title">
@@ -189,40 +182,24 @@
                         border
                         style="width: 100%; margin-top:10px"
                       >
-                        <el-table-column
-                          prop="Name"
-                          label="Distributor"
-                          width="150"
-                          sortable
-                        />
+                        <el-table-column prop="Name" label="Distributor" width="150" sortable />
                         <el-table-column prop="SKU" label="SKU">
                           <template slot-scope="{ row }">
-                            <a :href="row.URL" target="blank">
-                              {{ row.SKU }}
-                            </a>
+                            <a :href="row.URL" target="blank">{{ row.SKU }}</a>
                           </template>
                         </el-table-column>
-                        <el-table-column
-                          prop="Stock"
-                          label="Stock"
-                          width="80"
-                          sortable
-                        />
+                        <el-table-column prop="Stock" label="Stock" width="80" sortable />
                         <el-table-column
                           prop="MinimumOrderQuantity"
                           label="MOQ"
                           width="80"
                           sortable
                         />
-                        <el-table-column
-                          prop="LeadTime"
-                          label="LeadTime"
-                          width="120"
-                          sortable
-                        />
+                        <el-table-column prop="LeadTime" label="LeadTime" width="120" sortable />
                       </el-table>
                       <p>
-                        <b>Timestamp:</b> {{ availabilityData.Timestamp }}, Data
+                        <b>Timestamp:</b>
+                        {{ availabilityData.Timestamp }}, Data
                         provided by Octopart
                       </p>
                     </template>
@@ -232,12 +209,7 @@
                       <b>Production Parts</b>
                     </template>
                     <el-table :data="productionPartData" style="width: 100%">
-                      <el-table-column
-                        prop="PartNo"
-                        label="Part No"
-                        sortable
-                        width="100"
-                      >
+                      <el-table-column prop="PartNo" label="Part No" sortable width="100">
                         <template slot-scope="{ row }">
                           <router-link
                             :to="'/prodParts/prodPartView/' + row.PartNo"
@@ -247,11 +219,7 @@
                           </router-link>
                         </template>
                       </el-table-column>
-                      <el-table-column
-                        prop="Description"
-                        label="Description"
-                        sortable
-                      />
+                      <el-table-column prop="Description" label="Description" sortable />
                     </el-table>
                   </el-collapse-item>
                   <el-collapse-item name="stock">
@@ -262,26 +230,15 @@
                     <el-table :data="stockData" style="width: 100%">
                       <el-table-column prop="StockNo" label="Stock No" sortable>
                         <template slot-scope="{ row }">
-                          <router-link
-                            :to="'/stock/item/' + row.StockNo"
-                            class="link-type"
-                          >
+                          <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
                             <span>{{ row.StockNo }}</span>
                           </router-link>
                         </template>
                       </el-table-column>
 
                       <el-table-column prop="Date" label="Date" sortable />
-                      <el-table-column
-                        prop="Quantity"
-                        label="Quantity"
-                        sortable
-                      />
-                      <el-table-column
-                        prop="Location"
-                        label="Location"
-                        sortable
-                      />
+                      <el-table-column prop="Quantity" label="Quantity" sortable />
+                      <el-table-column prop="Location" label="Location" sortable />
                     </el-table>
                   </el-collapse-item>
                 </el-collapse>
@@ -296,7 +253,6 @@
         </template>
       </split-pane>
     </div>
-
   </div>
 </template>
 
@@ -305,13 +261,14 @@ import requestBN from '@/utils/requestBN'
 import SupplierDetail from './components/SupplierDetail'
 import PartDocuments from './components/PartDocuments'
 import attributeEdit from './components/attributeEditDialog'
+import createSupplierPartDialog from './components/createSupplierPartDialog'
 import splitPane from 'vue-splitpane'
 import permission from '@/directive/permission/index.js'
 import orderReqestDialog from '@/views/purchasing/components/orderRequestDialog'
 
 export default {
   name: 'PartDetail',
-  components: { splitPane, SupplierDetail, PartDocuments, attributeEdit, orderReqestDialog },
+  components: { splitPane, SupplierDetail, PartDocuments, attributeEdit, orderReqestDialog, createSupplierPartDialog },
   directives: { permission },
   props: {
     isEdit: {
@@ -333,7 +290,7 @@ export default {
       purchaseOrderData: null,
 
       attributeEditVisible: false,
-
+      createSupplierPartDialogVisible: false,
       orderReqestDialogVisible: false,
       orderReqestSupplierPartId: 0
     }
@@ -403,7 +360,7 @@ export default {
         this.productionPartData = response.data
       })
     },
-    resize() {},
+    resize() { },
     handleChange(val) {
       if (val.includes('suppliers') && this.supplierData == null) {
         this.getSupplierPart()
