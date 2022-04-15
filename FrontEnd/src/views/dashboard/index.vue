@@ -1,5 +1,14 @@
 <template>
   <div class="dashboard-container">
+
+    <el-card class="mid-box">
+      <h3 style="text-align:center">Barcode Search</h3>
+      <template style="text-align:center">
+        <el-input v-model="searchInput" placeholder="Search" @keyup.enter.native="search()">
+          <el-button slot="append" icon="el-icon-search" @click="search()" />
+        </el-input>
+      </template>
+    </el-card>
     <el-card class="small-box">
       <h3 style="text-align:center">Week Number</h3>
       <p style="text-align:center">
@@ -31,29 +40,14 @@
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="SupplierName"
-            label="SupplierName"
-            sortable
-          />
-          <el-table-column
-            prop="AcknowledgementNumber"
-            label="Ack Number"
-            sortable
-            width="160"
-          />
+          <el-table-column prop="SupplierName" label="SupplierName" sortable />
+          <el-table-column prop="AcknowledgementNumber" label="Ack Number" sortable width="160" />
 
-          <el-table-column
-            prop="PurchaseDate"
-            label="Purchase Date"
-            width="160"
-            sortable
-          />
+          <el-table-column prop="PurchaseDate" label="Purchase Date" width="160" sortable />
 
         </el-table>
       </template>
-    </el-card>
-  </div>
+    </el-card>  </div>
 </template>
 
 <script>
@@ -66,11 +60,12 @@ export default {
     return {
       weeknumber: 0,
       StockNotification: 0,
-      awitingShippments: null
+      awitingShippments: null,
+      searchInput: ''
     }
   },
   computed: {},
-  created() {},
+  created() { },
   mounted() {
     this.weeknumber = getNumberOfWeek()
     this.getStockNotification()
@@ -93,6 +88,10 @@ export default {
       }).then(response => {
         this.awitingShippments = response.data
       })
+    },
+    search() {
+      this.$router.push('/search/' + encodeURI(this.searchInput))
+      this.searchInput = ''
     }
   }
 }
@@ -104,6 +103,7 @@ export default {
   width: 220px;
   margin: 10px;
 }
+
 .mid-box {
   float: left;
   width: 700px;
