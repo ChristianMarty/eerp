@@ -2,12 +2,7 @@
   <div class="add-to-stock-dialog">
 
     <el-dialog title="Add to Stock" :visible.sync="visible" :before-close="closeDialog" @open="loadData()">
-      <el-form
-        ref="inputForm"
-        :model="receivalData"
-        class="form-container"
-        label-width="150px"
-      >
+      <el-form ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
         <el-form-item label="Manufacturer:" prop="ManufacturerName">
           {{ receivalData.ManufacturerName }}
         </el-form-item>
@@ -28,57 +23,37 @@
         </el-form-item>
 
         <el-form-item label="Quantity:" prop="QuantityReceived">
-          <el-input-number
-            v-model="quantity"
-            placeholder="Please input"
-            :controls="false"
-          />
+          <el-input-number v-model="quantity" placeholder="Please input" :controls="false" />
         </el-form-item>
 
         <el-form-item label="Mfr. Date:" prop="Date">
-          <el-date-picker
-            v-model="dateCode"
-            type="week"
-            format="yyyy Week WW"
-            value-format="yyyy-MM-dd"
-          >
+          <el-date-picker v-model="dateCode" type="week" format="yyyy Week WW" value-format="yyyy-MM-dd">
             >
           </el-date-picker>
         </el-form-item>
 
         <el-form-item label="Location:" prop="Location">
           <span>
-            <el-input
-              ref="locNrInput"
-              v-model="locationNo"
-              placeholder="Loc-xxxxx"
-
-              style="width: 150px; margin-right: 10px"
-            />
-            <el-cascader
-              v-model="locationNo"
-              :options="locations"
-              :props="{
-                emitPath: false,
-                value: 'LocNr',
-                label: 'Name',
-                children: 'Children',
-                checkStrictly: true
-              }"
-            /></span>
+            <el-input ref="locNrInput" v-model="locationNo" placeholder="Loc-xxxxx"
+              style="width: 150px; margin-right: 10px" />
+            <el-cascader v-model="locationNo" :options="locations" :props="{
+              emitPath: false,
+              value: 'LocNr',
+              label: 'Name',
+              children: 'Children',
+              checkStrictly: true
+            }" />
+          </span>
         </el-form-item>
 
       </el-form>
 
       <span slot="footer" class="dialog-footer">
+
+        <el-button type="primary" @click="saveToStock()">Save</el-button>
         <el-button @click="closeDialog">Close</el-button>
-        <el-button
-          type="primary"
-          @click="saveToStock()"
-        >Save</el-button>
       </span>
-    </el-dialog>
-  </div>
+    </el-dialog>  </div>
 </template>
 
 <script>
@@ -96,7 +71,7 @@ import requestBN from '@/utils/requestBN'
 
 export default {
   name: 'AddToStock',
-  props: { receivalId: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
+  props: { receivalId: { type: Number, default: 0 }, visible: { type: Boolean, default: false } },
   data() {
     return {
       receivalData: Object.assign({}, receivedItemData),

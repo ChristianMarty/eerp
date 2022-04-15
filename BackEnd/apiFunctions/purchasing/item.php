@@ -71,6 +71,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$lines[$r['OrderLineId']]['ManufacturerName'] = $r['ManufacturerName'];
 			$lines[$r['OrderLineId']]['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
 			$lines[$r['OrderLineId']]['Description'] = $r['Description'];
+			$lines[$r['OrderLineId']]['OrderReference'] = $r['OrderReference'];
 			$lines[$r['OrderLineId']]['Note'] = $r['Note'];
 				
 			if($status == "Confirmed" or $status == "Closed")

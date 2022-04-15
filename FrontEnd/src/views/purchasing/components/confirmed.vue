@@ -1,14 +1,7 @@
 <template>
   <div class="placerd-container">
-    <el-table
-      ref="itemTable"
-      :data="lines"
-      border
-      style="width: 100%"
-      row-key="lineKey"
-      :cell-style="{ padding: '0', height: '15px' }"
-      :tree-props="{ children: 'Received' }"
-    >
+    <el-table ref="itemTable" :data="lines" border style="width: 100%" row-key="lineKey"
+      :cell-style="{ padding: '0', height: '15px' }" :tree-props="{ children: 'Received' }">
       <el-table-column prop="LineNo" label="Line" width="70" />
       <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="120" />
       <el-table-column prop="QuantityReceived" label="Received Qty" width="120" />
@@ -29,27 +22,16 @@
 
       <el-table-column width="150px">
         <template slot-scope="{ row }">
-          <el-button
-            v-if="
-              parseInt(row.QuantityOrderd, 10) >
-                parseInt(row.QuantityReceived, 10)
-            "
-            v-permission="['purchasing.confirm']"
-            type="text"
-            size="mini"
-            @click="openDialog(row)"
-          >Confirm</el-button>
+          <el-button v-if="
+            parseInt(row.QuantityOrderd, 10) >
+            parseInt(row.QuantityReceived, 10)
+          " v-permission="['purchasing.confirm']" type="text" size="mini" @click="openDialog(row)">Confirm
+          </el-button>
 
-          <el-button
-            v-if="
-              row.ReceivalId != NULL
-            "
-            v-permission="['stock.create']"
-            style="float: right;"
-            type="text"
-            size="mini"
-            @click="addToStockDialogReceivalId = row.ReceivalId, addToStockDialogVisible = true"
-          >Add Stock</el-button>
+          <el-button v-if="
+            row.ReceivalId != NULL
+          " v-permission="['stock.create']" style="float: right;" type="text" size="mini"
+            @click="addToStockDialogReceivalId = row.ReceivalId, addToStockDialogVisible = true">Add Stock</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -63,34 +45,27 @@
           <el-form-item label="Manufacturer Part Number:">{{ receiveDialog.ManufacturerPartNumber }}</el-form-item>
         </template>
         <el-form-item label="Description:">{{ receiveDialog.Description }}</el-form-item>
+        <el-form-item label="Order Reference:">{{ receiveDialog.OrderReference }}</el-form-item>
+        <el-form-item label="Note:">{{ receiveDialog.Note }}</el-form-item>
 
         <el-form-item label="Orderd Quantity:">{{ receiveDialog.QuantityOrderd }}</el-form-item>
         <el-form-item label="Received Quantity:">
-          <el-input-number
-            v-model="dialogQuantityReceived"
-            :min="1"
-            :max="receiveDialog.QuantityOrderd - receiveDialog.QuantityReceived"
-          >Received Quantety</el-input-number>
+          <el-input-number v-model="dialogQuantityReceived" :min="1"
+            :max="receiveDialog.QuantityOrderd - receiveDialog.QuantityReceived">Received Quantety</el-input-number>
         </el-form-item>
-
         <el-form-item label="Receiving Date:">
-          <el-date-picker
-            v-model="dialogDateReceived"
-            type="date"
-            placeholder="Pick a day"
-            value-format="yyyy-MM-dd"
-          />
+          <el-date-picker v-model="dialogDateReceived" type="date" placeholder="Pick a day" value-format="yyyy-MM-dd" />
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDialog = false">Cancel</el-button>
         <el-button type="primary" @click="receiveItem(receiveDialog, false)">Confirm</el-button>
+        <el-button @click="showDialog = false">Cancel</el-button>
+
       </span>
     </el-dialog>
 
-    <addToStock :visible.sync="addToStockDialogVisible" :receival-id="addToStockDialogReceivalId" />
-  </div>
+    <addToStock :visible.sync="addToStockDialogVisible" :receival-id="addToStockDialogReceivalId" />  </div>
 </template>
 
 <script>
@@ -101,7 +76,7 @@ import permission from '@/directive/permission/index.js'
 export default {
   components: { addToStock },
   directives: { permission },
-  props: { orderData: { type: Object, default: null }},
+  props: { orderData: { type: Object, default: null } },
   data() {
     return {
       lines: null,

@@ -1,36 +1,23 @@
 <template>
   <div class="add-to-stock-dialog">
-
-    <el-dialog title="Order Request" :visible.sync="visible" :before-close="closeDialog" @open="loadData()">
-      <el-form
-        ref="inputForm"
-        :model="receivalData"
-        class="form-container"
-        label-width="150px"
-      >
-
-
-
+    <el-dialog
+      title="Order Request"
+      :visible.sync="visible"
+      :before-close="closeDialog"
+      @open="loadData()"
+    >
+      <el-form ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
         <el-form-item label="Quantity:" prop="Quantity">
-          <el-input-number
-            v-model="quantity"
-            :min="1"
-          />
+          <el-input-number v-model="quantity" :min="1" />
         </el-form-item>
         <el-form-item label="Description:" prop="Description">
-          <el-input
-            v-model="description"
-          />
+          <el-input v-model="description" />
         </el-form-item>
-
       </el-form>
 
       <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="sendOrderRequest()">Save</el-button>
         <el-button @click="closeDialog">Close</el-button>
-        <el-button
-          type="primary"
-          @click="sendOrderRequest()"
-        >Save</el-button>
       </span>
     </el-dialog>
   </div>
@@ -42,7 +29,7 @@ import requestBN from '@/utils/requestBN'
 
 export default {
   name: 'AddToStock',
-  props: { supplierPartId: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
+  props: { supplierPartId: { type: Number, default: 0 }, visible: { type: Boolean, default: false } },
   data() {
     return {
       quantity: 0,
@@ -70,7 +57,7 @@ export default {
       }).then(response => {
         if (response.error == null) {
           // this.partData = response.data
-        // this.$router.push('/stock/item/' + this.partData.StockNo)
+          // this.$router.push('/stock/item/' + this.partData.StockNo)
         } else {
           this.$message({
             showClose: true,
