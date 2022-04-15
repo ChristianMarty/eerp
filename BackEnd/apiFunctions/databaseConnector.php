@@ -135,7 +135,7 @@ function dbBuildUpdateQuery($dbLink, $tableName, $data, $condition = NULL)
 		}
 		else
 		{
-			if($value == null) $val = "NULL";
+			if($value === null) $val = "NULL";
 			else $val = "'".mysqli_real_escape_string($dbLink,$value)."'";
 		}
 

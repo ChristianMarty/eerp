@@ -11,6 +11,8 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
+$error = null; 
+
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
@@ -38,7 +40,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['Description'] = $line['Description'];
 			$sqlData['Quantity'] = $line['QuantityOrderd'];
 			$sqlData['Sku'] = $line['SupplierSku'];
-			$sqlData['Price'] = $line['Price'];
+			
+			if($line['Price'] === null) $sqlData['Price'] = 0;
+			else $sqlData['Price'] = $line['Price'];
+			
 			$sqlData['Note'] = $line['Note'];
 			$type = $line['Type'];
 			
@@ -69,7 +74,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 				$query = dbBuildInsertQuery($dbLink,"purchasOrder_itemOrder", $sqlData);
 			}
 			
-			dbRunQuery($dbLink,$query);
+			if(!dbRunQuery($dbLink,$query))
+			{
+				$error = "Error description: " . mysqli_error($dbLink);
+			}
 			dbClose($dbLink);	
 		}
 	}
@@ -85,7 +93,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		dbClose($dbLink);
 	}
 
-	sendResponse(null,null);
+	sendResponse(null,$error);
 }
 
 ?>
