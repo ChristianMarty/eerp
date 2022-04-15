@@ -14,7 +14,15 @@ const supplierRouter = {
       path: 'supplier',
       component: () => import('@/views/supplier/supplierBrowser'),
       name: 'supplier',
-      meta: { title: 'Supplier Browser', icon: 'edit' }
+      meta: { title: 'Supplier Browser', icon: 'list' }
+    },
+    {
+      path: 'create',
+      component: () => import('@/views/supplier/create'),
+      name: 'supplierCreate',
+      meta: {
+        title: 'Create Supplier', icon: 'edit', roles: ['supplier.create']
+      }
     },
     {
       path: 'supplierView/:supplierNo(.*)',

@@ -43,6 +43,40 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($locationsTree);
 }
+else if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+	$data = json_decode(file_get_contents('php://input'),true);
+	
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$supplierName = dbEscapeString($dbLink,$data['SupplierName']);
+
+
+	$inserData['Name']  = $supplierName;
+	
+	$query = dbBuildInsertQuery($dbLink, "supplier", $inserData);
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$error = null;
+	$manufacturerPart = array();
+	if($result == false)
+	{
+		$error = "Error description: " . dbGetErrorString($dbLink);
+	}
+	
+	$query = "SELECT Id FROM manufacturerPart WHERE Id = LAST_INSERT_ID();";
+	$result = dbRunQuery($dbLink,$query);
+	
+	$manufacturerPart['SupplierId'] = dbGetResult($result)['Id'];
+	
+	$result = dbRunQuery($dbLink,$query);
+	$stockPart = dbGetResult($result);
+	
+	dbClose($dbLink);	
+	sendResponse($manufacturerPart, $error);
+}
 
 function hasChild($rows,$id)
 {
