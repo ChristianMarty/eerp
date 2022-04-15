@@ -54,14 +54,26 @@
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
       <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
-      <el-button v-permission="['stock.add']" style="margin-right: 20px" icon="el-icon-plus"
-        @click="addStockDialogVisible = true">Add</el-button>
+      <el-button
+        v-permission="['stock.add']"
+        style="margin-right: 20px"
+        icon="el-icon-plus"
+        @click="addStockDialogVisible = true"
+      >Add</el-button>
 
-      <el-button v-permission="['stock.remove']" style="margin-right: 20px" icon="el-icon-minus"
-        @click="removeStockDialogVisible = true">Remove</el-button>
+      <el-button
+        v-permission="['stock.remove']"
+        style="margin-right: 20px"
+        icon="el-icon-minus"
+        @click="removeStockDialogVisible = true"
+      >Remove</el-button>
 
-      <el-button v-permission="['stock.count']" style="margin-right: 20px" icon="el-icon-finished"
-        @click="countStockDialogVisible = true">Count</el-button>
+      <el-button
+        v-permission="['stock.count']"
+        style="margin-right: 20px"
+        icon="el-icon-finished"
+        @click="countStockDialogVisible = true"
+      >Count</el-button>
       <el-divider />
       <h3>History</h3>
 
@@ -195,9 +207,9 @@ export default {
     }
   },
   watch: {
-    addStockDialogVisible: function () { this.loadItem() },
-    removeStockDialogVisible: function () { this.loadItem() },
-    countStockDialogVisible: function () { this.loadItem() }
+    addStockDialogVisible: function() { this.loadItem() },
+    removeStockDialogVisible: function() { this.loadItem() },
+    countStockDialogVisible: function() { this.loadItem() }
   },
   mounted() {
     this.clear()
@@ -343,7 +355,7 @@ export default {
       })
     },
     getProductionPartData() {
-      if (this.partData.ManufacturerPartId === null) return;
+      if (this.partData.ManufacturerPartId === null) return
 
       requestBN({
         url: '/productionPart',

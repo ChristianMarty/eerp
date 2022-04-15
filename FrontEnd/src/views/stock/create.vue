@@ -5,15 +5,24 @@
 
     <el-form ref="inputForm" :model="formData" :rules="rules" class="form-container" label-width="150px">
       <el-form-item label="Manufacturer:" prop="ManufacturerName">
-        <el-select v-model="formData.ManufacturerId" filterable placeholder="Select"
-          @change="getParts(formData.ManufacturerId)">
+        <el-select
+          v-model="formData.ManufacturerId"
+          filterable
+          placeholder="Select"
+          @change="getParts(formData.ManufacturerId)"
+        >
           <el-option v-for="item in manufacturer" :key="item.Id" :label="item.Name" :value="item.Id" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="MPN:" prop="ManufacturerPartNumber">
-        <el-autocomplete v-model="formData.ManufacturerPartNumber" style="width: 100%;" placeholder="Please input"
-          :fetch-suggestions="searchManufacturerPartNumber" autosize />
+        <el-autocomplete
+          v-model="formData.ManufacturerPartNumber"
+          style="width: 100%;"
+          placeholder="Please input"
+          :fetch-suggestions="searchManufacturerPartNumber"
+          autosize
+        />
       </el-form-item>
 
       <el-form-item label="Supplier:" prop="Supplier">
@@ -42,13 +51,17 @@
 
       <el-form-item label="Location" prop="Location">
         <el-input ref="locNrInput" v-model="formData.Location" placeholder="Please input" />
-        <el-cascader-panel v-model="formData.Location" :options="locations" :props="{
-          emitPath: false,
-          value: 'LocNr',
-          label: 'Name',
-          children: 'Children',
-          checkStrictly: true
-        }" />
+        <el-cascader-panel
+          v-model="formData.Location"
+          :options="locations"
+          :props="{
+            emitPath: false,
+            value: 'LocNr',
+            label: 'Name',
+            children: 'Children',
+            checkStrictly: true
+          }"
+        />
       </el-form-item>
 
       <el-form-item label="Print settings:">
