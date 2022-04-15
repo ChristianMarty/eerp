@@ -4,20 +4,13 @@
     <el-divider />
     <h2>Input Stock Number:</h2>
     <p>
-      <el-input
-        ref="itemNrInput"
-        v-model="inputStockId"
-        placeholder="Please input"
-        @keyup.enter.native="setItem"
-      >
-        <el-button
-          slot="append"
-          icon="el-icon-search"
-          @click="setItem"
-        />
+      <el-input ref="itemNrInput" v-model="inputStockId" placeholder="Please input" @keyup.enter.native="setItem">
+        <el-button slot="append" icon="el-icon-search" @click="setItem" />
       </el-input>
     </p>
-    <p><el-button type="danger" @click="clear">Clear</el-button></p>
+    <p>
+      <el-button type="danger" @click="clear">Clear</el-button>
+    </p>
 
     <el-card v-if="showItem">
       <h3>Part Information</h3>
@@ -25,10 +18,7 @@
       <p><b>Manufacturer: </b>{{ partData.ManufacturerName }}</p>
 
       <p><b>Part Number: </b>
-        <router-link
-          :to="'/mfrParts/partView/' + partData.ManufacturerPartId"
-          class="link-type"
-        >
+        <router-link :to="'/mfrParts/partView/' + partData.ManufacturerPartId" class="link-type">
           {{ partData.ManufacturerPartNumber }}
         </router-link>
       </p>
@@ -37,10 +27,7 @@
       <el-table :data="productionPartData" style="width: 100%">
         <el-table-column prop="PartNo" label="Part No" sortable width="100">
           <template slot-scope="{ row }">
-            <router-link
-              :to="'/prodParts/prodPartView/' + row.PartNo"
-              class="link-type"
-            >
+            <router-link :to="'/prodParts/prodPartView/' + row.PartNo" class="link-type">
               <span>{{ row.PartNo }}</span>
             </router-link>
           </template>
@@ -60,52 +47,30 @@
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
       <p><b>Reserved Quantity: </b>{{ partData.ReservedQuantity }}</p>
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
-      <span><p><b>Stock Certainty Factor: </b>{{ stockAccuracy.CertaintyFactor }}</p>
-        <el-rate
-          v-model="stockAccuracy.CertaintyFactor*5"
-          disabled
-        />
+      <span>
+        <p><b>Stock Certainty Factor: </b>{{ stockAccuracy.CertaintyFactor }}</p>
+        <el-rate v-model="stockAccuracy.CertaintyFactor * 5" disabled />
       </span>
-      <el-divider v-permission="['stock.add','stock.remove','stock.count']" />
-      <h4 v-permission="['stock.add','stock.remove','stock.count']">Stock Movement</h4>
+      <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
+      <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
-      <el-button
-        v-permission="['stock.add']"
-        style="margin-right: 20px"
-        icon="el-icon-plus"
-        @click="addStockDialogVisible = true"
-      >Add</el-button>
+      <el-button v-permission="['stock.add']" style="margin-right: 20px" icon="el-icon-plus"
+        @click="addStockDialogVisible = true">Add</el-button>
 
-      <el-button
-        v-permission="['stock.remove']"
-        style="margin-right: 20px"
-        icon="el-icon-minus"
-        @click="removeStockDialogVisible = true"
-      >Remove</el-button>
+      <el-button v-permission="['stock.remove']" style="margin-right: 20px" icon="el-icon-minus"
+        @click="removeStockDialogVisible = true">Remove</el-button>
 
-      <el-button
-        v-permission="['stock.count']"
-        style="margin-right: 20px"
-        icon="el-icon-finished"
-        @click="countStockDialogVisible = true"
-      >Count</el-button>
+      <el-button v-permission="['stock.count']" style="margin-right: 20px" icon="el-icon-finished"
+        @click="countStockDialogVisible = true">Count</el-button>
       <el-divider />
       <h3>History</h3>
 
       <el-timeline reverse="true">
-        <el-timeline-item
-          v-for="(line, index) in history"
-          :key="index"
-          :color="line.color"
-          :timestamp="line.Date"
-        >
+        <el-timeline-item v-for="(line, index) in history" :key="index" :color="line.color" :timestamp="line.Date">
           {{ line.Description }}
           <template v-if="line.WorkOrderNo != NULL">
             <span>, Work Order: </span>
-            <router-link
-              :to="'/workOrder/workOrderView/' + line.WorkOrderNo"
-              class="link-type"
-            >
+            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderNo" class="link-type">
               <span>{{ line.WorkOrderNo }}</span>
             </router-link>
             {{ line.Title }}
@@ -118,10 +83,7 @@
       <el-table :data="reservation" style="width: 100%">
         <el-table-column prop="WorkOrderNo" label="Work Order No" sortable width="150">
           <template slot-scope="{ row }">
-            <router-link
-              :to="'/workOrder/workOrderView/' + row.WorkOrderNo"
-              class="link-type"
-            >
+            <router-link :to="'/workOrder/workOrderView/' + row.WorkOrderNo" class="link-type">
               <span>{{ row.WorkOrderNo }}</span>
             </router-link>
           </template>
@@ -151,56 +113,27 @@
       <p><b>Date: </b>{{ purchaseInformation.PurchaseDate }}</p>
     </el-card>
 
-    <el-card v-if="showItem ">
+    <el-card v-if="showItem">
       <h3>Print Label</h3>
       <el-divider />
       <template v-if="label !== null">
 
         <el-select v-model="selectedLabelId">
-          <el-option
-            v-for="item in label"
-            :key="Number(item.Id)"
-            :label="item.Name"
-            :value="Number(item.Id)"
-          />
+          <el-option v-for="item in label" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
 
         <el-select v-model="selectedPrinterId">
-          <el-option
-            v-for="item in printer"
-            :key="Number(item.Id)"
-            :label="item.Name"
-            :value="Number(item.Id)"
-          />
+          <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
-        <el-button
-          type="primary"
-          style="margin-left: 20px"
-          @click="printDialogVisible = true"
-        >Print</el-button>
+        <el-button type="primary" style="margin-left: 20px" @click="printDialogVisible = true">Print</el-button>
       </template>
     </el-card>
 
-    <printDialog
-      :visible.sync="printDialogVisible"
-      :data="partData"
-      @print="print"
-    />
+    <printDialog :visible.sync="printDialogVisible" :data="partData" @print="print" />
 
-    <addStockDialog
-      :visible.sync="addStockDialogVisible"
-      :item="partData"
-    />
-    <removeStockDialog
-      :visible.sync="removeStockDialogVisible"
-      :item="partData"
-    />
-    <countStockDialog
-      :visible.sync="countStockDialogVisible"
-      :item="partData"
-    />
-
-  </div>
+    <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
+    <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
+    <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />  </div>
 </template>
 
 <script>
@@ -262,9 +195,9 @@ export default {
     }
   },
   watch: {
-    addStockDialogVisible: function() { this.loadItem() },
-    removeStockDialogVisible: function() { this.loadItem() },
-    countStockDialogVisible: function() { this.loadItem() }
+    addStockDialogVisible: function () { this.loadItem() },
+    removeStockDialogVisible: function () { this.loadItem() },
+    countStockDialogVisible: function () { this.loadItem() }
   },
   mounted() {
     this.clear()
@@ -410,6 +343,8 @@ export default {
       })
     },
     getProductionPartData() {
+      if (this.partData.ManufacturerPartId === null) return;
+
       requestBN({
         url: '/productionPart',
         methood: 'get',
@@ -479,5 +414,5 @@ export default {
 <style>
 .el-card {
   margin-top: 20px;
-  }
+}
 </style>

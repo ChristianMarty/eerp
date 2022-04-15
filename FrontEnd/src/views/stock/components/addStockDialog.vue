@@ -13,8 +13,12 @@
 
         <el-form-item label="Work Order:">
           <el-select v-model="workOrderId" filterable>
-            <el-option v-for="wo in workOrders" :key="wo.Id" :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
-              :value="wo.Id" />
+            <el-option
+              v-for="wo in workOrders"
+              :key="wo.Id"
+              :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
+              :value="wo.Id"
+            />
           </el-select>
         </el-form-item>
       </el-form>
@@ -38,7 +42,7 @@ const itemData = {
 import requestBN from '@/utils/requestBN'
 
 export default {
-  props: { item: { type: Object, default: itemData }, visible: { type: Boolean, default: false } },
+  props: { item: { type: Object, default: itemData }, visible: { type: Boolean, default: false }},
   data() {
     return {
       addQuantity: 0,

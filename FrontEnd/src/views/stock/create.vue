@@ -3,130 +3,65 @@
     <h1>Create Stock Item</h1>
     <el-divider />
 
-    <el-form
-      ref="inputForm"
-      :model="formData"
-      :rules="rules"
-      class="form-container"
-      label-width="150px"
-    >
+    <el-form ref="inputForm" :model="formData" :rules="rules" class="form-container" label-width="150px">
       <el-form-item label="Manufacturer:" prop="ManufacturerName">
-        <el-select
-          v-model="formData.ManufacturerId"
-          filterable
-          placeholder="Select"
-          @change="getParts(formData.ManufacturerId)"
-        >
-          <el-option
-            v-for="item in manufacturer"
-            :key="item.Id"
-            :label="item.Name"
-            :value="item.Id"
-          />
+        <el-select v-model="formData.ManufacturerId" filterable placeholder="Select"
+          @change="getParts(formData.ManufacturerId)">
+          <el-option v-for="item in manufacturer" :key="item.Id" :label="item.Name" :value="item.Id" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="MPN:" prop="ManufacturerPartNumber">
-        <el-autocomplete
-          v-model="formData.ManufacturerPartNumber"
-          style="width: 100%;"
-          placeholder="Please input"
-          :fetch-suggestions="searchManufacturerPartNumber"
-          autosize
-        />
+        <el-autocomplete v-model="formData.ManufacturerPartNumber" style="width: 100%;" placeholder="Please input"
+          :fetch-suggestions="searchManufacturerPartNumber" autosize />
       </el-form-item>
 
       <el-form-item label="Supplier:" prop="Supplier">
-        <el-select
-          v-model="formData.SupplierId"
-          filterable
-          placeholder="Select"
-        >
-          <el-option
-            v-for="item in suppliers"
-            :key="item.Id"
-            :label="item.Name"
-            :value="item.Id"
-          />
+        <el-select v-model="formData.SupplierId" filterable placeholder="Select">
+          <el-option v-for="item in suppliers" :key="item.Id" :label="item.Name" :value="item.Id" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="Supplier SKU:" prop="SupplierPartNumber">
-        <el-input
-          v-model="formData.SupplierPartNumber"
-          placeholder="Please input"
-        />
+        <el-input v-model="formData.SupplierPartNumber" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Order Reference:" prop="OrderReference">
-        <el-input
-          v-model="formData.OrderReference"
-          placeholder="Please input"
-        />
+        <el-input v-model="formData.OrderReference" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Quantity:" prop="Quantity">
-        <el-input-number
-          v-model="formData.Quantity"
-          placeholder="Please input"
-          :controls="false"
-        />
+        <el-input-number v-model="formData.Quantity" placeholder="Please input" :controls="false" />
       </el-form-item>
 
       <el-form-item label="Date:" prop="Date">
-        <el-date-picker
-          v-model="formData.Date"
-          type="week"
-          format="yyyy Week WW"
-          value-format="yyyy-MM-dd"
-        >
+        <el-date-picker v-model="formData.Date" type="week" format="yyyy Week WW" value-format="yyyy-MM-dd">
           >
         </el-date-picker>
       </el-form-item>
 
       <el-form-item label="Location" prop="Location">
-        <el-input
-          ref="locNrInput"
-          v-model="formData.Location"
-          placeholder="Please input"
-        />
-        <el-cascader-panel
-          v-model="formData.Location"
-          :options="locations"
-          :props="{
-            emitPath: false,
-            value: 'LocNr',
-            label: 'Name',
-            children: 'Children',
-            checkStrictly: true
-          }"
-        />
+        <el-input ref="locNrInput" v-model="formData.Location" placeholder="Please input" />
+        <el-cascader-panel v-model="formData.Location" :options="locations" :props="{
+          emitPath: false,
+          value: 'LocNr',
+          label: 'Name',
+          children: 'Children',
+          checkStrictly: true
+        }" />
       </el-form-item>
 
       <el-form-item label="Print settings:">
 
         <el-select v-model="selectedLabelId">
-          <el-option
-            v-for="item in label"
-            :key="Number(item.Id)"
-            :label="item.Name"
-            :value="Number(item.Id)"
-          />
+          <el-option v-for="item in label" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
 
         <el-select v-model="selectedPrinterId">
-          <el-option
-            v-for="item in printer"
-            :key="Number(item.Id)"
-            :label="item.Name"
-            :value="Number(item.Id)"
-          />
+          <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
 
-        <el-checkbox
-          v-model="autoPrint"
-          style="margin-left: 20px"
-        >Print after Save</el-checkbox>
+        <el-checkbox v-model="autoPrint" style="margin-left: 20px">Print after Save</el-checkbox>
       </el-form-item>
 
       <el-form-item>
@@ -136,12 +71,7 @@
       </el-form-item>
     </el-form>
 
-    <printDialog
-      :visible.sync="printDialogVisible"
-      :data="partData"
-      @print="print"
-    />
-  </div>
+    <printDialog :visible.sync="printDialogVisible" :data="partData" @print="print" />  </div>
 </template>
 
 <script>
@@ -378,10 +308,7 @@ export default {
         $PartNo: printData.OrderReference,
         $Description: printData.Description
       }
-      console.log(this.label)
       var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
-
-      console.log(labelTemplateObject)
       var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
 
       requestBN({

@@ -34,15 +34,23 @@
 
         <el-form-item label="Location:" prop="Location">
           <span>
-            <el-input ref="locNrInput" v-model="locationNo" placeholder="Loc-xxxxx"
-              style="width: 150px; margin-right: 10px" />
-            <el-cascader v-model="locationNo" :options="locations" :props="{
-              emitPath: false,
-              value: 'LocNr',
-              label: 'Name',
-              children: 'Children',
-              checkStrictly: true
-            }" />
+            <el-input
+              ref="locNrInput"
+              v-model="locationNo"
+              placeholder="Loc-xxxxx"
+              style="width: 150px; margin-right: 10px"
+            />
+            <el-cascader
+              v-model="locationNo"
+              :options="locations"
+              :props="{
+                emitPath: false,
+                value: 'LocNr',
+                label: 'Name',
+                children: 'Children',
+                checkStrictly: true
+              }"
+            />
           </span>
         </el-form-item>
 
@@ -71,7 +79,7 @@ import requestBN from '@/utils/requestBN'
 
 export default {
   name: 'AddToStock',
-  props: { receivalId: { type: Number, default: 0 }, visible: { type: Boolean, default: false } },
+  props: { receivalId: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
   data() {
     return {
       receivalData: Object.assign({}, receivedItemData),

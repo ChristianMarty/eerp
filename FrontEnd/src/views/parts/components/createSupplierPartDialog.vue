@@ -46,7 +46,7 @@ import requestBN from '@/utils/requestBN'
 
 export default {
   name: 'CreateSupplierPart',
-  props: { manufacturerPartId: { type: Number, default: 0 }, visible: { type: Boolean, default: false } },
+  props: { manufacturerPartId: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
   data() {
     return {
       supplierPartData: {},
@@ -54,7 +54,7 @@ export default {
     }
   },
   mounted() {
-    this.getSuppliers();
+    this.getSuppliers()
   },
   methods: {
     loadData() {
@@ -69,8 +69,7 @@ export default {
       })
     },
     save() {
-
-      this.supplierPartData.ManufacturerPartId = this.$props.manufacturerPartId;
+      this.supplierPartData.ManufacturerPartId = this.$props.manufacturerPartId
 
       requestBN({
         method: 'post',

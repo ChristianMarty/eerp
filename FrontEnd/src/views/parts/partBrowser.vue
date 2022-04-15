@@ -238,8 +238,6 @@ export default {
     },
     tableSort(property) {
       return function(a, b) {
-        if (a.[property] === undefined || b.[property] === undefined) return -1
-
         var valA = 0
         if (a.[property] != null) valA = parseFloat(a.[property])
 

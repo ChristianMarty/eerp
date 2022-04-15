@@ -11,8 +11,16 @@
       </el-form-item>
     </el-form>
 
-    <el-table ref="itemTable" :key="tableKey" :data="lines" border :cell-style="{ padding: '0', height: '20px' }"
-      style="width: 100%" :summary-method="calcSum" show-summary>
+    <el-table
+      ref="itemTable"
+      :key="tableKey"
+      :data="lines"
+      border
+      :cell-style="{ padding: '0', height: '20px' }"
+      style="width: 100%"
+      :summary-method="calcSum"
+      show-summary
+    >
       <el-table-column prop="LineNo" label="Line" width="70" />
       <el-table-column prop="QuantityOrderd" label="Quantity" width="120" />
       <el-table-column label="SKU" prop="SupplierSku" width="220" />
@@ -37,8 +45,11 @@
       <template v-permission="['purchasing.edidt']">
         <el-table-column width="70">
           <template slot-scope=" { row }">
-            <el-button type="text" size="mini"
-              @click="orderLineEditData = JSON.parse(JSON.stringify(row)), orderLineEditDialogVisible = true">
+            <el-button
+              type="text"
+              size="mini"
+              @click="orderLineEditData = JSON.parse(JSON.stringify(row)), orderLineEditDialogVisible = true"
+            >
               Edit</el-button>
           </template>
         </el-table-column>
@@ -57,14 +68,25 @@
         <el-form-item label="Line:">{{ orderLineEditData.LineNo }}</el-form-item>
         <el-form-item label="Quantity:">
           <template slot-scope="{ row }">
-            <el-input-number v-model="orderLineEditData.QuantityOrderd" :controls="false" :min="1" :max="999999"
-              style="width: 70pt" />
+            <el-input-number
+              v-model="orderLineEditData.QuantityOrderd"
+              :controls="false"
+              :min="1"
+              :max="999999"
+              style="width: 70pt"
+            />
           </template>
         </el-form-item>
 
         <el-form-item label="Price:">
-          <el-input-number v-model="orderLineEditData.Price" :controls="false" :precision="4" :min="0.0000"
-            :max="999999" style="width: 70pt" />
+          <el-input-number
+            v-model="orderLineEditData.Price"
+            :controls="false"
+            :precision="4"
+            :min="0.0000"
+            :max="999999"
+            style="width: 70pt"
+          />
         </el-form-item>
 
         <el-form-item label="Total:">
@@ -79,14 +101,27 @@
 
         <el-form-item label="Part Number:">
           <el-popover placement="right" width="400" trigger="click">
-            <el-select v-model="orderLineEditData.MfrPartIndex" placeholder="Manufacturer Part"
-              style="min-width: 300px; margin-right: 10px;" @change="updaptePartLine(orderLineEditData)">
-              <el-option v-for="(item, index) in orderLineEditData.PartOptions" :key="index"
-                :label="item.ManufacturerName + ' - ' + item.ManufacturerPartNumber" :value="index" />
+            <el-select
+              v-model="orderLineEditData.MfrPartIndex"
+              placeholder="Manufacturer Part"
+              style="min-width: 300px; margin-right: 10px;"
+              @change="updaptePartLine(orderLineEditData)"
+            >
+              <el-option
+                v-for="(item, index) in orderLineEditData.PartOptions"
+                :key="index"
+                :label="item.ManufacturerName + ' - ' + item.ManufacturerPartNumber"
+                :value="index"
+              />
             </el-select>
 
-            <el-input slot="reference" v-model="orderLineEditData.PartNo" placeholder="PartNo"
-              style="width: 150px; margin-right: 10px;" @change="getPartData(orderLineEditData)" />
+            <el-input
+              slot="reference"
+              v-model="orderLineEditData.PartNo"
+              placeholder="PartNo"
+              style="width: 150px; margin-right: 10px;"
+              @change="getPartData(orderLineEditData)"
+            />
           </el-popover>
         </el-form-item>
 
@@ -95,8 +130,12 @@
         </el-form-item>
 
         <el-form-item label="Manufacturer:">
-          <el-select v-model="orderLineEditData.ManufacturerName" placeholder="Manufacturer" filterable
-            style="min-width: 200px; margin-right: 10px;">
+          <el-select
+            v-model="orderLineEditData.ManufacturerName"
+            placeholder="Manufacturer"
+            filterable
+            style="min-width: 200px; margin-right: 10px;"
+          >
             <el-option v-for="item in partManufacturer" :key="item.Name" :label="item.Name" :value="item.Name" />
           </el-select>
         </el-form-item>
@@ -122,8 +161,12 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="Pending Order Request" :visible.sync="orderReqestDialogVisible" :before-close="closeDialog"
-      @open="getOrderRequests(orderData.SupplierId)()">
+    <el-dialog
+      title="Pending Order Request"
+      :visible.sync="orderReqestDialogVisible"
+      :before-close="closeDialog"
+      @open="getOrderRequests(orderData.SupplierId)()"
+    >
       <el-table ref="itemTable" :key="tableKey" :data="orderRequests" border style="width: 100%">
         <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" />
 
@@ -155,7 +198,7 @@ import permission from '@/directive/permission/index.js'
 export default {
   name: 'PurchaseOrderEdit',
   directives: { permission },
-  props: { orderData: { type: Object, default: null } },
+  props: { orderData: { type: Object, default: null }},
   data() {
     return {
       orderData: this.$props.orderData,
@@ -178,7 +221,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/item/edit',
-        data: { data: { Action: 'save', Lines: lines, PoNo: this.$props.orderData.PoNo } }
+        data: { data: { Action: 'save', Lines: lines, PoNo: this.$props.orderData.PoNo }}
       }).then(response => {
         if (response.error == null) {
           this.getOrderLines()
@@ -207,7 +250,7 @@ export default {
         requestBN({
           method: 'post',
           url: '/purchasing/item/edit',
-          data: { data: { Action: 'delete', LineNo: lineNo, PoNo: this.$props.orderData.PoNo } }
+          data: { data: { Action: 'delete', LineNo: lineNo, PoNo: this.$props.orderData.PoNo }}
         }).then(response => {
           if (response.error == null) {
             this.getOrderLines()

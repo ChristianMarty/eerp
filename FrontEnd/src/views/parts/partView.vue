@@ -111,7 +111,7 @@
                     <createSupplierPartDialog
                       :visible.sync="createSupplierPartDialogVisible"
                       :manufacturer-part-id="partData.PartId"
-                      v-on:update:visible="getSupplierPart()"
+                      @update:visible="getSupplierPart()"
                     />
                     <orderReqestDialog
                       :visible.sync="orderReqestDialogVisible"

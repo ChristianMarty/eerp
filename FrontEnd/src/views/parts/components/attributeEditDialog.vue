@@ -44,8 +44,8 @@
         <el-table-column label="Unit" prop="Unit" />
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeDialog">Close</el-button>
         <el-button type="primary" @click="savePartData">Save</el-button>
+        <el-button @click="closeDialog">Close</el-button>
       </span>
     </el-dialog>
   </div>
@@ -141,7 +141,7 @@ export default {
       this.visible = false
       this.$emit('update:visible', this.visible)
     },
-    save() {}
+    save() { }
   }
 }
 </script>

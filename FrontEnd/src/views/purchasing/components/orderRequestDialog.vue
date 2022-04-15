@@ -29,7 +29,7 @@ import requestBN from '@/utils/requestBN'
 
 export default {
   name: 'AddToStock',
-  props: { supplierPartId: { type: Number, default: 0 }, visible: { type: Boolean, default: false } },
+  props: { supplierPartId: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
   data() {
     return {
       quantity: 0,
