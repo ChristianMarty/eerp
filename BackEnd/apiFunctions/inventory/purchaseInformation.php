@@ -15,7 +15,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["InvNo"]))
 	{
 		$invNo = $_GET["InvNo"];
-		$invNo = str_replace("Inv","",$invNo);
+		$invNo = strtolower($invNo);
+		$invNo = str_replace("inv","",$invNo);
 		$invNo = str_replace("-","",$invNo);
 		$invNo = intval($invNo);
 	}

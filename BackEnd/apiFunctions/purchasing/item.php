@@ -23,6 +23,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["PurchaseOrderNo"]))
 	{
 		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
+		$purchaseOrderNo = strtolower($purchaseOrderNo);
+		$purchaseOrderNo = str_replace("po-","",$purchaseOrderNo);
 		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
 	}
 	
