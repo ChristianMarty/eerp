@@ -17,8 +17,12 @@
       <p><b>Stock Quantity: </b>{{ item.Quantity }}</p>
       <p><b>Work Order: </b>
         <el-select v-model="workOrderId" filterable>
-          <el-option v-for="wo in workOrders" :key="wo.Id" :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
-            :value="wo.Id" />
+          <el-option
+            v-for="wo in workOrders"
+            :key="wo.Id"
+            :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
+            :value="wo.Id"
+          />
         </el-select>
       </p>
       <p>

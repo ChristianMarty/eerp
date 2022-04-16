@@ -3,8 +3,12 @@
     <h2>Stock</h2>
 
     <p>
-      <el-input ref="itemNrInput" v-model="inputStockId" placeholder="Please Input Stock Number"
-        @keyup.enter.native="setItem">
+      <el-input
+        ref="itemNrInput"
+        v-model="inputStockId"
+        placeholder="Please Input Stock Number"
+        @keyup.enter.native="setItem"
+      >
         <el-button slot="append" icon="el-icon-search" @click="setItem" />
       </el-input>
     </p>
@@ -54,14 +58,26 @@
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
       <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
-      <el-button v-permission="['stock.add']" style="margin-right: 20px" icon="el-icon-plus"
-        @click="addStockDialogVisible = true">Add</el-button>
+      <el-button
+        v-permission="['stock.add']"
+        style="margin-right: 20px"
+        icon="el-icon-plus"
+        @click="addStockDialogVisible = true"
+      >Add</el-button>
 
-      <el-button v-permission="['stock.remove']" style="margin-right: 20px" icon="el-icon-minus"
-        @click="removeStockDialogVisible = true">Remove</el-button>
+      <el-button
+        v-permission="['stock.remove']"
+        style="margin-right: 20px"
+        icon="el-icon-minus"
+        @click="removeStockDialogVisible = true"
+      >Remove</el-button>
 
-      <el-button v-permission="['stock.count']" style="margin-right: 20px" icon="el-icon-finished"
-        @click="countStockDialogVisible = true">Count</el-button>
+      <el-button
+        v-permission="['stock.count']"
+        style="margin-right: 20px"
+        icon="el-icon-finished"
+        @click="countStockDialogVisible = true"
+      >Count</el-button>
       <el-divider />
       <h3>History</h3>
 
@@ -195,9 +211,9 @@ export default {
     }
   },
   watch: {
-    addStockDialogVisible: function () { this.loadItem() },
-    removeStockDialogVisible: function () { this.loadItem() },
-    countStockDialogVisible: function () { this.loadItem() }
+    addStockDialogVisible: function() { this.loadItem() },
+    removeStockDialogVisible: function() { this.loadItem() },
+    countStockDialogVisible: function() { this.loadItem() }
   },
   mounted() {
     this.reset()
@@ -205,8 +221,7 @@ export default {
     if (this.$route.params.StockNo != null) {
       this.inputStockId = this.$route.params.StockNo
       this.loadItem()
-    }
-    else {
+    } else {
       this.$refs.itemNrInput.focus()
     }
 
