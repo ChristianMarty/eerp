@@ -30,7 +30,7 @@
           </template>
         </template>
       </el-table-column>
-
+      <el-table-column label="Date" prop="ExpectedReceiptDate" width="100" />
       <el-table-column prop="Price" label="Price" width="120" />
 
       <el-table-column label="Total" width="120">

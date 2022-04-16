@@ -35,7 +35,7 @@
         style="width: 100%"
         :summary-method="calcSum"
         show-summary
-        @row-dblclick="(row, column, event) =>openEdit(row)"
+        @row-click="(row, column, event) =>openEdit(row)"
       >
         <el-table-column prop="LineNo" label="Line" width="70" />
         <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
@@ -50,6 +50,7 @@
             </template>
           </template>
         </el-table-column>
+        <el-table-column prop="ExpectedReceiptDate" label="Expected" width="100" />
         <el-table-column prop="Price" label="Price" width="100" />
 
         <el-table-column label="Total" width="100">
@@ -117,7 +118,14 @@
             (Math.round((orderLineEditData.QuantityOrderd * orderLineEditData.Price) * 100000) / 100000)
           }}</span>
         </el-form-item>
-
+        <el-form-item label="Expected Receipt:">
+          <el-date-picker
+            v-model="orderLineEditData.ExpectedReceiptDate"
+            type="date"
+            placeholder="Pick a day"
+            value-format="yyyy-MM-dd"
+          />
+        </el-form-item>
         <el-form-item label="Part Number:">
 
           <el-popover placement="top" width="800" trigger="click">

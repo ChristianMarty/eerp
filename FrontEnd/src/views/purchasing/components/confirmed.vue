@@ -10,10 +10,10 @@
       :tree-props="{ children: 'Received' }"
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="120" />
+      <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="100" />
       <el-table-column prop="QuantityReceived" label="Received Qty" width="120" />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="120" />
-
+      <el-table-column prop="ExpectedReceiptDate" label="Expected" width="120" />
       <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" />
 
       <el-table-column label="Item">

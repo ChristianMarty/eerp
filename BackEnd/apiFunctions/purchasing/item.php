@@ -74,6 +74,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$lines[$r['OrderLineId']]['Description'] = $r['Description'];
 			$lines[$r['OrderLineId']]['OrderReference'] = $r['OrderReference'];
 			$lines[$r['OrderLineId']]['Note'] = $r['Note'];
+			$lines[$r['OrderLineId']]['ExpectedReceiptDate'] = $r['ExpectedReceiptDate'];
 			//$lines[$r['OrderLineId']]['SupplierPartId'] = $r['SupplierPartId'];
 				
 			if($status == "Confirmed" or $status == "Closed")

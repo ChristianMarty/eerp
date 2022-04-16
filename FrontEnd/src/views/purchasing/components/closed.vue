@@ -20,6 +20,7 @@
         sortable
       />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="150" sortable />
+      <el-table-column prop="ExpectedReceiptDate" label="Expected" width="150" sortable />
       <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" sortable />
 
       <el-table-column label="Item">

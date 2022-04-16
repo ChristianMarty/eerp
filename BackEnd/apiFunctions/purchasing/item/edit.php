@@ -42,6 +42,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['Description'] = $line['Description'];
 			$sqlData['Quantity'] = $line['QuantityOrderd'];
 			$sqlData['Sku'] = $line['SupplierSku'];
+			$sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
+			
 			//if(isset($line['SupplierPartId']))$sqlData['SupplierPartId'] = $line['SupplierPartId'];
 			//else $sqlData['SupplierPartId'] = null;
 			
