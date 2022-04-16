@@ -2,10 +2,21 @@
   <div class="edit-container">
     <el-form v-permission="['purchasing.edit']" :inline="true" style="margin-top: 20px">
       <el-form-item>
-        <el-button type="primary" @click="save(lines)">Save All</el-button>
+
+        <el-button
+          v-permission="['purchasing.edit']"
+          type="primary"
+          icon="el-icon-plus"
+          circle
+          style="margin-top: 20px"
+          @click="addLine('Part')"
+        />
+
+        <!--<el-button type="primary" @click="save(lines)">Save All</el-button>
+
         <el-button @click="addLine('Part')">Add Part</el-button>
         <el-button @click="addLine('Generic')">Add Generic Item</el-button>
-        <!-- <el-badge :value="1" type="primary"> -->
+         <el-badge :value="1" type="primary"> -->
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
         <!-- </el-badge> -->
       </el-form-item>
@@ -22,7 +33,7 @@
       show-summary
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="QuantityOrderd" label="Quantity" width="120" />
+      <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
       <el-table-column label="SKU" prop="SupplierSku" width="220" />
       <el-table-column label="Item">
         <template slot-scope="{ row }">
@@ -34,11 +45,11 @@
           </template>
         </template>
       </el-table-column>
-      <el-table-column prop="Price" label="Price" width="120" />
+      <el-table-column prop="Price" label="Price" width="100" />
 
-      <el-table-column label="Total" width="120">
+      <el-table-column label="Total" width="100">
         <template slot-scope="{ row }">
-          <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 100000) / 100000) }}</span>
+          <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 10000) / 10000) }}</span>
         </template>
       </el-table-column>
 
@@ -57,15 +68,21 @@
     </el-table>
 
     <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible">
-      <template v-if="orderLineEditData.Type == 'Part'">
-        <p>Part</p>
-      </template>
-      <template v-if="orderLineEditData.Type == 'Generic'">
-        <p>Generic</p>
-      </template>
 
       <el-form label-width="150px">
         <el-form-item label="Line:">{{ orderLineEditData.LineNo }}</el-form-item>
+
+        <el-form-item label="Type:">
+          <el-select
+            v-model="orderLineEditData.Type"
+            placeholder="Type"
+            style="min-width: 200px; margin-right: 10px;"
+          >
+            <el-option value="Part">Part</el-option>
+            <el-option value="Generic">Generic</el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="Quantity:">
           <template slot-scope="{ row }">
             <el-input-number
@@ -95,38 +112,35 @@
           }}</span>
         </el-form-item>
 
-        <el-form-item label="Sku:">
-          <el-input v-model="orderLineEditData.SupplierSku" />
-        </el-form-item>
-
         <el-form-item label="Part Number:">
-          <el-popover placement="right" width="400" trigger="click">
-            <el-select
-              v-model="orderLineEditData.MfrPartIndex"
-              placeholder="Manufacturer Part"
-              style="min-width: 300px; margin-right: 10px;"
-              @change="updaptePartLine(orderLineEditData)"
-            >
-              <el-option
-                v-for="(item, index) in orderLineEditData.PartOptions"
-                :key="index"
-                :label="item.ManufacturerName + ' - ' + item.ManufacturerPartNumber"
-                :value="index"
-              />
-            </el-select>
-
+          <span>
             <el-input
               slot="reference"
               v-model="orderLineEditData.PartNo"
               placeholder="PartNo"
-              style="width: 150px; margin-right: 10px;"
-              @change="getPartData(orderLineEditData)"
+              style="width: 200px; margin-right: 10px;"
             />
-          </el-popover>
+            <el-popover placement="top" width="800" trigger="click">
+
+              <el-table :data="partOptions" @row-click="(row, column, event) =>supplierPartSelect(orderLineEditData, row, column, event)">
+                <el-table-column width="120" property="ManufacturerName" label="Manufacturer" />
+                <el-table-column property="ManufacturerPartNumber" label="P/N" />
+                <el-table-column property="SupplierPartNumber" label="SKU" />
+                <el-table-column property="Note" label="Note" />
+
+              </el-table>
+
+              <el-button slot="reference" @click="getPartData(orderLineEditData)">Search</el-button>
+            </el-popover>
+          </span>
         </el-form-item>
 
         <el-form-item label="Order Reference:">
           <el-input v-model="orderLineEditData.OrderReference" />
+        </el-form-item>
+
+        <el-form-item label="Sku:">
+          <el-input v-model="orderLineEditData.SupplierSku" />
         </el-form-item>
 
         <el-form-item label="Manufacturer:">
@@ -161,12 +175,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-      title="Pending Order Request"
-      :visible.sync="orderReqestDialogVisible"
-      :before-close="closeDialog"
-      @open="getOrderRequests(orderData.SupplierId)()"
-    >
+    <el-dialog width="85%" title="Pending Order Request" :visible.sync="orderReqestDialogVisible" @open="getOrderRequests()">
       <el-table ref="itemTable" :key="tableKey" :data="orderRequests" border style="width: 100%">
         <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" />
 
@@ -201,15 +210,16 @@ export default {
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
-      orderData: this.$props.orderData,
-      lines: null,
+      lines: [],
       tableKey: 0,
       line: 0,
       orderStatus: 0,
       orderRequests: null,
       orderReqestDialogVisible: false,
       orderLineEditDialogVisible: false,
-      orderLineEditData: {}
+      orderLineEditData: {},
+      partManufacturer: [],
+      partOptions: []
     }
   },
   mounted() {
@@ -217,6 +227,14 @@ export default {
     this.getOrderLines()
   },
   methods: {
+    supplierPartSelect(data, row, column, event) {
+      data.SupplierPartId = row.SupplierPartId
+      data.SupplierSku = row.SupplierPartNumber
+      data.ManufacturerName = row.ManufacturerName
+      data.Note = row.Note
+      data.Description = row.Description
+      data.ManufacturerPartNumber = row.ManufacturerPartNumber
+    },
     save(lines) {
       requestBN({
         method: 'post',
@@ -290,17 +308,17 @@ export default {
         SupplierSku: orderRequestData.SupplierPartNumber,
         Description: '',
         Price: 0,
-        Type: 'ManufacturerPart',
+        Type: 'Part',
 
-        PartNo: null,
+        PartNo: orderRequestData.PartNoList,
         ManufacturerName: orderRequestData.ManufacturerName,
         ManufacturerPartNumber: orderRequestData.ManufacturerPartNumber,
 
-        MfrPartIndex: null,
-        PartOptions: null
+        Note: null
       }
 
       this.lines.push(row)
+      this.save([row])
     },
     addLine(lineType) {
       this.line++
@@ -318,8 +336,7 @@ export default {
         ManufacturerName: null,
         ManufacturerPartNumber: '',
 
-        MfrPartIndex: null,
-        PartOptions: null
+        Note: null
       }
 
       this.lines.push(row)
@@ -333,7 +350,7 @@ export default {
 
       const totalLine = []
       totalLine[0] = 'Total'
-      totalLine[5] = Math.round(total * 100000) / 100000
+      totalLine[5] = Math.round(total * 10000) / 10000
       return totalLine
     },
     getOrderLines() {
@@ -341,7 +358,7 @@ export default {
         url: '/purchasing/item',
         methood: 'get',
         params: {
-          PurchaseOrderNo: this.orderData.PoNo
+          PurchaseOrderNo: this.$props.orderData.PoNo
         }
       }).then(response => {
         this.lines = response.data.Lines
@@ -356,39 +373,22 @@ export default {
         this.partManufacturer = response.data
       })
     },
-    updaptePartLine(row) {
-      const index = eval(row.LineNo - 1)
-      const partIndex = eval(row.MfrPartIndex)
-
-      this.lines[index].ManufacturerName =
-        row.PartOptions[partIndex].ManufacturerName
-
-      this.lines[index].ManufacturerPartNumber =
-        row.PartOptions[partIndex].ManufacturerPartNumber
-
-      this.lines[index].Price = 0
-
-      this.lines[index].Description =
-        row.PartOptions[partIndex].Description
-
-      this.lines[index].PartOptions = null
-    },
     getPartData(row) {
-      const index = eval(row.LineNo - 1)
+      if (row.PartNo === null) return
       requestBN({
-        url: '/productionPart/item',
+        url: '/supplier/supplierPart',
         methood: 'get',
-        params: { PartNo: row.PartNo }
+        params: { ProductionPartNo: row.PartNo }
       }).then(response => {
-        this.lines[index].PartOptions =
-          response.data.ManufacturerParts
+        this.partOptions =
+          response.data
       })
     },
-    getOrderRequests(supplierId) {
+    getOrderRequests() {
       requestBN({
         url: '/purchasing/orderRequest',
         methood: 'get',
-        params: { SupplierId: supplierId }
+        params: { SupplierId: this.$props.orderData.SupplierId }
       }).then(response => {
         this.orderRequests = response.data
       })

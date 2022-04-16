@@ -19,16 +19,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["ManufacturerPartId"])) $manufacturerPartId =  dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
 	if(isset($_GET["SupplierId"])) $supplierId =  dbEscapeString($dbLink, $_GET["SupplierId"]);
-	
+	if(isset($_GET["ProductionPartNo"])) $productionPartNo =  dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
 	
 	$supplierData = array();
 	
-	$query = "SELECT *, supplierPart.Id AS SupplierPartId FROM supplierPart ";
+	$query = "SELECT *, partManufacturer.Name AS ManufacturerName, supplierPart.Id AS SupplierPartId FROM supplierPart ";
 	$query.="LEFT JOIN supplier On supplier.Id = supplierPart.SupplierId ";
+	$query.="LEFT JOIN manufacturerPart On manufacturerPart.Id = supplierPart.ManufacturerPartId ";
+	$query.="LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query.="LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
+	$query.="LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
 	
 	$parameters = array();
 	if(isset($manufacturerPartId)) array_push($parameters, 'supplierPart.ManufacturerPartId = '. $manufacturerPartId);
 	if(isset($supplierId)) array_push($parameters, 'supplierPart.SupplierId = '.$supplierId);
+	if(isset($productionPartNo)) array_push($parameters, "productionPart.PartNo = '".$productionPartNo."'");
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
 	
