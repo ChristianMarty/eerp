@@ -4,7 +4,7 @@
     <el-card class="mid-box">
       <h3 style="text-align:center">Barcode Search</h3>
       <template style="text-align:center">
-        <el-input v-model="searchInput" placeholder="Search" @keyup.enter.native="search()">
+        <el-input ref="searchInput" v-model="searchInput" placeholder="Search" @keyup.enter.native="search()">
           <el-button slot="append" icon="el-icon-search" @click="search()" />
         </el-input>
       </template>
@@ -70,6 +70,10 @@ export default {
     this.weeknumber = getNumberOfWeek()
     this.getStockNotification()
     this.getOrderStatus()
+    this.$refs.searchInput.focus()
+  },
+  updated() {
+
   },
   methods: {
     getStockNotification() {
