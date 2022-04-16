@@ -5,17 +5,8 @@
     <h2>Input Stock Number:</h2>
 
     <p>
-      <el-input
-        ref="itemNrInput"
-        v-model="inputItemNr"
-        placeholder="Please input"
-        @keydown.enter.native="searchItem"
-      >
-        <el-button
-          slot="append"
-          icon="el-icon-search"
-          @click="searchItem"
-        />
+      <el-input ref="itemNrInput" v-model="inputItemNr" placeholder="Please input" @keydown.enter.native="searchItem">
+        <el-button slot="append" icon="el-icon-search" @click="searchItem" />
       </el-input>
     </p>
     <el-card v-if="showCard">
@@ -25,13 +16,15 @@
       <p><b>Location: </b>{{ item.Location }}</p>
       <p><b>Location Path: </b>{{ item.LocationPath }}</p>
       <p><b>Stock Quantity: </b>{{ item.Quantity }}</p>
+      <p><b>Work Order: </b>
+        <el-select v-model="workOrderId" filterable>
+          <el-option v-for="wo in workOrders" :key="wo.Id" :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
+            :value="wo.Id" />
+        </el-select>
+      </p>
       <p>
         <b>Add Quantity: </b>
-        <el-input-number
-          v-model="addQuantity"
-          :min="1"
-          :max="100000"
-        />
+        <el-input-number v-model="addQuantity" :min="1" :max="100000" />
       </p>
       <p>
         <el-button type="primary" @click="addStock">Add</el-button>
@@ -42,10 +35,7 @@
       <el-table :data="productionPartData" style="width: 100%">
         <el-table-column prop="PartNo" label="Part No" sortable width="100">
           <template slot-scope="{ row }">
-            <router-link
-              :to="'/prodParts/prodPartView/' + row.PartNo"
-              class="link-type"
-            >
+            <router-link :to="'/prodParts/prodPartView/' + row.PartNo" class="link-type">
               <span>{{ row.PartNo }}</span>
             </router-link>
           </template>
@@ -53,8 +43,7 @@
         <el-table-column prop="Description" label="Description" sortable />
       </el-table>
 
-    </el-card>
-  </div>
+    </el-card>  </div>
 </template>
 
 <script>
@@ -78,11 +67,14 @@ export default {
       addQuantity: 0,
       inputItemNr: null,
       showCard: false,
-      productionPartData: null
+      productionPartData: null,
+      workOrders: {},
+      workOrderId: null
     }
   },
   mounted() {
     this.$refs.itemNrInput.focus()
+    this.getWorkOrders()
   },
   methods: {
     searchItem() {
@@ -118,12 +110,21 @@ export default {
       this.showCard = false
       this.$refs.itemNrInput.focus()
     },
+    getWorkOrders() {
+      requestBN({
+        url: '/workOrder',
+        methood: 'get',
+        params: { Status: 'InProgress' }
+      }).then(response => {
+        this.workOrders = response.data
+      })
+    },
     addStock() {
       requestBN({
         method: 'patch',
         url: '/stock',
         params: { StockNo: this.inputItemNr },
-        data: { AddQuantity: this.addQuantity }
+        data: { AddQuantity: this.addQuantity, WorkOrderId: this.workOrderId }
       }).then(response => {
         if (response.error != null) {
           this.$message({

@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-    <h1>Stock Item</h1>
-    <el-divider />
-    <h2>Input Stock Number:</h2>
+    <h2>Stock</h2>
+
     <p>
-      <el-input ref="itemNrInput" v-model="inputStockId" placeholder="Please input" @keyup.enter.native="setItem">
+      <el-input ref="itemNrInput" v-model="inputStockId" placeholder="Please Input Stock Number"
+        @keyup.enter.native="setItem">
         <el-button slot="append" icon="el-icon-search" @click="setItem" />
       </el-input>
     </p>
     <p>
-      <el-button type="danger" @click="clear">Clear</el-button>
+      <el-button type="danger" @click="clear()">Clear</el-button>
     </p>
 
     <el-card v-if="showItem">
@@ -54,26 +54,14 @@
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
       <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
-      <el-button
-        v-permission="['stock.add']"
-        style="margin-right: 20px"
-        icon="el-icon-plus"
-        @click="addStockDialogVisible = true"
-      >Add</el-button>
+      <el-button v-permission="['stock.add']" style="margin-right: 20px" icon="el-icon-plus"
+        @click="addStockDialogVisible = true">Add</el-button>
 
-      <el-button
-        v-permission="['stock.remove']"
-        style="margin-right: 20px"
-        icon="el-icon-minus"
-        @click="removeStockDialogVisible = true"
-      >Remove</el-button>
+      <el-button v-permission="['stock.remove']" style="margin-right: 20px" icon="el-icon-minus"
+        @click="removeStockDialogVisible = true">Remove</el-button>
 
-      <el-button
-        v-permission="['stock.count']"
-        style="margin-right: 20px"
-        icon="el-icon-finished"
-        @click="countStockDialogVisible = true"
-      >Count</el-button>
+      <el-button v-permission="['stock.count']" style="margin-right: 20px" icon="el-icon-finished"
+        @click="countStockDialogVisible = true">Count</el-button>
       <el-divider />
       <h3>History</h3>
 
@@ -207,16 +195,19 @@ export default {
     }
   },
   watch: {
-    addStockDialogVisible: function() { this.loadItem() },
-    removeStockDialogVisible: function() { this.loadItem() },
-    countStockDialogVisible: function() { this.loadItem() }
+    addStockDialogVisible: function () { this.loadItem() },
+    removeStockDialogVisible: function () { this.loadItem() },
+    countStockDialogVisible: function () { this.loadItem() }
   },
   mounted() {
-    this.clear()
+    this.reset()
 
     if (this.$route.params.StockNo != null) {
       this.inputStockId = this.$route.params.StockNo
       this.loadItem()
+    }
+    else {
+      this.$refs.itemNrInput.focus()
     }
 
     this.getLabel()
@@ -230,6 +221,10 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    clear() {
+      this.$refs.itemNrInput.focus()
+      this.reset()
+    },
     setTagsViewTitle(title) {
       const route = Object.assign({}, this.tempRoute, {
         title: `${title}`
@@ -365,10 +360,9 @@ export default {
         this.productionPartData = response.data
       })
     },
-    clear() {
+    reset() {
       this.inputStockId = null
       this.showItem = false
-      this.$refs.itemNrInput.focus()
       this.printDialogVisible = false
       this.setTagsViewTitle('Stock Item')
     },
