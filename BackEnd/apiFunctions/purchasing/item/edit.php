@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../item.php";
 
 $error = null; 
 
@@ -27,6 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($action == "save")
 	{
 		$lines = $data['data']['Lines'];
+
 		
 		foreach ($lines as $line) 
 		{
@@ -40,6 +42,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['Description'] = $line['Description'];
 			$sqlData['Quantity'] = $line['QuantityOrderd'];
 			$sqlData['Sku'] = $line['SupplierSku'];
+			//if(isset($line['SupplierPartId']))$sqlData['SupplierPartId'] = $line['SupplierPartId'];
+			//else $sqlData['SupplierPartId'] = null;
 			
 			if($line['Price'] === null) $sqlData['Price'] = 0;
 			else $sqlData['Price'] = $line['Price'];
@@ -86,14 +90,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$dbLink = dbConnect();
 		if($dbLink == null) return null;
 		
-		$line = intval($data['data']['LineNo']);
+		$lineId = intval($data['data']['OrderLineId']);
 		
-		$query = "DELETE FROM purchasOrder_itemOrder WHERE LineNo = ".$line." AND PurchasOrderId = (SELECT Id FROM purchasOrder WHERE PoNo = '".$poNo."' );";
-		dbRunQuery($dbLink,$query);
-		dbClose($dbLink);
+		if($lineId != 0)
+		{
+			$query = "DELETE FROM purchasOrder_itemOrder WHERE Id = ".$lineId." AND PurchasOrderId = (SELECT Id FROM purchasOrder WHERE PoNo = '".$poNo."' );";
+			dbRunQuery($dbLink,$query);
+			dbClose($dbLink);
+		}
 	}
-
-	sendResponse(null,$error);
+	
+	
+	$output = getPurchaseOrderData($poNo);
+	sendResponse($output,$error);
 }
 
 ?>

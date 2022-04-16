@@ -21,51 +21,57 @@
         <!-- </el-badge> -->
       </el-form-item>
     </el-form>
-
-    <el-table
-      ref="itemTable"
-      :key="tableKey"
-      :data="lines"
-      border
-      :cell-style="{ padding: '0', height: '20px' }"
-      style="width: 100%"
-      :summary-method="calcSum"
-      show-summary
+    <el-table-draggable
+      v-permission="['purchasing.edit']"
+      @input="reorderLines(), save(lines)"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
-      <el-table-column label="SKU" prop="SupplierSku" width="220" />
-      <el-table-column label="Item">
-        <template slot-scope="{ row }">
-          <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
-          <template v-if="row.Type == 'Part'">
-            {{ row.PartNo }} - {{ row.ManufacturerName }} - {{
-              row.ManufacturerPartNumber
-            }} - {{ row.Description }}
-          </template>
-        </template>
-      </el-table-column>
-      <el-table-column prop="Price" label="Price" width="100" />
-
-      <el-table-column label="Total" width="100">
-        <template slot-scope="{ row }">
-          <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 10000) / 10000) }}</span>
-        </template>
-      </el-table-column>
-
-      <template v-permission="['purchasing.edidt']">
-        <el-table-column width="70">
-          <template slot-scope=" { row }">
-            <el-button
-              type="text"
-              size="mini"
-              @click="orderLineEditData = JSON.parse(JSON.stringify(row)), orderLineEditDialogVisible = true"
-            >
-              Edit</el-button>
+      <el-table
+        ref="itemTable"
+        :key="tableKey"
+        row-key="OrderLineId"
+        :data="lines"
+        border
+        :cell-style="{ padding: '0', height: '20px' }"
+        style="width: 100%"
+        :summary-method="calcSum"
+        show-summary
+        @row-dblclick="(row, column, event) =>openEdit(row)"
+      >
+        <el-table-column prop="LineNo" label="Line" width="70" />
+        <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
+        <el-table-column label="SKU" prop="SupplierSku" width="220" />
+        <el-table-column label="Item">
+          <template slot-scope="{ row }">
+            <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
+            <template v-if="row.Type == 'Part'">
+              {{ row.PartNo }} - {{ row.ManufacturerName }} - {{
+                row.ManufacturerPartNumber
+              }} - {{ row.Description }}
+            </template>
           </template>
         </el-table-column>
-      </template>
-    </el-table>
+        <el-table-column prop="Price" label="Price" width="100" />
+
+        <el-table-column label="Total" width="100">
+          <template slot-scope="{ row }">
+            <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 10000) / 10000) }}</span>
+          </template>
+        </el-table-column>
+
+        <template v-permission="['purchasing.edidt']">
+          <el-table-column width="70">
+            <template slot-scope=" { row }">
+              <el-button
+                type="text"
+                size="mini"
+                @click="openEdit(row)"
+              >
+                Edit</el-button>
+            </template>
+          </el-table-column>
+        </template>
+      </el-table>
+    </el-table-draggable>
 
     <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible">
 
@@ -113,25 +119,27 @@
         </el-form-item>
 
         <el-form-item label="Part Number:">
-          <span>
-            <el-input
-              slot="reference"
-              v-model="orderLineEditData.PartNo"
-              placeholder="PartNo"
-              style="width: 200px; margin-right: 10px;"
-            />
-            <el-popover placement="top" width="800" trigger="click">
 
-              <el-table :data="partOptions" @row-click="(row, column, event) =>supplierPartSelect(orderLineEditData, row, column, event)">
-                <el-table-column width="120" property="ManufacturerName" label="Manufacturer" />
-                <el-table-column property="ManufacturerPartNumber" label="P/N" />
-                <el-table-column property="SupplierPartNumber" label="SKU" />
-                <el-table-column property="Note" label="Note" />
+          <el-popover placement="top" width="800" trigger="click">
 
-              </el-table>
+            <el-table :data="partOptions" @row-click="(row, column, event) =>supplierPartSelect(orderLineEditData, row, column, event)">
+              <el-table-column width="120" property="ManufacturerName" label="Manufacturer" />
+              <el-table-column property="ManufacturerPartNumber" label="P/N" />
+              <el-table-column property="SupplierPartNumber" label="SKU" />
+              <el-table-column property="Note" label="Note" />
 
+            </el-table>
+            <span slot="reference">
+              <el-input
+                v-model="orderLineEditData.PartNo"
+                placeholder="PartNo"
+                style="width: 200px; margin-right: 10px;"
+                @keyup.enter.native="getPartData(orderLineEditData)"
+              />
               <el-button slot="reference" @click="getPartData(orderLineEditData)">Search</el-button>
-            </el-popover>
+            </span>
+          </el-popover>
+
           </span>
         </el-form-item>
 
@@ -167,7 +175,7 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="danger" @click="orderLineEditDialogVisible = false, deleteLine(orderLineEditData.LineNo)">
+        <el-button type="danger" @click="orderLineEditDialogVisible = false, deleteLine(orderLineEditData)">
           Delete</el-button>
         <el-button type="primary" @click="orderLineEditDialogVisible = false, save([orderLineEditData])">Save
         </el-button>
@@ -203,10 +211,12 @@
 import requestBN from '@/utils/requestBN'
 
 import permission from '@/directive/permission/index.js'
+import ElTableDraggable from 'el-table-draggable'
 
 export default {
   name: 'PurchaseOrderEdit',
   directives: { permission },
+  components: { ElTableDraggable },
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
@@ -227,6 +237,12 @@ export default {
     this.getOrderLines()
   },
   methods: {
+    openEdit(row) {
+      this.reorderLines()
+      this.partOptions = []
+      this.orderLineEditData = JSON.parse(JSON.stringify(row))
+      this.orderLineEditDialogVisible = true
+    },
     supplierPartSelect(data, row, column, event) {
       data.SupplierPartId = row.SupplierPartId
       data.SupplierSku = row.SupplierPartNumber
@@ -242,7 +258,8 @@ export default {
         data: { data: { Action: 'save', Lines: lines, PoNo: this.$props.orderData.PoNo }}
       }).then(response => {
         if (response.error == null) {
-          this.getOrderLines()
+          this.lines = response.data.Lines
+          this.line = this.lines.length
           this.$message({
             showClose: true,
             message: 'Changes saved successfully',
@@ -259,8 +276,8 @@ export default {
         }
       })
     },
-    deleteLine(lineNo) {
-      this.$confirm('This will permanently delete line ' + lineNo + '. Continue?', 'Warning', {
+    deleteLine(orderLineData) {
+      this.$confirm('This will permanently delete line ' + orderLineData.LineNo + '. Continue?', 'Warning', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'warning'
@@ -268,16 +285,13 @@ export default {
         requestBN({
           method: 'post',
           url: '/purchasing/item/edit',
-          data: { data: { Action: 'delete', LineNo: lineNo, PoNo: this.$props.orderData.PoNo }}
+          data: { data: { Action: 'delete', OrderLineId: orderLineData.OrderLineId, PoNo: this.$props.orderData.PoNo }}
         }).then(response => {
           if (response.error == null) {
-            this.getOrderLines()
-            this.$message({
-              showClose: true,
-              message: 'Changes saved successfully',
-              duration: 1500,
-              type: 'success'
-            })
+            this.lines = response.data.Lines
+            this.line = this.lines.length
+            this.reorderLines()
+            this.save(this.lines)
           } else {
             this.$message({
               showClose: true,
@@ -292,6 +306,14 @@ export default {
           type: 'info',
           message: 'Delete canceled'
         })
+      })
+    },
+    reorderLines() {
+      console.log('kjhkjhkj')
+      this.line = 1
+      this.lines.forEach(element => {
+        element.LineNo = this.line
+        this.line++
       })
     },
     updateTable() {

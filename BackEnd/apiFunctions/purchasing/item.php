@@ -11,18 +11,17 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+function getPurchaseOrderData($purchaseOrderNo)
 {
-
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
 	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, OrderNumber, Currency, ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
-	if(isset($_GET["PurchaseOrderNo"]))
+	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
 	{
-		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
+		$purchaseOrderNo = dbEscapeString($dbLink, $purchaseOrderNo);
 		$purchaseOrderNo = strtolower($purchaseOrderNo);
 		$purchaseOrderNo = str_replace("po-","",$purchaseOrderNo);
 		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
@@ -75,6 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$lines[$r['OrderLineId']]['Description'] = $r['Description'];
 			$lines[$r['OrderLineId']]['OrderReference'] = $r['OrderReference'];
 			$lines[$r['OrderLineId']]['Note'] = $r['Note'];
+			//$lines[$r['OrderLineId']]['SupplierPartId'] = $r['SupplierPartId'];
 				
 			if($status == "Confirmed" or $status == "Closed")
 			{
@@ -101,6 +101,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['Lines'] = array_values($lines);
 
 	dbClose($dbLink);	
+	
+	return $output;
+}
+
+if($_SERVER['REQUEST_METHOD'] == 'GET')
+{
+	$purchaseOrderNo = null;
+	if(isset($_GET["PurchaseOrderNo"])) $purchaseOrderNo = $_GET["PurchaseOrderNo"];
+		
+	$output = getPurchaseOrderData($purchaseOrderNo);
+
 	sendResponse($output);
 }
 
