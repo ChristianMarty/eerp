@@ -58,138 +58,127 @@
             <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 10000) / 10000) }}</span>
           </template>
         </el-table-column>
-
-        <template v-permission="['purchasing.edidt']">
-          <el-table-column width="70">
-            <template slot-scope=" { row }">
-              <el-button
-                type="text"
-                size="mini"
-                @click="openEdit(row)"
-              >
-                Edit</el-button>
-            </template>
-          </el-table-column>
-        </template>
       </el-table>
     </el-table-draggable>
 
-    <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible">
 
-      <el-form label-width="150px">
-        <el-form-item label="Line:">{{ orderLineEditData.LineNo }}</el-form-item>
+    <template v-permission="['purchasing.edit']">
+      <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible">
+        <el-form label-width="150px">
+          <el-form-item label="Line:">{{ orderLineEditData.LineNo }}</el-form-item>
 
-        <el-form-item label="Type:">
-          <el-select
-            v-model="orderLineEditData.Type"
-            placeholder="Type"
-            style="min-width: 200px; margin-right: 10px;"
-          >
-            <el-option value="Part">Part</el-option>
-            <el-option value="Generic">Generic</el-option>
-          </el-select>
-        </el-form-item>
+          <el-form-item label="Type:">
+            <el-select
+              v-model="orderLineEditData.Type"
+              placeholder="Type"
+              style="min-width: 200px; margin-right: 10px;"
+            >
+              <el-option value="Part">Part</el-option>
+              <el-option value="Generic">Generic</el-option>
+            </el-select>
+          </el-form-item>
 
-        <el-form-item label="Quantity:">
-          <template slot-scope="{ row }">
+          <el-form-item label="Quantity:">
+            <template slot-scope="{ row }">
+              <el-input-number
+                v-model="orderLineEditData.QuantityOrderd"
+                :controls="false"
+                :min="1"
+                :max="999999"
+                style="width: 70pt"
+              />
+            </template>
+          </el-form-item>
+
+          <el-form-item label="Price:">
             <el-input-number
-              v-model="orderLineEditData.QuantityOrderd"
+              v-model="orderLineEditData.Price"
               :controls="false"
-              :min="1"
+              :precision="4"
+              :min="0.0000"
               :max="999999"
               style="width: 70pt"
             />
-          </template>
-        </el-form-item>
+          </el-form-item>
 
-        <el-form-item label="Price:">
-          <el-input-number
-            v-model="orderLineEditData.Price"
-            :controls="false"
-            :precision="4"
-            :min="0.0000"
-            :max="999999"
-            style="width: 70pt"
-          />
-        </el-form-item>
+          <el-form-item label="Total:">
+            <span>{{
+              (Math.round((orderLineEditData.QuantityOrderd * orderLineEditData.Price) * 100000) / 100000)
+            }}</span>
+          </el-form-item>
+          <el-form-item label="Expected Receipt:">
+            <el-date-picker
+              v-model="orderLineEditData.ExpectedReceiptDate"
+              type="date"
+              placeholder="Pick a day"
+              value-format="yyyy-MM-dd"
+            />
+          </el-form-item>
+          <el-form-item label="Part Number:">
 
-        <el-form-item label="Total:">
-          <span>{{
-            (Math.round((orderLineEditData.QuantityOrderd * orderLineEditData.Price) * 100000) / 100000)
-          }}</span>
-        </el-form-item>
-        <el-form-item label="Expected Receipt:">
-          <el-date-picker
-            v-model="orderLineEditData.ExpectedReceiptDate"
-            type="date"
-            placeholder="Pick a day"
-            value-format="yyyy-MM-dd"
-          />
-        </el-form-item>
-        <el-form-item label="Part Number:">
+            <el-popover placement="top" width="800" trigger="click">
 
-          <el-popover placement="top" width="800" trigger="click">
+              <el-table :data="partOptions" @row-click="(row, column, event) =>supplierPartSelect(orderLineEditData, row, column, event)">
+                <el-table-column width="120" property="ManufacturerName" label="Manufacturer" />
+                <el-table-column property="ManufacturerPartNumber" label="P/N" />
+                <el-table-column property="SupplierPartNumber" label="SKU" />
+                <el-table-column property="Note" label="Note" />
 
-            <el-table :data="partOptions" @row-click="(row, column, event) =>supplierPartSelect(orderLineEditData, row, column, event)">
-              <el-table-column width="120" property="ManufacturerName" label="Manufacturer" />
-              <el-table-column property="ManufacturerPartNumber" label="P/N" />
-              <el-table-column property="SupplierPartNumber" label="SKU" />
-              <el-table-column property="Note" label="Note" />
+              </el-table>
+              <span slot="reference">
+                <el-input
+                  v-model="orderLineEditData.PartNo"
+                  placeholder="PartNo"
+                  style="width: 200px; margin-right: 10px;"
+                  @keyup.enter.native="getPartData(orderLineEditData)"
+                />
+                <el-button slot="reference" @click="getPartData(orderLineEditData)">Search</el-button>
+              </span>
+            </el-popover>
 
-            </el-table>
-            <span slot="reference">
-              <el-input
-                v-model="orderLineEditData.PartNo"
-                placeholder="PartNo"
-                style="width: 200px; margin-right: 10px;"
-                @keyup.enter.native="getPartData(orderLineEditData)"
-              />
-              <el-button slot="reference" @click="getPartData(orderLineEditData)">Search</el-button>
             </span>
-          </el-popover>
+          </el-form-item>
 
-          </span>
-        </el-form-item>
+          <el-form-item label="Order Reference:">
+            <el-input v-model="orderLineEditData.OrderReference" />
+          </el-form-item>
 
-        <el-form-item label="Order Reference:">
-          <el-input v-model="orderLineEditData.OrderReference" />
-        </el-form-item>
+          <el-form-item label="Sku:">
+            <el-input v-model="orderLineEditData.SupplierSku" />
+          </el-form-item>
 
-        <el-form-item label="Sku:">
-          <el-input v-model="orderLineEditData.SupplierSku" />
-        </el-form-item>
+          <el-form-item label="Manufacturer:">
+            <el-select
+              v-model="orderLineEditData.ManufacturerName"
+              placeholder="Manufacturer"
+              filterable
+              style="min-width: 200px; margin-right: 10px;"
+            >
+              <el-option v-for="item in partManufacturer" :key="item.Name" :label="item.Name" :value="item.Name" />
+            </el-select>
+          </el-form-item>
 
-        <el-form-item label="Manufacturer:">
-          <el-select
-            v-model="orderLineEditData.ManufacturerName"
-            placeholder="Manufacturer"
-            filterable
-            style="min-width: 200px; margin-right: 10px;"
-          >
-            <el-option v-for="item in partManufacturer" :key="item.Name" :label="item.Name" :value="item.Name" />
-          </el-select>
-        </el-form-item>
+          <el-form-item label="MPN:">
+            <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
+          </el-form-item>
 
-        <el-form-item label="MPN:">
-          <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
-        </el-form-item>
+          <el-form-item label="Description:">
+            <el-input v-model="orderLineEditData.Description" />
+          </el-form-item>
+          <el-form-item label="Note:">
+            <el-input v-model="orderLineEditData.Note" type="textarea" placeholder="Note" />
+          </el-form-item>
+        </el-form>
 
-        <el-form-item label="Description:">
-          <el-input v-model="orderLineEditData.Description" />
-        </el-form-item>
-        <el-form-item label="Note:">
-          <el-input v-model="orderLineEditData.Note" type="textarea" placeholder="Note" />
-        </el-form-item>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button type="danger" @click="orderLineEditDialogVisible = false, deleteLine(orderLineEditData)">
-          Delete</el-button>
-        <el-button type="primary" @click="orderLineEditDialogVisible = false, save([orderLineEditData])">Save
-        </el-button>
-        <el-button @click="orderLineEditDialogVisible = false">Cancel</el-button>
-      </span>
-    </el-dialog>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="danger" @click="orderLineEditDialogVisible = false, deleteLine(orderLineEditData)">
+            Delete</el-button>
+          <el-button type="primary" @click="orderLineEditDialogVisible = false, save([orderLineEditData])">Save
+          </el-button>
+          <el-button @click="orderLineEditDialogVisible = false">Cancel</el-button>
+        </span>
+      </el-dialog>
+    </template>
 
     <el-dialog width="85%" title="Pending Order Request" :visible.sync="orderReqestDialogVisible" @open="getOrderRequests()">
       <el-table ref="itemTable" :key="tableKey" :data="orderRequests" border style="width: 100%">
@@ -365,11 +354,11 @@ export default {
         PartNo: null,
         ManufacturerName: null,
         ManufacturerPartNumber: '',
+        ExpectedReceiptDate: null,
 
         Note: null
       }
-
-      this.lines.push(row)
+      this.openEdit(row)
     },
     calcSum(param) {
       let total = 0

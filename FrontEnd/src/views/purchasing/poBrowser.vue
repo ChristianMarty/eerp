@@ -19,6 +19,12 @@
           width="220"
         />
         <el-table-column
+          prop="OrderNumber"
+          label="Order Number"
+          sortable
+          width="180"
+        />
+        <el-table-column
           prop="AcknowledgementNumber"
           label="Acknowledgement Number"
           sortable
