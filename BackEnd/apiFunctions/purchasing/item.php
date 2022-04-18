@@ -10,13 +10,14 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/getDocuments.php";
 
 function getPurchaseOrderData($purchaseOrderNo)
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, OrderNumber, Currency, ExchangeRate FROM purchasOrder ";
+	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, AcknowledgementNumber, OrderNumber, Currency, ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
 	
 	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
@@ -112,6 +113,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["PurchaseOrderNo"])) $purchaseOrderNo = $_GET["PurchaseOrderNo"];
 		
 	$output = getPurchaseOrderData($purchaseOrderNo);
+	
+	// Get Documents
+	if(isset($output['MetaData']['DocumentIds'])) $DocIds = $output['MetaData']['DocumentIds'];
+	else $DocIds = null;
+	unset($output['MetaData']['DocumentIds']);
+	
+	$output["Documents"] = getDocuments($DocIds);
 
 	sendResponse($output);
 }

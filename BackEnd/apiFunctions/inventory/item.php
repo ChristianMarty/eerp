@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/location.php";
+require_once __DIR__ . "/../util/getDocuments.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -68,27 +69,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = $r;
 	
 	// Get Documents
-	global $documentRootPath;
-		
-	$Documents = array();
-	
-	if(isset($r['DocumentIds'])) $DocIds = explode(",",$r['DocumentIds']);
+	if(isset($r['DocumentIds'])) $DocIds = $r['DocumentIds'];
 	else $DocIds = null;
 	unset($r['DocumentIds']);
-	
-	if(!empty($DocIds))
-	{
-		$baseQuery = "SELECT * FROM `document` WHERE Id IN(".implode(", ",$DocIds).")";
-		
-		$result = dbRunQuery($dbLink,$baseQuery);
-		while($r = mysqli_fetch_assoc($result))
-		{
-			$r['Path'] = $documentRootPath."/".$r['Type']."/".$r['Path'];
-			array_push($Documents, $r);
-		}
-	}
-	
-	$output["Documents"] = $Documents;
+	$output["Documents"] = getDocuments($DocIds);
 	
 	// Get History
 	

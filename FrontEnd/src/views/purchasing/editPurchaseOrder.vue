@@ -67,6 +67,11 @@
 
     <closedOrder v-if="orderData.Status == 'Closed'" :order-data="orderData" />
 
+    <el-divider />
+    <h3>Documents</h3>
+    <documentsList v-if="orderData.Status != 'Closed'" :documents="documents" :edit="true" />
+    <documentsList v-if="orderData.Status == 'Closed'" :documents="documents" :edit="false" />
+
     <el-dialog title="Edit Order" :visible.sync="showDialog" width="50%" center>
       <el-form size="mini" label-width="220px">
         <el-form-item label="Titel:">
@@ -152,10 +157,11 @@ import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
 import permission from '@/directive/permission/index.js'
+import documentsList from '@/views/documents/components/listDocuments'
 
 export default {
   name: 'PurchaseOrder',
-  components: { editOrder, placedOrder, confirmedOrder, closedOrder },
+  components: { editOrder, placedOrder, confirmedOrder, closedOrder, documentsList },
   directives: { permission },
   data() {
     return {
@@ -165,6 +171,7 @@ export default {
       orderStatus: 0,
       suppliers: {},
       currencies: {},
+      documents: {},
 
       showDialog: false,
       dialogData: { type: Object, default: this.orderData }
@@ -251,36 +258,27 @@ export default {
         this.currencies = response.data
       })
     },
-    getOrder() {
-      requestBN({
-        url: '/purchasOrder',
-        methood: 'get',
-        params: {
-          PurchaseOrderNo: this.PoNo
-        }
-      }).then(response => {
-        this.orderData = response.data[0]
-        this.dialogData = this.orderData
-        if (this.orderData.Status === 'Editing') this.orderStatus = 0
-        else if (this.orderData.Status === 'Placed') this.orderStatus = 1
-        else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
-        else if (this.orderData.Status === 'Closed') this.orderStatus = 4
-      })
-    },
     setTagsViewTitle() {
       const route = Object.assign({}, this.tempRoute, {
         title: 'PO-' + `${this.$route.params.PoNo}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
-    getOrderLine() {
+    getOrder() {
       requestBN({
         url: '/purchasing/item',
         methood: 'get',
         params: {
-          PurchaseOrderNo: this.orderData.PoNo
+          PurchaseOrderNo: this.PoNo
         }
       }).then(response => {
+        this.orderData = response.data.MetaData
+        this.dialogData = this.orderData
+        if (this.orderData.Status === 'Editing') this.orderStatus = 0
+        else if (this.orderData.Status === 'Placed') this.orderStatus = 1
+        else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
+        else if (this.orderData.Status === 'Closed') this.orderStatus = 4
+        this.documents = response.data.Documents
         this.lines = response.data.Lines
         this.line = this.lines.length
       })

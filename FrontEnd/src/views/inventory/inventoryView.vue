@@ -95,6 +95,8 @@
       <div class="Description-content" v-html="inventoryData.Description" />
     </pre>
     <el-divider />
+    <documentsList :documents="inventoryData.Documents" />
+
     <h2>Documents</h2>
     <el-table :data="inventoryData.Documents" style="width: 100%">
       <el-table-column prop="Description" label="Description" width="400" />
@@ -143,10 +145,11 @@
 import requestBN from '@/utils/requestBN'
 import Cookies from 'js-cookie'
 import checkPermission from '@/utils/permission'
+import documentsList from '@/views/documents/components/listDocuments'
 
 export default {
   name: 'InventoryView',
-  components: {},
+  components: { documentsList },
   data() {
     return {
       inventoryData: null,
