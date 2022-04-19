@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$supplierData = array();
 	
-	$query = "SELECT *, partManufacturer.Name AS ManufacturerName, supplierPart.Id AS SupplierPartId FROM supplierPart ";
+	$query = "SELECT *, partManufacturer.Name AS ManufacturerName, supplier.Name AS SupplierName, supplierPart.Id AS SupplierPartId FROM supplierPart ";
 	$query.="LEFT JOIN supplier On supplier.Id = supplierPart.SupplierId ";
 	$query.="LEFT JOIN manufacturerPart On manufacturerPart.Id = supplierPart.ManufacturerPartId ";
 	$query.="LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";

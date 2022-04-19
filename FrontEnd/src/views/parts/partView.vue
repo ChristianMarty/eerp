@@ -79,7 +79,7 @@
                       <b>Suppliers</b>
                     </template>
                     <el-table :data="supplierPartData" style="width: 100%; margin-top:10px">
-                      <el-table-column prop="Name" label="Name" sortable />
+                      <el-table-column prop="SupplierName" label="Supplier Name" sortable />
                       <el-table-column label="Part Number" sortable>
                         <template slot-scope="{ row }">
                           <a
