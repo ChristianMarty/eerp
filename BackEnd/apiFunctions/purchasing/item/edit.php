@@ -40,6 +40,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$id = intval($line['OrderLineId'],10);
 			$sqlData['LineNo'] = $line['LineNo'];
 			$sqlData['Description'] = $line['Description'];
+			$sqlData['OrderReference'] = $line['OrderReference'];
 			$sqlData['Quantity'] = $line['QuantityOrderd'];
 			$sqlData['Sku'] = $line['SupplierSku'];
 			$sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
