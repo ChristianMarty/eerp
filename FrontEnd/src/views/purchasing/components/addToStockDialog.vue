@@ -1,7 +1,13 @@
 <template>
   <div class="add-to-stock-dialog">
+    <el-dialog 
+      title="Add to Stock" 
+      :visible.sync="visible" 
+      center
+      :before-close="closeDialog" 
+      @open="loadData()"
+    >
 
-    <el-dialog title="Add to Stock" :visible.sync="visible" :before-close="closeDialog" @open="loadData()">
       <el-form ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
         <el-form-item label="Manufacturer:" prop="ManufacturerName">
           {{ receivalData.ManufacturerName }}
@@ -53,6 +59,36 @@
             />
           </span>
         </el-form-item>
+        <el-divider />
+        <p><b>Track</b></p>
+        <el-table
+        ref="itemTable"
+        :data="trackData"
+        border
+        style="width: 100%"
+        :header-cell-style="{ padding: '0', height: '20px' }"
+        :cell-style="{ padding: '0', height: '20px' }"
+      >
+        <el-table-column prop="Type" label="Type" width="120" sortable />
+
+        <el-table-column label="Reference" sortable>
+          <template slot-scope="{ row }">
+            <template v-if="row.Type == 'Part Stock'">
+              <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
+                <span>STK-{{ row.StockNo }}</span>
+              </router-link>
+            </template>
+            <template v-if="row.Type == 'Inventory'">
+              <router-link
+                :to="'/inventory/inventoryView/' + row.InvNo"
+                class="link-type"
+              >
+                <span>Inv-{{ row.InvNo }}</span>
+              </router-link>
+            </template>
+          </template>
+        </el-table-column>
+      </el-table>
 
       </el-form>
 
@@ -86,17 +122,17 @@ export default {
       locations: null,
       locationNo: null,
       dateCode: '',
-      quantity: 0
+      quantity: 0,
+      trackData: null
 
     }
   },
   mounted() {
-    this.getLocations()
-    this.getReceived()
   },
   methods: {
     loadData() {
       this.getReceived()
+      this.getTrackData()
     },
     getLocations() {
       requestBN({
@@ -104,6 +140,17 @@ export default {
         methood: 'get'
       }).then(response => {
         this.locations = response.data
+      })
+    },
+    getTrackData() {
+      requestBN({
+        url: '/purchasing/item/track',
+        methood: 'get',
+        params: {
+          ReceivalId: this.$props.receivalId
+        }
+      }).then(response => {
+        this.trackData = response.data
       })
     },
     getReceived() {

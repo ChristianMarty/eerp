@@ -15,7 +15,6 @@
       <el-table-column prop="ReceivalDate" label="Receival Date" width="120" />
       <el-table-column prop="ExpectedReceiptDate" label="Expected" width="120" />
       <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" />
-
       <el-table-column label="Item">
         <template slot-scope="{ row }">
           <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
@@ -37,7 +36,7 @@
             v-permission="['purchasing.confirm']"
             type="text"
             size="mini"
-            @click="openDialog(row)"
+            @click="openConfirmDialog(row)"
           >Confirm
           </el-button>
 
@@ -49,13 +48,23 @@
             style="float: right;"
             type="text"
             size="mini"
-            @click="addToStockDialogReceivalId = row.ReceivalId, addToStockDialogVisible = true"
+            @click="openAddStockDialog(row)"
           >Add Stock</el-button>
+
+          <el-button
+            v-if="
+              row.ReceivalId != NULL
+            "
+            type="text"
+            size="mini"
+            @click="openTrackDialog(row)"
+          >Track</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog title="Confirm Item Received" :visible.sync="showDialog" width="50%" center>
+    
       <el-form size="mini" label-width="220px">
         <el-form-item label="Sku:">{{ receiveDialog.SupplierSku }}</el-form-item>
         <template v-if="receiveDialog.Type == 'Part'">
@@ -87,16 +96,19 @@
       </span>
     </el-dialog>
 
-    <addToStock :visible.sync="addToStockDialogVisible" :receival-id="addToStockDialogReceivalId" />  </div>
+    <addToStock  :visible.sync="addToStockDialogVisible" :receivalId="rowReceivalId" />  
+    <trackDialog :visible.sync="trackDialogVisible" :receivalId="rowReceivalId" />  
+  </div>
 </template>
 
 <script>
 import requestBN from '@/utils/requestBN'
 import addToStock from './addToStockDialog'
+import trackDialog from './trackDialog'
 import permission from '@/directive/permission/index.js'
 
 export default {
-  components: { addToStock },
+  components: { addToStock , trackDialog},
   directives: { permission },
   props: { orderData: { type: Object, default: null }},
   data() {
@@ -108,7 +120,8 @@ export default {
       dialogQuantityReceived: null,
       dialogDateReceived: null,
       addToStockDialogVisible: false,
-      addToStockDialogReceivalId: 0
+      trackDialogVisible: false,
+      rowReceivalId: 0
     }
   },
   created() {
@@ -129,13 +142,19 @@ export default {
         this.prepairLines(this.lines)
       })
     },
-    openDialog(dialogData) {
+    openConfirmDialog(dialogData) {
       this.showDialog = true
       this.receiveDialog = dialogData
-
-      this.dialogQuantityReceived =
-        this.receiveDialog.QuantityOrderd - this.receiveDialog.QuantityReceived
+      this.dialogQuantityReceived = (this.receiveDialog.QuantityOrderd - this.receiveDialog.QuantityReceived)
       this.receiveDialog.ReceivedDate = new Date()
+    },
+    openAddStockDialog(dialogData) {
+      this.rowReceivalId = dialogData.ReceivalId
+      this.addToStockDialogVisible = true
+    },
+    openTrackDialog(dialogData) {
+      this.rowReceivalId = dialogData.ReceivalId
+      this.trackDialogVisible = true
     },
     prepairLines(data) {
       data.forEach(line => {
