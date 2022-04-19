@@ -64,7 +64,7 @@
     </el-table>
 
     <el-dialog title="Confirm Item Received" :visible.sync="showDialog" width="50%" center>
-    
+
       <el-form size="mini" label-width="220px">
         <el-form-item label="Sku:">{{ receiveDialog.SupplierSku }}</el-form-item>
         <template v-if="receiveDialog.Type == 'Part'">
@@ -96,8 +96,8 @@
       </span>
     </el-dialog>
 
-    <addToStock  :visible.sync="addToStockDialogVisible" :receivalId="rowReceivalId" />  
-    <trackDialog :visible.sync="trackDialogVisible" :receivalId="rowReceivalId" />  
+    <addToStock :visible.sync="addToStockDialogVisible" :receival-id="rowReceivalId" />
+    <trackDialog :visible.sync="trackDialogVisible" :receival-id="rowReceivalId" />
   </div>
 </template>
 
@@ -108,7 +108,7 @@ import trackDialog from './trackDialog'
 import permission from '@/directive/permission/index.js'
 
 export default {
-  components: { addToStock , trackDialog},
+  components: { addToStock, trackDialog },
   directives: { permission },
   props: { orderData: { type: Object, default: null }},
   data() {

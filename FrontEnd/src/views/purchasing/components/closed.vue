@@ -49,7 +49,7 @@
       </el-table-column>
     </el-table>
 
-    <trackDialog :visible.sync="showDialog" :receival-id="trackDialogReceivalId" /> 
+    <trackDialog :visible.sync="showDialog" :receival-id="trackDialogReceivalId" />
 
   </div>
 </template>

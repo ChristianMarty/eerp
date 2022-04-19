@@ -61,7 +61,6 @@
       </el-table>
     </el-table-draggable>
 
-
     <template v-permission="['purchasing.edit']">
       <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible" :close-on-click-modal="false">
         <el-form label-width="150px">
@@ -397,7 +396,7 @@ export default {
       requestBN({
         url: '/supplier/supplierPart',
         methood: 'get',
-        params: { ProductionPartNo: row.PartNo, SupplierId: this.$props.orderData.SupplierId}
+        params: { ProductionPartNo: row.PartNo, SupplierId: this.$props.orderData.SupplierId }
       }).then(response => {
         this.partOptions =
           response.data
