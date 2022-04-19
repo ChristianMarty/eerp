@@ -1,10 +1,10 @@
 <template>
   <div class="add-to-stock-dialog">
-    <el-dialog 
-      title="Add to Stock" 
-      :visible.sync="visible" 
+    <el-dialog
+      title="Add to Stock"
+      :visible.sync="visible"
       center
-      :before-close="closeDialog" 
+      :before-close="closeDialog"
       @open="loadData()"
     >
 
@@ -62,33 +62,34 @@
         <el-divider />
         <p><b>Track</b></p>
         <el-table
-        ref="itemTable"
-        :data="trackData"
-        border
-        style="width: 100%"
-        :header-cell-style="{ padding: '0', height: '20px' }"
-        :cell-style="{ padding: '0', height: '20px' }"
-      >
-        <el-table-column prop="Type" label="Type" width="120" sortable />
+          ref="itemTable"
+          :data="trackData"
+          border
+          style="width: 100%"
+          :header-cell-style="{ padding: '0', height: '20px' }"
+          :cell-style="{ padding: '0', height: '20px' }"
+        >
+          <el-table-column prop="Type" label="Type" width="120" sortable />
 
-        <el-table-column label="Reference" sortable>
-          <template slot-scope="{ row }">
-            <template v-if="row.Type == 'Part Stock'">
-              <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-                <span>STK-{{ row.StockNo }}</span>
-              </router-link>
+          <el-table-column label="Reference" sortable>
+            <template slot-scope="{ row }">
+              <template v-if="row.Type == 'Part Stock'">
+                <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
+                  <span>STK-{{ row.StockNo }}</span>
+                </router-link>
+                <span style="float: right;"> Original Quantity: {{ row.CreateQuantity }} </span>
+              </template>
+              <template v-if="row.Type == 'Inventory'">
+                <router-link
+                  :to="'/inventory/inventoryView/' + row.InvNo"
+                  class="link-type"
+                >
+                  <span>Inv-{{ row.InvNo }}</span>
+                </router-link>
+              </template>
             </template>
-            <template v-if="row.Type == 'Inventory'">
-              <router-link
-                :to="'/inventory/inventoryView/' + row.InvNo"
-                class="link-type"
-              >
-                <span>Inv-{{ row.InvNo }}</span>
-              </router-link>
-            </template>
-          </template>
-        </el-table-column>
-      </el-table>
+          </el-table-column>
+        </el-table>
 
       </el-form>
 

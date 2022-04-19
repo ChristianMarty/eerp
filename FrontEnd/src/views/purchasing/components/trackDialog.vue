@@ -21,8 +21,9 @@
           <template slot-scope="{ row }">
             <template v-if="row.Type == 'Part Stock'">
               <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-                <span>STK-{{ row.StockNo }}</span>
+                <span>STK-{{ row.StockNo }} </span>
               </router-link>
+              <span style="float: right;"> Original Quantity: {{ row.CreateQuantity }} </span>
             </template>
             <template v-if="row.Type == 'Inventory'">
               <router-link

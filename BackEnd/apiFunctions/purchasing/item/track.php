@@ -21,7 +21,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$receivalId = intval(dbEscapeString($dbLink, $_GET["ReceivalId"]));
 	$output = array();
 	
-	$query = "SELECT StockNo FROM partStock WHERE ReceivalId = ".$receivalId;
+	$query  = "SELECT StockNo,  partStock_history.Quantity AS CreateQuantity FROM partStock ";
+	$query .= "LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id ";
+	$query .= "WHERE ReceivalId = ".$receivalId." AND partStock_history.ChangeType = 'Create' ";
+	
 	$result = dbRunQuery($dbLink,$query);
 
 	while($r = mysqli_fetch_assoc($result)) 
@@ -37,6 +40,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r['Type'] = "Inventory";
+		$r['CreateQuantity'] = 1;
 		array_push($output, $r);
 	}
 
