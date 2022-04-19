@@ -135,7 +135,9 @@
             style="width: 70pt"
             filterable
           />
+          <span :style="{margin: '10px'}"><el-button type="primary" @click="getExchangeRate()">Get Rate</el-button><br> Data provided by the European Central Bank</span>
         </el-form-item>
+
         <el-form-item label="Description:">
           <el-input v-model="dialogData.Description" type="textarea" placeholder="Description" />
         </el-form-item>
@@ -167,7 +169,7 @@ export default {
     return {
       PoNo: this.$route.params.PoNo,
       orderData: null,
-
+      exchangeRateData: null,
       orderStatus: 0,
       suppliers: {},
       currencies: {},
@@ -232,6 +234,27 @@ export default {
             type: 'success'
           })
           this.getOrder()
+        } else {
+          this.$message({
+            showClose: true,
+            message: response.error,
+            duration: 0,
+            type: 'error'
+          })
+        }
+      })
+    },
+    getExchangeRate() {
+      requestBN({
+        url: '/finance/exchangeRate',
+        methood: 'get',
+        params: {
+          CurrencyCode: this.dialogData.Currency
+        }
+      }).then(response => {
+        if (response.error == null) {
+          this.exchangeRateData = response.data
+          this.dialogData.ExchangeRate = this.exchangeRateData.ExchangeRate
         } else {
           this.$message({
             showClose: true,

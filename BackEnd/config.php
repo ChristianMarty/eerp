@@ -28,6 +28,8 @@ $dataRootPath     = $domainRootPath;
 
 $companyName = "My Company Name"; // Should not be longer than 30 characters
 $accountingCurrency = "CHF";
+$accountingCurrencyCode = $accountingCurrency;
+
 
 
 $showPhpError = true;
