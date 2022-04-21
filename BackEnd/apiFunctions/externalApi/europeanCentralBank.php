@@ -10,11 +10,9 @@
 
 require_once __DIR__ . "/../../config.php";
 
-function ecb_getExchangeRate($currencyCode)
+function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode)
 {
-	global $accountingCurrencyCode;
-	
-	$url = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/M.".$accountingCurrencyCode.".".$currencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
+	$url = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/M.".$sourceCurrencyCode.".".$targetCurrencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);

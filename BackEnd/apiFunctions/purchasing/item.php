@@ -17,8 +17,9 @@ function getPurchaseOrderData($purchaseOrderNo)
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, AcknowledgementNumber, OrderNumber, Currency, ExchangeRate FROM purchasOrder ";
+	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
+	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
 	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
 	{
@@ -35,6 +36,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$r['CurrencyId'] = intval($r['CurrencyId']);
 		$PoId = $r['PoId'];
 		$status = $r['Status'];
 		unset($r['PoId']);
@@ -76,6 +78,8 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$lines[$r['OrderLineId']]['OrderReference'] = $r['OrderReference'];
 			$lines[$r['OrderLineId']]['Note'] = $r['Note'];
 			$lines[$r['OrderLineId']]['ExpectedReceiptDate'] = $r['ExpectedReceiptDate'];
+			$lines[$r['OrderLineId']]['VatTaxId'] = intval($r['VatTaxId']);
+			$lines[$r['OrderLineId']]['Discount'] = $r['Discount'];
 			//$lines[$r['OrderLineId']]['SupplierPartId'] = $r['SupplierPartId'];
 				
 			if($status == "Confirmed" or $status == "Closed")

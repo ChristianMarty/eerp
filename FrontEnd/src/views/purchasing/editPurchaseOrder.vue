@@ -38,7 +38,7 @@
     </p>
     <p>
       <b>Currency:</b>
-      {{ orderData.Currency }}
+      {{ orderData.CurrencyCode }}
     </p>
     <p>
       <b>Exchange Rate:</b>
@@ -120,8 +120,8 @@
         </el-form-item>
 
         <el-form-item label="Currency">
-          <el-select v-model="dialogData.Currency" placeholder="Currency" filterable>
-            <el-option v-for="item in currencies" :key="item" :label="item" :value="item" />
+          <el-select v-model="dialogData.CurrencyId" placeholder="Currency" filterable>
+            <el-option v-for="item in currencies" :key="item.Id" :label="item.CurrencyCode+' - '+item.Name" :value="item.Id" />
           </el-select>
         </el-form-item>
 
@@ -249,7 +249,7 @@ export default {
         url: '/finance/exchangeRate',
         methood: 'get',
         params: {
-          CurrencyCode: this.dialogData.Currency
+          CurrencyId: this.dialogData.CurrencyId
         }
       }).then(response => {
         if (response.error == null) {
@@ -275,7 +275,7 @@ export default {
     },
     getCurrency() {
       requestBN({
-        url: '/purchasing/currency',
+        url: '/finance/currency',
         methood: 'get'
       }).then(response => {
         this.currencies = response.data

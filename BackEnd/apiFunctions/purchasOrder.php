@@ -15,8 +15,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, purchasOrder.Currency, purchasOrder.ExchangeRate FROM purchasOrder ";
+	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate FROM purchasOrder ";
 	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
+	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))
 	{
@@ -31,11 +32,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$query.= " ORDER BY purchasOrder.PurchaseDate DESC";	
 	
+	
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$r['CurrencyId'] = intval($r['CurrencyId']);
 		if($r['Title'] == null) $r['Title'] = $r['SupplierName']." - ".$r['PurchaseDate'];
 		
 		array_push($output, $r);
@@ -109,7 +112,7 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
 	$poData['OrderNumber'] = $data['data']['OrderNumber'];
 	$poData['Description'] = $data['data']['Description'];
-	$poData['Currency'] = $data['data']['Currency'];
+	$poData['CurrencyId'] = intval($data['data']['CurrencyId']);
 	$poData['ExchangeRate'] = $data['data']['ExchangeRate'];
 	
 	$poData['Status'] = $data['data']['Status'];

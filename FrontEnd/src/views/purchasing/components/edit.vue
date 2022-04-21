@@ -100,6 +100,28 @@
             />
           </el-form-item>
 
+          <el-form-item label="VAT :">
+            <el-select
+              v-model="orderLineEditData.VatTaxId"
+              placeholder="VAT"
+              filterable
+              style="min-width: 200px; margin-right: 10px;"
+            >
+              <el-option v-for="item in vat" :key="item.Id" :label="item.Value +'% - '+item.Description" :value="item.Id" />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="Discount:">
+            <el-input-number
+              v-model="orderLineEditData.Discount"
+              :controls="false"
+              :precision="3"
+              :min="0.00"
+              :max="100.00"
+              style="width: 70pt"
+            />
+          </el-form-item>
+
           <el-form-item label="Total:">
             <span>{{
               (Math.round((orderLineEditData.QuantityOrderd * orderLineEditData.Price) * 100000) / 100000)
@@ -225,11 +247,13 @@ export default {
       orderLineEditDialogVisible: false,
       orderLineEditData: {},
       partManufacturer: [],
-      partOptions: []
+      partOptions: [],
+      vat: []
     }
   },
   mounted() {
     this.getManufacturers()
+    this.getVAT()
     this.getOrderLines()
   },
   methods: {
@@ -326,6 +350,8 @@ export default {
         SupplierSku: orderRequestData.SupplierPartNumber,
         Description: '',
         Price: 0,
+        Discount: 0,
+        VatTaxId: 1,
         Type: 'Part',
 
         PartNo: orderRequestData.PartNoList,
@@ -348,6 +374,8 @@ export default {
         SupplierSku: null,
         Description: ' ',
         Price: 0,
+        Discount: 0,
+        VatTaxId: 1,
         Type: lineType,
 
         PartNo: null,
@@ -389,6 +417,17 @@ export default {
         methood: 'get'
       }).then(response => {
         this.partManufacturer = response.data
+      })
+    },
+    getVAT() {
+      requestBN({
+        url: '/finance/tax',
+        methood: 'get',
+        params: {
+          Type: 'VAT'
+        }
+      }).then(response => {
+        this.vat = response.data
       })
     },
     getPartData(row) {

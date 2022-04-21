@@ -43,6 +43,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['OrderReference'] = $line['OrderReference'];
 			$sqlData['Quantity'] = $line['QuantityOrderd'];
 			$sqlData['Sku'] = $line['SupplierSku'];
+			$sqlData['VatTaxId'] = intval($line['VatTaxId']);
+			$sqlData['Discount'] = $line['Discount'];
 			$sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
 			
 			//if(isset($line['SupplierPartId']))$sqlData['SupplierPartId'] = $line['SupplierPartId'];

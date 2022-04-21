@@ -27,8 +27,7 @@ $documentRootPath = $domainRootPath.'/document.php';
 $dataRootPath     = $domainRootPath;
 
 $companyName = "My Company Name"; // Should not be longer than 30 characters
-$accountingCurrency = "CHF";
-$accountingCurrencyCode = $accountingCurrency;
+$accountingCurrencyId = 1;
 
 
 

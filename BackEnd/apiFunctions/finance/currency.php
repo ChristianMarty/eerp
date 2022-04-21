@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : currency.php
-// FilePath : apiFunctions/purchasing/
+// FilePath : apiFunctions/finance/
 // Author   : Christian Marty
 // Date		: 01.08.2020
 // License  : MIT
@@ -15,19 +15,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SHOW COLUMNS FROM purchasOrder LIKE 'Currency'";
-	
-	$output = array();
-	$option_array = array();
+	$query = "SELECT * FROM finance_currency ";
 	
 	$result = dbRunQuery($dbLink,$query);
-	if ($result) 
+	$output = array();
+	while($r = mysqli_fetch_assoc($result))
 	{
-		$result = mysqli_fetch_assoc($result)['Type'];
-		$option_array = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
+		$r['Id'] = intval($r['Id']);
+		array_push($output, $r);
 	}
-	
-	$output = $option_array;
 
 	dbClose($dbLink);	
 	sendResponse($output);
