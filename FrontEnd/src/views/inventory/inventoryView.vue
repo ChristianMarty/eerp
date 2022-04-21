@@ -17,44 +17,46 @@
           {{ inventoryData.Location }}
         </p>
         <p>
-          <b>Location Path:</b>
-          {{ inventoryData.LocationPath }}
-        </p>
-        <p>
           <b>Home Location:</b>
           {{ inventoryData.HomeLocation }}
-        </p>
-        <p>
-          <b>Home Location Path:</b>
-          {{ inventoryData.HomeLocationPath }}
-        </p>
-        <p>
-          <b>Purchase Date:</b>
-          {{ inventoryData.PurchaseDate }}
-        </p>
-        <p>
-          <b>Purchase Price:</b>
-          {{ inventoryData.PurchasePrice }}
-        </p>
-        <p>
-          <b>Supplier:</b>
-          {{ inventoryData.SupplierName }}
-        </p>
-        <p>
-          <b>Serial Number:</b>
-          {{ inventoryData.SerialNumber }}
         </p>
         <p>
           <b>MAC Address Wired:</b>
           {{ inventoryData.MacAddressWired }}
         </p>
         <p>
-          <b>MAC Address Wireless:</b>
-          {{ inventoryData.MacAddressWireless }}
+          <b>Supplier:</b>
+          {{ inventoryData.Supplier }}
+        </p>
+        <p>
+          <b>Purchase Date:</b>
+          {{ inventoryData.PurchaseDate }}
         </p>
         <p>
           <b>Status:</b>
           {{ inventoryData.Status }}
+        </p>
+      </el-main>
+      <el-main>
+        <p>
+          <b>Location Path:</b>
+          {{ inventoryData.LocationPath }}
+        </p>
+        <p>
+          <b>Home Location Path:</b>
+          {{ inventoryData.HomeLocationPath }}
+        </p>
+        <p>
+          <b>MAC Address Wireless:</b>
+          {{ inventoryData.MacAddressWireless }}
+        </p>
+        <p>
+          <b>Serial Number:</b>
+          {{ inventoryData.SerialNumber }}
+        </p>
+        <p>
+          <b>Purchase Price:</b>
+          {{ inventoryData.PurchasePrice }}
         </p>
       </el-main>
     </el-container>
@@ -95,24 +97,13 @@
       <div class="Description-content" v-html="inventoryData.Description" />
     </pre>
     <el-divider />
-    <documentsList :documents="inventoryData.Documents" />
-
-    <h2>Documents</h2>
-    <el-table :data="inventoryData.Documents" style="width: 100%">
-      <el-table-column prop="Description" label="Description" width="400" />
-      <el-table-column prop="Type" label="Type" width="100" />
-      <el-table-column prop="Document" label="Document">
-        <template slot-scope="{ row }">
-          <a :href="row.Path" target="blank">
-            <el-button icon="el-icon-document">Open in new tab</el-button>
-          </a>
-        </template>
-      </el-table-column>
-    </el-table>
     <h2>Note</h2>
-    <p>{{ inventoryData.Note }}</p>
+    <pre>
+      <div class="Note-content" v-html="inventoryData.Note" />
+    </pre>
     <el-divider />
-
+    <h2>Documents</h2>
+    <documentsList :documents="inventoryData.Documents" />
     <h2>History</h2>
     <el-timeline reverse="true">
       <el-timeline-item
