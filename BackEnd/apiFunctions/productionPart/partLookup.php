@@ -21,8 +21,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$partNo = dbEscapeString($dbLink, $_GET["PartNo"]);
 
 	$rows = array();
-	$query = "SELECT partManufacturer.Name AS ManufacturerName, ManufacturerPartNumber, Description FROM partLookup "; 
-	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Id = partLookup.ManufacturerId ";
+	$query = "SELECT vendor.Name AS ManufacturerName, ManufacturerPartNumber, Description FROM partLookup "; 
+	$query .= "LEFT JOIN vendor ON vendor.Id = partLookup.VendorId ";
 	$query .= "WHERE partLookup.PartNo = '".$partNo."'";
 	
 

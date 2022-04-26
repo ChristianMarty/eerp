@@ -16,15 +16,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT * FROM supplier ";	
+	$query = "SELECT * FROM vendor ";	
 	
+	$queryParam = array();
 	
-	if(isset($_GET["OrderImportSupported"]))
-	{
-		$query .= "WHERE OrderImportSupported = true ";
-	}
+	if(isset($_GET["OrderImportSupported"])) array_push($queryParam,"OrderImportSupported = true");
+
+	array_push($queryParam, "IsSupplier = b'1'");
 	
-	$query .= "ORDER BY `Name` ASC ";
+	$query = dbBuildQuery($dbLink, $query, $queryParam);
+	
+	$query .= " ORDER BY `Name` ASC ";
 	
 	$classId = 0;
 	
@@ -51,11 +53,10 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($dbLink == null) return null;
 	
 	$supplierName = dbEscapeString($dbLink,$data['SupplierName']);
-
-
+	$inserData['IsSupplier']['raw']  = "b'1'";
 	$inserData['Name']  = $supplierName;
 	
-	$query = dbBuildInsertQuery($dbLink, "supplier", $inserData);
+	$query = dbBuildInsertQuery($dbLink, "vendor", $inserData);
 	
 	$result = dbRunQuery($dbLink,$query);
 	

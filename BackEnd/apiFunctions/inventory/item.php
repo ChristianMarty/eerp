@@ -41,9 +41,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$baseQuery = "SELECT ";
 	$baseQuery .="inventory.Id AS Id, ReceivalId, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
-	$baseQuery .="supplier.name AS SupplierName, LocationId, HomeLocationId ";
+	$baseQuery .="vendor.name AS SupplierName, LocationId, HomeLocationId ";
 	$baseQuery .="FROM `inventory` ";
-	$baseQuery .="LEFT JOIN `supplier` On supplier.Id = inventory.SupplierId ";
+	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";
 	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
 	
 	if(isset($InvNo)) $baseQuery .="WHERE `InvNo` = '".$InvNo."'";
@@ -151,7 +151,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$columns .= "`InventoryCategoryId`,";
 	$values .= "'".$inventoryCategoryId."',";
 	
-	$columns .= "`SupplierId`";
+	$columns .= "`VendorId`";
 	$values .= "'".$supplierId."'";
 	
 	$query =  $baseQuery." (".$columns.") VALUES (".$values.");"; 

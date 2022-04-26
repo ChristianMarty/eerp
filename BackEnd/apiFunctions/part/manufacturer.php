@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	$manufacturers = array();
-	$query = "SELECT * FROM partManufacturer ORDER BY `Name` ASC";
+	$query = "SELECT * FROM vendor WHERE IsManufacturer = b'1' ORDER BY `Name` ASC";
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))

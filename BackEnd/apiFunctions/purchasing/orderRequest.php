@@ -16,15 +16,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query   = "SELECT orderRequest.Id AS OrderRequestId, GROUP_CONCAT(PartNo) AS PartNoList, supplierPart.ManufacturerPartId, orderRequest.SupplierPartId, supplier.Id AS SupplierId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, supplierPart.SupplierPartLink, Quantity, CreationDate, ";
-	$query  .= "manufacturerPart.ManufacturerPartNumber, partManufacturer.Name AS ManufacturerName ";
+	$query   = "SELECT orderRequest.Id AS OrderRequestId, GROUP_CONCAT(PartNo) AS PartNoList, supplierPart.ManufacturerPartId, orderRequest.SupplierPartId, vendor.Id AS SupplierId, vendor.Name AS SupplierName, supplierPart.SupplierPartNumber, supplierPart.SupplierPartLink, Quantity, CreationDate, orderRequest.Description, ";
+	$query  .= "mfrPart.ManufacturerPartNumber, mfrPart.ManufacturerName ";
 	$query  .= "FROM orderRequest ";
 	$query  .= "LEFT JOIN supplierPart ON supplierPart.Id = orderRequest.SupplierPartId ";
-	$query  .= "LEFT JOIN supplier ON supplier.Id = supplierPart.SupplierId ";
+	$query  .= "LEFT JOIN vendor ON vendor.Id = supplierPart.VendorId ";
 	$query  .= "LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-	$query  .= "LEFT JOIN partManufacturer ON partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query  .= "LEFT JOIN (SELECT ManufacturerPartNumber, manufacturerPart.Id AS Id, vendor.Name AS ManufacturerName FROM manufacturerPart LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId)mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId ";
 	
-	$query  .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
+	$query  .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = mfrPart.Id ";
 	$query  .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
 	
 	if(isset($_GET["ManufacturerPartId"])) $manufacturerPartId =  dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
@@ -32,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$parameters = array();
 	if(isset($manufacturerPartId)) array_push($parameters, 'supplierPart.ManufacturerPartId = '. $manufacturerPartId);
-	if(isset($supplierId)) array_push($parameters, 'supplier.Id = '. $supplierId);
+	if(isset($supplierId)) array_push($parameters, 'vendor.Id = '. $supplierId);
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
 	

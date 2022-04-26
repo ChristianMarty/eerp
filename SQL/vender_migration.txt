@@ -1,0 +1,13 @@
+INSERT INTO vendor (OldSupplierId, ParentId, Name, OrderImportSupported, IsSupplier)
+SELECT Id, ParentId, Name, OrderImportSupported, b'1'
+FROM supplier;
+
+
+INSERT INTO vendor (OldManufacturerId, Name, Alias, AliasDigikey, IsManufacturer)
+SELECT Id, Name, Alias, AliasDigikey, b'1'
+FROM partManufacturer;
+
+UPDATE purchasOrder SET VendorId = (SELECT Id FROM vendor WHERE vendor.OldSupplierId = purchasOrder.SupplierId);
+UPDATE manufacturerPart SET VendorId = (SELECT Id FROM vendor WHERE vendor.OldManufacturerId = manufacturerPart.ManufacturerId);
+UPDATE inventory SET VendorId = (SELECT Id FROM vendor WHERE vendor.OldSupplierId = inventory.SupplierId);
+UPDATE supplierPart SET VendorId = (SELECT Id FROM vendor WHERE vendor.OldSupplierId = supplierPart.SupplierId);

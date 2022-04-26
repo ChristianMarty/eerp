@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$supplierId = dbEscapeString($dbLink, $_GET["SupplierId"]);
 	
-	$query = "SELECT * FROM supplier ";
+	$query = "SELECT * FROM vendor ";
 	$query .= "WHERE Id = ".$supplierId;
 	
 	$classId = 0;
@@ -57,8 +57,6 @@ function buildTree($rows, $parentId)
 		{
 			$temp = array();
 			$temp = $row;
-			#$temp['Name'] = $row['Name'];
-			#$temp['Id'] = $row['Id'];
 		
 			if (hasChild($rows,$row['Id']))
 			{

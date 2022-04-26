@@ -28,12 +28,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query  = "SELECT PoNo, Price, Currency, PurchaseDate, Sku AS SupplierPartNumber, supplier.Name AS SupplierName, OrderReference FROM purchasOrder_itemOrder ";
+	$query  = "SELECT PoNo, Price, finance_currency.CurrencyCode AS Currency, PurchaseDate, Sku AS SupplierPartNumber, vendor.Name AS SupplierName, OrderReference FROM purchasOrder_itemOrder ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
+	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
+	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	$query .= "WHERE purchasOrder_itemReceive.Id = (SELECT inventory.ReceivalId FROM inventory WHERE InvNo = '".$invNo."') ";
-
 
 	$result = dbRunQuery($dbLink,$query);
 	$gctNr = null;

@@ -39,11 +39,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$partUsed = array();
 	
-	$query = "SELECT *,partManufacturer.Name as ManufacturerName, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price ";
+	$query = "SELECT *,vendor.Name as ManufacturerName, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price ";
 	$query .= "FROM partStock_history ";
 	$query .= "LEFT JOIN partStock On partStock.Id = partStock_history.StockId ";
 	$query .= "LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId ";
-	$query .= "LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query .= "LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId ";
 	$query .= "WHERE partStock_history.workOrderId = ".$workOrderId;
 
 	$result = mysqli_query($dbLink,$query);

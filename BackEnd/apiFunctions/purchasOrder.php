@@ -15,8 +15,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate FROM purchasOrder ";
-	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
+	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate FROM purchasOrder ";
+	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
 	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
 	if(isset($_GET["PurchaseOrderNo"]))
@@ -55,7 +55,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$data = json_decode(file_get_contents('php://input'),true);
 
 	$poCreate = array();
-	$poCreate['SupplierId'] = intval($data['data']['SupplierId']);
+	$poCreate['VendorId'] = intval($data['data']['SupplierId']);
 	$poCreate['PurchaseDate'] = $data['data']['PurchaseDate'];
 	
 	if($data['data']['Title'] != "") $poCreate['Title'] = $data['data']['Title'];
@@ -106,7 +106,7 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poNo = dbEscapeString($dbLink, $_GET['PurchaseOrderNo']);
 
 	$poData = array();
-	$poData['SupplierId'] = intval($data['data']['SupplierId']);
+	$poData['VendorId'] = intval($data['data']['SupplierId']);
 	$poData['Title'] = $data['data']['Title'];
 	$poData['PurchaseDate'] = $data['data']['PurchaseDate'];
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
@@ -121,24 +121,6 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$output = array();
-	
-	/*$purchaseOrderNo = 0;
-	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do 
-		{
-			if ($result = mysqli_store_result($dbLink)) 
-			{
-				$purchaseOrderNo = mysqli_fetch_assoc($result);
-			}
-		} while (mysqli_next_result($dbLink));
-		$output['PurchaseOrderNo'] = $purchaseOrderNo['PoNo'];
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}*/
 	
 	dbClose($dbLink);	
 	sendResponse($output,$error);

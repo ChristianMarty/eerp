@@ -23,16 +23,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$supplierData = array();
 	
-	$query = "SELECT *, partManufacturer.Name AS ManufacturerName, supplier.Name AS SupplierName, supplierPart.Id AS SupplierPartId FROM supplierPart ";
-	$query.="LEFT JOIN supplier On supplier.Id = supplierPart.SupplierId ";
+	$query = "SELECT *, mfrPart.ManufacturerName AS ManufacturerName, vendor.Name AS SupplierName, supplierPart.Id AS SupplierPartId FROM supplierPart ";
+	$query.="LEFT JOIN vendor On vendor.Id = supplierPart.VendorId ";
 	$query.="LEFT JOIN manufacturerPart On manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-	$query.="LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";
-	$query.="LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
+	$query.="LEFT JOIN (SELECT ManufacturerPartNumber, manufacturerPart.Id AS Id, vendor.Name AS ManufacturerName FROM manufacturerPart LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId)mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId ";
+	$query.="LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = mfrPart.Id ";
 	$query.="LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
+	
 	
 	$parameters = array();
 	if(isset($manufacturerPartId)) array_push($parameters, 'supplierPart.ManufacturerPartId = '. $manufacturerPartId);
-	if(isset($supplierId)) array_push($parameters, 'supplierPart.SupplierId = '.$supplierId);
+	if(isset($supplierId)) array_push($parameters, 'supplierPart.VendorId = '.$supplierId);
 	if(isset($productionPartNo)) array_push($parameters, "productionPart.PartNo = '".$productionPartNo."'");
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
@@ -56,7 +57,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 	$supplierPartCreate = array();
 	$supplierPartCreate['ManufacturerPartId'] = intval($data['data']['ManufacturerPartId']);
-	$supplierPartCreate['SupplierId'] = intval($data['data']['SupplierId']);
+	$supplierPartCreate['VendorId'] = intval($data['data']['SupplierId']);
 	$supplierPartCreate['SupplierPartNumber'] = $data['data']['SupplierPartNumber'];
 	$supplierPartCreate['SupplierPartLink'] = $data['data']['SupplierPartLink'];
 	$supplierPartCreate['Note'] = $data['data']['Note'];

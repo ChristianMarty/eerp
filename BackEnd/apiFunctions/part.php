@@ -32,8 +32,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$attributes[$id] = $r;
 	}
 
-	$baseQuery = "SELECT manufacturerPart.Id AS PartId, partManufacturer.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, PartData, partPackage.name AS Package, Status,sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity FROM manufacturerPart "; 
-	$baseQuery .= "LEFT JOIN partManufacturer On partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$baseQuery = "SELECT manufacturerPart.Id AS PartId, vendor.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, PartData, partPackage.name AS Package, Status,sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity FROM manufacturerPart "; 
+	$baseQuery .= "LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId ";
 	$baseQuery .= "LEFT JOIN partPackage On partPackage.Id = manufacturerPart.PackageId ";
 	$baseQuery .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";
 	
@@ -42,13 +42,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["ManufacturerName"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerName"]);
-		array_push($queryParam, "partManufacturer.Name = '".$temp."'");
+		array_push($queryParam, "vendor.Name = '".$temp."'");
 	}
 	
 	if(isset($_GET["ManufacturerId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerId"]);
-		array_push($queryParam, "partManufacturer.Id = '".$temp."'");
+		array_push($queryParam, "vendor.Id = '".$temp."'");
 	}
 	
 	if(isset($_GET["ManufacturerPartNumber"]))
@@ -133,7 +133,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$manufacturerName = dbEscapeString($dbLink,$data['data']['ManufacturerName']);
 	$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
 
-	$inserData['ManufacturerId']['raw']  = "(SELECT Id FROM partManufacturer WHERE Name = '".$manufacturerName."')";
+	$inserData['VendorId']['raw']  = "(SELECT Id FROM vendor WHERE Name = '".$manufacturerName."')";
 	$inserData['ManufacturerPartNumber']  = $manufacturerPartNumber;
 	
 	$query = dbBuildInsertQuery($dbLink, "manufacturerPart", $inserData);

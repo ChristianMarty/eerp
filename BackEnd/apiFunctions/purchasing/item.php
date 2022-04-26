@@ -17,8 +17,8 @@ function getPurchaseOrderData($purchaseOrderNo)
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,supplier.Name AS SupplierName, supplier.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, ExchangeRate FROM purchasOrder ";
-	$query .= "LEFT JOIN supplier ON supplier.Id = purchasOrder.SupplierId ";
+	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, ExchangeRate FROM purchasOrder ";
+	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
 	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
 	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
@@ -61,8 +61,6 @@ function getPurchaseOrderData($purchaseOrderNo)
 			
 		if(!array_key_exists($orderLineId,$lines))
 		{
-			
-			//$lines[$r['OrderLineId']] = $r;
 			$lines[$r['OrderLineId']]['LineNo'] = intval($r['LineNo']);
 			$lines[$r['OrderLineId']]['Price'] = $r['Price'];
 			$lines[$r['OrderLineId']]['SupplierSku'] = $r['Sku'];
@@ -80,8 +78,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$lines[$r['OrderLineId']]['ExpectedReceiptDate'] = $r['ExpectedReceiptDate'];
 			$lines[$r['OrderLineId']]['VatTaxId'] = intval($r['VatTaxId']);
 			$lines[$r['OrderLineId']]['Discount'] = $r['Discount'];
-			//$lines[$r['OrderLineId']]['SupplierPartId'] = $r['SupplierPartId'];
-				
+
 			if($status == "Confirmed" or $status == "Closed")
 			{
 				$lines[$r['OrderLineId']]['QuantityReceived'] = 0;
@@ -93,7 +90,6 @@ function getPurchaseOrderData($purchaseOrderNo)
 			if(!array_key_exists("Received",$lines[$r['OrderLineId']])) $lines[$r['OrderLineId']]['Received'] = array();
 			
 			$received = array();
-		//	$received['StockNo'] = "ABCD";
 			$received['QuantityReceived'] = intval($r['QuantityReceived']);
 			$lines[$r['OrderLineId']]['QuantityReceived'] += $received['QuantityReceived'];
 			$received['ReceivalDate'] = $r['ReceivalDate'];

@@ -21,9 +21,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$temp = strtolower($temp);
 	$stockNo = str_replace("stk-","",$temp);
 
-	$query  = "SELECT PoNo, Price, Currency, PurchaseDate FROM purchasOrder_itemOrder ";
+	$query  = "SELECT PoNo, Price, finance_currency.CurrencyCode AS Currency, PurchaseDate FROM purchasOrder_itemOrder ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
+	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	$query .= "WHERE purchasOrder_itemReceive.Id = (SELECT partStock.ReceivalId FROM partStock WHERE StockNo = '".$stockNo."') ";
 
 
