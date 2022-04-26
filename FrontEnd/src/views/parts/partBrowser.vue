@@ -239,10 +239,10 @@ export default {
     tableSort(property) {
       return function(a, b) {
         var valA = 0
-        if (a.[property] != null) valA = parseFloat(a.[property])
+        if (a.property != null) valA = parseFloat(a.property)
 
         var valB = 0
-        if (b.[property] != null) valB = parseFloat(b.[property])
+        if (b.property != null) valB = parseFloat(b.property)
 
         return valA - valB
       }

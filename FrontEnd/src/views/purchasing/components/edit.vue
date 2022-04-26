@@ -353,7 +353,7 @@ export default {
         Discount: 0,
         VatTaxId: 1,
         Type: 'Part',
-
+        OrderReference: null,
         PartNo: orderRequestData.PartNoList,
         ManufacturerName: orderRequestData.ManufacturerName,
         ManufacturerPartNumber: orderRequestData.ManufacturerPartNumber,
@@ -377,7 +377,7 @@ export default {
         Discount: 0,
         VatTaxId: 1,
         Type: lineType,
-
+        OrderReference: null,
         PartNo: null,
         ManufacturerName: null,
         ManufacturerPartNumber: '',
