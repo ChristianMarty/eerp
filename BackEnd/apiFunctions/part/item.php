@@ -26,9 +26,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$attributes  = array();
 
-	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, partAttribute.Type, partAttribute.Scale, unitsOfMeasure.Name AS UnitName, unitsOfMeasure.Unit, unitsOfMeasure.Symbol ";
+	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, partAttribute.Type, partAttribute.Scale, unitOfMeasurement.Name AS UnitName, unitOfMeasurement.Unit, unitOfMeasurement.Symbol ";
 	$query .= "FROM partAttribute ";
-	$query .= "LEFT JOIN unitsOfMeasure On unitsOfMeasure.Id = partAttribute.UnitId";
+	$query .= "LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = partAttribute.UnitOfMeasurementId";
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))

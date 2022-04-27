@@ -39,6 +39,7 @@
       >
         <el-table-column prop="LineNo" label="Line" width="70" />
         <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
+        <el-table-column prop="UnitOfMeasurement" label="Unit" width="50" />
         <el-table-column label="SKU" prop="SupplierSku" width="220" />
         <el-table-column label="Item">
           <template slot-scope="{ row }">
@@ -89,6 +90,17 @@
             </template>
           </el-form-item>
 
+          <el-form-item label="Unit:">
+            <el-select
+              v-model="orderLineEditData.UnitOfMeasurementId"
+              placeholder="UoM"
+              filterable
+              style="min-width: 200px; margin-right: 10px;"
+            >
+              <el-option v-for="item in uom" :key="item.Id" :label="item.Symbol +' - '+ item.Unit" :value="item.Id" />
+            </el-select>
+          </el-form-item>
+
           <el-form-item label="Price:">
             <el-input-number
               v-model="orderLineEditData.Price"
@@ -135,7 +147,7 @@
               value-format="yyyy-MM-dd"
             />
           </el-form-item>
-          <el-form-item label="Part Number:">
+          <el-form-item label="Part Number:" v-if="orderLineEditData.Type == 'Part'">
 
             <el-popover placement="top" width="800" trigger="click">
 
@@ -168,7 +180,7 @@
             <el-input v-model="orderLineEditData.SupplierSku" />
           </el-form-item>
 
-          <el-form-item label="Manufacturer:">
+          <el-form-item label="Manufacturer:" v-if="orderLineEditData.Type == 'Part'">
             <el-select
               v-model="orderLineEditData.ManufacturerName"
               placeholder="Manufacturer"
@@ -179,7 +191,7 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item label="MPN:">
+          <el-form-item label="MPN:" v-if="orderLineEditData.Type == 'Part'">
             <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
           </el-form-item>
 
@@ -248,12 +260,14 @@ export default {
       orderLineEditData: {},
       partManufacturer: [],
       partOptions: [],
-      vat: []
+      vat: [],
+      uom: []
     }
   },
   mounted() {
     this.getManufacturers()
     this.getVAT()
+    this.getUOM()
     this.getOrderLines()
   },
   methods: {
@@ -352,6 +366,7 @@ export default {
         Price: 0,
         Discount: 0,
         VatTaxId: 1,
+        UnitOfMeasurementId: 29,
         Type: 'Part',
         OrderReference: null,
         PartNo: orderRequestData.PartNoList,
@@ -376,6 +391,7 @@ export default {
         Price: 0,
         Discount: 0,
         VatTaxId: 1,
+        UnitOfMeasurementId: 29,
         Type: lineType,
         OrderReference: null,
         PartNo: null,
@@ -428,6 +444,17 @@ export default {
         }
       }).then(response => {
         this.vat = response.data
+      })
+    },
+    getUOM() {
+      requestBN({
+        url: '/unitOfMeasurement',
+        methood: 'get',
+        params: {
+          Countable: true
+        }
+      }).then(response => {
+        this.uom = response.data
       })
     },
     getPartData(row) {

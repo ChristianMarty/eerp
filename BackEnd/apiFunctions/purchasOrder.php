@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate FROM purchasOrder ";
+	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
 	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
 	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$query.= "WHERE Status = '".$status."'";	
 	}
 	
-	$query.= " ORDER BY purchasOrder.PurchaseDate DESC";	
+	$query.= " ORDER BY purchasOrder.PoNo DESC";	
 	
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -110,6 +110,7 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData['Title'] = $data['data']['Title'];
 	$poData['PurchaseDate'] = $data['data']['PurchaseDate'];
 	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
+	$poData['QuotationNumber'] = $data['data']['QuotationNumber'];
 	$poData['OrderNumber'] = $data['data']['OrderNumber'];
 	$poData['Description'] = $data['data']['Description'];
 	$poData['CurrencyId'] = intval($data['data']['CurrencyId']);

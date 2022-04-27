@@ -134,6 +134,7 @@ export default {
     loadData() {
       this.getReceived()
       this.getTrackData()
+      this.getLocations()
     },
     getLocations() {
       requestBN({

@@ -17,7 +17,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, ExchangeRate FROM purchasOrder ";
+	$query = "SELECT purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
 	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
 	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
@@ -44,10 +44,12 @@ function getPurchaseOrderData($purchaseOrderNo)
 	}
 	
 	$output['Lines'] = Array();
-	$query = "SELECT *, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
-	$query .= "FROM purchasOrder_itemOrder LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "WHERE PurchasOrderId = ".$PoId;
-	$query .= " ORDER BY LineNo";
+	$query = "SELECT *, unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
+	$query .= "FROM purchasOrder_itemOrder ";
+	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
+	$query .= "LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchasOrder_itemOrder.UnitOfMeasurementId ";
+	$query .= "WHERE PurchasOrderId = ".$PoId." ";
+	$query .= "ORDER BY LineNo";
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -67,7 +69,8 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$lines[$r['OrderLineId']]['Type'] = $r['Type'];
 			$lines[$r['OrderLineId']]['QuantityOrderd'] = intval($r['Quantity']);
 			$lines[$r['OrderLineId']]['OrderLineId'] = intval($r['OrderLineId']);
-			
+			$lines[$r['OrderLineId']]['UnitOfMeasurement'] = $r['UnitOfMeasurementSymbol'];
+			$lines[$r['OrderLineId']]['UnitOfMeasurementId'] =  intval($r['UnitOfMeasurementId']);
 			$lines[$r['OrderLineId']]['PurchasOrderId'] = intval($r['PurchasOrderId']);
 			$lines[$r['OrderLineId']]['PartNo'] = $r['PartNo'];
 			$lines[$r['OrderLineId']]['ManufacturerName'] = $r['ManufacturerName'];

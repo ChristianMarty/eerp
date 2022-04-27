@@ -37,6 +37,10 @@
       {{ orderData.AcknowledgementNumber }}
     </p>
     <p>
+      <b>Quotation Number:</b>
+      {{ orderData.QuotationNumber }}
+    </p>
+    <p>
       <b>Currency:</b>
       {{ orderData.CurrencyCode }}
     </p>
@@ -107,6 +111,14 @@
             v-model="dialogData.AcknowledgementNumber"
             style="width: 350px"
             placeholder="Supplier Order Number"
+          />
+        </el-form-item>
+
+        <el-form-item label="Quotation Number:">
+          <el-input
+            v-model="dialogData.QuotationNumber"
+            style="width: 350px"
+            placeholder="Supplier Quotation Number"
           />
         </el-form-item>
 

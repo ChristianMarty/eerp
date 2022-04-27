@@ -44,6 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['Quantity'] = $line['QuantityOrderd'];
 			$sqlData['Sku'] = $line['SupplierSku'];
 			$sqlData['VatTaxId'] = intval($line['VatTaxId']);
+			$sqlData['UnitOfMeasurementId'] = intval($line['UnitOfMeasurementId']);
 			$sqlData['Discount'] = $line['Discount'];
 			$sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
 			
