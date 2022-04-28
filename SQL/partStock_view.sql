@@ -1,14 +1,20 @@
 SELECT supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date,
 partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, hc.CreateQuantity,  h.HistoryQuantity AS Quantity, r.ReservedQuantity AS ReservedQuantity, h.LastCountDate AS LastCountDate, hc.CreateData
 FROM partStock
-LEFT JOIN manufacturerPart ON manufacturerPart.Id = partStock.ManufacturerPartId
-LEFT JOIN supplierPart ON supplierPart.Id = partStock.SupplierPartId
+
+LEFT JOIN (SELECT SupplierPartId, purchasOrder_itemReceive.Id FROM purchasOrder_itemOrder LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId
+
+LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)
+
+LEFT JOIN manufacturerPart ON (manufacturerPart.Id = partStock.ManufacturerPartId AND supplierPart.ManufacturerPartId IS NULL) OR manufacturerPart.Id = supplierPart.ManufacturerPartId
+
 LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart.VendorId
 LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
-LEFT JOIN (
-	SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId
-)r ON r.StockId = partStock.Id
+
+LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
 LEFT JOIN (SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create')hc ON  hc.StockId = partStock.Id
+
+
 LEFT JOIN (
 	SELECT partStock_history.Id, partStock_history.StockId, partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, q.HistoryQuantity, q.LastCountDate
 	FROM partStock_history
