@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$query  = "SELECT * FROM partStock_history_sinceLastCount ";
 	$query .= "WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '".$stockNo."') ";
-
+	
 	$result = dbRunQuery($dbLink,$query);
 	
 	$daysSinceStocktaking = NULL;

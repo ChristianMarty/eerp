@@ -194,7 +194,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= ") AS StockNo; ";
 
 	}
-	
+
 	$result = dbRunQuery($dbLink,$query);
 
 	$stockNo = dbGetResult($result)['StockNo'];

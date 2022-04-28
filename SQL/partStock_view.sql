@@ -1,10 +1,10 @@
-SELECT vendor.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, mfrName.ManufacturerName, manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date,
+SELECT supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date,
 partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, hc.CreateQuantity,  h.HistoryQuantity AS Quantity, r.ReservedQuantity AS ReservedQuantity, h.LastCountDate AS LastCountDate, hc.CreateData
 FROM partStock
 LEFT JOIN manufacturerPart ON manufacturerPart.Id = partStock.ManufacturerPartId
 LEFT JOIN supplierPart ON supplierPart.Id = partStock.SupplierPartId
-LEFT JOIN (SELECT manufacturerPart.Id, vendor.Name AS ManufacturerName FROM manufacturerPart LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId)mfrName On mfrName.Id = manufacturerPart.Id
-LEFT JOIN vendor ON vendor.Id = supplierPart.VendorId
+LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart.VendorId
+LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
 LEFT JOIN (
 	SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId
 )r ON r.StockId = partStock.Id

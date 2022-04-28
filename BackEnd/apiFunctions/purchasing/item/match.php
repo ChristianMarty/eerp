@@ -17,12 +17,12 @@ function loadDatabaseData($purchaseOrderNo)
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query  = "SELECT LineNo, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, partManufacturer.Name AS ManufacturerNameDatabase, partManufacturer.Id AS PartManufacturerId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId ";
+	$query  = "SELECT LineNo, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, manufacturer.Name AS ManufacturerNameDatabase, manufacturer.Id AS PartManufacturerId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId ";
 	$query .= "FROM purchasOrder_itemOrder ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Name = purchasOrder_itemOrder.ManufacturerName OR partManufacturer.Alias = purchasOrder_itemOrder.ManufacturerName OR partManufacturer.AliasDigikey = purchasOrder_itemOrder.ManufacturerName ";
-	$query .= "LEFT JOIN manufacturerPart ON manufacturerPart.ManufacturerId = partManufacturer.Id AND manufacturerPart.ManufacturerPartNumber = purchasOrder_itemOrder.ManufacturerPartNumber ";
-	$query .= "LEFT JOIN supplierPart ON supplierPart.SupplierId = purchasOrder.SupplierId AND supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku ";
+	$query .= "LEFT JOIN (SELECT Id, Name, Alias, AliasDigikey FROM vendor)manufacturer ON manufacturer.Name = purchasOrder_itemOrder.ManufacturerName OR manufacturer.Alias = purchasOrder_itemOrder.ManufacturerName OR manufacturer.AliasDigikey = purchasOrder_itemOrder.ManufacturerName ";
+	$query .= "LEFT JOIN manufacturerPart ON manufacturerPart.VendorId = manufacturer.Id AND manufacturerPart.ManufacturerPartNumber = purchasOrder_itemOrder.ManufacturerPartNumber ";
+	$query .= "LEFT JOIN supplierPart ON supplierPart.VendorId = purchasOrder.VendorId AND supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku ";
 	$query .= "WHERE purchasOrder.PoNo = ".$purchaseOrderNo;
 	$query .= " ORDER BY LineNo";
 	
@@ -70,7 +70,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
 		$query .= "SET SupplierPartId = ";
 		$query .= "(SELECT supplierPart.Id FROM supplierPart "; 
-		$query .= "WHERE supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku AND supplierPart.SupplierId = purchasOrder.SupplierId ";
+		$query .= "WHERE supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku AND supplierPart.VendorId = purchasOrder.VendorId ";
 		$query .= ") ";
 		$query .= "WHERE purchasOrder_itemOrder.Type = 'Part' AND purchasOrder.PoNo = ".$purchaseOrderNo;
 		
@@ -117,7 +117,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 				$data = array();
 				
 				$data['ManufacturerPartId'] = $line['ManufacturerPartId'];
-				$data['SupplierId']['raw'] = "(SELECT SupplierId FROM purchasOrder WHERE PoNo = '".$purchaseOrderNo."')";
+				$data['SupplierId']['raw'] = "(SELECT VendorId FROM purchasOrder WHERE PoNo = '".$purchaseOrderNo."')";
 				$data['SupplierPartNumber'] = $line['Sku']; 
 				$dbLink = dbConnect();
 				$query = dbBuildInsertQuery($dbLink,'supplierPart', $data);

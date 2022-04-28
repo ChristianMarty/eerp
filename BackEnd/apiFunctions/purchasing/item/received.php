@@ -22,15 +22,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$output = array();
 	
-	$query = "SELECT partManufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber,supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, purchasOrder_itemReceive.QuantityReceived, purchasOrder_itemOrder.OrderReference ";
+	$query = "SELECT manufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber,supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, purchasOrder_itemReceive.QuantityReceived, purchasOrder_itemOrder.OrderReference ";
 	$query .= "FROM purchasOrder_itemReceive ";
 	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
 	$query .= "LEFT JOIN supplierPart ON supplierPart.Id = purchasOrder_itemOrder.SupplierPartId ";
-	$query .= "LEFT JOIN supplier ON supplier.Id = supplierPart.SupplierId ";
+	$query .= "LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId ";
 	$query .= "LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-	$query .= "LEFT JOIN partManufacturer ON partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query .= "LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer  ON manufacturer.Id = manufacturerPart.VendorId ";
 	$query .= "WHERE purchasOrder_itemReceive.Id = ".$receivalId;
+
 	
 	$result = dbRunQuery($dbLink,$query);
 	

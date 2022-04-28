@@ -104,6 +104,10 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	if(!isset($_GET["PurchaseOrderNo"])) $error = "PO Number not defined!";
 		
 	$poNo = dbEscapeString($dbLink, $_GET['PurchaseOrderNo']);
+	
+	$poNo = strtolower($poNo);
+	$poNo = str_replace("po","",$poNo);
+	$poNo = str_replace("-","",$poNo);
 
 	$poData = array();
 	$poData['VendorId'] = intval($data['data']['SupplierId']);
