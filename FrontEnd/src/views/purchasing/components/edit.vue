@@ -147,7 +147,7 @@
               value-format="yyyy-MM-dd"
             />
           </el-form-item>
-          <el-form-item label="Part Number:" v-if="orderLineEditData.Type == 'Part'">
+          <el-form-item v-if="orderLineEditData.Type == 'Part'" label="Part Number:">
 
             <el-popover placement="top" width="800" trigger="click">
 
@@ -180,7 +180,7 @@
             <el-input v-model="orderLineEditData.SupplierSku" />
           </el-form-item>
 
-          <el-form-item label="Manufacturer:" v-if="orderLineEditData.Type == 'Part'">
+          <el-form-item v-if="orderLineEditData.Type == 'Part'" label="Manufacturer:">
             <el-select
               v-model="orderLineEditData.ManufacturerName"
               placeholder="Manufacturer"
@@ -191,7 +191,7 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item label="MPN:" v-if="orderLineEditData.Type == 'Part'">
+          <el-form-item v-if="orderLineEditData.Type == 'Part'" label="MPN:">
             <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
           </el-form-item>
 
@@ -242,6 +242,7 @@ import requestBN from '@/utils/requestBN'
 
 import permission from '@/directive/permission/index.js'
 import ElTableDraggable from 'el-table-draggable'
+import * as defaultSetting from '@/utils/defaultSetting'
 
 export default {
   name: 'PurchaseOrderEdit',
@@ -365,8 +366,8 @@ export default {
         Description: '',
         Price: 0,
         Discount: 0,
-        VatTaxId: 1,
-        UnitOfMeasurementId: 29,
+        VatTaxId: Number( defaultSetting.defaultSetting().PurchasOrder.VAT ),
+        UnitOfMeasurementId: Number( defaultSetting.defaultSetting().PurchasOrder.UoM ),
         Type: 'Part',
         OrderReference: null,
         PartNo: orderRequestData.PartNoList,
@@ -390,8 +391,8 @@ export default {
         Description: ' ',
         Price: 0,
         Discount: 0,
-        VatTaxId: 1,
-        UnitOfMeasurementId: 29,
+        VatTaxId: Number( defaultSetting.defaultSetting().PurchasOrder.VAT ),
+        UnitOfMeasurementId: Number( defaultSetting.defaultSetting().PurchasOrder.UoM ),
         Type: lineType,
         OrderReference: null,
         PartNo: null,

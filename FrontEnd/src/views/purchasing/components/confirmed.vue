@@ -42,7 +42,7 @@
 
           <el-button
             v-if="
-              row.ReceivalId != NULL
+              row.ReceivalId != NULL && row.Type == 'Part'
             "
             v-permission="['stock.create']"
             style="float: right;"

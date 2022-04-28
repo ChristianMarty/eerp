@@ -16,20 +16,31 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT * FROM  partStock_view ";
+	$baseQuery = "SELECT * FROM  partStock_view ";
+	
+	$queryParam = array();
 	
 	if(isset($_GET["StockNo"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["StockNo"]);
 		$temp = strtolower($temp);
 		$temp = str_replace("stk-","",$temp);
-		$query.= "WHERE StockNo LIKE '".$temp."'";		
+		array_push($queryParam, "StockNo LIKE '".$temp."'");		
 	}
-	elseif(isset($_GET["ManufacturerPartId"]))
+	
+	if(isset($_GET["ManufacturerPartId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		$query.= "WHERE ManufacturerPartId = '".$temp."'";		
+		array_push($queryParam, "ManufacturerPartId = '".$temp."'");		
 	}
+	
+	if(isset($_GET["HideEmpty"]))
+	{
+		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Quantity != 0");	
+	}
+	
+	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
+	
 	
 
 	$result = dbRunQuery($dbLink,$query);

@@ -25,7 +25,7 @@
         <el-button type="info" plain @click="resetFilter">Reset</el-button>
       </el-form-item>
 
-      <p><el-checkbox v-model="fliterNoMfp">Hide entries without assigned manufacturer parts</el-checkbox>
+      <p><el-checkbox v-model="fliterNoMfp" @change="getPartData()">Hide entries without assigned manufacturer parts</el-checkbox>
       </p>
       <p>Use MySQL LIKE syntax for search queries</p>
     </el-form>

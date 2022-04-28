@@ -49,8 +49,9 @@
         <el-button type="primary" @click="onFilterChange">Filter</el-button>
         <el-button type="info" plain @click="onFilterReset">Reset</el-button>
       </el-form-item>
+      
     </el-form>
-
+    <el-checkbox v-model="fliterEmpty" @change="getStockItems()">Hide empty (Quantity 0)</el-checkbox>
     <el-table
       ref="stockTable"
       :data="stockItemsFilterd"
@@ -98,7 +99,8 @@ export default {
       stockItems: null,
       stockItemsFilterd: null,
       manufacturers: null,
-      locations: null
+      locations: null,
+      fliterEmpty: true
     }
   },
   mounted() {
@@ -153,7 +155,8 @@ export default {
     getStockItems() {
       requestBN({
         url: '/stock',
-        methood: 'get'
+        methood: 'get',
+        params: {HideEmpty: this.fliterEmpty}
       }).then(response => {
         this.stockItems = response.data
         this.stockItemsFilterd = this.stockItems
