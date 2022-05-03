@@ -45,6 +45,7 @@
     </el-table>
 
     <el-dialog title="Match Parts" :visible.sync="matchDialogVisible" width="80%">
+      <p>Generic items are excluded.</p>
       <el-table
         v-if="matchData !== null"
         :key="LineNo"

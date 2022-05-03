@@ -17,7 +17,7 @@ function loadDatabaseData($purchaseOrderNo)
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query  = "SELECT LineNo, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, manufacturer.Name AS ManufacturerNameDatabase, manufacturer.Id AS PartManufacturerId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId ";
+	$query  = "SELECT LineNo, purchasOrder_itemOrder.Type, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, manufacturer.Name AS ManufacturerNameDatabase, manufacturer.Id AS PartVendorId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId ";
 	$query .= "FROM purchasOrder_itemOrder ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
 	$query .= "LEFT JOIN (SELECT Id, Name, Alias, AliasDigikey FROM vendor)manufacturer ON manufacturer.Name = purchasOrder_itemOrder.ManufacturerName OR manufacturer.Alias = purchasOrder_itemOrder.ManufacturerName OR manufacturer.AliasDigikey = purchasOrder_itemOrder.ManufacturerName ";
@@ -32,7 +32,7 @@ function loadDatabaseData($purchaseOrderNo)
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		if($r['PartManufacturerId'] != null) $r['ManufacturerName'] = $r['ManufacturerNameDatabase'];
+		if($r['PartVendorId'] != null) $r['ManufacturerName'] = $r['ManufacturerNameDatabase'];
 		unset($r['ManufacturerNameDatabase']);
 		
 		array_push($lines, $r);
@@ -48,7 +48,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$purchaseOrderNo = intval($_GET["PurchaseOrderNo"]);
 	
-	$output["Lines"] = loadDatabaseData($purchaseOrderNo);
+	$output["Lines"] = array();
+	
+	$lines = loadDatabaseData($purchaseOrderNo);
+	
+	foreach($lines as $line)
+	{
+		if($line['Type'] ==  "Part")
+		{
+			array_push($output["Lines"], $line);
+		}
+	}
 		
 	sendResponse($output);
 }
@@ -83,12 +93,17 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		foreach($lines as $line)
 		{
-			if($line['PartManufacturerId'] == null)
+			if($line['Type'] == "Generic") continue;
+			
+			if($line['PartVendorId'] == null)
 			{
 				$data = array();
 				$data['Name'] = $line['ManufacturerName'];
+				$data['IsManufacturer'] = '1';
+				
 				$dbLink = dbConnect();
-				$query  = dbBuildInsertQuery($dbLink,'partManufacturer', $data);
+				$query  = dbBuildInsertQuery($dbLink,'vendor', $data);
+				
 				dbRunQuery($dbLink, $query);
 				dbClose($dbLink);
 			}
@@ -97,12 +112,13 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 			{
 				$data = array();
 				
-				if($line['PartManufacturerId'] == null)  $data['ManufacturerId']['raw'] = "(SELECT Id FROM partManufacturer WHERE Name = '".$line['ManufacturerName']."')";
-				else $data['ManufacturerId'] = $line['PartManufacturerId'];
+				if($line['PartVendorId'] == null)  $data['VendorId']['raw'] = "(SELECT Id FROM vendor WHERE Name = '".$line['ManufacturerName']."')";
+				else $data['VendorId'] = $line['PartVendorId'];
 			
 				$data['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
 				$dbLink = dbConnect();
 				$query = dbBuildInsertQuery($dbLink,'manufacturerPart', $data);
+
 				dbRunQuery($dbLink, $query);
 				dbClose($dbLink);
 			}
@@ -117,7 +133,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 				$data = array();
 				
 				$data['ManufacturerPartId'] = $line['ManufacturerPartId'];
-				$data['SupplierId']['raw'] = "(SELECT VendorId FROM purchasOrder WHERE PoNo = '".$purchaseOrderNo."')";
+				$data['VendorId']['raw'] = "(SELECT VendorId FROM purchasOrder WHERE PoNo = '".$purchaseOrderNo."')";
 				$data['SupplierPartNumber'] = $line['Sku']; 
 				$dbLink = dbConnect();
 				$query = dbBuildInsertQuery($dbLink,'supplierPart', $data);
