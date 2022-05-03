@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <template>
+      <el-checkbox v-model="hideClosed" @change="getPurchasOrders()">Hide closed orders</el-checkbox>
       <el-table :data="purchasOrders" style="width: 100%">
         <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
           <template slot-scope="{ row }">
@@ -51,7 +52,8 @@ export default {
   components: {},
   data() {
     return {
-      purchasOrders: null
+      hideClosed: true,
+      purchasOrders: []
     }
   },
   mounted() {
@@ -61,7 +63,8 @@ export default {
     getPurchasOrders() {
       requestBN({
         url: '/purchasOrder',
-        methood: 'get'
+        methood: 'get',
+        params: { HideClosed: this.hideClosed }
       }).then(response => {
         this.purchasOrders = response.data
       })

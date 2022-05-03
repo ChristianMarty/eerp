@@ -14,25 +14,33 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
+	
 
-	$query  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
-	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
-	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
+	$baseQuery  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
+	$baseQuery .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
+	$baseQuery .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
+	
+	$queryParam = array();
 	
 	if(isset($_GET["PurchaseOrderNo"]))
 	{
 		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
-		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
+		array_push($queryParam, "PoNo = ".$purchaseOrderNo);
+	}
+	
+	if(isset($_GET["HideClosed"]))
+	{
+		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Status != 'Closed'");
 	}
 	else if(isset($_GET["Status"]))
 	{
 		$status = dbEscapeString($dbLink, $_GET["Status"]);
-		$query.= "WHERE Status = '".$status."'";	
+		array_push($queryParam, "Status = '".$status."'");
 	}
 	
+	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 	$query.= " ORDER BY purchasOrder.PoNo DESC";	
-	
-	
+
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	
