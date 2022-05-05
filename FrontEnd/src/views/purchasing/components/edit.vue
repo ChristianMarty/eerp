@@ -33,8 +33,6 @@
         border
         :cell-style="{ padding: '0', height: '20px' }"
         style="width: 100%"
-        :summary-method="calcSum"
-        show-summary
         @row-click="(row, column, event) =>openEdit(row)"
       >
         <el-table-column prop="LineNo" label="Line" width="70" />
@@ -52,15 +50,20 @@
           </template>
         </el-table-column>
         <el-table-column prop="ExpectedReceiptDate" label="Expected" width="100" />
-        <el-table-column prop="Price" label="Price" width="100" />
-
+        <el-table-column prop="Price" label="Price" width="100">
+        <template slot-scope="{ row }">
+            <span>{{ calcLinePrice(row) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="Total" width="100">
           <template slot-scope="{ row }">
-            <span>{{ (Math.round((row.QuantityOrderd * row.Price) * 10000) / 10000) }}</span>
+            <span>{{ calcLineSum(row) }}</span>
           </template>
         </el-table-column>
       </el-table>
     </el-table-draggable>
+
+    <orderTotal :lines="lines" :vat="vat"/>
 
     <template v-permission="['purchasing.edit']">
       <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible" :close-on-click-modal="false">
@@ -244,10 +247,12 @@ import permission from '@/directive/permission/index.js'
 import ElTableDraggable from 'el-table-draggable'
 import * as defaultSetting from '@/utils/defaultSetting'
 
+import orderTotal from './orderTotal'
+
 export default {
   name: 'PurchaseOrderEdit',
   directives: { permission },
-  components: { ElTableDraggable },
+  components: { ElTableDraggable, orderTotal },
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
@@ -344,7 +349,6 @@ export default {
       })
     },
     reorderLines() {
-      console.log('kjhkjhkj')
       this.line = 1
       this.lines.forEach(element => {
         element.LineNo = this.line
@@ -388,7 +392,7 @@ export default {
         LineNo: this.line,
         QuantityOrderd: 1,
         SupplierSku: null,
-        Description: ' ',
+        Description: '',
         Price: 0,
         Discount: 0,
         VatTaxId: Number( defaultSetting.defaultSetting().PurchasOrder.VAT ),
@@ -397,24 +401,18 @@ export default {
         OrderReference: null,
         PartNo: null,
         ManufacturerName: null,
-        ManufacturerPartNumber: '',
+        ManufacturerPartNumber:'',
         ExpectedReceiptDate: null,
 
         Note: null
       }
       this.openEdit(row)
     },
-    calcSum(param) {
-      let total = 0
-      this.lines.forEach(element => {
-        const line = element.QuantityOrderd * element.Price
-        total += line
-      })
-
-      const totalLine = []
-      totalLine[0] = 'Total'
-      totalLine[5] = Math.round(total * 10000) / 10000
-      return totalLine
+    calcLineSum(line){
+       return  (Math.round( (line.QuantityOrderd * line.Price) * ((100-line.Discount)/100) * 10000) / 10000) 
+    },
+    calcLinePrice(line){
+       return  (Math.round( line.Price * ((100-line.Discount)/100) * 10000) / 10000)  
     },
     getOrderLines() {
       requestBN({

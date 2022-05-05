@@ -4,8 +4,6 @@
       ref="itemTable"
       :data="lines"
       border
-      show-summary
-      :summary-method="calcSum"
       style="width: 100%"
       row-key="lineKey"
       :cell-style="{ padding: '0', height: '30px' }"
@@ -35,8 +33,26 @@
           </template>
         </template>
       </el-table-column>
-      <el-table-column prop="Price" label="Price" width="120" sortable />
-      <el-table-column prop="Total" label="Total" width="120" sortable />
+      <el-table-column label="Price" width="100">
+          <template slot-scope="{ row }">
+          <span>
+            {{
+              calcLinePrice(row)
+            }}
+          </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Total" width="100">
+        <template slot-scope="{ row }">
+          <span>
+            {{
+              calcLineSum(row)
+            }}
+          </span>
+        </template>
+      </el-table-column>
+
       <el-table-column width="100">
         <template slot-scope="{ row }">
           <el-button
@@ -49,6 +65,9 @@
       </el-table-column>
     </el-table>
 
+
+    <orderTotal :lines="lines" :vat="vat" />
+
     <trackDialog :visible.sync="showDialog" :receival-id="trackDialogReceivalId" />
 
   </div>
@@ -57,19 +76,22 @@
 <script>
 import requestBN from '@/utils/requestBN'
 import trackDialog from './trackDialog'
+import orderTotal from './orderTotal'
 
 export default {
-  components: { trackDialog },
+  components: { trackDialog, orderTotal },
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
       lines: null,
       showDialog: false,
-      trackDialogReceivalId: 0
+      trackDialogReceivalId: 0,
+      vat:[]
     }
   },
   created() {
     this.getOrderLines()
+    this.getVAT()
   },
   mounted() {},
   methods: {
@@ -85,16 +107,22 @@ export default {
         this.prepairLines(this.lines)
       })
     },
-    calcSum(param) {
-      let total = 0
-      this.lines.forEach(element => {
-        total += element.Total
+    getVAT() {
+      requestBN({
+        url: '/finance/tax',
+        methood: 'get',
+        params: {
+          Type: 'VAT'
+        }
+      }).then(response => {
+        this.vat = response.data
       })
-
-      const totalLine = []
-      totalLine[0] = 'Total'
-      totalLine[7] = Math.round(total * 100000) / 100000
-      return totalLine
+    },
+    calcLineSum(line){
+       return  (Math.round( (line.QuantityOrderd * line.Price) * ((100-line.Discount)/100) * 10000) / 10000) 
+    },
+    calcLinePrice(line){
+       return  (Math.round( line.Price * ((100-line.Discount)/100) * 10000) / 10000)  
     },
     prepairLines(data) {
       data.forEach(line => {

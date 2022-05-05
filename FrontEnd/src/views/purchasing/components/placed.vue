@@ -13,8 +13,6 @@
       border
       :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
-      :summary-method="calcSum"
-      show-summary
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
       <el-table-column prop="QuantityOrderd" label="Quantity" width="120" />
@@ -31,18 +29,28 @@
         </template>
       </el-table-column>
       <el-table-column label="Date" prop="ExpectedReceiptDate" width="100" />
-      <el-table-column prop="Price" label="Price" width="120" />
+      <el-table-column prop="Price" label="Price" width="100" >
+      <template slot-scope="{ row }">
+          <span>
+            {{
+              calcLinePrice(row)
+            }}
+          </span>
+        </template>
+      </el-table-column>
 
-      <el-table-column label="Total" width="120">
+      <el-table-column label="Total" width="100">
         <template slot-scope="{ row }">
           <span>
             {{
-              Math.round(row.QuantityOrderd * row.Price * 100000) / 100000
+              calcLineSum(row)
             }}
           </span>
         </template>
       </el-table-column>
     </el-table>
+
+    <orderTotal :lines="lines" :vat="vat"/>
 
     <el-dialog title="Match Parts" :visible.sync="matchDialogVisible" width="80%">
       <p>Generic items are excluded.</p>
@@ -84,9 +92,11 @@
 <script>
 import requestBN from '@/utils/requestBN'
 import permission from '@/directive/permission/index.js'
+import orderTotal from './orderTotal'
 
 export default {
   directives: { permission },
+  components: { orderTotal },
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
@@ -94,11 +104,13 @@ export default {
       SupplierOrderNumber: '',
       lines: null,
       matchData: null,
-      matchDialogVisible: false
+      matchDialogVisible: false,
+      vat: []
     }
   },
   mounted() {
     this.getOrderLines()
+    this.getVAT()
   },
   methods: {
     getOrderLines() {
@@ -111,6 +123,12 @@ export default {
       }).then(response => {
         this.lines = response.data.Lines
       })
+    },
+    calcLineSum(line){
+       return  (Math.round( (line.QuantityOrderd * line.Price) * ((100-line.Discount)/100) * 10000) / 10000) 
+    },
+    calcLinePrice(line){
+       return  (Math.round( line.Price * ((100-line.Discount)/100) * 10000) / 10000)  
     },
     match() {
       requestBN({
@@ -153,17 +171,16 @@ export default {
       if (row.ManufacturerPartId === null && columnIndex === 2) return 'error-cell'
       if (row.SupplierPartId === null && columnIndex === 3) return 'error-cell'
     },
-    calcSum(param) {
-      let total = 0
-      this.lines.forEach(element => {
-        const line = element.QuantityOrderd * element.Price
-        total += line
+    getVAT() {
+      requestBN({
+        url: '/finance/tax',
+        methood: 'get',
+        params: {
+          Type: 'VAT'
+        }
+      }).then(response => {
+        this.vat = response.data
       })
-
-      const totalLine = []
-      totalLine[0] = 'Total'
-      totalLine[5] = Math.round(total * 100000) / 100000
-      return totalLine
     }
   }
 }
