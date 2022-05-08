@@ -45,7 +45,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$quantity = dbEscapeString($dbLink,$data['data']['Quantity']);
 	$title = dbEscapeString($dbLink,$data['data']['Title']);
 
-	$query = "INSERT INTO workOrder (Title, Quantity, ProjectId) VALUES ('".$title."', '".$quantity."', '".$projectId."');";
+	$query = "INSERT INTO workOrder (Title, Quantity, ProjectId, WorkOrderNo) VALUES ('".$title."', '".$quantity."', '".$projectId."', workOrder_generateWoNo());";
 	
 	$result = dbRunQuery($dbLink,$query);
 	

@@ -41,8 +41,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 	
-	
-
 	$result = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);	
 	

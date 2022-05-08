@@ -60,7 +60,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	}
 	
 	$poCreate = array();
-	$poCreate['SupplierId'] = $supplierId;
+	$poCreate['VendorId'] = $supplierId;
 	$poCreate['OrderNumber'] = $orderNumber;
 	$poCreate['PurchaseDate'] = $supplierData['OrderDate'];
 	$poCreate['Currency'] = $supplierData['CurrencyCode'];

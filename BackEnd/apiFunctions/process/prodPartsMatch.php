@@ -28,6 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	
 	$partLookup = array();
+	
 	// Sort by ManufacturerId
 	while($part = mysqli_fetch_assoc($queryResult))
 	{
@@ -41,10 +42,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$queryResult = dbRunQuery($dbLink,$query);
 	
 	$mfrParts = array();
+	
 	// Sort by ManufacturerId
 	while($part = mysqli_fetch_assoc($queryResult))
 	{
-		$mfrId = $part['ManufacturerId'];
+		$mfrId = $part['VendorId'];
 		
 		if(!is_array($mfrParts[$mfrId])) $mfrParts[$mfrId] = array();
 		array_push($mfrParts[$mfrId], $part);

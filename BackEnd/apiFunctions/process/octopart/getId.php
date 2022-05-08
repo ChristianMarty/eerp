@@ -20,9 +20,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT manufacturerPart.Id, partManufacturer.Name AS ManufacturerName, ManufacturerPartNumber ";
+	$query = "SELECT manufacturerPart.Id, vendor.Name AS ManufacturerName, ManufacturerPartNumber ";
 	$query .= "FROM `manufacturerPart` ";
-	$query .= "LEFT JOIN `partManufacturer` ON partManufacturer.Id = manufacturerPart.ManufacturerId ";
+	$query .= "LEFT JOIN `vendor` ON vendor.Id = manufacturerPart.VendorId ";
 	
 	$query .= "WHERE OctopartId IS NULL ORDER BY manufacturerPart.Id DESC";
 	
