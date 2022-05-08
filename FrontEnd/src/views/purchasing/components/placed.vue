@@ -29,28 +29,11 @@
         </template>
       </el-table-column>
       <el-table-column label="Date" prop="ExpectedReceiptDate" width="100" />
-      <el-table-column prop="Price" label="Price" width="100" >
-      <template slot-scope="{ row }">
-          <span>
-            {{
-              calcLinePrice(row)
-            }}
-          </span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Total" width="100">
-        <template slot-scope="{ row }">
-          <span>
-            {{
-              calcLineSum(row)
-            }}
-          </span>
-        </template>
-      </el-table-column>
+      <el-table-column prop="LinePrice" label="Price" width="100" />
+      <el-table-column prop="Total" label="Total" width="100" />
     </el-table>
 
-    <orderTotal :lines="lines" :vat="vat"/>
+    <orderTotal :total="total" />
 
     <el-dialog title="Match Parts" :visible.sync="matchDialogVisible" width="80%">
       <p>Generic items are excluded.</p>
@@ -102,15 +85,14 @@ export default {
     return {
       orderData: this.$props.orderData,
       SupplierOrderNumber: '',
-      lines: null,
+      lines: [],
+      total: {},
       matchData: null,
-      matchDialogVisible: false,
-      vat: []
+      matchDialogVisible: false
     }
   },
   mounted() {
     this.getOrderLines()
-    this.getVAT()
   },
   methods: {
     getOrderLines() {
@@ -122,13 +104,8 @@ export default {
         }
       }).then(response => {
         this.lines = response.data.Lines
+        this.total = response.data.Total
       })
-    },
-    calcLineSum(line){
-       return  (Math.round( (line.QuantityOrderd * line.Price) * ((100-line.Discount)/100) * 10000) / 10000) 
-    },
-    calcLinePrice(line){
-       return  (Math.round( line.Price * ((100-line.Discount)/100) * 10000) / 10000)  
     },
     match() {
       requestBN({
@@ -170,17 +147,6 @@ export default {
       if (row.PartManufacturerId === null && columnIndex === 1) return 'error-cell'
       if (row.ManufacturerPartId === null && columnIndex === 2) return 'error-cell'
       if (row.SupplierPartId === null && columnIndex === 3) return 'error-cell'
-    },
-    getVAT() {
-      requestBN({
-        url: '/finance/tax',
-        methood: 'get',
-        params: {
-          Type: 'VAT'
-        }
-      }).then(response => {
-        this.vat = response.data
-      })
     }
   }
 }

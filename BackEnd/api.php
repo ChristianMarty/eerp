@@ -18,8 +18,6 @@ if($showPhpError)
 	error_reporting(E_ALL);
 }
 
-header("Content-Type:application/json; charset=UTF-8");
-
 
 // TODO: Fix for prod version
 
@@ -69,6 +67,8 @@ else
 
 function sendResponse($data,$error = null)
 {
+	header("Content-Type:application/json; charset=UTF-8");
+	
 	require_once __DIR__ . "/config.php";
 	global $devMode;
 

@@ -33,25 +33,8 @@
           </template>
         </template>
       </el-table-column>
-      <el-table-column label="Price" width="100">
-          <template slot-scope="{ row }">
-          <span>
-            {{
-              calcLinePrice(row)
-            }}
-          </span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Total" width="100">
-        <template slot-scope="{ row }">
-          <span>
-            {{
-              calcLineSum(row)
-            }}
-          </span>
-        </template>
-      </el-table-column>
+      <el-table-column prop="LinePrice" label="Price" width="100" />
+      <el-table-column prop="Total" label="Total" width="100" />
 
       <el-table-column width="100">
         <template slot-scope="{ row }">
@@ -65,8 +48,7 @@
       </el-table-column>
     </el-table>
 
-
-    <orderTotal :lines="lines" :vat="vat" />
+    <orderTotal :total="total" />
 
     <trackDialog :visible.sync="showDialog" :receival-id="trackDialogReceivalId" />
 
@@ -83,15 +65,14 @@ export default {
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
-      lines: null,
+      lines: [],
+      total: {},
       showDialog: false,
-      trackDialogReceivalId: 0,
-      vat:[]
+      trackDialogReceivalId: 0
     }
   },
   created() {
     this.getOrderLines()
-    this.getVAT()
   },
   mounted() {},
   methods: {
@@ -104,25 +85,9 @@ export default {
         }
       }).then(response => {
         this.lines = response.data.Lines
+        this.total = response.data.Total
         this.prepairLines(this.lines)
       })
-    },
-    getVAT() {
-      requestBN({
-        url: '/finance/tax',
-        methood: 'get',
-        params: {
-          Type: 'VAT'
-        }
-      }).then(response => {
-        this.vat = response.data
-      })
-    },
-    calcLineSum(line){
-       return  (Math.round( (line.QuantityOrderd * line.Price) * ((100-line.Discount)/100) * 10000) / 10000) 
-    },
-    calcLinePrice(line){
-       return  (Math.round( line.Price * ((100-line.Discount)/100) * 10000) / 10000)  
     },
     prepairLines(data) {
       data.forEach(line => {

@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../item.php";
+require_once __DIR__ . "/../_function.php";
 
 $error = null; 
 
@@ -55,7 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			else $sqlData['Price'] = $line['Price'];
 			
 			$sqlData['Note'] = $line['Note'];
-			$type = $line['Type'];
+			$type = $line['LineType'];
 			
 			$partNo = null;
 			$manufacturerName = null;

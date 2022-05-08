@@ -41,8 +41,8 @@
         <el-table-column label="SKU" prop="SupplierSku" width="220" />
         <el-table-column label="Item">
           <template slot-scope="{ row }">
-            <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
-            <template v-if="row.Type == 'Part'">
+            <template v-if="row.LineType == 'Generic'">{{ row.Description }}</template>
+            <template v-if="row.LineType == 'Part'">
               {{ row.PartNo }} - {{ row.ManufacturerName }} - {{
                 row.ManufacturerPartNumber
               }} - {{ row.Description }}
@@ -50,20 +50,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="ExpectedReceiptDate" label="Expected" width="100" />
-        <el-table-column prop="Price" label="Price" width="100">
-        <template slot-scope="{ row }">
-            <span>{{ calcLinePrice(row) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Total" width="100">
-          <template slot-scope="{ row }">
-            <span>{{ calcLineSum(row) }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="LinePrice" label="Price" width="100" />
+        <el-table-column prop="Total" label="Total" width="100" />
       </el-table>
     </el-table-draggable>
 
-    <orderTotal :lines="lines" :vat="vat"/>
+    <orderTotal :total="total" />
 
     <template v-permission="['purchasing.edit']">
       <el-dialog title="Order Line" :visible.sync="orderLineEditDialogVisible" :close-on-click-modal="false">
@@ -72,7 +64,7 @@
 
           <el-form-item label="Type:">
             <el-select
-              v-model="orderLineEditData.Type"
+              v-model="orderLineEditData.LineType"
               placeholder="Type"
               style="min-width: 200px; margin-right: 10px;"
             >
@@ -150,7 +142,7 @@
               value-format="yyyy-MM-dd"
             />
           </el-form-item>
-          <el-form-item v-if="orderLineEditData.Type == 'Part'" label="Part Number:">
+          <el-form-item v-if="orderLineEditData.LineType == 'Part'" label="Part Number:">
 
             <el-popover placement="top" width="800" trigger="click">
 
@@ -183,7 +175,7 @@
             <el-input v-model="orderLineEditData.SupplierSku" />
           </el-form-item>
 
-          <el-form-item v-if="orderLineEditData.Type == 'Part'" label="Manufacturer:">
+          <el-form-item v-if="orderLineEditData.LineType == 'Part'" label="Manufacturer:">
             <el-select
               v-model="orderLineEditData.ManufacturerName"
               placeholder="Manufacturer"
@@ -194,7 +186,7 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item v-if="orderLineEditData.Type == 'Part'" label="MPN:">
+          <el-form-item v-if="orderLineEditData.LineType == 'Part'" label="MPN:">
             <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
           </el-form-item>
 
@@ -257,6 +249,7 @@ export default {
   data() {
     return {
       lines: [],
+      total: {},
       tableKey: 0,
       line: 0,
       orderStatus: 0,
@@ -299,6 +292,7 @@ export default {
       }).then(response => {
         if (response.error == null) {
           this.lines = response.data.Lines
+          this.total = response.data.Total
           this.line = this.lines.length
           this.$message({
             showClose: true,
@@ -370,9 +364,9 @@ export default {
         Description: '',
         Price: 0,
         Discount: 0,
-        VatTaxId: Number( defaultSetting.defaultSetting().PurchasOrder.VAT ),
-        UnitOfMeasurementId: Number( defaultSetting.defaultSetting().PurchasOrder.UoM ),
-        Type: 'Part',
+        VatTaxId: Number(defaultSetting.defaultSetting().PurchasOrder.VAT),
+        UnitOfMeasurementId: Number(defaultSetting.defaultSetting().PurchasOrder.UoM),
+        LineType: 'Part',
         OrderReference: null,
         PartNo: orderRequestData.PartNoList,
         ManufacturerName: orderRequestData.ManufacturerName,
@@ -395,24 +389,18 @@ export default {
         Description: '',
         Price: 0,
         Discount: 0,
-        VatTaxId: Number( defaultSetting.defaultSetting().PurchasOrder.VAT ),
-        UnitOfMeasurementId: Number( defaultSetting.defaultSetting().PurchasOrder.UoM ),
-        Type: lineType,
+        VatTaxId: Number(defaultSetting.defaultSetting().PurchasOrder.VAT),
+        UnitOfMeasurementId: Number(defaultSetting.defaultSetting().PurchasOrder.UoM),
+        LineType: lineType,
         OrderReference: null,
         PartNo: null,
         ManufacturerName: null,
-        ManufacturerPartNumber:'',
+        ManufacturerPartNumber: '',
         ExpectedReceiptDate: null,
 
         Note: null
       }
       this.openEdit(row)
-    },
-    calcLineSum(line){
-       return  (Math.round( (line.QuantityOrderd * line.Price) * ((100-line.Discount)/100) * 10000) / 10000) 
-    },
-    calcLinePrice(line){
-       return  (Math.round( line.Price * ((100-line.Discount)/100) * 10000) / 10000)  
     },
     getOrderLines() {
       requestBN({
@@ -423,6 +411,7 @@ export default {
         }
       }).then(response => {
         this.lines = response.data.Lines
+        this.total = response.data.Total
         this.line = this.lines.length
       })
     },
