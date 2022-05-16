@@ -2,9 +2,9 @@
   <div class="app-container">
     <h1>{{ orderData.Title }}, PO-{{ orderData.PoNo }}</h1>
     <el-steps :active="orderStatus" finish-status="success" align-center>
-      <el-step title="Editing" />
-      <el-step title="Placed" />
-      <el-step title="Confirmed" />
+      <el-step title="Edit" />
+      <el-step title="Place" />
+      <el-step title="Confirme" />
       <el-step title="Closed" />
     </el-steps>
 
@@ -18,6 +18,8 @@
     </template>
 
     <template v-if="orderData.Status == 'Confirmed'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="edit">Edit Order</el-button>
+      <el-button type="info" @click="confirm">Confirm Order</el-button>
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
@@ -205,19 +207,19 @@ export default {
   methods: {
     edit() {
       this.orderData.Status = 'Editing'
-      this.saveState(this.orderData)
+      this.saveStatus(this.orderData.Status)
     },
     place() {
       this.orderData.Status = 'Placed'
-      this.saveState(this.orderData)
+      this.saveStatus(this.orderData.Status)
     },
     confirm() {
       this.orderData.Status = 'Confirmed'
-      this.saveState(this.orderData)
+      this.saveStatus(this.orderData.Status)
     },
     close() {
       this.orderData.Status = 'Closed'
-      this.saveState(this.orderData)
+      this.saveStatus(this.orderData.Status)
     },
     editMeta() {
       this.getSuppliers()
@@ -230,6 +232,31 @@ export default {
     },
     saveState(data) {
       this.saveData(data)
+    },
+    saveStatus(status){
+      requestBN({
+        method: 'PATCH',
+        url: '/purchasing/item/status',
+        params: { PurchaseOrderNo: this.PoNo },
+        data: { Status: status },
+      }).then(response => {
+        if (response.error == null) {
+          this.$message({
+            showClose: true,
+            message: 'Changes saved successfully',
+            duration: 1500,
+            type: 'success'
+          })
+          this.getOrder()
+        } else {
+          this.$message({
+            showClose: true,
+            message: response.error,
+            duration: 0,
+            type: 'error'
+          })
+        }
+      })
     },
     saveData(data) {
       requestBN({

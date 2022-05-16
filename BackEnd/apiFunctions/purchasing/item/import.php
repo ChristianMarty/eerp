@@ -45,10 +45,26 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data["SupplierId"]) || !isset($data["OrderNumber"])) sendResponse(null, "SupplierId or OrderNumber missing!");
+	if(!isset($_GET["PurchaseOrderNo"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "Purchase Order or Order Number missing!");
 	
-	$supplierId = intval($data["SupplierId"]);
-	$orderNumber = $data["OrderNumber"];
+	$poNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
+	$poNo = strtolower($poNo);
+	$poNo = str_replace("po","",$poNo);
+	$poNo = str_replace("-","",$poNo);
+	
+	$orderNumber = $_GET["OrderNumber"];
+	
+	$query = "SELECT Id, VendorId FROM purchasOrder WHERE PoNo = '".$poNo."'";
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$supplierId = null;
+	$id = 0;
+	while($r = mysqli_fetch_assoc($result)) 
+	{
+		$supplierId = $r['VendorId'];
+		$id = $r['Id'];
+	}
 	
 	if($supplierId == $mouserSupplierId)
 	{
@@ -59,41 +75,18 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$supplierData = digikey_getOrderInformation($orderNumber);
 	}
 	
-	$poCreate = array();
-	$poCreate['VendorId'] = $supplierId;
-	$poCreate['OrderNumber'] = $orderNumber;
-	$poCreate['PurchaseDate'] = $supplierData['OrderDate'];
-	$poCreate['Currency'] = $supplierData['CurrencyCode'];
-	$poCreate['Status'] = 'Placed';
+	$poUpdate = array();
+	$poUpdate['OrderNumber'] = $orderNumber;
+	$poUpdate['PurchaseDate'] = $supplierData['OrderDate'];
+	$poUpdate['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$supplierData['CurrencyCode']."')";
+	$poUpdate['Status'] = 'Editing';
 	
-	if($data['Title'] != "") $poCreate['Title'] = $data['Title'];
-	if($data['Description'] != "") $poCreate['Description'] = $data['Description'];
-	
-	$poCreate['PoNo']['raw'] = "purchasOrder_generatePoNo()";
-	
-	$query = dbBuildInsertQuery($dbLink, "purchasOrder", $poCreate);
-	
-	$query .= "SELECT Id, PoNo FROM purchasOrder WHERE Id = LAST_INSERT_ID();";
-	
-	$id = 0;
-	$poNo = '';
+	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poUpdate, "PoNo = '".$poNo."'");
+	$result = dbRunQuery($dbLink,$query);
+
 	$error = null;
 	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$id = $row[0];
-					$poNo = $row[1];
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-			
-		} while (mysqli_next_result($dbLink));
-	}
-	else
+	if($result == false)
 	{
 		$error = "Error description: " . mysqli_error($dbLink);
 	}

@@ -12,13 +12,9 @@
           @click="addLine('Part')"
         />
 
-        <!--<el-button type="primary" @click="save(lines)">Save All</el-button>
-
-        <el-button @click="addLine('Part')">Add Part</el-button>
-        <el-button @click="addLine('Generic')">Add Generic Item</el-button>
-         <el-badge :value="1" type="primary"> -->
+        <el-button v-if="meta.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
-        <!-- </el-badge> -->
+        
       </el-form-item>
     </el-form>
     <el-table-draggable
@@ -229,7 +225,11 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-dialog>  </div>
+    </el-dialog>  
+
+    <orderImportDialog :visible.sync="importDialogVisible" :meat ="meta" @closed="getOrderLines()"/>
+    
+    </div>
 </template>
 
 <script>
@@ -240,22 +240,25 @@ import ElTableDraggable from 'el-table-draggable'
 import * as defaultSetting from '@/utils/defaultSetting'
 
 import orderTotal from './orderTotal'
+import orderImportDialog from './orderImportDialog'
 
 export default {
   name: 'PurchaseOrderEdit',
   directives: { permission },
-  components: { ElTableDraggable, orderTotal },
+  components: { ElTableDraggable, orderTotal, orderImportDialog },
   props: { orderData: { type: Object, default: null }},
   data() {
     return {
       lines: [],
       total: {},
+      meta: {},
       tableKey: 0,
       line: 0,
       orderStatus: 0,
       orderRequests: null,
       orderReqestDialogVisible: false,
       orderLineEditDialogVisible: false,
+      importDialogVisible: false,
       orderLineEditData: {},
       partManufacturer: [],
       partOptions: [],
@@ -283,6 +286,18 @@ export default {
       data.Note = row.Note
       data.Description = row.Description
       data.ManufacturerPartNumber = row.ManufacturerPartNumber
+    },
+    openOrderImport()
+    {
+      if(this.lines.length > 0)
+      {
+        this.$alert('To import an order, the order can not contain any lines. Please remove all lines and try again.', 'Cannot Import Order', {
+          confirmButtonText: 'OK'
+        });
+      }
+      else{
+        this.importDialogVisible = true
+      }
     },
     save(lines) {
       requestBN({
@@ -410,6 +425,7 @@ export default {
           PurchaseOrderNo: this.$props.orderData.PoNo
         }
       }).then(response => {
+        this.meta = response.data.MetaData
         this.lines = response.data.Lines
         this.total = response.data.Total
         this.line = this.lines.length

@@ -17,9 +17,9 @@
       <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" />
       <el-table-column label="Item">
         <template slot-scope="{ row }">
-          <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
+          <template v-if="row.LineType == 'Generic'">{{ row.Description }}</template>
 
-          <template v-if="row.Type == 'Part'">
+          <template v-if="row.LineType == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
             {{ row.ManufacturerPartNumber }} - {{ row.Description }}
           </template>
@@ -42,7 +42,6 @@
 
           <el-button
             v-if="
-              row.ReceivalId != NULL && row.Type == 'Part'
             "
             v-permission="['stock.create']"
             style="float: right;"

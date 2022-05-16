@@ -46,10 +46,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['VatTaxId'] = intval($line['VatTaxId']);
 			$sqlData['UnitOfMeasurementId'] = intval($line['UnitOfMeasurementId']);
 			$sqlData['Discount'] = $line['Discount'];
+			$sqlData['StockPart']['raw'] = dbToBit($line['StockPart']);
 			$sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
-			
-			//if(isset($line['SupplierPartId']))$sqlData['SupplierPartId'] = $line['SupplierPartId'];
-			//else $sqlData['SupplierPartId'] = null;
 			
 			if($line['Price'] === null) $sqlData['Price'] = 0;
 			else $sqlData['Price'] = $line['Price'];
@@ -83,6 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 				$sqlData['PurchasOrderId']['raw'] = "(SELECT Id FROM purchasOrder WHERE PoNo = '".$poNo."' )";
 				$query = dbBuildInsertQuery($dbLink,"purchasOrder_itemOrder", $sqlData);
 			}
+			
 			
 			if(!dbRunQuery($dbLink,$query))
 			{

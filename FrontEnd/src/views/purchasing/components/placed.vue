@@ -20,9 +20,9 @@
 
       <el-table-column label="Item">
         <template slot-scope="{ row }">
-          <template v-if="row.Type == 'Generic'">{{ row.Description }}</template>
+          <template v-if="row.LineType == 'Generic'">{{ row.Description }}</template>
 
-          <template v-if="row.Type == 'Part'">
+          <template v-if="row.LineType == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
             {{ row.ManufacturerPartNumber }} - {{ row.Description }}
           </template>

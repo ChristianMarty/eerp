@@ -75,6 +75,12 @@ function dbGetErrorString($dbLink)
 	return  mysqli_error($dbLink);
 }
 
+function dbToBit($value)
+{
+	if($value) return "b'1'";
+	else return "b'0'";
+}	
+
 function dbBuildQuery($dbLink, $baseQuery, $queryParam)
 {
 	$query = $baseQuery;
