@@ -14,7 +14,7 @@
 
         <el-button v-if="meta.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
-        
+
       </el-form-item>
     </el-form>
     <el-table-draggable
