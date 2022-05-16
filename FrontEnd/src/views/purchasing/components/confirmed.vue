@@ -42,6 +42,7 @@
 
           <el-button
             v-if="
+              row.ReceivalId != NULL && row.LineType == 'Part' &&  row.StockPart == true
             "
             v-permission="['stock.create']"
             style="float: right;"

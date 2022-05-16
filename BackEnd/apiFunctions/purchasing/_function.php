@@ -96,6 +96,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$lines[$r['OrderLineId']]['VatTaxId'] = intval($r['VatTaxId']);
 			$lines[$r['OrderLineId']]['VatValue'] = $r['VatValue'];
 			$lines[$r['OrderLineId']]['Discount'] = $r['Discount'];
+			$lines[$r['OrderLineId']]['StockPart'] = filter_var($r['StockPart'], FILTER_VALIDATE_BOOLEAN);
 			$lines[$r['OrderLineId']]['LinePrice'] = $r['Price']*((100-$r['Discount'])/100);
 			$lines[$r['OrderLineId']]['Total'] = $lines[$r['OrderLineId']]['LinePrice'] * intval($r['Quantity']);
 			$lines[$r['OrderLineId']]['FullTotal'] = round($lines[$r['OrderLineId']]['Total'] *(1+($r['VatValue']/100)), 2, PHP_ROUND_HALF_UP);

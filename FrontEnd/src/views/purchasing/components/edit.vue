@@ -185,7 +185,9 @@
           <el-form-item v-if="orderLineEditData.LineType == 'Part'" label="MPN:">
             <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
           </el-form-item>
-
+          <el-form-item v-if="orderLineEditData.LineType == 'Part'" label="Stock Part:">
+            <el-checkbox  v-model="orderLineEditData.StockPart" />
+          </el-form-item>
           <el-form-item label="Description:">
             <el-input v-model="orderLineEditData.Description" />
           </el-form-item>
@@ -377,6 +379,7 @@ export default {
         QuantityOrderd: orderRequestData.Quantity,
         SupplierSku: orderRequestData.SupplierPartNumber,
         Description: '',
+        StockPart: true,
         Price: 0,
         Discount: 0,
         VatTaxId: Number(defaultSetting.defaultSetting().PurchasOrder.VAT),
@@ -402,6 +405,7 @@ export default {
         QuantityOrderd: 1,
         SupplierSku: null,
         Description: '',
+        StockPart: true,
         Price: 0,
         Discount: 0,
         VatTaxId: Number(defaultSetting.defaultSetting().PurchasOrder.VAT),
