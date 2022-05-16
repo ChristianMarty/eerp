@@ -186,7 +186,7 @@
             <el-input v-model="orderLineEditData.ManufacturerPartNumber" />
           </el-form-item>
           <el-form-item v-if="orderLineEditData.LineType == 'Part'" label="Stock Part:">
-            <el-checkbox  v-model="orderLineEditData.StockPart" />
+            <el-checkbox v-model="orderLineEditData.StockPart" />
           </el-form-item>
           <el-form-item label="Description:">
             <el-input v-model="orderLineEditData.Description" />
@@ -227,11 +227,11 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-dialog>  
+    </el-dialog>
 
-    <orderImportDialog :visible.sync="importDialogVisible" :meat ="meta" @closed="getOrderLines()"/>
-    
-    </div>
+    <orderImportDialog :visible.sync="importDialogVisible" :meat="meta" @closed="getOrderLines()" />
+
+  </div>
 </template>
 
 <script>
@@ -289,15 +289,12 @@ export default {
       data.Description = row.Description
       data.ManufacturerPartNumber = row.ManufacturerPartNumber
     },
-    openOrderImport()
-    {
-      if(this.lines.length > 0)
-      {
+    openOrderImport() {
+      if (this.lines.length > 0) {
         this.$alert('To import an order, the order can not contain any lines. Please remove all lines and try again.', 'Cannot Import Order', {
           confirmButtonText: 'OK'
-        });
-      }
-      else{
+        })
+      } else {
         this.importDialogVisible = true
       }
     },
