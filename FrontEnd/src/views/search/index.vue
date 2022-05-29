@@ -75,6 +75,8 @@ export default {
             break
           case 'WorkOrder': this.$router.push('/workOrder/workOrderView/' + this.result.Code)
             break
+          case 'ProductPart': this.$router.push('/prodParts/prodPartView/' + this.result.Code)
+            break
         }
       })
     }

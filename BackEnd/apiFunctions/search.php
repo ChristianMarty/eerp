@@ -14,46 +14,41 @@ require_once __DIR__ . "/util/location.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["search"])) sendResponse(null,"Search term not specified");
-	$search = strtolower($_GET["search"]);
 	
-	
-	$search = strtolower($search);
+	$search = trim(strtolower($_GET["search"]));
 	$parts = explode('-',$search);
 	
 	$data = array();
 	
 	if(count($parts) >= 2)
 	{
-	
 		$category = "";	
 		$prefix = "";
 		
-		switch($parts[0])
+		$dbLink = dbConnect();
+		
+		$query = "SELECT * FROM numbering ";
+		$result = dbRunQuery($dbLink,$query);
+		
+		while($r = mysqli_fetch_assoc($result)) 
 		{
-			case "loc": $category = "Location";
-						$prefix = "Loc";
-						break;
-			
-			case "stk": $category = "Stock";
-						$prefix = "Stk";
-						break;
-						
-			case "inv": $category = "Inventory";
-						$prefix = "Inv";
-						break;
-						
-			case "po":  $category = "PurchaseOrder";
-						$prefix = "PO";
-						break;
-			
-			case "wo":  $category = "WorkOrder";
-						$prefix = "WO";
-						break;
+			if(strtolower($r['Prefix']) == $parts[0])
+			{
+				$category = $r['Category'];
+				$prefix = $r['Prefix'];
+				break;
+			}
 		}
 
+		dbClose($dbLink);
+		
 		$data["Category"] = $category;
 		$data["Item"] =  $parts[1];
 		$data["Code"] = $prefix."-".$parts[1];
+	}
+	else
+	{
+		sendResponse(null,"Number format invalide.");
 	}
 	
 	
