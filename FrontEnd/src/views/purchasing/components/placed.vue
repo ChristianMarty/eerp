@@ -62,7 +62,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="SupplierName" label="Supplier" width="200" />
-        <el-table-column prop="Sku" label="Supplier Part Number"  />
+        <el-table-column prop="Sku" label="Supplier Part Number" />
       </el-table>
       <span>
         <el-button type="primary" @click="createMatch()">Create</el-button>

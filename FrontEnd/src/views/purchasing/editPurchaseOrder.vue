@@ -23,7 +23,7 @@
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
-    <el-button  @click="openPoDoc()" style="float: right" icon="el-icon-document">Export Purchase Order</el-button>
+    <el-button style="float: right" icon="el-icon-document" @click="openPoDoc()">Export Purchase Order</el-button>
     <el-divider />
     <p>
       <b>
@@ -248,16 +248,16 @@ export default {
     saveState(data) {
       this.saveData(data)
     },
-    openPoDoc(){
-      let path = process.env.VUE_APP_BLUENOVA_BASE+"/renderer/purchaseOrder.php?PurchaseOrderNo="+this.orderData.PoNo;
+    openPoDoc() {
+      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer/purchaseOrder.php?PurchaseOrderNo=' + this.orderData.PoNo
       window.open(path, '_blank').focus()
     },
-    saveStatus(status){
+    saveStatus(status) {
       requestBN({
         method: 'PATCH',
         url: '/purchasing/item/status',
         params: { PurchaseOrderNo: this.PoNo },
-        data: { Status: status },
+        data: { Status: status }
       }).then(response => {
         if (response.error == null) {
           this.$message({
@@ -342,7 +342,7 @@ export default {
         this.supplierAddress = response.data
       })
     },
-     getSupplierContact() {
+    getSupplierContact() {
       requestBN({
         url: '/vendor/contact',
         methood: 'get',

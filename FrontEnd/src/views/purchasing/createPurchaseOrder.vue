@@ -31,7 +31,7 @@
           type="date"
           placeholder="Pick a day"
           value-format="yyyy-MM-dd"
-        /> 
+        />
         <el-button @click="dateToday()">Today</el-button>
       </el-form-item>
 
@@ -80,9 +80,8 @@ export default {
         this.suppliers = response.data
       })
     },
-    dateToday()
-    {
-        this.formData.PurchaseDate = new Date().toISOString().slice(0, 10);
+    dateToday() {
+      this.formData.PurchaseDate = new Date().toISOString().slice(0, 10)
     },
     isValid() {
       /* this.$refs.inputForm.validate(valid => {
