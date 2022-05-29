@@ -27,7 +27,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 	}
 	
 
-	$query = "SELECT vendor.OrderImportSupported, purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
+	$query = "SELECT Carrier, PaymentTerms, InternationalCommercialTerms, Note, VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, vendor.OrderImportSupported, purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
 	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
 	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
 	
@@ -49,6 +49,12 @@ function getPurchaseOrderData($purchaseOrderNo)
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r['CurrencyId'] = intval($r['CurrencyId']);
+		$r['VendorContactId'] = intval($r['VendorContactId']);
+		$r['VendorAddressId'] = intval($r['VendorAddressId']);
+		$r['ShippingContactId'] = intval($r['ShippingContactId']);
+		$r['BillingContactId'] = intval($r['BillingContactId']);
+		$r['PurchaseContactId'] = intval($r['PurchaseContactId']);
+		
 		$r['OrderImportSupported'] = filter_var($r['OrderImportSupported'], FILTER_VALIDATE_BOOLEAN);
 		$PoId = $r['PoId'];
 		$status = $r['Status'];

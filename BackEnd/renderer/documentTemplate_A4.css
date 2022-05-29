@@ -1,0 +1,28 @@
+
+div.page{
+	margin: auto;
+	width:210mm;
+	height:297mm;
+	border: none;
+	background-color: White;
+
+} 
+
+@media not print 
+{
+	body {
+		background-color: LightGray;
+	}
+	
+	div.page{
+		margin: auto;
+		width:210mm;
+		height:297mm;
+		border: none;
+		margin-top: 10mm;
+		background-color: White;
+	} 
+}
+
+
+

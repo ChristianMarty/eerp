@@ -39,10 +39,8 @@
               </router-link>
             </template>
           </el-table-column>
-
-          <el-table-column prop="SupplierName" label="SupplierName" sortable />
-          <el-table-column prop="AcknowledgementNumber" label="Ack Number" sortable width="160" />
-
+          <el-table-column prop="SupplierName" label="Supplier Name" sortable />
+          <el-table-column prop="OrderNumber" label="Order Number" sortable width="160" />
           <el-table-column prop="PurchaseDate" label="Purchase Date" width="160" sortable />
 
         </el-table>

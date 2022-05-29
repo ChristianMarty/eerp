@@ -23,6 +23,7 @@
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
+    <el-button  @click="openPoDoc()" style="float: right" icon="el-icon-document">Export Purchase Order</el-button>
     <el-divider />
     <p>
       <b>
@@ -98,6 +99,18 @@
               checkStrictly: true
             }"
           />
+        </el-form-item>
+
+        <el-form-item label="Supplier Address:">
+          <el-select v-model="dialogData.VendorAddressId" placeholder="Currency" filterable>
+            <el-option v-for="item in supplierAddress" :key="item.Id" :label="item.Street+', '+item.PostalCode+' '+item.City+', '+item.CountryName" :value="item.Id" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Supplier Contact:">
+          <el-select v-model="dialogData.VendorContactId" placeholder="Currency" filterable>
+            <el-option v-for="item in supplierContact" :key="item.Id" :label="item.FirstName+' '+item.LastName" :value="item.Id" />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="Order Number:">
@@ -188,6 +201,8 @@ export default {
       suppliers: {},
       currencies: {},
       documents: {},
+      supplierAddress: {},
+      supplierContact: {},
 
       showDialog: false,
       dialogData: { type: Object, default: this.orderData }
@@ -232,6 +247,10 @@ export default {
     },
     saveState(data) {
       this.saveData(data)
+    },
+    openPoDoc(){
+      let path = process.env.VUE_APP_BLUENOVA_BASE+"/renderer/purchaseOrder.php?PurchaseOrderNo="+this.orderData.PoNo;
+      window.open(path, '_blank').focus()
     },
     saveStatus(status){
       requestBN({
@@ -312,6 +331,28 @@ export default {
         this.suppliers = response.data
       })
     },
+    getSupplierAddress() {
+      requestBN({
+        url: '/vendor/address',
+        methood: 'get',
+        params: {
+          VendorId: this.orderData.SupplierId
+        }
+      }).then(response => {
+        this.supplierAddress = response.data
+      })
+    },
+     getSupplierContact() {
+      requestBN({
+        url: '/vendor/contact',
+        methood: 'get',
+        params: {
+          VendorId: this.orderData.SupplierId
+        }
+      }).then(response => {
+        this.supplierContact = response.data
+      })
+    },
     getCurrency() {
       requestBN({
         url: '/finance/currency',
@@ -343,6 +384,9 @@ export default {
         this.documents = response.data.Documents
         this.lines = response.data.Lines
         this.line = this.lines.length
+
+        this.getSupplierAddress()
+        this.getSupplierContact()
       })
     }
   }

@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require __DIR__ . "/../../config.php";
 
-function getVenderContact($vendorAddressId)
+function getVenderContact($vendorContactId)
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
@@ -19,6 +19,29 @@ function getVenderContact($vendorAddressId)
 	$query = "SELECT *, vendor.Name AS VendorName, country.Name AS CountryName  FROM vendor ";
 	$query .= "LEFT JOIN vendor_address ON  vendor.Id = vendor_address.VendorId ";
 	$query .= "LEFT JOIN vendor_contact ON  vendor.Id = vendor_contact.VendorId ";
+	$query .= "LEFT JOIN country ON country.Id = vendor_address.CountryId ";
+	$query .= "WHERE  vendor_contact.Id = ".dbEscapeString($dbLink, $vendorContactId);
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$vendor = array();
+	while($r = mysqli_fetch_assoc($result)) 
+	{
+		$vendor = $r;
+	}
+
+	dbClose($dbLink);	
+	
+	return $vendor;
+}
+
+function getVenderAddress($vendorAddressId)
+{
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$query = "SELECT *, vendor.Name AS VendorName, country.Name AS CountryName  FROM vendor ";
+	$query .= "LEFT JOIN vendor_address ON  vendor.Id = vendor_address.VendorId ";
 	$query .= "LEFT JOIN country ON country.Id = vendor_address.CountryId ";
 	$query .= "WHERE  vendor_address.Id = ".dbEscapeString($dbLink, $vendorAddressId);
 	
