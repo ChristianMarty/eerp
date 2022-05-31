@@ -8,6 +8,14 @@ div.page{
 
 } 
 
+@media print 
+{
+	@page
+	   {
+		size: A4 portrait;
+	  }
+}
+
 @media not print 
 {
 	body {

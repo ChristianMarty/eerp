@@ -25,6 +25,8 @@ $domainRootPath = $_SERVER['SERVER_NAME'].pathinfo($_SERVER['PHP_SELF'], 1);
 $apiRootPath      = $domainRootPath.'/api.php';
 $documentRootPath = $domainRootPath.'/document.php';
 $dataRootPath     = $domainRootPath;
+$assetsRootPath   = $dataRootPath.'/assets';
+
 
 $companyName = "My Company Name"; // Should not be longer than 30 characters
 $accountingCurrencyId = 1;

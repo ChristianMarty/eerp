@@ -49,12 +49,13 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	}
 	img.header{
 		height:10mm;
-		float: left;
+		float: right;
 	}
 	h1.header{
-		float: right;
+		float: left;
 		font-size: large;
 	}
+
 	
 	table.header{
 		border: none;
@@ -102,6 +103,7 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	p.footer{
 		text-align: center;
 		margin: 5px;
+		font-size: small;
 	}
 	
 	table.lines {
@@ -111,8 +113,21 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	}
 	
 	td.lines, th.lines {
-	  border-bottom: 1px solid #dddddd;
+	  border-bottom: 1px solid #a0a0a0;
 	  text-align: left;
+	  padding: 8px;
+	  font-size: x-small;
+	}
+	
+	td.lines_total, th.lines_total {
+	  text-align: right;
+	  padding: 8px;
+	  font-size: x-small;
+	}
+	
+	td.lines_total_sum, th.lines_total_sum {
+	  border-top: 1px solid #a0a0a0;
+	  text-align: right;
 	  padding: 8px;
 	  font-size: x-small;
 	}
@@ -132,6 +147,7 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	  font-size: x-small;
 	  text-align: right
 	}
+
 </style>
 
 
@@ -177,7 +193,7 @@ $meta->footerLine1 = $footer['VendorName'];
 $meta->footerLine2 = $footer['Street'].", ".$footer['PostalCode']." ".$footer['City'].", ".$footer['CountryName'];
 $meta->footerLine3 = "";
 if(isset($footer['VatTaxNumber'])) $meta->footerLine3 =  "VAT-Nr.: ".$footer['VatTaxNumber'];
-if(isset($footer['CustomsAccountNumber'])) $meta->footerLine3 .= "ZAZ-Nr.: ".$footer['CustomsAccountNumber'];
+if(isset($footer['CustomsAccountNumber'])) $meta->footerLine3 .= ", ZAZ-Nr.: ".$footer['CustomsAccountNumber'];
 
 $meta->billingAddress = new stdClass;
 $meta->billingAddress->name = $billing['VendorName'];
@@ -221,7 +237,8 @@ foreach( $poData['Lines'] AS $srcLine)
 	$line->lineNo = $srcLine['LineNo'];
 	$line->quantity =$srcLine['QuantityOrderd'];
 	$line->symbol = $srcLine['UnitOfMeasurement'];
-	$line->price = $srcLine['Price'];
+	$line->price = $srcLine['LinePrice'];
+	$line->total = $srcLine['Total'];
 	$line->sku = $srcLine['SupplierSku'];
 	$line->date = $srcLine['ExpectedReceiptDate'];
 	$line->discount = $srcLine['Discount'];
@@ -298,16 +315,16 @@ function table_start()
 	global $hasVat;
 	
 	$temp = "<table class='lines'><tr class='lines'>";
-    $temp .= "<th class='lines'>Line</th>";
+    $temp .= "<th class='lines' style='text-align: right;'>Line</th>";
 	$temp .= "<th class='lines'>Part No</th>";
     $temp .= "<th class='lines'>Description</th>";
-    $temp .= "<th class='lines'>Qty</th>";
-	$temp .= "<th class='lines'>Unit</th>";
-	$temp .= "<th class='lines'>Date</th>";
-	$temp .= "<th class='lines'>Unit Price</th>";
-	if($hasDiscount) $temp .= "<th class='lines'>%</th>";
-	if($hasVat) $temp .= "<th class='lines'>VAT</th>";
-	$temp .= "<th class='lines'>Total</th>";
+    $temp .= "<th class='lines' style='text-align: right;'>Qty</th>";
+	$temp .= "<th class='lines' style='text-align: center;'>Unit</th>";
+	$temp .= "<th class='lines' style='text-align: center;'>Date</th>";
+	$temp .= "<th class='lines' style='text-align: right;' >Unit Price</th>";
+	if($hasDiscount) $temp .= "<th class='lines' style='text-align: right;' >%</th>";
+	if($hasVat) $temp .= "<th class='lines' style='text-align: right;' >VAT</th>";
+	$temp .= "<th class='lines' style='text-align: right;' >Total</th>";
 	$temp .= "</tr>";
 	
 	return $temp;
@@ -319,16 +336,16 @@ function table_addLine($line)
 	global $hasVat;
 	
 	$temp = "<tr class='lines'>";
-    $temp .= "<td class='lines'>{$line->lineNo}</td>";
+    $temp .= "<td class='lines'  style='text-align: right;'>{$line->lineNo}</td>";
 	$temp .= "<td class='lines'>{$line->sku}</td>";
     $temp .= "<td class='lines'>{$line->description}</td>";
-	$temp .= "<td class='lines'>{$line->quantity}</td>";
-	$temp .= "<td class='lines'>{$line->symbol}</td>";
-	$temp .= "<td class='lines'>{$line->date}</td>";
-	$temp .= "<td class='lines'>{$line->price}</td>";
-	if($hasDiscount) $temp .= "<td class='lines'>{$line->discount}</td>";
-	if($hasVat) $temp .= "<td class='lines'>{$line->vat}</td>";
-	$temp .= "<td class='lines'>".calc_line_total($line)."</td>";
+	$temp .= "<td class='lines'  style='text-align: right;'>{$line->quantity}</td>";
+	$temp .= "<td class='lines'  style='text-align: center;'>{$line->symbol}</td>";
+	$temp .= "<td class='lines'  style='text-align: center;'>{$line->date}</td>";
+	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->price)."</td>";
+	if($hasDiscount) $temp .= "<td class='lines'  style='text-align: right;'>{$line->discount}</td>";
+	if($hasVat) $temp .= "<td class='lines'  style='text-align: right;'>{$line->vat}</td>";
+	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->total)."</td>";
 	$temp .= "</tr>";
 	
 	return $temp;
@@ -344,20 +361,44 @@ function table_total($total)
 	global $hasDiscount;
 	global $hasVat;
 	
+	$colTotalOffset = 7;
+	if($hasDiscount) $colTotalOffset++;
+	if($hasVat) $colTotalOffset++;
+	
 	$temp  = "";
-	$temp .= "<table class='total'>";
-	$temp .= "<tr><td class='total'><b>Total Net:</b></td><td class='total'>{$total["Net"]}</td></tr>";
-	if($hasDiscount) $temp .= "<tr><td class='total'><b>Total Discount:</b></td><td class='total'>{$total["Discount"]}</td></tr>";
-	if($hasVat) $temp .= "<tr><td class='total'><b>Total VAT:</b></td><td class='total'>{$total["Vat"]}</td></tr>";
-	$temp .= '<tr>'."<td class='total'><b>Total:</b></td><td class='total'>{$total["Total"]}</td></tr>";
-	$temp .= "</table>";
+	$temp .= "<tr class='lines'>";
+	$temp .= "<td class='lines_total' colspan='{$colTotalOffset}'>";
+
+	if($hasDiscount OR $hasVat) $temp .= "<b>Total Net:</b></br>";
+	if($hasDiscount) $temp .= "<b>Total Discount:</b></br>";
+	if($hasVat) $temp .= "<b>Total VAT:</b></br>";
+	$temp .= "</td>";
+	
+	$temp .= "<td class='lines_total'>";
+	if($hasDiscount OR $hasVat) $temp .= total_formater($total["Net"]).'<span style="color: White;">00</span></br>';
+	if($hasDiscount) $temp .= total_formater($total["Discount"]).'<span style="color: White;">00</span></br>';
+	if($hasVat) $temp .= total_formater($total["Vat"]).'<span style="color: White;">00</span></br>';
+	$temp .= "</td></tr>";
+	
+	$temp .= "<tr class='lines_total'>";
+	$temp .= "<td class='lines_total' colspan='{$colTotalOffset}'>";
+	$temp .= "<b>Total [{$total["CurrencyCode"]}]:</b></td>";
+	if($hasDiscount OR $hasVat) $temp .= "<td class='lines_total_sum'>";
+	else $temp .= "<td class='lines_total'>";
+	$temp .= "<b>".total_formater($total["Total"]).'<span style="color: White;">00</span><b/></td>';
+	$temp .= "</tr>";
 	
 	return $temp;
 }
 
-function calc_line_total($line)
+function price_formater($price)
 {
-	return (($line->quantity*$line->price)*(100-$line->discount)/100 ) *(1+($line->vat/100));
+	return number_format($price,4,".","´");
+}
+
+function total_formater($price)
+{
+	return number_format($price,2,".","´");
 }
 
 $content1 = add_meta($meta);
@@ -366,23 +407,25 @@ foreach( $lines as $line)
 {
 	$content1 .= table_addLine($line);
 }
+
+//$content1 .= "<br/>";
+$content1 .= table_total($poData['Total']);
+
 $content1 .= table_end();
-$content1 .= "<br/>";
-$content1 .=table_total($poData['Total']);
 
 add_page($meta,$content1);
 
 
 //add_page($meta,$content1);
 
-
+require "purchaseOrder_attachment.php";
 
 function add_page($metaData, $content)
 {
-	global $dataRootPath;
+	global $assetsRootPath;
 	
 	echo "<div class='page'> <div class='content'>";
-	echo "<div class='header'> <img class='header' src='{$dataRootPath}/data/assets/logo.png' alt='logo'> <h1 class='header'>Purchase Order</h1></div>";
+	echo "<div class='header'>  <h1 class='header'>Purchase Order</h1> <img class='header' src='{$assetsRootPath}/logo.png' alt='logo'></div>";
 	
 	echo $content;
 	
