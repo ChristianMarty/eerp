@@ -29,10 +29,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = 	"SELECT partManufacturer.Name, ManufacturerPartNumber, STATUS, GROUP_CONCAT(PartNo) AS PartNoList ";
+	$query  = 	"SELECT vendor.Name, ManufacturerPartNumber, Status, GROUP_CONCAT(PartNo) AS PartNoList ";
 	$query .=	"FROM manufacturerPart ";
-	$query .=	"LEFT JOIN partManufacturer ON partManufacturer.Id = manufacturerPart.ManufacturerId ";
-	$query .=	"LEFT JOIN productionPart ON  productionPart.ManufacturerPartId = manufacturerPart.Id ";
+	$query .=	"LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId ";
+	$query .=	"LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
+	$query .=	"LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId ";
 	$query .=	"GROUP BY manufacturerPart.Id";
 	
 	$stockResult = dbRunQuery($dbLink,$query);
