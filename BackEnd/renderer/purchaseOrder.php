@@ -43,7 +43,7 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	h1.header{
 		font-size: large;
 	}
-	
+
 	div.header_left{
 		display: inline;
 		float: left;
@@ -62,14 +62,14 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	}
 	
 	h2.header_center{
-		font-size: large;
+		font-size: small;
 		text-align: center;
 		margin-bottom: 0;
-		margin-top: 0;
+	
 	}
 	p.header_center{
 		margin-top: 0;
-		margin-bottom: 0;
+	
 		font-size: small;
 		text-align: center;
 	}
@@ -195,7 +195,8 @@ if(isset($vendor['LastName']))
 
 $meta->date = $poData["MetaData"]["PurchaseDate"];
 $meta->paymentTerms= $poData["MetaData"]["PaymentTerms"];
-$meta->note = $poData["MetaData"]["Note"];
+$meta->note = $poData["MetaData"]["HeadNote"];
+$meta->footNote = $poData["MetaData"]["FootNote"];
 $meta->carrier = $poData["MetaData"]["Carrier"];
 $meta->incoterms = $poData["MetaData"]["InternationalCommercialTerms"];
 $meta->name = $buyerName;
@@ -431,7 +432,7 @@ function add_page($metaData, $content)
 	
 	echo "<div class='header'>";
 	echo "<div class='header_left'><h1 class='header'>Purchase Order</h1></div>";
-	echo "<div class='header_center'><h2 class='header_center'>PO-{$metaData->poNo}</h1>";
+	echo "<div class='header_center'><h2 class='header_center'>PO-{$metaData->poNo}</h2>";
 	echo "<p class='header_center'>Page {$metaData->page->current} of {$metaData->page->total}</p></div>";
 	echo "<div class='header_right'><img class='header' src='{$assetsRootPath}/logo.png' alt='logo'></div>";
 	echo "</div>";
@@ -449,6 +450,16 @@ function add_page($metaData, $content)
 	echo "</div> </div>";
 }
 
+
+function footnote($metaData)
+{
+	$temp .= "<div class='note'>";
+	if($metaData->footNote != null) $temp .= "<p class='address'>{$metaData->footNote}</p>";
+	$temp .= "</div>";
+	
+	return $temp;
+}
+
 $content1 = add_meta($meta);
 $content1 .= table_start();
 foreach( $lines as $line)
@@ -457,6 +468,8 @@ foreach( $lines as $line)
 }
 $content1 .= table_total($poData['Total']);
 $content1 .= table_end();
+
+$content1 .= footnote($meta);
 
 $meta->page->current = 1;
 $meta->page->total = 2;
