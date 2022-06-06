@@ -28,35 +28,52 @@ if(!isset($_GET["PurchaseOrderNo"]))
 ?>
 
 <style>
-	div.content{
-		position: relative;
-		top:10mm; 
-		left:15mm;
-		width:180mm;
-		height:257mm;
-		border: none;
-		background-color: White;
-	}
 	
 	div.header{
-		margin-left: auto;
-		margin-right: auto;
-		margin-bottom: 5mm;
 		width:100%;
 		height:12mm;
-
 		border-bottom: 0.5mm solid black;
 	}
+	
 	img.header{
 		height:10mm;
 		float: right;
 	}
+	
 	h1.header{
-		float: left;
 		font-size: large;
 	}
-
 	
+	div.header_left{
+		display: inline;
+		float: left;
+		width: 33.3%;
+	}
+	div.header_right{
+		display: inline;
+		float: right;
+		width: 33.3%;
+	}
+	
+	div.header_center{
+		display: inline;
+		width: 33.3%;
+		float: left;
+	}
+	
+	h2.header_center{
+		font-size: large;
+		text-align: center;
+		margin-bottom: 0;
+		margin-top: 0;
+	}
+	p.header_center{
+		margin-top: 0;
+		margin-bottom: 0;
+		font-size: small;
+		text-align: center;
+	}
+
 	table.header{
 		border: none;
 		padding: 1mm;
@@ -69,14 +86,15 @@ if(!isset($_GET["PurchaseOrderNo"]))
 		padding-right: 2mm;
 	}
 	
-	div.metaLeft{
-		float: left;
-		width:50%;
+	div.main{
+		margin-top: 5mm;
 	}
 	
-	div.metaRight{
-		float: right;
-		width:40%;
+	div.meta{
+		display: grid;
+		grid-template-columns: auto, auto;
+		grid-gap: 10px;
+		grid-auto-rows: auto,auto,auto;
 	}
 	
 	div.note{
@@ -93,10 +111,7 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	}
 	
 	div.footer{
-		position: absolute;
-		top:257mm; 
-		width:100%;
-		left:0mm;
+		height:12mm;
 		border-top: 0.5mm solid black; 
 	}
 	
@@ -158,7 +173,6 @@ require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
 require_once __DIR__ . "/../apiFunctions/vendor/_function.php";
 
-
 $poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
 
 $vendor = getVenderContact($poData["MetaData"]["VendorContactId"]);
@@ -172,7 +186,6 @@ $footer = getVenderAddress($addressId);
 $meta = new stdClass;
 
 $meta->poNo = $_GET["PurchaseOrderNo"];
-
 
 $buyerName = $buyer['LastName'];
 if(isset($vendor['LastName'])) 
@@ -226,6 +239,9 @@ $meta->vendor->postalCode = $vendor['PostalCode'];
 $meta->vendor->city = $vendor['City'];
 $meta->vendor->country = $vendor['CountryName'];
 
+$meta->page = new stdClass;
+$meta->page->current = 1;
+$meta->page->total = 1;
 
 $lines = array();
 $hasVat = false;
@@ -253,8 +269,9 @@ foreach( $poData['Lines'] AS $srcLine)
 
 function add_meta($meta)
 {
-	$temp = "<div class='metaLeft'>";
+	$temp = "<div class='meta'>";
 	
+	$temp .= "<div style='grid-column: 1; grid-row: 1;'>";
 	$temp .= "<table class='header'>";
 	$temp .= "<tr><td class='header'><b>PO Number:</b></td><td class='header'>{$meta->poNo}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Date:</b></td><td class='header'>{$meta->date}</td></tr>";
@@ -262,46 +279,50 @@ function add_meta($meta)
 	$temp .= "<tr><td class='header'><b>Incoterms:</b></td><td class='header'>{$meta->incoterms}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Carrier:</b></td><td class='header'>{$meta->carrier}</td></tr>";
 	$temp .= "</table>";
+	$temp .= "</div>";
 	
-	$temp .= "<br/>";
+	$temp .= "<div style='grid-column: 1; grid-row: 2;'>";
 	$temp .= "<p class='address'><b>Vendor:</b></p>";
 	$temp .= "<p class='address'>{$meta->vendor->company}</p>";
 	$temp .= "<p class='address'>{$meta->vendor->street}</p>";
 	$temp .= "<p class='address'>{$meta->vendor->postalCode} {$meta->vendor->city}</p>";
 	$temp .= "<p class='address'>{$meta->vendor->country}</p>";
+	$temp .= "</div>";
 	
+	$temp .= "<div style='grid-column: 1; grid-row: 3;'>";
 	$temp .= "<table class='header'>";
 	$temp .= "<tr><td class='header'><b>Contact:</b></td><td class='header'>{$meta->vendor->name}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Phone:</b></td><td class='header'>{$meta->vendor->phone}</td></tr>";
 	$temp .= "<tr><td class='header'><b>E-Mail:</b></td><td class='header'>{$meta->vendor->email}</td></tr>";
 	$temp .= "</table>";
-	
 	$temp .= "</div>";
 
-	$temp .= "<div class='metaRight'>";
-	
+	$temp .= "<div style='grid-column: 2; grid-row: 1;'>";
 	$temp .= "<p class='address'><b>Shipping Address:</b></p>";
 	$temp .= "<p class='address'>{$meta->shippingAddress->company}</p>";
 	$temp .= "<p class='address'>{$meta->shippingAddress->street}</p>";
 	$temp .= "<p class='address'>{$meta->shippingAddress->postalCode} {$meta->shippingAddress->city}</p>";
 	$temp .= "<p class='address'>{$meta->shippingAddress->country}</p>";
-	
-	$temp .= "<br/>";
-	
+	$temp .= "</div>";
+
+	$temp .= "<div style='grid-column: 2; grid-row: 2;'>";
 	$temp .= "<p class='address'><b>Billing Address:</b></p>";
 	$temp .= "<p class='address'>{$meta->billingAddress->company}</p>";
 	$temp .= "<p class='address'>{$meta->billingAddress->street}</p>";
 	$temp .= "<p class='address'>{$meta->billingAddress->postalCode} {$meta->billingAddress->city}</p>";
 	$temp .= "<p class='address'>{$meta->billingAddress->country}</p>";
+	$temp .= "</div>";
 	
+	$temp .= "<div style='grid-column: 2; grid-row: 3;'>";
 	$temp .= "<table class='header'>";
 	$temp .= "<tr><td class='header'><b>Contact:</b></td><td class='header'>{$meta->name}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Phone:</b></td><td class='header'>{$meta->phone}</td></tr>";
 	$temp .= "<tr><td class='header'><b>E-Mail:</b></td><td class='header'>{$meta->email}</td></tr>";
 	$temp .= "</table>";
-	
 	$temp .= "</div>";
 
+	$temp .= "</div>";
+	
 	$temp .= "<div class='note'>";
 	if($meta->note != null) $temp .= "<p class='address'><b>Note:</b> {$meta->note}</p>";
 	$temp .= "</div>";
@@ -401,33 +422,23 @@ function total_formater($price)
 	return number_format($price,2,".","´");
 }
 
-$content1 = add_meta($meta);
-$content1 .= table_start();
-foreach( $lines as $line)
-{
-	$content1 .= table_addLine($line);
-}
-
-//$content1 .= "<br/>";
-$content1 .= table_total($poData['Total']);
-
-$content1 .= table_end();
-
-add_page($meta,$content1);
-
-
-//add_page($meta,$content1);
-
-require "purchaseOrder_attachment.php";
-
 function add_page($metaData, $content)
 {
 	global $assetsRootPath;
 	
-	echo "<div class='page'> <div class='content'>";
-	echo "<div class='header'>  <h1 class='header'>Purchase Order</h1> <img class='header' src='{$assetsRootPath}/logo.png' alt='logo'></div>";
+	echo "<div class='page'>";
+	echo "<div class='content'>";
 	
+	echo "<div class='header'>";
+	echo "<div class='header_left'><h1 class='header'>Purchase Order</h1></div>";
+	echo "<div class='header_center'><h2 class='header_center'>PO-{$metaData->poNo}</h1>";
+	echo "<p class='header_center'>Page {$metaData->page->current} of {$metaData->page->total}</p></div>";
+	echo "<div class='header_right'><img class='header' src='{$assetsRootPath}/logo.png' alt='logo'></div>";
+	echo "</div>";
+	
+	echo "<div class='main'>";
 	echo $content;
+	echo "</div>";
 	
 	echo "<div class='footer'>";
 	echo "<p class='footer'><b>{$metaData->footerLine1}</b></p>";
@@ -437,5 +448,25 @@ function add_page($metaData, $content)
 		
 	echo "</div> </div>";
 }
+
+$content1 = add_meta($meta);
+$content1 .= table_start();
+foreach( $lines as $line)
+{
+	$content1 .= table_addLine($line);
+}
+$content1 .= table_total($poData['Total']);
+$content1 .= table_end();
+
+$meta->page->current = 1;
+$meta->page->total = 2;
+
+add_page($meta,$content1);
+
+$meta->page->current = 2;
+//add_page($meta,$content1);
+require "purchaseOrder_attachment.php";
+
+
 ?>
   

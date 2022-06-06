@@ -1,19 +1,34 @@
 
-div.page{
-	margin: auto;
-	width:210mm;
-	height:297mm;
-	border: none;
-	background-color: White;
-
-} 
-
 @media print 
 {
 	@page
-	   {
+	{
 		size: A4 portrait;
-	  }
+		margin: 0;
+	}
+	
+	html, body {
+		width: 210mm;
+		height: 297mm;        
+	}
+	
+	div.page{
+		margin: 0;
+		border: initial;
+		border-radius: initial;
+		width: initial;
+		min-height: initial;
+		box-shadow: initial;
+		background: initial;
+		page-break-after: always;
+	}
+}
+
+@media print and (color) {
+   * {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+   }
 }
 
 @media not print 
@@ -24,13 +39,22 @@ div.page{
 	
 	div.page{
 		margin: auto;
+		
 		width:210mm;
 		height:297mm;
 		border: none;
-		margin-top: 10mm;
-		background-color: White;
+		margin-bottom: 10mm;
 	} 
 }
 
+div.content{
+	padding: 15mm;
+	height:267mm;
+	border: none;
+	background-color: White;
+	
+	display: grid;
+	grid-template-rows: 12mm auto 12mm;
+}
 
 
