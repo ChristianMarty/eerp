@@ -127,24 +127,26 @@ if(!isset($_GET["PurchaseOrderNo"]))
 	  width: 100%;
 	}
 	
+
 	td.lines, th.lines {
 	  border-bottom: 1px solid #a0a0a0;
 	  text-align: left;
 	  padding: 8px;
-	  font-size: x-small;
+	  font-size: 6pt;
+	  
 	}
 	
 	td.lines_total, th.lines_total {
 	  text-align: right;
 	  padding: 8px;
-	  font-size: x-small;
+	  font-size: 6pt;
 	}
 	
 	td.lines_total_sum, th.lines_total_sum {
 	  border-top: 1px solid #a0a0a0;
 	  text-align: right;
 	  padding: 8px;
-	  font-size: x-small;
+	  font-size: 6pt;
 	}
 	
 	table.total {
@@ -247,6 +249,7 @@ $meta->page->total = 1;
 $lines = array();
 $hasVat = false;
 $hasDiscount = false;
+
 foreach( $poData['Lines'] AS $srcLine)
 {
 	$line = new stdClass;
@@ -260,7 +263,14 @@ foreach( $poData['Lines'] AS $srcLine)
 	$line->date = $srcLine['ExpectedReceiptDate'];
 	$line->discount = $srcLine['Discount'];
 	$line->vat = $srcLine['VatValue'];
-	$line->description = $srcLine['Description'];
+	if($srcLine['LineType'] == "Part" and $srcLine['PartNo'] !== null)
+	{
+		$line->description = $srcLine['PartNo']." - ".$srcLine['Description'];
+	}
+	else
+	{
+		$line->description = $srcLine['Description'];
+	}
 	
 	if(intval($srcLine['Discount']) != 0) $hasDiscount = true;
 	if(intval($srcLine['VatValue']) != 0) $hasVat = true;
@@ -337,16 +347,16 @@ function table_start()
 	global $hasVat;
 	
 	$temp = "<table class='lines'><tr class='lines'>";
-    $temp .= "<th class='lines' style='text-align: right;'>Line</th>";
-	$temp .= "<th class='lines'>Part No</th>";
-    $temp .= "<th class='lines'>Description</th>";
-    $temp .= "<th class='lines' style='text-align: right;'>Qty</th>";
-	$temp .= "<th class='lines' style='text-align: center;'>Unit</th>";
-	$temp .= "<th class='lines' style='text-align: center;'>Date</th>";
-	$temp .= "<th class='lines' style='text-align: right;' >Unit Price</th>";
-	if($hasDiscount) $temp .= "<th class='lines' style='text-align: right;' >%</th>";
-	if($hasVat) $temp .= "<th class='lines' style='text-align: right;' >VAT</th>";
-	$temp .= "<th class='lines' style='text-align: right;' >Total</th>";
+    $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Line</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap;'>Part No</th>";
+    $temp .= "<th class='lines' style='white-space: nowrap;'>Description</th>";
+    $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Qty</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Unit</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Date</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >Unit Price</th>";
+	if($hasDiscount) $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >%</th>";
+	if($hasVat) $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >VAT</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >Total</th>";
 	$temp .= "</tr>";
 	
 	return $temp;
@@ -359,7 +369,7 @@ function table_addLine($line)
 	
 	$temp = "<tr class='lines'>";
     $temp .= "<td class='lines'  style='text-align: right;'>{$line->lineNo}</td>";
-	$temp .= "<td class='lines'>{$line->sku}</td>";
+	$temp .= "<td class='lines' style='white-space: nowrap;'>{$line->sku}</td>";
     $temp .= "<td class='lines'>{$line->description}</td>";
 	$temp .= "<td class='lines'  style='text-align: right;'>{$line->quantity}</td>";
 	$temp .= "<td class='lines'  style='text-align: center;'>{$line->symbol}</td>";
