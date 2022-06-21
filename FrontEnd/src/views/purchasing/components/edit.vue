@@ -14,7 +14,8 @@
 
         <el-button v-if="meta.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
-
+        <el-button @click="setVatVisible = true">Set VAT</el-button>
+        <el-button @click="setExpectedDateVisible = true">Set Expected Date</el-button>
       </el-form-item>
     </el-form>
     <el-table-draggable
@@ -46,6 +47,8 @@
           </template>
         </el-table-column>
         <el-table-column prop="ExpectedReceiptDate" label="Expected" width="100" />
+        <el-table-column prop="Discount" label="Discount" width="100" />
+        <el-table-column prop="VatValue" label="VAT" width="100" />
         <el-table-column prop="LinePrice" label="Price" width="100" />
         <el-table-column prop="Total" label="Total" width="100" />
       </el-table>
@@ -101,6 +104,7 @@
               :max="999999"
               style="width: 70pt"
             />
+            <span :style="{margin: '10px'}"><el-button type="primary" @click="orderLineEditData.Price = orderLineEditData.Price/orderLineEditData.QuantityOrderd">Divide by Quantity</el-button></span>
           </el-form-item>
 
           <el-form-item label="VAT :">
@@ -231,6 +235,34 @@
 
     <orderImportDialog :visible.sync="importDialogVisible" :meat="meta" @closed="getOrderLines()" />
 
+    <el-dialog title="Set All Expected Dates" :visible.sync="setExpectedDateVisible">
+      <el-date-picker
+        v-model="allExpectedDate"
+        type="date"
+        placeholder="Pick a day"
+        value-format="yyyy-MM-dd"
+      />
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setExpectedDateVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="setExpectedDateVisible = false; setExpectedDate(allExpectedDate);">Confirm</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="Set All VAT" :visible.sync="setVatVisible">
+      <el-select
+        v-model="allVatId"
+        placeholder="VAT"
+        filterable
+        style="min-width: 200px; margin-right: 10px;"
+      >
+        <el-option v-for="item in vat" :key="item.Id" :label="item.Value +'% - '+item.Description" :value="item.Id" />
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setVatVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="setVatVisible = false; setVat(allVatId);">Confirm</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -261,11 +293,15 @@ export default {
       orderReqestDialogVisible: false,
       orderLineEditDialogVisible: false,
       importDialogVisible: false,
+      setExpectedDateVisible: false,
+      setVatVisible: false,
       orderLineEditData: {},
       partManufacturer: [],
       partOptions: [],
       vat: [],
-      uom: []
+      uom: [],
+      allExpectedDate: null,
+      allVatId: 0
     }
   },
   mounted() {
@@ -297,6 +333,16 @@ export default {
       } else {
         this.importDialogVisible = true
       }
+    },
+    setExpectedDate(date) {
+      this.lines.forEach(element => { element.ExpectedReceiptDate = date })
+
+      this.save(this.lines)
+    },
+    setVat(vatId) {
+      this.lines.forEach(element => { element.VatTaxId = vatId })
+
+      this.save(this.lines)
     },
     save(lines) {
       requestBN({
