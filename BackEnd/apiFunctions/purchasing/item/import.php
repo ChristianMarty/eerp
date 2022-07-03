@@ -45,21 +45,45 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data["SupplierId"]) || !isset($data["OrderNumber"])) sendResponse(null, "SupplierId or OrderNumber missing!");
+	if(!isset($_GET["PurchaseOrderNo"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "PurchaseOrder or OrderNumber missing!");
 	
-	$supplierId = intval($data["SupplierId"]);
-	$orderNumber = $data["OrderNumber"];
+
+	$purchaseOrderNo = strtolower($_GET["PurchaseOrderNo"]);
+	$purchaseOrderNo = str_replace("po-","",$purchaseOrderNo);
 	
-	if($supplierId == $mouserSupplierId)
+	$orderNumber = $_GET["OrderNumber"];
+	
+	$query = "SELECT Id, VendorId FROM purchasOrder WHERE PoNo = ".$purchaseOrderNo.";";
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$vendorId = 0;
+	$id = 0;
+	
+	while($r = mysqli_fetch_assoc($result)) 
+	{
+		$vendorId = $r['VendorId'];
+		$id = $r['Id'];
+	}
+	
+	if($vendorId == $mouserSupplierId)
 	{
 		$supplierData = mouser_getOrderInformation($orderNumber);
 	}
-	else if($supplierId == $digikeySupplierId)
+	else if($vendorId == $digikeySupplierId)
 	{
 		$supplierData = digikey_getOrderInformation($orderNumber);
 	}
 	
-	$poCreate = array();
+	$poData = array();
+	$poData['PurchaseDate'] = $supplierData['OrderDate'];
+	$poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$supplierData['CurrencyCode']."')";
+	
+	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$purchaseOrderNo);
+	
+	dbRunQuery($dbLink,$query);
+	
+	/*$poCreate = array();
 	$poCreate['VendorId'] = $supplierId;
 	$poCreate['OrderNumber'] = $orderNumber;
 	$poCreate['PurchaseDate'] = $supplierData['OrderDate'];
@@ -98,7 +122,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$error = "Error description: " . mysqli_error($dbLink);
 	}
 	
-	dbClose($dbLink);
+	dbClose($dbLink);*/
 	
 	
 	foreach($supplierData["Lines"] as $line) 
