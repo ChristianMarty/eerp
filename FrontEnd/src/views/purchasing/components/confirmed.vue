@@ -176,6 +176,27 @@ export default {
       })
     },
     receiveItem(received, addToStock = false) {
+      const now = new Date()
+      const receivedDate = new Date(this.dialogDateReceived)
+
+      if (receivedDate > now) {
+        this.$confirm('The selected date is in the future. Are you sure?', 'Warning', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+          this.saveReceiveItem(received, addToStock)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: 'Confirmation canceled'
+          })
+        })
+      } else {
+        this.saveReceiveItem(received, addToStock)
+      }
+    },
+    saveReceiveItem(received, addToStock = false) {
       const receivedOrderData = {
         ReceivedQuantity: this.dialogQuantityReceived,
         ReceivedDate: this.dialogDateReceived,
