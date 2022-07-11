@@ -39,7 +39,13 @@
               </router-link>
             </template>
           </el-table-column>
-          <el-table-column prop="SupplierName" label="Supplier Name" sortable />
+          <el-table-column label="Supplier Name" sortable>
+            <template slot-scope="{ row }">
+              <router-link :to="'/supplier/supplierView/' + row.SupplierId" class="link-type">
+                <span>{{ row.SupplierName }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
           <el-table-column prop="OrderNumber" label="Order Number" sortable width="160" />
           <el-table-column prop="PurchaseDate" label="Purchase Date" width="160" sortable />
 

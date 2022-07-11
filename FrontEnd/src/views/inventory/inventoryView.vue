@@ -25,14 +25,6 @@
           {{ inventoryData.MacAddressWired }}
         </p>
         <p>
-          <b>Supplier:</b>
-          {{ inventoryData.Supplier }}
-        </p>
-        <p>
-          <b>Purchase Date:</b>
-          {{ inventoryData.PurchaseDate }}
-        </p>
-        <p>
           <b>Status:</b>
           {{ inventoryData.Status }}
         </p>
@@ -54,10 +46,6 @@
           <b>Serial Number:</b>
           {{ inventoryData.SerialNumber }}
         </p>
-        <p>
-          <b>Purchase Price:</b>
-          {{ inventoryData.PurchasePrice }}
-        </p>
       </el-main>
     </el-container>
     <el-divider />
@@ -66,30 +54,32 @@
 
     <p>
       <b>PO No:</b>
-      <router-link :to="'/purchasing/edit/' + purchaseInformation.PoNo" class="link-type">
-        <span>{{ purchaseInformation.PoNo }}</span>
+      <router-link :to="'/purchasing/edit/' + inventoryData.PurchaseInformation.PoNo" class="link-type">
+        <span>{{ inventoryData.PurchaseInformation.PoNo }}</span>
       </router-link>
     </p>
     <p>
       <b>Price:</b>
-      {{ purchaseInformation.Price }} {{ purchaseInformation.Currency }}
+      {{ inventoryData.PurchaseInformation.Price }} {{ inventoryData.PurchaseInformation.Currency }}
     </p>
     <p>
       <b>Date:</b>
-      {{ purchaseInformation.PurchaseDate }}
+      {{ inventoryData.PurchaseInformation.PurchaseDate }}
     </p>
 
     <p>
       <b>Supplier:</b>
-      {{ purchaseInformation.SupplierName }}
+      <router-link :to="'/supplier/supplierView/' + inventoryData.PurchaseInformation.VendorId" class="link-type">
+        <span>{{ inventoryData.PurchaseInformation.SupplierName }}</span>
+      </router-link>
     </p>
     <p>
       <b>Part Number:</b>
-      {{ purchaseInformation.SupplierPartNumber }}
+      {{ inventoryData.PurchaseInformation.SupplierPartNumber }}
     </p>
     <p>
       <b>Order Reference:</b>
-      {{ purchaseInformation.OrderReference }}
+      {{ inventoryData.PurchaseInformation.OrderReference }}
     </p>
     <el-divider />
     <h2>Description</h2>
@@ -149,7 +139,6 @@ export default {
   },
   mounted() {
     this.getInventoryData()
-    this.getPurchaseInformation()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -177,15 +166,6 @@ export default {
         this.inventoryData = response.data
         this.setTagsViewTitle()
         this.setPageTitle()
-      })
-    },
-    getPurchaseInformation() {
-      requestBN({
-        url: '/inventory/purchaseInformation',
-        methood: 'get',
-        params: { InvNo: this.$route.params.invNo }
-      }).then(response => {
-        this.purchaseInformation = response.data
       })
     },
     addPrint() {

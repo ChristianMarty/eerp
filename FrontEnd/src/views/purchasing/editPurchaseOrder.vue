@@ -23,7 +23,10 @@
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
-    <el-button style="float: right" icon="el-icon-document" @click="openPoDoc()">Export Purchase Order</el-button>
+    <template>
+      <el-button style="float: right" icon="el-icon-document" @click="openPoDoc()">Export Purchase Order</el-button>
+    </template>
+
     <el-divider />
     <p>
       <b>

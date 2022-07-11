@@ -12,6 +12,7 @@ require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/location.php";
 require_once __DIR__ . "/../util/getDocuments.php";
+require_once __DIR__ . "/../util/getPurchaseInformation.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -68,6 +69,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$output = $r;
 	
+	// Get Purchase Information
+	$purchase = array();
+	
+	if($r['ReceivalId'] !== null)
+	{
+		$purchase = getPurchaseInformation($r['ReceivalId']);
+	}
+	else
+	{
+		$purchase["PoNo"] = null;
+		$purchase["Price"] = $r["PurchasePrice"];
+		$purchase["Currency"] = "CHF";
+		$purchase["PurchaseDate"] = $r["PurchaseDate"];
+		$purchase["SupplierPartNumber"] = null;
+		$purchase["SupplierName"] = $r["SupplierName"];
+		$purchase["OrderReference"] = null;
+		$purchase["VendorId"] = 0;
+	}
+	$output["PurchaseInformation"] = $purchase;
+	
 	// Get Documents
 	if(isset($r['DocumentIds'])) $DocIds = $r['DocumentIds'];
 	else $DocIds = null;
@@ -75,7 +96,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output["Documents"] = getDocuments($DocIds);
 	
 	// Get History
-	
 	$History = array();
 	
 	$baseQuery = "SELECT * FROM `inventory_history` WHERE InventoryId = ".$id." ORDER BY `Date` ASC";

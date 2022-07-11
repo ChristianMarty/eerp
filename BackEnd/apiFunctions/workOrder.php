@@ -16,13 +16,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	if(isset($_GET["Status"])) $status = dbEscapeString($dbLink, $_GET["Status"]);
+	$queryParam = array();
 	
+	if(isset($_GET["Status"]))
+	{
+		$status = dbEscapeString($dbLink, $_GET["Status"]);
+		array_push($queryParam, "Status = '".$status."'");
+	}
+	else if(isset($_GET["HideClosed"]))
+	{
+		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Status != 'Complete'");
+	}
 
-	$query = "SELECT workOrder.Id, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status  FROM workOrder ";
-	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";
-	if(isset($status)) $query .=  "WHERE Status = '".$status."'";
+	$baseQuery = "SELECT workOrder.Id, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status  FROM workOrder ";
+	$baseQuery .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";	
 
+	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	

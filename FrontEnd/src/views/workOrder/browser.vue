@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <template>
+      <el-checkbox v-model="hideClosed" @change="getWorkOrders()">Hide complete orders</el-checkbox>
       <el-table :data="workOrders" style="width: 100%">
         <el-table-column label="Work Order No" width="150" sortable>
           <template slot-scope="{ row }">
@@ -25,21 +26,23 @@
 import requestBN from '@/utils/requestBN'
 
 export default {
-  name: 'ProjectBrowser',
+  name: 'WorkOrderBrowser',
   components: {},
   data() {
     return {
+      hideClosed: true,
       workOrders: null
     }
   },
   mounted() {
-    this.getProjects()
+    this.getWorkOrders()
   },
   methods: {
-    getProjects() {
+    getWorkOrders() {
       requestBN({
         url: '/workOrder',
-        methood: 'get'
+        methood: 'get',
+        params: { HideClosed: this.hideClosed }
       }).then(response => {
         this.workOrders = response.data
       })

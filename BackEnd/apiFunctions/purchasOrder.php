@@ -28,6 +28,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($queryParam, "PoNo = ".$purchaseOrderNo);
 	}
 	
+	if(isset($_GET["VendorId"]))
+	{
+		$vendorId = dbEscapeString($dbLink, $_GET["VendorId"]);
+		array_push($queryParam, "VendorId = ".$vendorId);
+	}
+	
 	if(isset($_GET["HideClosed"]))
 	{
 		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Status != 'Closed'");

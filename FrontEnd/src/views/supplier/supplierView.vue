@@ -3,17 +3,43 @@
     <h1>
       {{ supplierData.Name }}
     </h1>
+    <el-divider />
+    <p><b>Customer Number:</b> {{ supplierData.CustomerNumber }}</p>
+    <p><b>Is Supplier:</b> {{ supplierData.IsSupplier }}</p>
+    <p><b>Is Manufacturer:</b> {{ supplierData.IsManufacturer }}</p>
 
+    <el-divider />
+
+    <h2>Purchas Orders</h2>
+    <p><b>Number of orders:</b> {{ purchasOrders.length }}</p>
+    <el-table
+      :data="purchasOrders"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column label="Po Number" sortable width="150">
+        <template slot-scope="{ row }">
+          <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
+            <span>PO-{{ row.PoNo }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="Title" label="Title" sortable />
+      <el-table-column prop="Description" label="Description" sortable />
+      <el-table-column prop="PurchaseDate" label="Purchase Date" sortable width="250" />
+      <el-table-column prop="OrderNumber" label="Order Number" sortable width="250" />
+      <el-table-column prop="Status" label="Status" sortable width="150" />
+
+    </el-table>
+    <el-divider />
+
+    <h2>Supplier Parts</h2>
+    <p><b>Number of supplier parts:</b> {{ supplierPartData.length }}</p>
     <el-table
       :data="supplierPartData"
       style="width: 100%; margin-top:10px"
     >
-
-      <el-table-column
-
-        label="Part Number"
-        sortable
-      >
+      <el-table-column label="Part Number" sortable>
         <template slot-scope="{ row }">
           <a :href="row.SupplierPartLink" target="blank">
             {{ row.SupplierPartNumber }}
@@ -21,7 +47,6 @@
         </template>
       </el-table-column>
     </el-table>
-  </div>
   </div>
 </template>
 
@@ -40,7 +65,8 @@ export default {
   data() {
     return {
       supplierData: null,
-      supplierPartData: null
+      supplierPartData: null,
+      purchasOrders: []
     }
   },
   mounted() {
@@ -60,10 +86,11 @@ export default {
         methood: 'get',
         params: { SupplierId: this.$route.params.supplierNo }
       }).then(response => {
-        this.supplierData = response.data[0]
+        this.supplierData = response.data
 
         this.setTagsViewTitle()
         this.setPageTitle()
+        this.getPurchasOrder()
       })
     },
     getSupplierPart() {
@@ -73,6 +100,15 @@ export default {
         params: { SupplierId: this.$route.params.supplierNo }
       }).then(response => {
         this.supplierPartData = response.data
+      })
+    },
+    getPurchasOrder() {
+      requestBN({
+        url: '/purchasOrder',
+        methood: 'get',
+        params: { VendorId: this.$route.params.supplierNo }
+      }).then(response => {
+        this.purchasOrders = response.data
       })
     },
     setTagsViewTitle() {

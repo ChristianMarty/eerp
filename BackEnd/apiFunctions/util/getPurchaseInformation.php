@@ -1,30 +1,18 @@
 <?php
 //*************************************************************************************************
-// FileName : purchaseInformation.php
-// FilePath : apiFunctions/inventory/
+// FileName : getPurchaseInformation.php
+// FilePath : apiFunctions/utils/
 // Author   : Christian Marty
-// Date		: 05.01.2022
+// Date		: 17.04.2022
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
+include_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../../config.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+function getPurchaseInformation($receivalId)
 {
-	if(isset($_GET["InvNo"]))
-	{
-		$invNo = $_GET["InvNo"];
-		$invNo = strtolower($invNo);
-		$invNo = str_replace("inv","",$invNo);
-		$invNo = str_replace("-","",$invNo);
-		$invNo = intval($invNo);
-	}
-	else
-	{
-		sendResponse($output,"No inventory item specified");
-	}
-		
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
@@ -33,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
 	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
 	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
-	$query .= "WHERE purchasOrder_itemReceive.Id = (SELECT inventory.ReceivalId FROM inventory WHERE InvNo = '".$invNo."') ";
+	$query .= "WHERE purchasOrder_itemReceive.Id = ".$receivalId;
 
 	$result = dbRunQuery($dbLink,$query);
 	$gctNr = null;
@@ -46,7 +34,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$output = $r;
 	}
 	
-	dbClose($dbLink);	
-	sendResponse($output);
+	
+	
+	dbClose($dbLink);
+
+	return $output;
 }
+
+
 ?>
