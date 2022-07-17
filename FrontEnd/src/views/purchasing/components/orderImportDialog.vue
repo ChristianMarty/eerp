@@ -6,13 +6,16 @@
       :before-close="closeDialog"
       width="70%"
     >
-      <el-form ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
-        <el-form-item label="Order Number:" >
+      <el-button v-if="ApiInfo.Authenticated == false" type="primary" @click="authenticate()">Authenticate</el-button>
+
+      <el-form v-if="ApiInfo.Authenticated == true" ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
+        <el-form-item label="Order Number:">
           <el-input v-model="OrderNumber" />
         </el-form-item>
         <el-form-item v-if="importData.length == 0">
           <el-button type="primary" @click="loadData()">Load</el-button>
         </el-form-item>
+
       </el-form>
 
       <template v-if="importData.length != 0">
@@ -68,13 +71,17 @@ export default {
   data() {
     return {
       importData: [],
-      OrderNumber:''
+      OrderNumber: '',
+      ApiInfo: {}
     }
   },
   mounted() {
-
+    this.getImportApiInfo()
   },
   methods: {
+    authenticate() {
+      window.open(this.ApiInfo.AuthenticationUrl, '_blank').focus()
+    },
     loadData() {
       requestBN({
         url: '/purchasing/item/import',
@@ -82,6 +89,24 @@ export default {
         params: { SupplierId: this.meat.SupplierId, OrderNumber: this.OrderNumber }
       }).then(response => {
         this.importData = response.data
+      })
+    },
+    getImportApiInfo() {
+      requestBN({
+        url: '/purchasing/item/importApiInfo',
+        methood: 'get',
+        params: { SupplierId: this.meat.SupplierId }
+      }).then(response => {
+        if (response.error == null) {
+          this.ApiInfo = response.data
+        } else {
+          this.$message({
+            showClose: true,
+            message: response.error,
+            duration: 0,
+            type: 'error'
+          })
+        }
       })
     },
     importOrder() {

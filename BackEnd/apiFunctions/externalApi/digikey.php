@@ -29,13 +29,20 @@ function digikey_auth()
 		$url .= '&client_id='.$digikeyClientId;
 		$url .= '&redirect_uri='.urlencode($digikeyCallbackPath);
 		
-		header('Location: '.$url );
+		return $url;
+		
+		/*header('Location: '.$url );
 		header('Access-Control-Allow-Origin: https://auth.digikey.com');
 		header('Access-Control-Allow-Origin: https://api.digikey.com');
-		exit;
+		exit;*/
 	}
 }
 
+function digikey_isAuthenticated()
+{
+	session_start();
+	return !($_SESSION['digikeyAccessToken'] == null || $digikeyAccessTokenExpire <= time());
+}
 
 function digikey_getProductData($digikeyPartNumber)
 {	
@@ -156,9 +163,5 @@ function digikey_getOrderInformation($salesOrderId)
 	
     return $data; 
 }
-
-
-	
-
 
 ?>
