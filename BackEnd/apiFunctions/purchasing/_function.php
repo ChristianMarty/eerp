@@ -25,7 +25,6 @@ function getPurchaseOrderData($purchaseOrderNo)
 	{
 		$vat[$r['Id']] = $r;
 	}
-	
 
 	$query = "SELECT Carrier, PaymentTerms, InternationalCommercialTerms, HeadNote, FootNote, VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, vendor.OrderImportSupported, purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
 	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
@@ -43,8 +42,6 @@ function getPurchaseOrderData($purchaseOrderNo)
 	$output = array();
 	$PoId = 0;
 	$status = null;
-	
-	
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
@@ -125,14 +122,34 @@ function getPurchaseOrderData($purchaseOrderNo)
 			
 			array_push($lines[$r['OrderLineId']]['Received'],$received);
 		}
-
 	}
 
 	$output['Lines'] = array_values($lines);
 	
 	
+	$additionalCharges = Array();
+	$query  = "SELECT purchasOrder_additionalCharges.Id AS AdditionalChargesLineId, purchasOrder_additionalCharges.LineNo, purchasOrder_additionalCharges.Type, purchasOrder_additionalCharges.Price, purchasOrder_additionalCharges.Quantity, purchasOrder_additionalCharges.Description, finance_tax.Value AS VatValue, finance_tax.Id AS VatTaxId ";
+	$query .= "FROM purchasOrder_additionalCharges ";
+	$query .= "LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_additionalCharges.VatTaxId ";
+	$query .= "WHERE PurchasOrderId = ".$PoId." ";
+	$query .= "ORDER BY LineNo";
+	
+	$result = dbRunQuery($dbLink,$query);
+	while($r = mysqli_fetch_assoc($result)) 
+	{
+		$r['AdditionalChargesLineId'] = intval( $r['AdditionalChargesLineId']);
+		$r['LineNo'] = intval( $r['LineNo']);
+		$r['Total'] = $r['Price'] * intval($r['Quantity']);
+		$r['VatTaxId'] = intval($r['VatTaxId']);
+		
+		$additionalCharges[] = $r;
+	}
+
+	$output['AdditionalCharges'] = $additionalCharges;
+	
 	$totalNet = 0;
 	$totalVat = 0; 
+	$totalAdditionalCharges = 0;
 	$totalDiscount = 0; 
 	$total = 0;
 	
@@ -142,18 +159,27 @@ function getPurchaseOrderData($purchaseOrderNo)
 		$discount = $net*($line['Discount']/100);
 		$vat = ($net-$discount)*($line['VatValue']/100);
 		
-		
 		$totalVat += $vat;
 		$totalNet += $net;
 		$totalDiscount += $discount;
-		
-		$total += ($net-$discount)+ $vat;
 	}
+	
+	foreach( $additionalCharges as $line)
+	{
+		$lineTotal = $line['Quantity']*$line['Price'];
+		$vat = $lineTotal*($line['VatValue']/100);
+		
+		$totalVat += $vat;
+		$totalAdditionalCharges += $lineTotal;
+	}
+	
+	$total = ($totalNet - $totalDiscount) + $totalVat + $totalAdditionalCharges;
 	
 	$digits = $output['MetaData']['CurrencyDigits'];
 	
 	$output['Total'] = array(	"Net"=> round($totalNet, $digits, PHP_ROUND_HALF_UP),
-								"Vat"=> round($totalVat, $digits, PHP_ROUND_HALF_UP), 
+								"Vat"=> round($totalVat, $digits, PHP_ROUND_HALF_UP),
+								"AdditionalCharges"=> round($totalAdditionalCharges, $digits, PHP_ROUND_HALF_UP),								
 								"Discount"=> round(-1*$totalDiscount, $digits, PHP_ROUND_HALF_UP), 
 								"Total"=> round($total, $digits, PHP_ROUND_HALF_UP),
 								"CurrencyCode"=> $output['MetaData']['CurrencyCode']

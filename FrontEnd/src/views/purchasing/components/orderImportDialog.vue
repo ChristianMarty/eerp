@@ -54,7 +54,6 @@
 
         <el-button type="primary" @click="importOrder()">Import Order</el-button>
       </template>
-      
     </el-dialog>
   </div>
 </template>
@@ -85,13 +84,11 @@ export default {
         this.importData = response.data
       })
     },
-    importOrder()
-    {
+    importOrder() {
       requestBN({
         method: 'post',
         url: '/purchasing/item/import',
         params: { PurchaseOrderNo: this.meat.PoNo, OrderNumber: this.OrderNumber }
- 
       }).then(response => {
         if (response.error == null) {
           this.closeDialog()

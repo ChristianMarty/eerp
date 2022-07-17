@@ -4,6 +4,7 @@
       <table style="border-collapse:collapse">
         <tr><td style="text-align: right"><b>Total Net [{{ total.CurrencyCode }}]:</b></td><td style="width:100px; padding-left: 10px">{{ total.Net }}</td></tr>
         <tr><td style="text-align: right"><b>Total Discount [{{ total.CurrencyCode }}]:</b></td><td style="width:100px; padding-left: 10px">{{ total.Discount }}</td></tr>
+        <tr><td style="text-align: right"><b>Additional Charges [{{ total.CurrencyCode }}]:</b></td><td style="width:100px; padding-left: 10px">{{ total.AdditionalCharges }}</td></tr>
         <tr><td style="text-align: right"><b>Total VAT [{{ total.CurrencyCode }}]:</b></td><td style="width:100px; padding-left: 10px">{{ total.Vat }}</td></tr>
         <tr style="border-top: 1px solid black"><td style="text-align: right"><b>Total [{{ total.CurrencyCode }}]:</b></td><td style="width:100px; padding-left: 10px">{{ total.Total }}</td></tr>
       </table>
@@ -13,11 +14,18 @@
 
 <script>
 
-import requestBN from '@/utils/requestBN'
+const emptyToatl = {
+  Net: 0,
+  Discount: 0,
+  AdditionalCharges: 0,
+  Vat: 0,
+  Total: 0,
+  CurrencyCode: ''
+}
 
 export default {
   name: 'OrderTotal',
-  props: { total: { type: Object, default: {}}},
+  props: { total: { type: Object, default() { return emptyToatl } }},
   data() {
     return {
     }
