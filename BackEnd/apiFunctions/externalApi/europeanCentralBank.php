@@ -12,7 +12,24 @@ require_once __DIR__ . "/../../config.php";
 
 function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode)
 {
-	$url = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/M.".$sourceCurrencyCode.".".$targetCurrencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
+	$euroRate = ecb_getEcdData($sourceCurrencyCode, "EUR");
+	
+	// The ECB API can only convert from/to Euro. Therefore this additional step is needed
+	if($targetCurrencyCode != "EUR")
+	{
+		$otherRate = ecb_getEcdData($targetCurrencyCode, "EUR");
+		$exchangeRate = (1/$euroRate) * $otherRate;
+		return $exchangeRate ;
+	}
+	else
+	{
+		return 1/$euroRate;
+	}
+}
+
+function ecb_getEcdData($sourceCurrencyCode, $targetCurrencyCode)
+{
+	$url = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/D.".$sourceCurrencyCode.".".$targetCurrencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
@@ -33,11 +50,5 @@ function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode)
 
     return $exchangeRate ;
 }
-
-
-
-
-	
-
 
 ?>
