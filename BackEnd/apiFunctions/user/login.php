@@ -71,16 +71,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$result = mysqli_query($dbLink,$query);
 		
 		$rows = array();
+		
+		$userid = 0;
 
 		while($r = mysqli_fetch_assoc($result)) 
 		{
 			$settings = json_decode($r['Settings']);
 			$userRolesTree = json_decode($r['Roles']);
+			$userid = $r['Id'];
 		}
 
 		dbClose($dbLink);
 		
-		
+		$_SESSION["userid"] = $userid;
 		$_SESSION["username"] = $username;
 		$_SESSION['loggedin'] = true;
 		$_SESSION['UserRoles'] = $userRolesTree;

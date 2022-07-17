@@ -61,13 +61,13 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$row['ItemOrderId'] = $lineId;
 	$row['QuantityReceived'] = $receivedQuantity;
 	$row['ReceivalDate'] = $receivedDate;
+	$row['UserId'] = $_SESSION["userid"];
 	
-	$query = dbBuildInsertQuery($dbLink, "purchasOrder_itemReceive",$row);
+	$query = dbBuildInsertQuery($dbLink, "purchasOrder_itemReceive", $row);
 	
 	$result = dbRunQuery($dbLink,$query);
 	
 	dbClose($dbLink);	
-	
 	
 	sendResponse(null,null);
 }
