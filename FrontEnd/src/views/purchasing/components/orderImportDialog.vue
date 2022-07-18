@@ -6,7 +6,9 @@
       :before-close="closeDialog"
       width="70%"
     >
+      <p v-if="ApiInfo.Authenticated == false">Click "Authenticate" and follow the instructions on the new page. Afterwards use the "Reload" button to reload the import dialogue.</p>
       <el-button v-if="ApiInfo.Authenticated == false" type="primary" @click="authenticate()">Authenticate</el-button>
+      <el-button v-if="ApiInfo.Authenticated == false" type="primary" @click="getImportApiInfo()">Reload</el-button>
 
       <el-form v-if="ApiInfo.Authenticated == true" ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
         <el-form-item label="Order Number:">
@@ -15,7 +17,6 @@
         <el-form-item v-if="importData.length == 0">
           <el-button type="primary" @click="loadData()">Load</el-button>
         </el-form-item>
-
       </el-form>
 
       <template v-if="importData.length != 0">

@@ -12,8 +12,6 @@ require_once __DIR__ . "/../../config.php";
 
 function digikey_auth()
 {
-	session_start();
-	
 	global $enableDigikey;
 	global $digikeyApiPath; 
 	global $digikeyClientId;
@@ -23,7 +21,11 @@ function digikey_auth()
 	if(isset($_SESSION['digikeyAccessTokenExpire'])) $digikeyAccessTokenExpire = $_SESSION['digikeyAccessTokenExpire'];
 	else $digikeyAccessTokenExpire = 0;
 	
-	if($_SESSION['digikeyAccessToken'] == null || $digikeyAccessTokenExpire <= time() )
+	if(isset($_SESSION['digikeyAccessToken'])) $digikeyAccessToken = $_SESSION['digikeyAccessToken'];
+	else $digikeyAccessToken = null;
+	
+	
+	if($digikeyAccessToken == null || $digikeyAccessTokenExpire <= time() )
 	{	
 		$url  = $digikeyApiPath.'v1/oauth2/authorize?response_type=code';
 		$url .= '&client_id='.$digikeyClientId;
@@ -36,12 +38,18 @@ function digikey_auth()
 		header('Access-Control-Allow-Origin: https://api.digikey.com');
 		exit;*/
 	}
+	
+	return null;
 }
 
 function digikey_isAuthenticated()
 {
-	session_start();
-	return !($_SESSION['digikeyAccessToken'] == null || $digikeyAccessTokenExpire <= time());
+	if(isset($_SESSION['digikeyAccessToken']) && isset($_SESSION['digikeyAccessTokenExpire']))
+	{
+		return!($_SESSION['digikeyAccessToken'] == null || $_SESSION['digikeyAccessTokenExpire'] <= time());
+	}
+	
+	return false;
 }
 
 function digikey_getProductData($digikeyPartNumber)
