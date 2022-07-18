@@ -313,7 +313,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges , PoNo: this.$props.orderData.PoNo }}
+        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges, PoNo: this.$props.orderData.PoNo }}
       }).then(response => {
         if (response.error == null) {
           this.poData = response.data

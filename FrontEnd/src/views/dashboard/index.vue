@@ -114,7 +114,7 @@ export default {
 
 .mid-box {
   float: left;
-  width: 700px;
+  width: 910px;
   margin: 10px;
 }
 </style>

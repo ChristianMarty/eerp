@@ -30,7 +30,10 @@
     <el-divider />
     <p>
       <b>
-        {{ orderData.SupplierName }} -
+
+        <router-link :to="'/supplier/supplierView/' + orderData.SupplierId" class="link-type">
+          <span>{{ orderData.SupplierName }}</span>
+        </router-link> -
         {{ orderData.PurchaseDate }}
       </b>
     </p>
