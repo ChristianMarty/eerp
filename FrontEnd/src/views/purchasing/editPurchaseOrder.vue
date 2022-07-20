@@ -23,6 +23,10 @@
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
+    <template v-if="orderData.Status == 'Closed'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="confirm">Rropen Order</el-button>
+    </template>
+
     <template>
       <el-button style="float: right" icon="el-icon-document" @click="openPoDoc()">Export Purchase Order</el-button>
     </template>
