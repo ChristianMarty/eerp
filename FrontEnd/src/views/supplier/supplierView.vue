@@ -16,7 +16,7 @@
       :data="purchasOrders"
       style="width: 100%; margin-top:10px"
     >
-      <el-table-column label="Po Number" sortable width="150">
+      <el-table-column prop="PoNo" label="Po Number" sortable width="150">
         <template slot-scope="{ row }">
           <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
             <span>PO-{{ row.PoNo }}</span>

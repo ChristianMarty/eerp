@@ -50,7 +50,6 @@
             size="mini"
             @click="openAddStockDialog(row)"
           >Add Stock</el-button>
-
           <el-button
             v-if="
               row.ReceivalId != NULL
@@ -170,6 +169,8 @@ export default {
             line.Received.forEach(subLine => {
               i++
               subLine.lineKey = line.lineKey + '.' + i
+              subLine.StockPart = line.StockPart
+              subLine.LineType = line.LineType
             })
           }
         }
