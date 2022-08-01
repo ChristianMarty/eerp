@@ -61,13 +61,56 @@ function getPurchaseOrderData($purchaseOrderNo)
 	}
 	
 	$output['Lines'] = Array();
-	$query = "SELECT *, purchasOrder_itemOrder.Description, purchasOrder_itemOrder.Type AS LineType, finance_tax.Value AS VatValue, unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
+	
+	$query = <<<STR
+	SELECT 
+	purchasOrder_itemOrder.LineNo,
+	purchasOrder_itemOrder.Price,
+	purchasOrder_itemOrder.Sku,
+	purchasOrder_itemOrder.Type AS LineType,
+	purchasOrder_itemOrder.Quantity,
+	purchasOrder_itemOrder.Id AS OrderLineId, 
+	unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, 
+	unitOfMeasurement.Id AS UnitOfMeasurementId,
+	purchasOrder_itemOrder.PurchasOrderId,
+	purchasOrder_itemOrder.PartNo,
+	purchasOrder_itemOrder.ManufacturerName,
+	purchasOrder_itemOrder.ManufacturerPartNumber,
+	purchasOrder_itemOrder.SupplierPartId,
+	purchasOrder_itemOrder.Description,
+	purchasOrder_itemOrder.OrderReference,
+	purchasOrder_itemOrder.Note,
+	purchasOrder_itemOrder.ExpectedReceiptDate,
+	purchasOrder_itemOrder.VatTaxId,
+	finance_tax.Value AS VatValue, 
+	purchasOrder_itemOrder.Discount,
+	purchasOrder_itemOrder.StockPart,
+
+	purchasOrder_itemOrder.ManufacturerPartNumber AS  ManufacturerPartNumber,  
+	manufacturerPart.Id AS  ManufacturerPartId, 
+	purchasOrder_itemReceive.Id AS ReceiveId,
+	purchasOrder_itemReceive.QuantityReceived,
+	purchasOrder_itemReceive.ReceivalDate
+
+	FROM purchasOrder_itemOrder 
+	LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id 
+	LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchasOrder_itemOrder.UnitOfMeasurementId 
+	LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_itemOrder.VatTaxId 
+	LEFT JOIN supplierPart ON purchasOrder_itemOrder.SupplierPartId = supplierPart.Id
+	LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId
+	WHERE PurchasOrderId = $PoId 
+	ORDER BY LineNo
+	STR;
+	
+	
+	
+	/*$query = "SELECT *, purchasOrder_itemOrder.Description, purchasOrder_itemOrder.Type AS LineType, finance_tax.Value AS VatValue, unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
 	$query .= "FROM purchasOrder_itemOrder ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
 	$query .= "LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchasOrder_itemOrder.UnitOfMeasurementId ";
 	$query .= "LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_itemOrder.VatTaxId ";
 	$query .= "WHERE PurchasOrderId = ".$PoId." ";
-	$query .= "ORDER BY LineNo";
+	$query .= "ORDER BY LineNo";*/
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -92,6 +135,9 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$lines[$r['OrderLineId']]['PartNo'] = $r['PartNo'];
 			$lines[$r['OrderLineId']]['ManufacturerName'] = $r['ManufacturerName'];
 			$lines[$r['OrderLineId']]['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
+			$lines[$r['OrderLineId']]['ManufacturerPartId'] = $r['ManufacturerPartId'];
+			if($r['SupplierPartId'] != null)$lines[$r['OrderLineId']]['SupplierPartId'] = intval($r['SupplierPartId']);
+			else $lines[$r['OrderLineId']]['SupplierPartId'] = null;
 			$lines[$r['OrderLineId']]['Description'] = $r['Description'];
 			$lines[$r['OrderLineId']]['OrderReference'] = $r['OrderReference'];
 			$lines[$r['OrderLineId']]['Note'] = $r['Note'];

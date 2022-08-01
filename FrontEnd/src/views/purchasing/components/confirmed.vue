@@ -21,8 +21,22 @@
 
           <template v-if="row.LineType == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
-            {{ row.ManufacturerPartNumber }} - {{ row.Description }}
+            <template>
+            <template v-if="row.ManufacturerPartId !== null">
+              <router-link
+                :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+                class="link-type"
+              >
+                <span>{{ row.ManufacturerPartNumber }}</span>
+              </router-link>
+            </template>
+             <template v-else>
+              {{ row.ManufacturerPartNumber }}
+            </template>
+            </template>
+          - {{ row.Description }}
           </template>
+         
         </template>
       </el-table-column>
 

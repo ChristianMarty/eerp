@@ -1,5 +1,6 @@
 <template>
   <div class="placerd-container">
+    <h2>Items:</h2>
     <el-table
       ref="itemTable"
       :data="lines"
@@ -48,6 +49,28 @@
       </el-table-column>
     </el-table>
 
+    <h2>Additional Charges:</h2>
+
+    <el-table
+      ref="additionalChargesTable"
+      row-key="AdditionalChargesLineNo"
+      :data="additionalCharges"
+      border
+      :cell-style="{ padding: '0', height: '20px' }"
+      style="width: 100%"
+      @row-click="(row, column, event) =>openAdditionalChargesLine(row)"
+    >
+      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="Type" label="Type" width="100" />
+      <el-table-column prop="Quantity" label="Quantity" width="80" />
+      <el-table-column prop="Description" label="Description" />
+      <el-table-column prop="VatValue" label="VAT" width="100" />
+      <el-table-column prop="Price" label="Price" width="100" />
+      <el-table-column prop="Total" label="Total" width="100" />
+    </el-table>
+
+    <el-divider />
+
     <orderTotal :total="total" />
 
     <trackDialog :visible.sync="showDialog" :receival-id="trackDialogReceivalId" />
@@ -66,6 +89,7 @@ export default {
   data() {
     return {
       lines: [],
+      additionalCharges:[],
       total: {},
       showDialog: false,
       trackDialogReceivalId: 0
@@ -86,6 +110,7 @@ export default {
       }).then(response => {
         this.lines = response.data.Lines
         this.total = response.data.Total
+        this.additionalCharges = response.data.AdditionalCharges
         this.prepairLines(this.lines)
       })
     },

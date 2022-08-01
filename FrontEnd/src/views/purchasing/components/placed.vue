@@ -6,26 +6,42 @@
       @click="match()"
     >Match parts against Database</el-button>
     <p />
+    <h2>Items:</h2>
     <el-table
       ref="itemTable"
       :key="tableKey"
-      :data="lines"
+      :data="poData.Lines"
       border
       :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="QuantityOrderd" label="Quantity" width="120" />
-      <el-table-column prop="SupplierSku" label="SKU" width="220" />
-
+      <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
+      <el-table-column prop="SupplierSku" label="Supplier Part Number" width="220" />
+      <el-table-column prop="LineType" label="Type" width="80" />
+      
       <el-table-column label="Item">
         <template slot-scope="{ row }">
           <template v-if="row.LineType == 'Generic'">{{ row.Description }}</template>
 
           <template v-if="row.LineType == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
-            {{ row.ManufacturerPartNumber }} - {{ row.Description }}
+            <template>
+            <template v-if="row.ManufacturerPartId !== null">
+              <router-link
+                :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+                class="link-type"
+              >
+                <span>{{ row.ManufacturerPartNumber }}</span>
+              </router-link>
+            </template>
+             <template v-else>
+              {{ row.ManufacturerPartNumber }}
+            </template>
+            </template>
+          - {{ row.Description }}
           </template>
+         
         </template>
       </el-table-column>
       <el-table-column label="Date" prop="ExpectedReceiptDate" width="100" />
@@ -33,7 +49,29 @@
       <el-table-column prop="Total" label="Total" width="100" />
     </el-table>
 
-    <orderTotal :total="total" />
+    <h2>Additional Charges:</h2>
+
+    <el-table
+      ref="additionalChargesTable"
+      row-key="AdditionalChargesLineNo"
+      :data="poData.AdditionalCharges"
+      border
+      :cell-style="{ padding: '0', height: '20px' }"
+      style="width: 100%"
+      @row-click="(row, column, event) =>openAdditionalChargesLine(row)"
+    >
+      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="Type" label="Type" width="100" />
+      <el-table-column prop="Quantity" label="Quantity" width="80" />
+      <el-table-column prop="Description" label="Description" />
+      <el-table-column prop="VatValue" label="VAT" width="100" />
+      <el-table-column prop="Price" label="Price" width="100" />
+      <el-table-column prop="Total" label="Total" width="100" />
+    </el-table>
+
+    <el-divider />
+
+    <orderTotal :total="poData.Total" />
 
     <el-dialog title="Match Parts" :visible.sync="matchDialogVisible" width="80%">
       <p>Generic items are excluded.</p>
@@ -86,8 +124,7 @@ export default {
     return {
       orderData: this.$props.orderData,
       SupplierOrderNumber: '',
-      lines: [],
-      total: {},
+      poData: {},
       matchData: null,
       matchDialogVisible: false
     }
@@ -104,6 +141,7 @@ export default {
           PurchaseOrderNo: this.$props.orderData.PoNo
         }
       }).then(response => {
+        this.poData = response.data
         this.lines = response.data.Lines
         this.total = response.data.Total
       })
