@@ -236,7 +236,6 @@ export default {
       }
     },
     saveReceiveItem(received, addToStock = false) {
-
       const receivedOrderData = {
         ReceivedQuantity: this.dialogQuantityReceived,
         ReceivedDate: this.dialogDateReceived,
