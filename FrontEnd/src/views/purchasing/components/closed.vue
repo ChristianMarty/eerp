@@ -89,7 +89,7 @@ export default {
   data() {
     return {
       lines: [],
-      additionalCharges:[],
+      additionalCharges: [],
       total: {},
       showDialog: false,
       trackDialogReceivalId: 0

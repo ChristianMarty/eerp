@@ -19,7 +19,7 @@
       <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
       <el-table-column prop="SupplierSku" label="Supplier Part Number" width="220" />
       <el-table-column prop="LineType" label="Type" width="80" />
-      
+
       <el-table-column label="Item">
         <template slot-scope="{ row }">
           <template v-if="row.LineType == 'Generic'">{{ row.Description }}</template>
@@ -27,21 +27,21 @@
           <template v-if="row.LineType == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
             <template>
-            <template v-if="row.ManufacturerPartId !== null">
-              <router-link
-                :to="'/mfrParts/partView/' + row.ManufacturerPartId"
-                class="link-type"
-              >
-                <span>{{ row.ManufacturerPartNumber }}</span>
-              </router-link>
+              <template v-if="row.ManufacturerPartId !== null">
+                <router-link
+                  :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+                  class="link-type"
+                >
+                  <span>{{ row.ManufacturerPartNumber }}</span>
+                </router-link>
+              </template>
+              <template v-else>
+                {{ row.ManufacturerPartNumber }}
+              </template>
             </template>
-             <template v-else>
-              {{ row.ManufacturerPartNumber }}
-            </template>
-            </template>
-          - {{ row.Description }}
+            - {{ row.Description }}
           </template>
-         
+
         </template>
       </el-table-column>
       <el-table-column label="Date" prop="ExpectedReceiptDate" width="100" />

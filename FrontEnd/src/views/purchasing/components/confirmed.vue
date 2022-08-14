@@ -1,5 +1,10 @@
 <template>
   <div class="placerd-container">
+    <el-input ref="searchInput" v-model="searchInput" placeholder="SKU Search" @keyup.enter.native="skuSearch()">
+      <el-button slot="append" icon="el-icon-search" @click="skuSearch()" />
+    </el-input>
+    <p />
+
     <el-table
       ref="itemTable"
       :data="lines"
@@ -22,21 +27,21 @@
           <template v-if="row.LineType == 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
             <template>
-            <template v-if="row.ManufacturerPartId !== null">
-              <router-link
-                :to="'/mfrParts/partView/' + row.ManufacturerPartId"
-                class="link-type"
-              >
-                <span>{{ row.ManufacturerPartNumber }}</span>
-              </router-link>
+              <template v-if="row.ManufacturerPartId !== null">
+                <router-link
+                  :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+                  class="link-type"
+                >
+                  <span>{{ row.ManufacturerPartNumber }}</span>
+                </router-link>
+              </template>
+              <template v-else>
+                {{ row.ManufacturerPartNumber }}
+              </template>
             </template>
-             <template v-else>
-              {{ row.ManufacturerPartNumber }}
-            </template>
-            </template>
-          - {{ row.Description }}
+            - {{ row.Description }}
           </template>
-         
+
         </template>
       </el-table-column>
 
@@ -62,7 +67,7 @@
             style="float: right;"
             type="text"
             size="mini"
-            @click="openAddStockDialog(row)"
+            @click="openAddStockDialog(row.ReceivalId)"
           >Add Stock</el-button>
           <el-button
             v-if="
@@ -76,7 +81,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog title="Confirm Item Received" :visible.sync="showDialog" width="50%" center>
+    <el-dialog title="Confirm Item Received" :visible.sync="showConfirmDialog" width="50%" center>
 
       <el-form size="mini" label-width="220px">
         <el-form-item label="Sku:">{{ receiveDialog.SupplierSku }}</el-form-item>
@@ -103,13 +108,13 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="receiveItem(receiveDialog, false)">Confirm</el-button>
-        <el-button @click="showDialog = false">Cancel</el-button>
-
+        <el-button v-if="receiveDialog.StockPart == true" type="primary" @click="confirmItem(receiveDialog, true)">Confirm and add to stock</el-button>
+        <el-button type="primary" @click="confirmItem(receiveDialog, false)">Confirm</el-button>
+        <el-button @click="showConfirmDialog = false">Cancel</el-button>
       </span>
     </el-dialog>
 
-    <addToStock :visible.sync="addToStockDialogVisible" :receival-id="rowReceivalId" />
+    <addToStock :visible.sync="addToStockDialogVisible" :receival-data="rowReceivalData" />
     <trackDialog :visible.sync="trackDialogVisible" :receival-id="rowReceivalId" />
   </div>
 </template>
@@ -127,22 +132,55 @@ export default {
   data() {
     return {
       lines: null,
-
-      showDialog: false,
+      showConfirmDialog: false,
       receiveDialog: false,
       dialogQuantityReceived: null,
       dialogDateReceived: null,
       addToStockDialogVisible: false,
       trackDialogVisible: false,
-      rowReceivalId: 0
+      rowReceivalId: 0,
+      searchInput: '',
+      rowReceivalData: {}
+
     }
   },
   created() {
     this.getOrderLines()
     this.dialogDateReceived = new Date().toISOString().substring(0, 10)
   },
-  mounted() { },
+  mounted() {
+    this.$refs.searchInput.focus()
+  },
   methods: {
+    openConfirmDialog(dialogData) {
+      this.showConfirmDialog = true
+      this.receiveDialog = dialogData
+      this.dialogQuantityReceived = (this.receiveDialog.QuantityOrderd - this.receiveDialog.QuantityReceived)
+      this.receiveDialog.ReceivedDate = new Date()
+    },
+    openAddStockDialog(receivalId) {
+      requestBN({
+        url: 'purchasing/item/received',
+        methood: 'get',
+        params: {
+          ReceivalId: receivalId
+        }
+      }).then(response => {
+        if (response.data.SupplierPartId === 0) {
+          this.$message({
+            type: 'error',
+            message: 'The item is not matched with the database!'
+          })
+        } else {
+          this.rowReceivalData = response.data
+          this.addToStockDialogVisible = true
+        }
+      })
+    },
+    openTrackDialog(dialogData) {
+      this.rowReceivalId = dialogData.ReceivalId
+      this.trackDialogVisible = true
+    },
     getOrderLines() {
       requestBN({
         url: '/purchasing/item',
@@ -154,20 +192,6 @@ export default {
         this.lines = response.data.Lines
         this.prepairLines(this.lines)
       })
-    },
-    openConfirmDialog(dialogData) {
-      this.showDialog = true
-      this.receiveDialog = dialogData
-      this.dialogQuantityReceived = (this.receiveDialog.QuantityOrderd - this.receiveDialog.QuantityReceived)
-      this.receiveDialog.ReceivedDate = new Date()
-    },
-    openAddStockDialog(dialogData) {
-      this.rowReceivalId = dialogData.ReceivalId
-      this.addToStockDialogVisible = true
-    },
-    openTrackDialog(dialogData) {
-      this.rowReceivalId = dialogData.ReceivalId
-      this.trackDialogVisible = true
     },
     prepairLines(data) {
       data.forEach(line => {
@@ -190,7 +214,7 @@ export default {
         }
       })
     },
-    receiveItem(received, addToStock = false) {
+    confirmItem(received, addToStock = false) {
       const now = new Date()
       const receivedDate = new Date(this.dialogDateReceived)
 
@@ -212,6 +236,7 @@ export default {
       }
     },
     saveReceiveItem(received, addToStock = false) {
+
       const receivedOrderData = {
         ReceivedQuantity: this.dialogQuantityReceived,
         ReceivedDate: this.dialogDateReceived,
@@ -225,7 +250,7 @@ export default {
         url: '/purchasing/item/received',
         data: { data: receivedOrderData }
       }).then(response => {
-        this.showDialog = false
+        this.showConfirmDialog = false
         this.getOrderLines()
 
         if (response.error == null) {
@@ -237,7 +262,7 @@ export default {
               type: 'success'
             })
           } else {
-            this.addToStockDialogVisible = true
+            this.openAddStockDialog(response.data.ReceivalId)
           }
         } else {
           this.$message({
@@ -248,6 +273,28 @@ export default {
           })
         }
       })
+    },
+    skuSearch() {
+      const line = this.lines.find(element => element.SupplierSku.trim() == this.searchInput.trim())
+
+      if (line === undefined) {
+        this.$message({
+          type: 'warning',
+          message: 'SKU not found'
+        })
+      } else {
+        if (parseInt(line.QuantityOrderd, 10) > parseInt(line.QuantityReceived, 10)) {
+          this.openConfirmDialog(line)
+        } else {
+          this.$message({
+            type: 'warning',
+            message: 'SKU already confirmed'
+          })
+        }
+      }
+
+      this.searchInput = ''
+      this.$refs.searchInput.focus()
     }
   }
 }

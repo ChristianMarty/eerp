@@ -19,12 +19,12 @@
 
     <template v-if="orderData.Status == 'Confirmed'" v-permission="['purchasing.edit']">
       <el-button type="info" @click="edit">Edit Order</el-button>
-      <el-button type="info" @click="confirm">Confirm Order</el-button>
+      <el-button type="info" @click="place">Place Order</el-button>
       <el-button type="info" @click="close">Close Order</el-button>
     </template>
 
     <template v-if="orderData.Status == 'Closed'" v-permission="['purchasing.edit']">
-      <el-button type="info" @click="confirm">Rropen Order</el-button>
+      <el-button type="info" @click="confirm">Reopen Order</el-button>
     </template>
 
     <template>

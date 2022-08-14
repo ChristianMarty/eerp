@@ -104,35 +104,33 @@
 <script>
 
 const receivedItemData = {
+  ReceivalId: 0,
   ManufacturerName: '',
   ManufacturerPartNumber: '',
   SupplierName: '',
   SupplierPartNumber: '',
   QuantityReceived: 0,
-  OrderReference: ''
+  OrderReference: '',
+  SupplierPartId: 0
 }
 
 import requestBN from '@/utils/requestBN'
 
 export default {
   name: 'AddToStock',
-  props: { receivalId: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
+  props: { receivalData: { type: Object, default: receivedItemData }, visible: { type: Boolean, default: false }},
   data() {
     return {
-      receivalData: Object.assign({}, receivedItemData),
       locations: null,
       locationNo: null,
       dateCode: '',
-      quantity: 0,
       trackData: null
-
     }
   },
   mounted() {
   },
   methods: {
     loadData() {
-      this.getReceived()
       this.getTrackData()
       this.getLocations()
     },
@@ -149,29 +147,17 @@ export default {
         url: '/purchasing/item/track',
         methood: 'get',
         params: {
-          ReceivalId: this.$props.receivalId
+          ReceivalId: this.$props.receivalData.ReceivalId
         }
       }).then(response => {
         this.trackData = response.data
       })
     },
-    getReceived() {
-      requestBN({
-        url: 'purchasing/item/received',
-        methood: 'get',
-        params: {
-          ReceivalId: this.$props.receivalId
-        }
-      }).then(response => {
-        this.receivalData = response.data
-        this.quantity = this.receivalData.QuantityReceived
-      })
-    },
     saveToStock() {
       const saveData = {
-        ReceivalId: this.$props.receivalId,
+        ReceivalId: this.$props.receivalData.ReceivalId,
         Date: this.dateCode,
-        Quantity: this.quantity,
+        Quantity: this.receivalData.QuantityReceived,
         Location: this.locationNo,
         OrderReference: this.receivalData.OrderReference
       }
