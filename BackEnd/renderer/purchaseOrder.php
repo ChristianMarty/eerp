@@ -247,6 +247,7 @@ $meta->page->current = 1;
 $meta->page->total = 1;
 
 $lines = array();
+$additionalCharges = array();
 $hasVat = false;
 $hasDiscount = false;
 
@@ -276,6 +277,25 @@ foreach( $poData['Lines'] AS $srcLine)
 	if(intval($srcLine['VatValue']) != 0) $hasVat = true;
 	
 	array_push($lines, $line);
+}
+
+$alphabet = range('A', 'Z');
+
+foreach( $poData['AdditionalCharges'] AS $srcLine)
+{
+	$line = new stdClass;
+	
+	$line->lineNo = $alphabet[intval($srcLine['LineNo'])-1];
+	$line->type = $srcLine['Type'];
+	$line->price = $srcLine['Price'];
+	$line->quantity =$srcLine['Quantity'];
+	$line->Description =$srcLine['Description'];
+	$line->total = $srcLine['Total'];
+	$line->vat = $srcLine['VatValue'];
+	
+	if(intval($srcLine['VatValue']) != 0) $hasVat = true;
+	
+	array_push($additionalCharges, $line);
 }
 
 function add_meta($meta)
@@ -347,6 +367,13 @@ function table_start()
 	global $hasVat;
 	
 	$temp = "<table class='lines'><tr class='lines'>";
+	
+	$temp .= "<tr class='lines' >";
+	$temp .= "<td class='lines' colspan='100%' style='border: none;'>";
+	$temp .= "<b>Items:</b></br>";
+	$temp .= "</td>";
+	$temp .= "</tr>";
+	
     $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Line</th>";
 	$temp .= "<th class='lines' style='white-space: nowrap;'>Part No</th>";
     $temp .= "<th class='lines' style='white-space: nowrap;'>Description</th>";
@@ -383,6 +410,18 @@ function table_addLine($line)
 	return $temp;
 }
 
+function table_addContinuationLine($nextPage)
+{
+	$temp .= "<tr class='lines' >";
+	$temp .= "<td class='lines' colspan='100%' style='border: none;'>";
+	$temp .= "<b>Continued on Page {$nextPage}</b></br>";
+	$temp .= "</td>";
+	$temp .= "</tr>";
+	
+	return $temp;
+}
+
+
 function table_end()
 {
 	return "</table>";
@@ -392,6 +431,7 @@ function table_total($total)
 {
 	global $hasDiscount;
 	global $hasVat;
+	global $additionalCharges;
 	
 	$colTotalOffset = 7;
 	if($hasDiscount) $colTotalOffset++;
@@ -403,12 +443,15 @@ function table_total($total)
 
 	if($hasDiscount OR $hasVat) $temp .= "<b>Total Net:</b></br>";
 	if($hasDiscount) $temp .= "<b>Total Discount:</b></br>";
+	if(count($additionalCharges))$temp .= "<b>Total Additional Charges:</b></br>";
 	if($hasVat) $temp .= "<b>Total VAT:</b></br>";
 	$temp .= "</td>";
+	
 	
 	$temp .= "<td class='lines_total'>";
 	if($hasDiscount OR $hasVat) $temp .= total_formater($total["Net"]).'<span style="color: White;">00</span></br>';
 	if($hasDiscount) $temp .= total_formater($total["Discount"]).'<span style="color: White;">00</span></br>';
+	if(count($additionalCharges)) $temp .= total_formater($total["AdditionalCharges"]).'<span style="color: White;">00</span></br>';
 	if($hasVat) $temp .= total_formater($total["Vat"]).'<span style="color: White;">00</span></br>';
 	$temp .= "</td></tr>";
 	
@@ -432,6 +475,53 @@ function total_formater($price)
 {
 	return number_format($price,2,".","´");
 }
+
+
+function additionalCharges_start()
+{
+	global $hasDiscount;
+	global $hasVat;
+	
+	$temp  = "";
+	$temp .= "<tr class='lines' >";
+	$temp .= "<td class='lines' colspan='100%' style='border: none;'>";
+	$temp .= "<b>Additional Charges:</b></br>";
+	$temp .= "</td>";
+	$temp .= "</tr>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Line</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: left;'>Type</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: left;'>Description</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Qty</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'></th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'></th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Price</th>";
+	if($hasDiscount)$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'></th>";
+	if($hasVat)$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>VAT</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Total</th>";
+	return $temp;
+}
+
+function additionalCharges_addLine($line)
+{
+	global $hasDiscount;
+	global $hasVat;
+	
+	$temp = "<tr class='lines'>";
+    $temp .= "<td class='lines' style='text-align: right;'>{$line->lineNo}</td>";
+	$temp .= "<td class='lines' style='white-space: nowrap;'>{$line->type}</td>";
+	$temp .= "<td class='lines' >{$line->Description}</td>";
+    $temp .= "<td class='lines' style='text-align: right;'>{$line->quantity}</td>";
+	$temp .= "<td class='lines' style='text-align: right;'></td>";
+	$temp .= "<td class='lines' style='text-align: right;'></td>";
+	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->price)."</td>";
+	if($hasDiscount)$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'></th>";
+	if($hasVat) $temp .= "<td class='lines'  style='text-align: right;'>{$line->vat}</td>";
+	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->total)."</td>";
+	$temp .= "</tr>";
+	
+	return $temp;
+}
+
 
 function add_page($metaData, $content)
 {
@@ -470,24 +560,91 @@ function footnote($metaData)
 	return $temp;
 }
 
+$pages = array();
+
 $content1 = add_meta($meta);
 $content1 .= table_start();
-foreach( $lines as $line)
+
+$pageIndex = 0;
+$i = 0;
+$firstPage = true;
+foreach( $lines as $index => $line)
 {
 	$content1 .= table_addLine($line);
+	
+	if($firstPage and $i >8)
+	{
+		$pageIndex ++;
+		if(count($lines) != $index+1) $content1 .= table_addContinuationLine($pageIndex+1);
+		
+		
+		if(count($additionalCharges))
+		{
+			$content1 .= additionalCharges_start();
+			foreach( $additionalCharges as $line)
+			{
+				$content1 .= additionalCharges_addLine($line);
+			}
+		}
+		$content1 .= table_total($poData['Total']);
+		$content1 .= table_end();
+		
+		$content1 .= footnote($meta);
+		
+		if(count($lines) != $index+1)
+		{
+			array_push($pages,$content1); 
+			$content1 = table_start();
+		}
+		$i = 0;
+		$firstPage = false;
+	}
+	
+	if($firstPage == false and $i >29)
+	{
+		$pageIndex ++;
+		$content1 .= table_addContinuationLine($pageIndex+1);
+		$content1 .= table_end();
+		array_push($pages,$content1); 
+		$content1 = table_start();
+		$i = 0;
+	}
+
+	$i++;
 }
-$content1 .= table_total($poData['Total']);
+
+if($firstPage)
+{
+	if(count($additionalCharges))
+	{
+		$content1 .= additionalCharges_start();
+		foreach( $additionalCharges as $line)
+		{
+			$content1 .= additionalCharges_addLine($line);
+		}
+	}
+	$content1 .= table_total($poData['Total']);
+}
+
 $content1 .= table_end();
 
-$content1 .= footnote($meta);
+if($firstPage)$content1 .= footnote($meta);
 
-$meta->page->current = 1;
-$meta->page->total = 2;
+array_push($pages,$content1); 
 
-add_page($meta,$content1);
+
+$meta->page->total = 2+$pageIndex;
+
+$i = 0;
+foreach( $pages as $page)
+{
+	$meta->page->current = 1+$i;
+	add_page($meta,$page);
+	$i ++;
+}
+
 
 $meta->page->current = 2;
-//add_page($meta,$content1);
 require "purchaseOrder_attachment.php";
 
 
