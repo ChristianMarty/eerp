@@ -70,7 +70,47 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = $r;
 	
 	// Get Purchase Information
+	$query  = "SELECT  PoNo, purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate  FROM inventory_purchasOrderReference ";
+	$query .= "LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id ";
+	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
+	$query .= "LEFT JOIN purchasOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id ";
+	$query .= "LEFT JOIN vendor ON purchasOrder.VendorId = vendor.Id ";
+	$query .= "LEFT JOIN finance_currency ON purchasOrder.CurrencyId = finance_currency.Id ";
+	$query .= "WHERE inventory_purchasOrderReference.InventoryId = ".$id;
+	
 	$purchase = array();
+	$result = dbRunQuery($dbLink,$query);
+	$totalPrice = 0;
+	while($por = mysqli_fetch_assoc($result))
+	{
+		$por['PoNo'] ="PO-".$por['PoNo']; 
+		
+		$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
+		
+		array_push($purchase, $por);
+	}
+	
+	if(count($purchase) == 0) // Fallback to legacy data
+	{
+		$row = array();
+		$row["PoNo"] = null;
+		$row["Price"] = $r["PurchasePrice"];
+		$row["Currency"] = "CHF"; // TODO: Fix this
+		$row["SupplierPartNumber"] = null;
+		$row["SupplierName"] = $r["SupplierName"];
+		$row["SupplierId"] = NULL;
+		$row["PurchaseDate"] = $r["PurchaseDate"];
+		$row["OrderReference"] = null;
+		$row["VendorId"] = 0;
+		$row["Quantity"] = 1;
+		$row["Description"] = "";
+		
+		$totalPrice = $row["Price"];
+		
+		array_push($purchase, $row);
+	}
+
+	/*
 	
 	if($r['ReceivalId'] !== null)
 	{
@@ -78,16 +118,24 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	else
 	{
-		$purchase["PoNo"] = null;
-		$purchase["Price"] = $r["PurchasePrice"];
-		$purchase["Currency"] = "CHF";
-		$purchase["PurchaseDate"] = $r["PurchaseDate"];
-		$purchase["SupplierPartNumber"] = null;
-		$purchase["SupplierName"] = $r["SupplierName"];
-		$purchase["OrderReference"] = null;
-		$purchase["VendorId"] = 0;
-	}
+		$row = array();
+		$row["PoNo"] = null;
+		$row["Price"] = $r["PurchasePrice"];
+		$row["Currency"] = "CHF"; // TODO: Fix this
+		$row["SupplierPartNumber"] = null;
+		$row["SupplierName"] = $r["SupplierName"];
+		$row["OrderReference"] = null;
+		$row["VendorId"] = 0;
+		$row["Quantity"] = 1;
+		$row["Description"] = "";
+		
+		array_push($purchase, $row);
+	}*/
+	
 	$output["PurchaseInformation"] = $purchase;
+	
+	$output["TotalPrice"] =  round($totalPrice, 2);
+	$output["TotalCurrency"] = "CHF"; //TODO: FIx  $purchase[0]["Currency"];
 	
 	// Get Documents
 	if(isset($r['DocumentIds'])) $DocIds = $r['DocumentIds'];

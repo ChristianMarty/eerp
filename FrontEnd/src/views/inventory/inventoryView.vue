@@ -52,35 +52,45 @@
 
     <h2>Purchase Information</h2>
 
-    <p>
-      <b>PO No:</b>
-      <router-link :to="'/purchasing/edit/' + inventoryData.PurchaseInformation.PoNo" class="link-type">
-        <span>{{ inventoryData.PurchaseInformation.PoNo }}</span>
-      </router-link>
-    </p>
-    <p>
-      <b>Price:</b>
-      {{ inventoryData.PurchaseInformation.Price }} {{ inventoryData.PurchaseInformation.Currency }}
-    </p>
-    <p>
-      <b>Date:</b>
-      {{ inventoryData.PurchaseInformation.PurchaseDate }}
-    </p>
+    <el-table :data="inventoryData.PurchaseInformation" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
+
+      <el-table-column prop="PoNo" label="Po No" width="140" sortable>
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/purchasing/edit/' + row.PoNo"
+            class="link-type"
+          >
+            <span>{{ row.PoNo }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Quantity" label="Quantity" width="120" sortable />
+      <el-table-column prop="Description" label="Description" sortable />
+      <el-table-column prop="Price" label="Price" width="140" align="right" header-align="left">
+        <template slot-scope="{ row }">
+          {{ row.Price }} {{ row.Currency }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="PurchaseDate" label="Date" width="140" sortable />
+      <el-table-column prop="Supplier" label="Supplier" width="200" sortable>
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/supplier/supplierView/' + row.SupplierId"
+            class="link-type"
+          >
+            <span>{{ row.SupplierName }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="SupplierPartNumber" label="Part Number" width="200" sortable />
+      <el-table-column prop="OrderReference" label="Order Reference" width="200" sortable />
+    </el-table>
 
     <p>
-      <b>Supplier:</b>
-      <router-link :to="'/supplier/supplierView/' + inventoryData.PurchaseInformation.VendorId" class="link-type">
-        <span>{{ inventoryData.PurchaseInformation.SupplierName }}</span>
-      </router-link>
+      <b>Total Price:</b>
+      {{ inventoryData.TotalPrice }} {{ inventoryData.TotalCurrency }}
     </p>
-    <p>
-      <b>Part Number:</b>
-      {{ inventoryData.PurchaseInformation.SupplierPartNumber }}
-    </p>
-    <p>
-      <b>Order Reference:</b>
-      {{ inventoryData.PurchaseInformation.OrderReference }}
-    </p>
+
     <el-divider />
     <h2>Description</h2>
     <pre>

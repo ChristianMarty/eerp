@@ -65,8 +65,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$baseQuery = "SELECT ";
 	$baseQuery .="PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Status,";
-	$baseQuery .="vendor.name AS SupplierName, ";
-	$baseQuery .="location_getName(LocationId) AS LocationName ";
+	$baseQuery .="vendor.name AS SupplierName ";
+	//$baseQuery .=".location_getName(LocationId) AS LocationName ";
 	$baseQuery .="FROM `inventory` ";
 	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";
 	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
