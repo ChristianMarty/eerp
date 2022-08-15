@@ -35,6 +35,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="LinePrice" label="Price" width="100" />
+      <el-table-column prop="VatValue" label="VAT" width="100" />
+      <el-table-column prop="Discount" label="Discount" width="100" />
       <el-table-column prop="Total" label="Total" width="100" />
 
       <el-table-column width="100">
@@ -64,8 +66,8 @@
       <el-table-column prop="Type" label="Type" width="100" />
       <el-table-column prop="Quantity" label="Quantity" width="80" />
       <el-table-column prop="Description" label="Description" />
-      <el-table-column prop="VatValue" label="VAT" width="100" />
       <el-table-column prop="Price" label="Price" width="100" />
+      <el-table-column prop="VatValue" label="VAT" width="100" />
       <el-table-column prop="Total" label="Total" width="100" />
     </el-table>
 
