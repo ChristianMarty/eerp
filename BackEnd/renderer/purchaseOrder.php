@@ -441,15 +441,14 @@ function table_total($total)
 	$temp .= "<tr class='lines'>";
 	$temp .= "<td class='lines_total' colspan='{$colTotalOffset}'>";
 
-	if($hasDiscount OR $hasVat) $temp .= "<b>Total Net:</b></br>";
+	if($hasDiscount OR $hasVat OR count($additionalCharges)) $temp .= "<b>Total Net:</b></br>";
 	if($hasDiscount) $temp .= "<b>Total Discount:</b></br>";
 	if(count($additionalCharges))$temp .= "<b>Total Additional Charges:</b></br>";
 	if($hasVat) $temp .= "<b>Total VAT:</b></br>";
 	$temp .= "</td>";
 	
-	
 	$temp .= "<td class='lines_total'>";
-	if($hasDiscount OR $hasVat) $temp .= total_formater($total["Net"]).'<span style="color: White;">00</span></br>';
+	if($hasDiscount OR $hasVat OR count($additionalCharges)) $temp .= total_formater($total["Net"]).'<span style="color: White;">00</span></br>';
 	if($hasDiscount) $temp .= total_formater($total["Discount"]).'<span style="color: White;">00</span></br>';
 	if(count($additionalCharges)) $temp .= total_formater($total["AdditionalCharges"]).'<span style="color: White;">00</span></br>';
 	if($hasVat) $temp .= total_formater($total["Vat"]).'<span style="color: White;">00</span></br>';
@@ -475,7 +474,6 @@ function total_formater($price)
 {
 	return number_format($price,2,".","´");
 }
-
 
 function additionalCharges_start()
 {
