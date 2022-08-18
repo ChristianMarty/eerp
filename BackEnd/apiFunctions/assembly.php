@@ -16,18 +16,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT *, location_getName(LocationId) AS LocationName FROM assembly ";	
+	$query = "SELECT * FROM assembly ";	
 	
 	$queryParam = array();
 
-	if(isset($_GET["AssemblyNo"]))
-	{
-		$temp = dbEscapeString($dbLink, $_GET["AssemblyNo"]);
-		$temp = strtolower($temp);
-		$temp = str_replace("asm-","",$temp);
-		array_push($queryParam, "AssemblyNo LIKE '".$temp."'");		
-	}
-	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	
 	$result = dbRunQuery($dbLink,$query);
