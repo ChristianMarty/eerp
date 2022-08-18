@@ -93,6 +93,7 @@
     <template v-permission="['purchasing.edit']">
       <editLineItemDialog :visible.sync="orderLineEditDialogVisible" :line="orderLineEditData" :supplier-id="Number(orderData.SupplierId)" :po-no="orderData.PoNo" @closed="getOrderLines()" @refresh="refreshPage()" />
       <editAdditionalChargesDialog :visible.sync="additionalChargesDialogVisible" :line="additionalChargesLine" :po-no="orderData.PoNo" @closed="getOrderLines()" @refresh="refreshPage()" />
+
       <orderImportDialog v-if="poData.MetaData.OrderImportSupported == true" :visible.sync="importDialogVisible" :meat="poData.MetaData" @closed="getOrderLines()" />
     </template>
 
@@ -210,11 +211,11 @@ export default {
       allVatId: 0,
       additionalChargesLine: [],
 
+      additionalChargesDialogVisible: false,
+      orderLineEditDialogVisible: false,
       setVatVisible: false,
       importDialogVisible: false,
       orderReqestDialogVisible: false,
-      orderLineEditDialogVisible: false,
-      additionalChargesDialogVisible: false,
       setExpectedDateVisible: false,
 
       vat: {}
@@ -236,7 +237,6 @@ export default {
     },
     addItemLine() {
       this.orderLineEditData = Object.assign({}, emptyOrderLine)
-      this.itemLineIndex++
       this.orderLineEditData.LineNo = this.itemLineIndex
       this.orderLineEditDialogVisible = true
     },
@@ -251,7 +251,6 @@ export default {
     },
     addAdditionalChargesLine() {
       this.additionalChargesLine = Object.assign({}, emptyAdditionalChargesLine)
-      this.additionalChargesLineIndex++
       this.additionalChargesLine.LineNo = this.additionalChargesLineIndex
       this.additionalChargesDialogVisible = true
     },
@@ -291,8 +290,13 @@ export default {
       }).then(response => {
         if (response.error == null) {
           this.poData = response.data
+
           this.itemLineIndex = this.poData.Lines.length
-          this.additionalChargesLineIndex = this.AdditionalCharges.length
+          this.itemLineIndex++
+
+          this.additionalChargesLineIndex = this.poData.AdditionalCharges.length
+          this.additionalChargesLineIndex++
+
           this.$message({
             showClose: true,
             message: 'Changes saved successfully',
@@ -374,6 +378,9 @@ export default {
       }).then(response => {
         this.poData = response.data
         this.itemLineIndex = this.poData.Lines.length
+        this.additionalChargesLineIndex = this.poData.AdditionalCharges.length
+        this.itemLineIndex++
+        this.additionalChargesLineIndex++
       })
     },
     getOrderRequests() {

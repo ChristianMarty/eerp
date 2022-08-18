@@ -31,7 +31,7 @@ function getPurchaseInformation($receivalId)
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r["VendorId"] = intval($r["VendorId"]);
-		$output = $r;
+		array_push($output, $r);
 	}
 	
 	

@@ -41,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($SerNo)) $SerNo = dbEscapeString($dbLink, $SerNo );
 	
 	$baseQuery = "SELECT ";
-	$baseQuery .="inventory.Id AS Id, ReceivalId, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
+	$baseQuery .="inventory.Id AS Id, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
 	$baseQuery .="vendor.name AS SupplierName, LocationId, HomeLocationId ";
 	$baseQuery .="FROM `inventory` ";
 	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";

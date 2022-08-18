@@ -33,8 +33,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($output, $r);
 	}
 	
-	
-	$query = "SELECT InvNo FROM inventory WHERE ReceivalId = ".$receivalId;
+	$query = "SELECT InvNo FROM inventory ";
+	$query .= "LEFT JOIN inventory_purchasOrderReference ON inventory_purchasOrderReference.InventoryId = inventory.Id ";
+	$query .= "WHERE ReceivalId = ".$receivalId;
 	$result = dbRunQuery($dbLink,$query);
 
 	while($r = mysqli_fetch_assoc($result)) 
