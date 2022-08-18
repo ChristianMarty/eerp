@@ -19,7 +19,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 
 	$query  = "SELECT *, location_getName(LocationId) AS LocationName FROM assembly ";	
-	$query .= "LEFT JOIN assembly_history ON  assembly.Id = assembly_history.AssemblyId ";
+	$query .= "LEFT JOIN assembly_item ON  assembly.Id = assembly_item.AssemblyId ";
+	$query .= "LEFT JOIN assembly_item_history ON  assembly_item.Id = assembly_item_history.AssemblyItemId ";
 
 	$queryParam = array();
 	$temp = dbEscapeString($dbLink, $_GET["AssemblyNo"]);
@@ -27,9 +28,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$temp = str_replace("asm-","",$temp);
 	array_push($queryParam, "AssemblyNo LIKE '".$temp."'");		
 	
-	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	$query .= " ORDER BY assembly_history.Date ASC";
+	$query .= " ORDER BY assembly_item_history.Date ASC";
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -50,6 +50,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$output = array();
 	$output['AssemblyNo'] = $assembly['AssemblyNo'];
+	$output['AssemblyItemNo'] = $assembly['AssemblyItemNo'];
 	$output['Barcode'] = "ASM-".$assembly['AssemblyNo'];
 	$output['Name'] = $assembly['Name'];
 	$output['Description'] = $assembly['Description'];

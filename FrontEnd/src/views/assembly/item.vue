@@ -1,13 +1,12 @@
 <template>
   <div class="app-container">
-    <h1>{{ assemblyData.Barcode }} - {{ assemblyData.Name }}</h1>
+    <h1>{{ assemblyData.Barcode }}-{{assemblyData.AssemblyItemNo}}, {{ assemblyData.Name }}</h1>
     <p><b>Serial Number: </b>{{ assemblyData.SerialNumber }}</p>
     <p><b>Location: </b>{{ assemblyData.LocationName }}</p>
 
     <el-divider />
     <h2>History</h2>
     <el-button
-      v-permission="['purchasing.edit']"
       type="primary"
       icon="el-icon-plus"
       circle
@@ -89,7 +88,7 @@ export default {
         method: 'post',
         url: '/assembly/history/add',
         data: {
-          AssemblyNo: this.$route.params.AssemblyNo,
+          AssemblyItemNo: this.assemblyData.AssemblyItemNo,
           Title: this.addHistoryData.Title,
           Description: this.addHistoryData.Description,
           Data: this.addHistoryData.Data

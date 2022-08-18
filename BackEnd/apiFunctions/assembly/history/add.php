@@ -15,14 +15,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data["AssemblyNo"])) sendResponse(Null,"AssemblyNo not set");
+	if(!isset($data["AssemblyItemNo"])) sendResponse(Null,"AssemblyItemNo not set");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
 	
-	
-	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyNo']);
+	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyItemNo']);
 	$assemblyNo = strtolower($assemblyNo);
 	$assemblyNo = str_replace("asm-","",$assemblyNo);
 	
@@ -30,8 +29,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Data'] = dbEscapeString($dbLink,$data['Data']);
-	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNo = '".$assemblyNo."' )";
-	$query = dbBuildInsertQuery($dbLink,"assembly_history", $sqlData);
+	$sqlData['AssemblyItemId']['raw'] = "(SELECT Id FROM assembly_item WHERE AssemblyItemNo = '".$assemblyNo."' )";
+	$query = dbBuildInsertQuery($dbLink,"assembly_item_history", $sqlData);
 	
 	$result = dbRunQuery($dbLink,$query);
 	

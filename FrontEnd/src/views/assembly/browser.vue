@@ -14,8 +14,8 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Name" label="Name" sortable/>
-      <el-table-column prop="SerialNumber" label="SerialNumber" sortable/>
+      <el-table-column prop="Name" label="Name" sortable />
+      <el-table-column prop="SerialNumber" label="SerialNumber" sortable />
       <el-table-column prop="LocationName" label="Location" sortable />
     </el-table>
   </div>
@@ -29,7 +29,7 @@ export default {
   name: 'AssemblyBrowser',
   data() {
     return {
-      assemblyData: [],
+      assemblyData: []
     }
   },
   mounted() {
