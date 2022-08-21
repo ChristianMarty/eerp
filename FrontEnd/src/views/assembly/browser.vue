@@ -15,6 +15,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="Name" label="Name" sortable />
+      <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="SerialNumber" label="SerialNumber" sortable />
       <el-table-column prop="LocationName" label="Location" sortable />
     </el-table>
@@ -23,7 +24,6 @@
 
 <script>
 import requestBN from '@/utils/requestBN'
-import siFormatter from '@/utils/siFormatter'
 
 export default {
   name: 'AssemblyBrowser',

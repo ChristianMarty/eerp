@@ -8,7 +8,7 @@ const assemblyRouter = {
     icon: 'list'
   },
   children: [
-   {
+    {
       path: 'assemblyBrowser',
       component: () => import('@/views/assembly/browser'),
       name: 'assemblyBrowser',
