@@ -5,7 +5,7 @@
       :visible.sync="visible"
       :before-close="closeDialog"
       center
-      @open="getHistoryData()"
+      @open="onOpen()"
     >
 
       <p><b>{{ data.Title }}</b></p>
@@ -16,7 +16,7 @@
       <el-table
         :data="tableData"
         border
-        style="width: 100%"
+        style="width: 100%; margin-bottom: 20px"
         :header-cell-style="{ padding: '0', height: '20px' }"
         :cell-style="{ padding: '0', height: '20px' }"
         default-expand-all
@@ -26,12 +26,22 @@
         <el-table-column prop="value" label="Value" sortable />
       </el-table>
 
+      <el-select v-model="selectedTemplateId">
+        <el-option v-for="item in printTemplate" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+      </el-select>
+
+      <el-select v-model="selectedPrinterId">
+        <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+      </el-select>
+      <el-button type="primary" style="margin-left: 20px" @click="print()">Print</el-button>
+
     </el-dialog>
   </div>
 </template>
 
 <script>
 import requestBN from '@/utils/requestBN'
+import * as defaultSetting from '@/utils/defaultSetting'
 
 export default {
   name: 'AssemblyItemHistoryData',
@@ -39,12 +49,21 @@ export default {
   data() {
     return {
       data: {},
-      tableData: []
+      tableData: [],
+      selectedPrinterId: 0,
+      selectedTemplateId: 0,
+      printTemplate: {},
+      printer: {}
     }
   },
   mounted() {
+    this.getPrintTemplate()
+    this.getPrinter()
   },
   methods: {
+    onOpen() {
+      this.getHistoryData()
+    },
     getHistoryData() {
       requestBN({
         url: '/assembly/history/item',
@@ -75,6 +94,50 @@ export default {
             id++
           }
         })
+      })
+    },
+    getPrintTemplate() {
+      requestBN({
+        url: '/label',
+        methood: 'get',
+        params: { Tag: 'Assembly' }
+      }).then(response => {
+        this.printTemplate = response.data
+      })
+    },
+    print() {
+      requestBN({
+        url: '/assembly/history/item',
+        methood: 'get',
+        params: {
+          AssemblyHistoryId: this.$props.id
+        }
+      }).then(response => {
+        requestBN({
+          method: 'post',
+          url: '/print/assemblyBonPrint',
+          data: { data: response.data, PrinterId: this.selectedPrinterId }
+        }).then(response => {
+          if (response.error !== null) {
+            this.$message({
+              showClose: true,
+              duration: 0,
+              message: response.error,
+              type: 'error'
+            })
+          }
+        })
+      })
+    },
+    getPrinter() {
+      requestBN({
+        url: '/printer',
+        methood: 'get'
+      }).then(response => {
+        this.selectedPrinterId = defaultSetting.defaultSetting().AssemblyReportPrinter
+        this.selectedTemplateId = defaultSetting.defaultSetting().AssemblyReportTemplate
+
+        this.printer = response.data
       })
     },
     closeDialog() {

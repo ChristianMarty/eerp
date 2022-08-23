@@ -20,7 +20,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$assemblyHistoryId = dbEscapeString($dbLink, $_GET["AssemblyHistoryId"]);
 
-	$query  = "SELECT * FROM assembly_item_history WHERE Id = {$assemblyHistoryId}";	
+	$query  = "SELECT * FROM assembly_item_history ";
+	$query .= "LEFT JOIN assembly_item ON assembly_item.Id = assembly_item_history.AssemblyItemId ";	
+	$query .= "WHERE assembly_item_history.Id = {$assemblyHistoryId}";	
 
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -33,6 +35,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp = array();
 		$temp['Title'] = $r['Title'];
 		$temp['Description'] = $r['Description'];
+		$temp['SerialNumber'] = $r['SerialNumber'];
+		$temp['Barcode'] = "ASM-".$r['AssemblyItemNo'];
 		$temp['EditToken'] = $r['EditToken'];
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;

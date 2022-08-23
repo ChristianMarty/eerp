@@ -16,7 +16,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query = "SELECT * FROM assembly ";	
+	$query  = "SELECT * FROM assembly ";
+	$query .= "LEFT JOIN assembly_item ON assembly.Id = assembly_item.AssemblyId ";
 	
 	$queryParam = array();
 
@@ -28,7 +29,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$r['Barcode'] = "ASM-".$r['AssemblyNo'];
+		$r['Barcode'] = "ASM-".$r['AssemblyNo']."-".$r['AssemblyItemNo'];
 		$assembly[] = $r;
 	}
 

@@ -7,6 +7,7 @@
     <el-divider />
     <h2>History</h2>
     <el-button
+      v-permission="['assembly.history.add']"
       type="primary"
       icon="el-icon-plus"
       circle
@@ -25,7 +26,7 @@
           <b>{{ line.Title }}</b>
           <p>{{ line.Description }}</p>
           <el-button @click.native="showHistoryDialog(line.Id)">Show Data</el-button>
-          <el-button v-if="line.EditToken" type="primary" @click.native=" showEditHistoryDialog(line.Id)">Edit</el-button>
+          <el-button v-if="line.EditToken" v-permission="['assembly.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.Id)">Edit</el-button>
         </el-card>
       </el-timeline-item>
     </el-timeline>
@@ -54,12 +55,14 @@
 </template>
 
 <script>
+import permission from '@/directive/permission/index.js'
 import requestBN from '@/utils/requestBN'
 import assemblyDataDialog from './components/dataDialog'
 
 export default {
   name: 'AssemblyView',
   components: { assemblyDataDialog },
+  directives: { permission },
   data() {
     return {
       assemblyData: {},

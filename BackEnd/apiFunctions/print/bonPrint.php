@@ -19,10 +19,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	$lines = $data['Lines'];
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$lines = $data['data'];
 	$printerId = intval($data['PrinterId']);
 	
-	$query = "SELECT * FROM supplier WHERE Id =".$printerId;
+	$query = "SELECT * FROM printer WHERE Id =".$printerId;
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -47,6 +50,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> close();
 	
 	$output = array();
+	
+	dbClose($dbLink);
 	sendResponse($output);
 
 }

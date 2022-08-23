@@ -74,7 +74,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		socket_close($socket);	
 	}
-
+	
+	dbClose($dbLink);
 	sendResponse($output);
 
 }
