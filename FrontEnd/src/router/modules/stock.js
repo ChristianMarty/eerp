@@ -27,25 +27,6 @@ const stockRouter = {
       name: 'create',
       meta: { title: 'Create', icon: 'edit', roles: ['stock.create'] }
     },
-
-    {
-      path: 'add',
-      component: () => import('@/views/stock/add'),
-      name: 'add',
-      meta: { title: 'Add', icon: 'el-icon-plus', roles: ['stock.add'] }
-    },
-    {
-      path: 'remove',
-      component: () => import('@/views/stock/remove'),
-      name: 'remove',
-      meta: { title: 'Remove', icon: 'el-icon-minus', roles: ['stock.remove'] }
-    },
-    {
-      path: 'count',
-      component: () => import('@/views/stock/count'),
-      name: 'count',
-      meta: { title: 'Count', icon: 'el-icon-finished', roles: ['stock.count'] }
-    },
     {
       path: 'item/:StockNo(.*)',
       component: () => import('@/views/stock/item'),
