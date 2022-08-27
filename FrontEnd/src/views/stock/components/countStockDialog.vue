@@ -18,6 +18,9 @@
             :max="1000000"
           />
         </el-form-item>
+        <el-form-item label="Note">
+          <el-input v-model="note" type="textarea" />
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -31,7 +34,8 @@
 
 const itemData = {
   StockNo: '',
-  Quantity: 0
+  Quantity: 0,
+  Note: ''
 }
 
 import requestBN from '@/utils/requestBN'
@@ -40,7 +44,8 @@ export default {
   props: { item: { type: Object, default: itemData }, visible: { type: Boolean, default: false }},
   data() {
     return {
-      newQuantity: 0
+      newQuantity: 0,
+      note: ''
     }
   },
   mounted() {
@@ -52,10 +57,13 @@ export default {
     },
     saveStock() {
       requestBN({
-        method: 'patch',
-        url: '/stock',
-        params: { StockNo: this.item.StockNo },
-        data: { Quantity: this.newQuantity }
+        method: 'post',
+        url: '/stock/history/item',
+        data: {
+          StockNo: this.item.StockNo,
+          Quantity: this.newQuantity,
+          Note: this.note
+        }
       }).then(response => {
         if (response.error != null) {
           this.$message({

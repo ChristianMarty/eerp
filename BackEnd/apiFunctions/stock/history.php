@@ -21,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$temp = strtolower($temp);
 	$stockNo = str_replace("stk-","",$temp);
 	
-	$query = "SELECT partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, workOrder.Title, workOrder.WorkOrderNo FROM partStock_history ";
+	$query = "SELECT partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, workOrder.Title AS WorkOrderTitle, workOrder.WorkOrderNo, partStock_history.Note, partStock_history.EditToken FROM partStock_history ";
 	$query .= "LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId ";
 	$query .= "WHERE StockId = (SELECT Id FROM partStock WHERE StockNo = '".$stockNo."') ";
 	$query .="ORDER BY partStock_history.Id ASC";
@@ -58,7 +58,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		else if($r["ChangeType"] == 'Absolute')
 		{
 			$description = "Stocktaking"; 
-			$type = "set";	
+			$type = "count";	
 			$quantity = intval($r['Quantity'],10);
 		}
 		else if($r["ChangeType"] == 'Create')

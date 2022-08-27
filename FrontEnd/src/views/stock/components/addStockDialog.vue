@@ -10,19 +10,9 @@
         <el-form-item label="Add Quantity:">
           <el-input-number v-model="addQuantity" :min="1" :max="100000" />
         </el-form-item>
-
-        <el-form-item label="Work Order:">
-          <el-select v-model="workOrderId" filterable>
-            <el-option
-              v-for="wo in workOrders"
-              :key="wo.Id"
-              :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
-              :value="wo.Id"
-            />
-          </el-select>
+        <el-form-item label="Note">
+          <el-input v-model="note" type="textarea" />
         </el-form-item>
-      </el-form>
-
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -47,34 +37,26 @@ export default {
     return {
       addQuantity: 0,
       workOrders: null,
-      workOrderId: null
+      workOrderId: null,
+      note: ''
     }
   },
   mounted() {
-    this.getWorkOrders()
+
   },
   methods: {
     closeDialog() {
       this.visible = false
       this.$emit('update:visible', this.visible)
     },
-    getWorkOrders() {
-      requestBN({
-        url: '/workOrder',
-        methood: 'get',
-        params: { Status: 'InProgress' }
-      }).then(response => {
-        this.workOrders = response.data
-      })
-    },
     addStock() {
       requestBN({
-        method: 'patch',
-        url: '/stock',
-        params: { StockNo: this.item.StockNo },
+        method: 'post',
+        url: '/stock/history/item',
         data: {
+          StockNo: this.item.StockNo,
           AddQuantity: this.addQuantity,
-          WorkOrderId: this.workOrderId
+          Note: this.note
         }
       }).then(response => {
         if (response.error != null) {

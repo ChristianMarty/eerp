@@ -18,6 +18,9 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="Note">
+          <el-input v-model="note" type="textarea" />
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -44,7 +47,8 @@ export default {
     return {
       removeQuantity: 0,
       workOrders: null,
-      workOrderId: null
+      workOrderId: null,
+      note: ''
     }
   },
   mounted() {
@@ -66,12 +70,13 @@ export default {
     },
     removeStock() {
       requestBN({
-        method: 'patch',
-        url: '/stock',
-        params: { StockNo: this.item.StockNo },
+        method: 'post',
+        url: '/stock/history/item',
         data: {
+          StockNo: this.item.StockNo,
           RemoveQuantity: this.removeQuantity,
-          WorkOrderId: this.workOrderId
+          WorkOrderId: this.workOrderId,
+          Note: this.note
         }
       }).then(response => {
         if (response.error != null) {

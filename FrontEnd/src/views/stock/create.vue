@@ -267,7 +267,7 @@ export default {
       } else {
         requestBN({
           method: 'post',
-          url: '/stock',
+          url: '/stock/item',
           data: { data: this.formData }
         }).then(response => {
           if (response.error == null) {

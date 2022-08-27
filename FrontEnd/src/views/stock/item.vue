@@ -79,21 +79,9 @@
         @click="countStockDialogVisible = true"
       >Count</el-button>
       <el-divider />
+
       <h3>History</h3>
-
-      <el-timeline reverse="true">
-        <el-timeline-item v-for="(line, index) in history" :key="index" :color="line.color" :timestamp="line.Date">
-          {{ line.Description }}
-          <template v-if="line.WorkOrderNo != NULL">
-            <span>, Work Order: </span>
-            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderNo" class="link-type">
-              <span>{{ line.WorkOrderNo }}</span>
-            </router-link>
-            {{ line.Title }}
-          </template>
-
-        </el-timeline-item>
-      </el-timeline>
+      <stockHistory :key="stockHistoryKey" :stock-no="inputStockId" @change="historyEdit" />
 
       <h3>Reservations</h3>
       <el-table :data="reservation" style="width: 100%">
@@ -149,7 +137,8 @@
 
     <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
     <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
-    <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />  </div>
+    <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />
+  </div>
 </template>
 
 <script>
@@ -163,6 +152,7 @@ import printDialog from './components/printDialog'
 import addStockDialog from './components/addStockDialog'
 import removeStockDialog from './components/removeStockDialog'
 import countStockDialog from './components/countStockDialog'
+import stockHistory from './components/stockHistory'
 
 const partDataEmpty = {
   StockId: '',
@@ -188,12 +178,11 @@ const stockAccuracyData = {
 
 export default {
   name: 'LocationAssignment',
-  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog },
+  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory },
   directives: { permission },
   data() {
     return {
       inputStockId: null,
-      history: null,
       showItem: false,
       partData: Object.assign({}, partDataEmpty),
       reservation: null,
@@ -207,7 +196,9 @@ export default {
       printDialogVisible: false,
       addStockDialogVisible: false,
       removeStockDialogVisible: false,
-      countStockDialogVisible: false
+      countStockDialogVisible: false,
+      editStockHistoryDialogVisible: false,
+      stockHistoryKey: 0
     }
   },
   watch: {
@@ -227,7 +218,7 @@ export default {
 
     this.getLabel()
     this.getPrinter()
-    print.loadPrinter()
+    //print.loadPrinter()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -254,15 +245,15 @@ export default {
     },
     loadItem() {
       this.getStockItem()
-      this.getHistory()
       this.getReservation()
       this.getPurchaseInformation()
       this.getStockAccuracy()
       this.showItem = true
+      this.stockHistoryKey++
     },
     getStockItem() {
       requestBN({
-        url: '/stock',
+        url: '/stock/item',
         methood: 'get',
         params: { StockNo: this.inputStockId }
       }).then(response => {
@@ -284,38 +275,6 @@ export default {
           this.getProductionPartData()
           this.setTagsViewTitle(this.partData.Barcode)
           this.setPageTitle()
-        }
-      })
-    },
-    getHistory() {
-      requestBN({
-        url: '/stock/history',
-        methood: 'get',
-        params: { StockNo: this.inputStockId }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.history = response.data
-          this.history.forEach(element => {
-            switch (element.Type) {
-              case 'remove':
-                element.color = '#67C23A'
-                break
-              case 'add':
-                element.color = '#E6A23C'
-                break
-              case 'set':
-              case 'create':
-                element.color = '#409EFF'
-                break
-            }
-          })
         }
       })
     },

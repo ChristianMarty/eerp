@@ -164,7 +164,7 @@ export default {
 
       requestBN({
         method: 'post',
-        url: '/stock',
+        url: '/stock/item',
         data: { data: saveData }
       }).then(response => {
         if (response.error == null) {
