@@ -48,8 +48,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$partId = dbEscapeString($dbLink, $_GET["PartId"]);
 	array_push($queryParam, "manufacturerPart.Id = '".$partId."'");
-
-
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 	

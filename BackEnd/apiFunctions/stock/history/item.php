@@ -92,7 +92,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		if(!is_numeric($removeQuantity))sendResponse($output,"Quantity is not numeric");
 		$removeQuantity = intval($removeQuantity);
 
-		$sqlData['Quantity'] = abs($quantity)*-1;
+		$sqlData['Quantity'] = abs($removeQuantity)*-1;
 		if($workOrderId != null) $sqlData['workOrderId'] = $workOrderId;
 		$sqlData['ChangeType']['raw'] = '"Relative"';
 	}
@@ -103,7 +103,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		if(!is_numeric($addQuantity))sendResponse($output,"Quantity is not numeric");
 		$addQuantity = intval($addQuantity);
 
-		$sqlData['Quantity'] = abs($quantity);
+		$sqlData['Quantity'] = abs($addQuantity);
 		$sqlData['ChangeType']['raw'] = '"Relative"';
 	}
 	else if(isset($data["Quantity"]))

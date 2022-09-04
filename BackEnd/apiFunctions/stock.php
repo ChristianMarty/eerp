@@ -19,7 +19,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$baseQuery = "SELECT ManufacturerName, ManufacturerPartNumber, Quantity, StockNo, Date, LocationId FROM partStock_view ";
 	
 	$queryParam = array();
-
+	
+	if(isset($_GET["StockNo"]))
+	{
+		$stockNo = dbEscapeString($dbLink, trim($_GET["StockNo"]));
+		$stockNo = strtolower($stockNo);
+		$stockNo = str_replace("stk-","",$stockNo);	
+		array_push($queryParam, "StockNo = '".$stockNo."'");			
+	}
+	 
 	if(isset($_GET["ManufacturerPartId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);

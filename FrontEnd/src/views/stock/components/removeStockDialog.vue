@@ -18,7 +18,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="Note">
+        <el-form-item label="Note:">
           <el-input v-model="note" type="textarea" />
         </el-form-item>
       </el-form>

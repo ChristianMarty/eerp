@@ -218,7 +218,6 @@ export default {
 
     this.getLabel()
     this.getPrinter()
-    //print.loadPrinter()
   },
   created() {
     // Why need to make a copy of this.$route here?
