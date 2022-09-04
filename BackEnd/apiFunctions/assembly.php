@@ -19,6 +19,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query  = "SELECT * FROM assembly ";
 	$query .= "LEFT JOIN assembly_item ON assembly.Id = assembly_item.AssemblyId ";
 	
+	if(isset($_GET["SerialNumber"]))
+	{
+		$sn = dbEscapeString($dbLink, $_GET["SerialNumber"]);
+		$query .= "WHERE SerialNumber LIKE '".$sn."'";
+	}
+	
 	$queryParam = array();
 
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
