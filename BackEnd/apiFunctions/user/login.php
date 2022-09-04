@@ -101,8 +101,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$categoryName = $key;
 			foreach($category as $key => $role)
 			{
-				$roleStr = $categoryName.".".$key;
-				if($role == true) array_push($roles_array, $roleStr);
+				if(is_object($role))
+				{
+					$subCategoryName = $key;
+					foreach($role as $key => $role)
+					{
+						$roleStr = $categoryName.".".$subCategoryName.".".$key;
+						if($role == true) array_push($roles_array, $roleStr);
+					}
+				}
+				else
+				{
+					$roleStr = $categoryName.".".$key;
+					if($role == true) array_push($roles_array, $roleStr);
+				}
 			}
 		}
 		
