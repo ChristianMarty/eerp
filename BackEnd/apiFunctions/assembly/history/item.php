@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require __DIR__ . "/../../../config.php";
-
+require_once __DIR__ . "/../../util/_json.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["AssemblyHistoryId"])) sendResponse(Null,"AssemblyHistoryId not set");
@@ -54,13 +54,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	if(!isset($data["EditToken"])) sendResponse(Null,"EditToken not set");
 	
-	
 	$jsonData = null;
 	if(isset($data['Data']))
 	{
-		$jsonData = trim($data['Data']);
-		json_decode($jsonData);
-		if(json_last_error() !== JSON_ERROR_NONE)sendResponse(null,"Data is not valid JSON");
+		$jsonData = json_validateString($data['Data']);
+		if($jsonData === false) sendResponse(null,"Data is not valid JSON");
 	}
 	
 	$dbLink = dbConnect();
@@ -92,9 +90,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$jsonData = null;
 	if(isset($data['Data']))
 	{
-		$jsonData = trim($data['Data']);
-		json_decode($jsonData);
-		if(json_last_error() !== JSON_ERROR_NONE)sendResponse(null,"Data is not valid JSON");
+		$jsonData = json_validateString($data['Data']);
+		if($jsonData === false) sendResponse(null,"Data is not valid JSON");
 	}
 	
 	$dbLink = dbConnect();

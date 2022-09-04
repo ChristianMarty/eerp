@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require __DIR__ . "/../../config.php";
 
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["AssemblyNo"])) sendResponse(Null,"AssemblyNo not set");
@@ -66,81 +67,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	dbClose($dbLink);	
 	sendResponse($output);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
-{
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["EditToken"])) sendResponse(Null,"EditToken not set");
-	
-	$jsonData = null;
-	if(isset($data['Data']))
-	{
-		$jsonData = trim($data['Data']);
-		json_decode($jsonData);
-		if(json_last_error() !== JSON_ERROR_NONE)sendResponse(null,"Data is not valid JSON");
-	}
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyItemNo']);
-	$assemblyNo = strtolower($assemblyNo);
-	$assemblyNo = str_replace("asm-","",$assemblyNo);
-	
-	$sqlData = array();
-	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
-	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
-	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	$sqlData['AssemblyItemId']['raw'] = "(SELECT Id FROM assembly_item WHERE AssemblyItemNo = '".$assemblyNo."' )";
-	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$query = dbBuildInsertQuery($dbLink,"assembly_item_history", $sqlData);
-	
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
-	
-	dbClose($dbLink);	
-	sendResponse(null,$error);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["AssemblyItemNo"])) sendResponse(Null,"AssemblyItemNo not set");
-	
-	$jsonData = null;
-	if(isset($data['Data']))
-	{
-		$jsonData = trim($data['Data']);
-		json_decode($jsonData);
-		if(json_last_error() !== JSON_ERROR_NONE)sendResponse(null,"Data is not valid JSON");
-	}
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyItemNo']);
-	$assemblyNo = strtolower($assemblyNo);
-	$assemblyNo = str_replace("asm-","",$assemblyNo);
-	
-	$sqlData = array();
-	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
-	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
-	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	$sqlData['AssemblyItemId']['raw'] = "(SELECT Id FROM assembly_item WHERE AssemblyItemNo = '".$assemblyNo."' )";
-	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$query = dbBuildInsertQuery($dbLink,"assembly_item_history", $sqlData);
-	
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
-	
-	dbClose($dbLink);	
-	sendResponse(null,$error);
 }
 ?>
