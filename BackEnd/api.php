@@ -21,7 +21,7 @@ if($showPhpError)
 
 // TODO: Fix for prod version
 
-header("Access-Control-Allow-Methods: POST, PATCH, GET, OPTIONS"); 
+header("Access-Control-Allow-Methods: POST, PATCH, GET, DELETE, OPTIONS"); 
 
 
 if($devMode)
@@ -50,6 +50,9 @@ $filePath = rtrim($filePath, "/");
 $filePath .= ".php";
 
 if(!file_exists($filePath)) sendResponse(null, "Invalid URL");
+
+$tmp = explode('/', $filePath);
+if( substr(end($tmp),0,1) == "_") sendResponse(null, "Invalid URL"); //Files starting with "_" are hidden
 
 if( $apiRequest == "user/login" || $apiRequest == "user/logout" || $apiRequest == "user/info")
 {
