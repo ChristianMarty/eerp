@@ -147,7 +147,27 @@ export default {
       }
       requestBN({
         method: 'post',
-        url: '/print/partReceipt',
+        url: '/print/partNote',
+        data: { Data: printData, PrinterId: this.selectedPrinterId }
+      }).then(response => {
+        if (response.error !== null) {
+          this.$message({
+            showClose: true,
+            duration: 0,
+            message: response.error,
+            type: 'error'
+          })
+        }
+      })
+    },
+    printAllNotes() {
+      const printData = {
+        WorkOrderNo: this.workOrders.find(element => element.Id === this.workOrderId).WorkOrderNo,
+        Items: this.itemList
+      }
+      requestBN({
+        method: 'post',
+        url: '/print/partNote',
         data: { Data: printData, PrinterId: this.selectedPrinterId }
       }).then(response => {
         if (response.error !== null) {
@@ -166,12 +186,8 @@ export default {
         methood: 'get'
       }).then(response => {
         this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
-
         this.printer = response.data
       })
-    },
-    printAllNotes() {
-
     },
     clear() {
       this.workOrderId = null
