@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
-    <h1>{{ assemblyData.Barcode }}-{{ assemblyData.AssemblyItemNo }}, {{ assemblyData.Name }}</h1>
+    <h1>{{ assemblyData.AssemblyItemBarcode }}, {{ assemblyData.Name }}</h1>
+    <p><b>Assembly Barcode: </b>{{ assemblyData.AssemblyBarcode }}</p>
     <p><b>Serial Number: </b>{{ assemblyData.SerialNumber }}</p>
     <p><b>Location: </b>{{ assemblyData.LocationName }}</p>
 
@@ -80,19 +81,19 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   mounted() {
-    this.getAssembly()
+    this.getAssemblyItem()
     this.setTagsViewTitle()
     this.setPageTitle()
   },
   methods: {
     setTagsViewTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.$route.params.AssemblyNo}`
+        title: `${this.$route.params.AssemblyItemNo}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
     setPageTitle() {
-      document.title = `${this.$route.params.AssemblyNo}`
+      document.title = `${this.$route.params.AssemblyItemNo}`
     },
     showEditHistoryDialog(id) {
       if (id === null) {
@@ -179,11 +180,11 @@ export default {
         this.editHistoryToken = this.editHistoryData.EditToken
       })
     },
-    getAssembly() {
+    getAssemblyItem() {
       requestBN({
         url: '/assembly/item',
         methood: 'get',
-        params: { AssemblyNo: this.$route.params.AssemblyNo }
+        params: { AssemblyItemNo: this.$route.params.AssemblyItemNo }
       }).then(response => {
         this.assemblyData = response.data
       })

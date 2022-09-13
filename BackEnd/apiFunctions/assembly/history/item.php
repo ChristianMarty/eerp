@@ -36,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['Title'] = $r['Title'];
 		$temp['Description'] = $r['Description'];
 		$temp['SerialNumber'] = $r['SerialNumber'];
-		$temp['Barcode'] = "ASM-".$r['AssemblyItemNo'];
+		$temp['Barcode'] = "ASI-".$r['AssemblyItemNo'];
 		$temp['EditToken'] = $r['EditToken'];
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;

@@ -77,6 +77,8 @@ export default {
             break
           case 'ProductPart': this.$router.push('/prodParts/prodPartView/' + this.result.Code)
             break
+          case 'AssemblyItem': this.$router.push('/assembly/item/' + this.result.Code)
+            break
         }
       })
     }

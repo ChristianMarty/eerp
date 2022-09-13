@@ -14,7 +14,7 @@ require __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["AssemblyNo"])) sendResponse(Null,"AssemblyNo not set");
+	if(!isset($_GET["AssemblyItemNo"])) sendResponse(Null,"AssemblyItemNo not set");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
@@ -24,12 +24,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN assembly_item_history ON  assembly_item.Id = assembly_item_history.AssemblyItemId ";
 
 	$queryParam = array();
-	$temp = dbEscapeString($dbLink, $_GET["AssemblyNo"]);
+	$temp = dbEscapeString($dbLink, $_GET["AssemblyItemNo"]);
 	$temp = strtolower($temp);
-	$temp = str_replace("asm-","",$temp);
-	$temp = explode("-",$temp);
+	$assemblyItemNo = str_replace("asi-","",$temp);
 
-	array_push($queryParam, "AssemblyItemNo LIKE '".$temp[1]."'");		
+	array_push($queryParam, "AssemblyItemNo LIKE '".$assemblyItemNo."'");		
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	$query .= " ORDER BY assembly_item_history.Date DESC";
@@ -55,9 +54,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$output = array();
+	$output['AssemblyBarcode'] = "ASM-".$assembly['AssemblyNo'];
+	$output['AssemblyItemBarcode'] = "ASI-".$assembly['AssemblyItemNo'];
+		
 	$output['AssemblyNo'] = $assembly['AssemblyNo'];
 	$output['AssemblyItemNo'] = $assembly['AssemblyItemNo'];
-	$output['Barcode'] = "ASM-".$assembly['AssemblyNo'];
 	$output['Name'] = $assembly['Name'];
 	$output['Description'] = $assembly['Description'];
 	$output['SerialNumber'] = $assembly['SerialNumber'];
