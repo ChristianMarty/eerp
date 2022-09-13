@@ -28,6 +28,12 @@ const stockRouter = {
       meta: { title: 'Create', icon: 'edit', roles: ['stock.create'] }
     },
     {
+      path: 'bulkRemove',
+      component: () => import('@/views/stock/bulkRemove'),
+      name: 'bulkRemove',
+      meta: { title: 'Bulk Remove', icon: 'el-icon-minus', roles: ['stock.remove'] }
+    },
+    {
       path: 'item/:StockNo(.*)',
       component: () => import('@/views/stock/item'),
       name: 'item',

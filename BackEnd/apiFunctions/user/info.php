@@ -19,7 +19,7 @@ if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
 $json =  '{"assembly":{"view": true, "create": true, "history" : {"add": true, "edit": true}},"inventory": { "print": true,"create": true},"purchasing":{"create": true, "edit": true, "confirm": true},"supplier":{"view": true, "create": true},"supplierPart":{"create": true},"process":{"run": true},"document":{"create": true},"manufacturerPart":{"create": true,"edit": true},"stock":{"create": true, "add": true, "remove":true, "count":true}, "location":{"transfer":true, "bulkTransfer":true, "print": true}}';
-	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2,"AssemblyReportPrinter": 2, "AssemblyReportTemplate": 3, "PurchasOrder": {"UoM": 29, "VAT": 1}}}';
+	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2,"AssemblyReportPrinter": 2, "AssemblyReportTemplate": 3, "PartReceiptPrinter":2, "PurchasOrder": {"UoM": 29, "VAT": 1}}}';
 	
 	$settings = json_decode($settingsJson);
 	$roles = json_decode($json);
