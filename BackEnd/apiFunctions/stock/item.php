@@ -19,18 +19,35 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
+	$stockNo = dbEscapeString($dbLink, $_GET["StockNo"]);
+	$stockNo = strtolower($stockNo);
+	$stockNo = str_replace("stk-","",$stockNo);
+	
 	$baseQuery = "SELECT * FROM  partStock_view ";
 	
-	$queryParam = array();
+	$baseQuery  = "SELECT partStock.Id AS PartStockId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName,  ";
+	$baseQuery .= "manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date, ";
+	$baseQuery .= "partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId,  ";
+	$baseQuery .= "hc.CreateQuantity,  partStock_getQuantity(partStock.StockNo) AS Quantity, r.ReservedQuantity AS ReservedQuantity, lc.LastCountDate AS LastCountDate, hc.CreateData ";
 
-	$temp = dbEscapeString($dbLink, $_GET["StockNo"]);
-	$temp = strtolower($temp);
-	$temp = str_replace("stk-","",$temp);
-	array_push($queryParam, "StockNo LIKE '".$temp."'");
+	$baseQuery .= "FROM partStock ";
 
-	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	
-	$result = dbRunQuery($dbLink,$query);
+	$baseQuery .= "LEFT JOIN (SELECT SupplierPartId, purchasOrder_itemReceive.Id FROM purchasOrder_itemOrder  ";
+	$baseQuery .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId ";
+	$baseQuery .= "LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId) ";
+	$baseQuery .= "LEFT JOIN manufacturerPart ON (manufacturerPart.Id = partStock.ManufacturerPartId AND supplierPart.ManufacturerPartId IS NULL) OR manufacturerPart.Id = supplierPart.ManufacturerPartId ";
+
+	$baseQuery .= "LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart.VendorId ";
+	$baseQuery .= "LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId ";
+	$baseQuery .= "LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id ";
+
+	$baseQuery .= "LEFT JOIN (SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '".$stockNo."'))hc ON  hc.StockId = partStock.Id ";
+	$baseQuery .= "LEFT JOIN (SELECT StockId, Date AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '".$stockNo."') ORDER BY Date DESC LIMIT 1)lc ON  lc.StockId = partStock.Id ";
+
+	$baseQuery .= "WHERE partStock.StockNo = '".$stockNo."' ";
+		
+		
+	$result = dbRunQuery($dbLink,$baseQuery);
 	dbClose($dbLink);	
 	
 	$locations = getLocations();
