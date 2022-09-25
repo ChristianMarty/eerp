@@ -158,7 +158,7 @@
 import requestBN from '@/utils/requestBN'
 import Cookies from 'js-cookie'
 import checkPermission from '@/utils/permission'
-import documentsList from '@/views/documents/components/listDocuments'
+import documentsList from '@/views/document/components/listDocuments'
 
 import historyEditDataDialog from './components/historyDialog'
 

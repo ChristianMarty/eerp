@@ -12,7 +12,7 @@ import supplierRouter from './modules/supplier'
 import prodPartsRouter from './modules/productionPart'
 import mfrPartsRouter from './modules/manufacturerPart'
 import inventoryRouter from './modules/inventory'
-import documentsRouter from './modules/document'
+import documentRouter from './modules/document'
 import locationsRouter from './modules/location'
 import stockRouter from './modules/stock'
 import partMetadataRouter from './modules/partMetadata'
@@ -145,7 +145,7 @@ export const asyncRoutes = [
   assemblyRouter,
   inventoryRouter,
   locationsRouter,
-  documentsRouter,
+  documentRouter,
   labelRouter,
   processRouter,
   reportRouter,

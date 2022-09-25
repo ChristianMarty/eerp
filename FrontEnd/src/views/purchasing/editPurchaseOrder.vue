@@ -196,7 +196,7 @@ import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
 import permission from '@/directive/permission/index.js'
-import documentsList from '@/views/documents/components/listDocuments'
+import documentsList from '@/views/document/components/listDocuments'
 
 export default {
   name: 'PurchaseOrder',

@@ -13,6 +13,7 @@ $adServer = "ldap://localhost";
 $serverDataPath = "/volume1/web/BlueNovaGCT";
 $documentPath = "/data/documents";
 $picturePath = "/data/pictures";
+$documentIngestPath = '/dataIngest';
 
 $databaseServerAddress = 'localhost';
 $databasePort = '3306';

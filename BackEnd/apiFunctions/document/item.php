@@ -63,6 +63,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$query = "SELECT * FROM `document` WHERE `Hash`='".$fileMd5."'";
 	$result = dbRunQuery($dbLink,$query);
+	
 	if($result) 
 	{
 		$result = mysqli_fetch_assoc($result);
