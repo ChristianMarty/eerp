@@ -27,7 +27,9 @@
           <b>{{ line.Title }}</b>
           <p>{{ line.Description }}</p>
           <el-button @click.native="showHistoryDialog(line.Id)">Show Data</el-button>
-          <el-button v-if="line.EditToken" v-permission="['assembly.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.Id)">Edit</el-button>
+          <template v-if="line.EditToken != NULL">
+            <el-button style="margin-left: 20px" type="primary" icon="el-icon-edit" circle @click="openHistoryEditDialog(line)" />
+          </template>
         </el-card>
       </el-timeline-item>
     </el-timeline>

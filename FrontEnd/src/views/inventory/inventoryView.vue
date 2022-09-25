@@ -105,6 +105,14 @@
     <h2>Documents</h2>
     <documentsList :documents="inventoryData.Documents" />
     <h2>History</h2>
+    <el-button
+      v-permission="['inventory.history.add']"
+      type="primary"
+      icon="el-icon-plus"
+      circle
+      style="margin-top: 20px; margin-bottom: 20px"
+      @click="showEditHistoryDialog(null)"
+    />
     <el-timeline reverse="true">
       <el-timeline-item
         v-for="(line, index) in inventoryData.History"
@@ -114,17 +122,31 @@
         placement="top"
       >
         <el-card>
-          <b>{{ line.Type }}</b>
-          <p>{{ line.Description }}</p>
-          <p v-for="(doc, index2) in line.Documents" :key="index2">
-            <a :href="doc.Path" target="blank">
-              <el-button icon="el-icon-document">{{ doc.Description }}</el-button>
-            </a>
-          </p>
-          <p v-if="line.NextDate">Next {{ line.Type }}: {{ line.NextDate }}</p>
+          <el-col class="line" :span="20">
+            <b>{{ line.Type }}</b>
+            <p>{{ line.Description }}</p>
+            <p v-for="(doc, index2) in line.Documents" :key="index2">
+              <a :href="doc.Path" target="blank">
+                <el-button icon="el-icon-document">{{ doc.Description }}</el-button>
+              </a>
+            </p>
+            <p v-if="line.NextDate">Next {{ line.Type }}: {{ line.NextDate }}</p>
+          </el-col>
+          <el-col class="line" :span="4">
+            <template v-if="line.EditToken != NULL">
+              <el-button style="margin: 20px" type="primary" icon="el-icon-edit" circle @click="showEditHistoryDialog(line.EditToken)" />
+            </template>
+          </el-col>
         </el-card>
       </el-timeline-item>
     </el-timeline>
+
+    <historyEditDataDialog
+      :inventory-number="inventoryData.InvNo"
+      :visible.sync="historyEditDialogVisible"
+      :edit-token="historyEditToken"
+      @change="getInventoryData()"
+    />
 
     <el-divider />
     <el-button v-if="checkPermission(['inventory.print'])" type="primary" @click="addPrint">Print</el-button>
@@ -138,13 +160,19 @@ import Cookies from 'js-cookie'
 import checkPermission from '@/utils/permission'
 import documentsList from '@/views/documents/components/listDocuments'
 
+import historyEditDataDialog from './components/historyDialog'
+
 export default {
   name: 'InventoryView',
-  components: { documentsList },
+  components: { documentsList, historyEditDataDialog },
   data() {
     return {
       inventoryData: null,
-      purchaseInformation: null
+      purchaseInformation: null,
+
+      historyEditDialogVisible: false,
+      historyEditToken: null
+
     }
   },
   mounted() {
@@ -166,6 +194,10 @@ export default {
     },
     setPageTitle() {
       document.title = `${this.inventoryData.InvNo} - ${this.inventoryData.Title}`
+    },
+    showEditHistoryDialog(editToken) {
+      this.historyEditToken = editToken
+      this.historyEditDialogVisible = true
     },
     getInventoryData() {
       requestBN({
