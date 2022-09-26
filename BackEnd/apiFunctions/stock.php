@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["ManufacturerPartId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		array_push($queryParam, "ManufacturerPartId = '".$temp."'");		
+		array_push($queryParam, "manufacturerPart.Id = '".$temp."'");		
 	}
 	
 	if(isset($_GET["HideEmpty"]))
@@ -48,7 +48,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	
 	
 	$result = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);	

@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../_functions.php";
 
-$fileNameIllegalCharactersRegex = '/[:"*?<>|\\/]+/';
+$fileNameIllegalCharactersRegex = '/[ :"*?<>|\\/]+/';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {

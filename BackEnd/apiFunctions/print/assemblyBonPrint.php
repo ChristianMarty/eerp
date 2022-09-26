@@ -46,6 +46,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> setTextSize(1, 1);
 	$printer -> text($printData['Title']."\n");
+	$printer -> selectPrintMode(Printer::MODE_FONT_A);
+	$printer -> text($printData['Description']."\n");
 	$printer -> feed(1);
 	
 	$printer -> setJustification(Printer::JUSTIFY_LEFT);
@@ -58,7 +60,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> text("Date: ");
 	$printer -> selectPrintMode(Printer::MODE_FONT_A);
-	$printer -> text($printData['Description']."\n");
+	$printer -> text($printData['Date']."\n");
 	
 	$printer -> feed(1);
 	
@@ -76,7 +78,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 				{
 					
 					$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
-					$printer -> text($key.": ");
+					$printer -> text("  ".$key.": ");
 					$printer -> selectPrintMode(Printer::MODE_FONT_A);
 					$printer -> text($line."\n");
 				}
