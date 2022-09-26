@@ -25,10 +25,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if(preg_match($fileNameIllegalCharactersRegex,$data['Name']) != 0) sendResponse(null,'File name contains illegal character.');
 	
 	global $serverDataPath;
-	global $documentIngestPath;
+	global $ingestPath;
 	global $documentPath;
 	
-	$src = $serverDataPath.$documentIngestPath."/".$data['FileName'];
+	
+	$src = $serverDataPath.$ingestPath."/".$data['FileName'];
 	$dstFileName = $data['Name'].".".pathinfo($src, PATHINFO_EXTENSION);
 	
 	$dst = $serverDataPath.$documentPath."/".$data['Type']."/".$dstFileName;
@@ -69,13 +70,13 @@ else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	global $serverDataPath;
-	global $documentIngestPath;
+	global $ingestPath;
 	
 	if(!isset($data['FileName']) OR $data['FileName'] == "" OR $data['FileName'] == null) sendResponse(null,"File name is not set.");
 
 	if(preg_match($fileNameIllegalCharactersRegex,$data['FileName']) != 0) sendResponse(null,'File name contains illegal character. [/]');
 	
-	$src = $serverDataPath.$documentIngestPath."/".$data['FileName'];
+	$src = $serverDataPath.$ingestPath."/".$data['FileName'];
 	
 	if (unlink($src)) 
 	{

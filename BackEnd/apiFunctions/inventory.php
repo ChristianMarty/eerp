@@ -102,10 +102,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$result = dbRunQuery($dbLink,$query);
 	
+	global $dataRootPath;
+	global $picturePath;
+	$pictureRootPath = $dataRootPath.$picturePath."/";
+	
 	while($r = dbGetResult($result)) 
 	{
 		$r['InvNo'] = "Inv-".$r['InvNo'];
-		$r['PicturePath'] = $PictureRootPath.$r['PicturePath'];
+		$r['PicturePath'] = $pictureRootPath.$r['PicturePath'];
 		$inventoryItems[] = $r;
 		$numberOfResults++;
 	}

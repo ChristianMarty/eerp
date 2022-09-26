@@ -15,8 +15,9 @@ function getDocuments($documentIds)
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	global $documentRootPath;
+
+	global $dataRootPath;
+	global $documentPath;
 		
 	$documents = array();
 	
@@ -30,8 +31,8 @@ function getDocuments($documentIds)
 		$result = dbRunQuery($dbLink,$baseQuery);
 		while($r = mysqli_fetch_assoc($result))
 		{
-			$r['Path'] = $documentRootPath."/".$r['Type']."/".$r['Path'];
-			$r['Barcode'] = "Doc-".$r['DocNo'];
+			$r['Path'] = $dataRootPath.$documentPath."/".$r['Type']."/".$r['Path'];
+			$r['Barcode'] = "Doc-".$r['DocumentNumber'];
 			if($r['Barcode'] === null) $r['Barcode'] = "";
 			array_push($documents, $r);
 		}

@@ -2,6 +2,7 @@
   <div class="app-container">
     <h1>Document Ingestion</h1>
     <p>Select a document to import it into the system.</p>
+    <el-button type="primary" @click="getFileList()">Reload</el-button>
     <el-table
       :data="documentList"
       style="width: 100%"

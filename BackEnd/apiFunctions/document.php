@@ -16,18 +16,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT * FROM `document` ";
+	$query = "SELECT * FROM document ";
 	
 	$output = array();
-
-	global $documentRootPath;
+	
+	global $dataRootPath;
+	global $documentPath;
 
 	$result = dbRunQuery($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$id = $r['Id'];
 		unset($r['Id']);
-		$r['Path'] = $documentRootPath."/".$r['Type']."/".$r['Path'];
+		$r['Path'] = $dataRootPath.$documentPath."/".$r['Type']."/".$r['Path'];
 		$rows[] = $r;
 	}
 	

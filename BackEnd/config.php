@@ -10,10 +10,15 @@
 
 $adServer = "ldap://localhost";
 
-$serverDataPath = "/volume1/web/BlueNovaGCT";
-$documentPath = "/data/documents";
-$picturePath = "/data/pictures";
-$documentIngestPath = '/dataIngest';
+// All paths without trailing /
+
+$serverDataPath = "/volume1/web/eerp/data"; 
+
+$documentPath = "/documents";
+$picturePath = "/pictures";
+$ingestPath = "/ingest";
+$assetPath = "/assets";
+
 
 $databaseServerAddress = 'localhost';
 $databasePort = '3306';
@@ -25,7 +30,7 @@ $domainRootPath = $_SERVER['SERVER_NAME'].pathinfo($_SERVER['PHP_SELF'], 1);
 
 $apiRootPath      = $domainRootPath.'/api.php';
 $documentRootPath = $domainRootPath.'/document.php';
-$dataRootPath     = $domainRootPath;
+$dataRootPath     = $domainRootPath.'/data.php';
 $assetsRootPath   = $dataRootPath.'/assets';
 
 

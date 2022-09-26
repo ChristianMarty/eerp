@@ -13,10 +13,10 @@ require_once __DIR__ . "/../../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	global $serverDataPath;
-	global $documentIngestPath;
 	global $dataRootPath;
+	global $ingestPath;
 	
-	$docs = scandir($serverDataPath.$documentIngestPath);
+	$docs = scandir($serverDataPath.$ingestPath);
 	
 	$output = array();
 	
@@ -28,7 +28,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$tmp["FileName"] = $line;
 		$tmp["Date"] = "";
 		$tmp["Size"] = "";
-		$tmp["Path"] = $dataRootPath.$documentIngestPath."/".$line;
+		//$tmp["Path"] = $dataRootPath.$documentIngestPath."/".$line;
+		
+		$tmp["Path"] = $dataRootPath.$ingestPath."/".$line;
 		
 		array_push($output, $tmp); 
 	}

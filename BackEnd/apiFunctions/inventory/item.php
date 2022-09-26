@@ -49,15 +49,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($InvNo)) $baseQuery .="WHERE `InvNo` = '".$InvNo."'";
 	if(isset($SerNo)) $baseQuery .="WHERE `SerialNumber` = '".$SerNo."'";
-		
+	
+	global $dataRootPath;
+	global $picturePath;
+	
 	$output = array();
-	$PictureRootPath = $dataRootPath."/data/pictures/";
+	$pictureRootPath = $dataRootPath.$picturePath."/";
 	
 	$result = dbRunQuery($dbLink,$baseQuery);
 	$r = mysqli_fetch_assoc($result);
 	
 	$r['InvNo'] = "Inv-".$r['InvNo'];
-	$r['PicturePath'] = $PictureRootPath.$r['PicturePath'];
+	$r['PicturePath'] = $pictureRootPath.$r['PicturePath'];
 	
 	$r['Location'] =  buildLocation($locations, $r['LocationId']);
 	$r['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
