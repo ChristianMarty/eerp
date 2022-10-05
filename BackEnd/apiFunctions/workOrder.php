@@ -37,6 +37,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$r['WorkOrderBarcode'] = "WO-".$r['WorkOrderNo'];
 		array_push($output, $r);
 	}
 
