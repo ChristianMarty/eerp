@@ -147,7 +147,7 @@ export default {
       }
       requestBN({
         method: 'post',
-        url: '/print/partNote',
+        url: '/print/partReceipt',
         data: { Data: printData, PrinterId: this.selectedPrinterId }
       }).then(response => {
         if (response.error !== null) {

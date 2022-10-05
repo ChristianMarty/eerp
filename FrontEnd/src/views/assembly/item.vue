@@ -136,7 +136,7 @@ export default {
         } else {
           this.editHistoryVisible = false
           this.editHistoryData = {}
-          this.getAssembly()
+          this.getAssemblyItem()
         }
       })
     },
@@ -161,7 +161,7 @@ export default {
         } else {
           this.editHistoryVisible = false
           this.addHistoryData = {}
-          this.getAssembly()
+          this.getAssemblyItem()
         }
       })
     },
