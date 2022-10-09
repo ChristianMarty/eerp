@@ -50,12 +50,24 @@ function buildLocationTree($rows, $parentId)
 			$temp = array();
 			
 			$temp['Name'] = $row['Name'];
+			$temp['LocationNumber'] = $row['LocNr'];
+			$temp['LocationBarcode'] = "Loc-".$row['LocNr'];
+			
+			$temp['Attributes'] = array();
+			if($row['ESD'] == 1) $temp['Attributes']['EsdSave'] = true;
+			elseif ($row['ESD'] == null) $temp['Attributes']['EsdSave'] = null;
+			else $temp['Attributes']['EsdSave'] = false;
+			
+			
+			// TODO: Remove legacy below
 			$temp['Id'] = $row['Id'];
 			$temp['LocNr'] = "Loc-".$row['LocNr'];
 			
 			if($row['ESD'] == 1) $temp['ESD'] = true;
 			elseif ($row['ESD'] == null) $temp['ESD'] = null;
 			else $temp['ESD'] = false;
+			
+			// up to here
 		
 			if (hasChild($rows,$row['Id']))
 			{

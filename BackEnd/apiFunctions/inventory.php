@@ -16,35 +16,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$categoryId = intval($_GET["CategoryId"]);
 	}
-	else if(isset($_GET["Category"]))
-	{	
-		$dbLink = dbConnect();
-		if($dbLink == null) return null;
-		
-		$categoryId = 0;
-		$category = dbEscapeString($dbLink,$_GET["Category"] );
-		$query = "SELECT `Id` FROM `inventory_categorie` WHERE `Name`= '".$category."'";
-		$result = dbRunQuery($dbLink,$query);
-		while($r = mysqli_fetch_assoc($result))
-		{
-			$categoryId = $r['Id'];
-		}			
-		
-		dbClose($dbLink);
-		
-		
-	}
 	
 	if(isset($categoryId))$categories =  getChildren("inventory_categorie", $categoryId);
 	
-	if(isset($_GET["LocNr"]))
+	if(isset($_GET["LocationNumber"]))
 	{	
 		$dbLink = dbConnect();
 		if($dbLink == null) return null;
 		
-		$locNr = $_GET["LocNr"];
-		$locNr = str_replace("Loc","",$locNr);
-		$locNr = str_replace("-","",$locNr);
+		$locNr = $_GET["LocationNumber"];
+		$locNr = strtolower($locNr);
+		$locNr = str_replace("loc-","",$locNr);
 		$locNr = dbEscapeString($dbLink, $locNr );
 		
 		$locationIds = 0;
@@ -64,19 +46,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	$baseQuery = "SELECT ";
-	$baseQuery .="PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Status,";
+	$baseQuery .="PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, Status,";
 	$baseQuery .="vendor.name AS SupplierName ";
-	//$baseQuery .=".location_getName(LocationId) AS LocationName ";
 	$baseQuery .="FROM `inventory` ";
 	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";
 	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
 	
 	$queryParam = array();
 	
-	if(isset($_GET["InvNo"]))
+	if(isset($_GET["InventoryNumber"]))
 	{
-		$code = $_GET["InvNo"];
-		$code = str_replace("Inv","",$code);
+		$code = $_GET["InventoryNumber"];
+		$code = strtolower($code);
+		$code = str_replace("inv","",$code);
 		$code = str_replace("-","",$code);
 		$temp = dbEscapeString($dbLink, $code );
 		array_push($queryParam, "InvNo LIKE '".$temp."'");
@@ -92,31 +74,32 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($queryParam, "InventoryCategoryId IN (".$categories.")");
 	}
 
-	
-	$PictureRootPath = $dataRootPath."/data/pictures/";
-
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-
-	$numberOfResults = 0;
-	$inventoryItems = array();
-	
 	$result = dbRunQuery($dbLink,$query);
 	
 	global $dataRootPath;
 	global $picturePath;
+	
 	$pictureRootPath = $dataRootPath.$picturePath."/";
+	
+	$output = array();
 	
 	while($r = dbGetResult($result)) 
 	{
-		$r['InvNo'] = "Inv-".$r['InvNo'];
-		$r['PicturePath'] = $pictureRootPath.$r['PicturePath'];
-		$inventoryItems[] = $r;
-		$numberOfResults++;
+		$item = array();
+		
+		$item['PicturePath'] = $pictureRootPath.$r['PicturePath'];
+		$item['InventoryNumber'] = $r['InvNo'];
+		$item['InventoryBarcode'] = "Inv-".$r['InvNo'];
+		$item['Title'] = $r['Title'];
+		$item['ManufacturerName'] = $r['Manufacturer'];
+		$item['Type'] = $r['Type'];
+		$item['SerialNumber'] = $r['SerialNumber'];
+		$item['Status'] = $r['Status'];
+			
+		$output[] = $item;
 	}
-	
-	$output = array();
-	$output['NumberOfResults'] = $numberOfResults;
-	$output['InventoryItems'] = $inventoryItems;
+
 	dbClose($dbLink);	
 	sendResponse($output);
 }

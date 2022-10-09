@@ -16,16 +16,16 @@ require_once __DIR__ . "/../util/getPurchaseInformation.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(isset($_GET["InvNo"]))
+	if(isset($_GET["InventoryNumber"]))
 	{
-		$InvNo = $_GET["InvNo"];
+		$InvNo = $_GET["InventoryNumber"];
 		$InvNo = strtolower($InvNo);
 		$InvNo = str_replace("inv","",$InvNo);
 		$InvNo = str_replace("-","",$InvNo);
 	}
-	elseif(isset($_GET["SerNo"]))
+	elseif(isset($_GET["SerialNumber"]))
 	{
-		$SerNo = $_GET["SerNo"];
+		$SerNo = $_GET["SerialNumber"];
 	}
 	else
 	{
@@ -42,9 +42,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$baseQuery = "SELECT ";
 	$baseQuery .="inventory.Id AS Id, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
-	$baseQuery .="vendor.name AS SupplierName, LocationId, HomeLocationId ";
+	$baseQuery .="vendor.name AS SupplierName, HomeLocationId, location.LocNr, InventoryCategoryId, inventory.LocationId ";
 	$baseQuery .="FROM `inventory` ";
 	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";
+	$baseQuery .="LEFT JOIN `location` On location.Id = inventory.LocationId ";
 	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
 	
 	if(isset($InvNo)) $baseQuery .="WHERE `InvNo` = '".$InvNo."'";
@@ -58,19 +59,29 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$result = dbRunQuery($dbLink,$baseQuery);
 	$r = mysqli_fetch_assoc($result);
-	
-	$r['InvNo'] = "Inv-".$r['InvNo'];
-	$r['PicturePath'] = $pictureRootPath.$r['PicturePath'];
-	
-	$r['Location'] =  buildLocation($locations, $r['LocationId']);
-	$r['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
-	$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
-	$r['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
-	
 	$id = $r['Id'];
-	unset($r['Id']);
 	
-	$output = $r;
+	$output = array();
+
+	$output['PicturePath'] = $pictureRootPath.$r['PicturePath'];
+	$output['InventoryNumber'] = $r['InvNo'];
+	$output['InventoryBarcode'] = "Inv-".$r['InvNo'];
+	$output['Title'] = $r['Title'];
+	$output['ManufacturerName'] = $r['Manufacturer'];
+	$output['Type'] = $r['Type'];
+	$output['SerialNumber'] = $r['SerialNumber'];
+	$output['Description'] = $r['Description'];
+	$output['Note'] = $r['Note'];
+	$output['MacAddressWired'] = $r['MacAddressWired'];
+	$output['MacAddressWireless'] = $r['MacAddressWireless'];
+	$output['Status'] = $r['Status'];
+	$output['LocationNumber'] = $r['LocNr'];
+	$output['CategoryId'] = $r['InventoryCategoryId'];
+	$output['LocationName'] = buildLocation($locations, $r['LocationId']);
+	$output['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
+	$output['HomeLocationName'] = buildLocation($locations, $r['HomeLocationId']);
+	$output['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
+	
 	
 	// Get Purchase Information
 	$query  = "SELECT  PoNo, purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate  FROM inventory_purchasOrderReference ";
@@ -191,53 +202,28 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$baseQuery = "INSERT INTO `inventory`";
-	
-	$locationId = dbEscapeString($dbLink,$data['data']['LocationId']);
-	unset($data['data']['LocationId']);
 
-	$inventoryCategoryId = dbEscapeString($dbLink,$data['data']['InventoryCategoryId']);
-	unset($data['data']['InventoryCategoryId']);
-	
-	
-	$supplierId = dbEscapeString($dbLink,$data['data']['SupplierId']);
-	unset($data['data']['SupplierId']);
-	
-	$date = date_create($data['data']['PurchaseDate']);
-	$data['data']['PurchaseDate'] = date_format($date, 'Y-m-d');
-	
-	$columns = "";
-	$values = "";
+	$sqlData = array();
+	$sqlData['Title'] = $data['Title'];
+	$sqlData['Manufacturer'] = $data['ManufacturerName'];
+	$sqlData['Type'] = $data['Type'];
+	$sqlData['SerialNumber'] = $data['SerialNumber'];
+	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocNr = ".dbEscapeString($dbLink,$data['LocationNumber']).")";
+	$sqlData['InventoryCategoryId'] = intval($data['CategoryId']);
 
-	foreach ($data['data'] as $key => $value) 
-	{
-		$columns .= "`".dbEscapeString($dbLink, $key )."`,";
-		$values  .= "'".dbEscapeString($dbLink, $value )."',";
-	}
-	
-
-	$columns .= "`LocationId`,";
-	$values .= "'".$locationId."',";
-	
-	$columns .= "`InventoryCategoryId`,";
-	$values .= "'".$inventoryCategoryId."',";
-	
-	$columns .= "`VendorId`";
-	$values .= "'".$supplierId."'";
-	
-	$query =  $baseQuery." (".$columns.") VALUES (".$values.");"; 
+	$query = dbBuildInsertQuery($dbLink,"inventory", $sqlData);
 
 	$query .= " SELECT `InvNo` FROM `inventory` WHERE `Id` = LAST_INSERT_ID();";
 	
 	$error = null;
-	
+	$output = null;
 	
 	if(mysqli_multi_query($dbLink,$query))
 	{
 		do {
 			if ($result = mysqli_store_result($dbLink)) {
 				while ($row = mysqli_fetch_row($result)) {
-					$output["InvNo"] = $row[0];
+					$output = $row[0];
 				}
 				mysqli_free_result($result);
 			}

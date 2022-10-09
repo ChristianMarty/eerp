@@ -4,7 +4,7 @@
     <el-divider />
 
     <ul>
-      <li v-for="i in invList">{{ i }}</li>
+      <li v-for="value in invList" :key="value">{{ value }}</li>
     </ul>
 
     <el-button type="primary" @click="clearList">Clear List</el-button>
@@ -33,11 +33,14 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
 import Cookies from 'js-cookie'
 
+import Inventory from '@/api/inventory'
+const inventory = new Inventory()
+
 const printPath =
-  process.env.VUE_APP_BLUENOVA_BASE + '/apiFunctions/inventory/labelPage.php'
+  process.env.VUE_APP_BLUENOVA_BASE + '/renderer/inventoryLabelPage.php'
 
 export default {
   name: 'InventoryView',
@@ -57,14 +60,8 @@ export default {
   },
   created() {},
   methods: {
-    getInventoryData() {
-      requestBN({
-        url: '/inventory',
-        methood: 'get',
-        params: { InvNo: this.$route.params.invNo }
-      }).then(response => {
-        this.inventoryData = response.data[0]
-      })
+    async getInventoryData() {
+      this.inventoryData = await inventory.search({ InventoryNumber: this.$route.params.invNo })[0]
     },
     loadInventoryList() {
       try {

@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <h1>
-      {{ inventoryData.InvNo }} - {{ inventoryData.Title }},
-      {{ inventoryData.Manufacturer }}
+      {{ inventoryData.InventoryBarcode }} - {{ inventoryData.Title }},
+      {{ inventoryData.ManufacturerName }}
       {{ inventoryData.Type }}
     </h1>
     <el-divider />
@@ -14,11 +14,11 @@
       <el-main>
         <p>
           <b>Location:</b>
-          {{ inventoryData.Location }}
+          {{ inventoryData.LocationName }}
         </p>
         <p>
           <b>Home Location:</b>
-          {{ inventoryData.HomeLocation }}
+          {{ inventoryData.HomeLocationName }}
         </p>
         <p>
           <b>MAC Address Wired:</b>
@@ -142,7 +142,7 @@
     </el-timeline>
 
     <historyEditDataDialog
-      :inventory-number="inventoryData.InvNo"
+      :inventory-number="inventoryData.InventoryNumber"
       :visible.sync="historyEditDialogVisible"
       :edit-token="historyEditToken"
       @change="getInventoryData()"
@@ -155,28 +155,29 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
 import Cookies from 'js-cookie'
 import checkPermission from '@/utils/permission'
 import documentsList from '@/views/document/components/listDocuments'
 
 import historyEditDataDialog from './components/historyDialog'
 
+import Inventory from '@/api/inventory'
+const inventory = new Inventory()
+
 export default {
   name: 'InventoryView',
   components: { documentsList, historyEditDataDialog },
   data() {
     return {
-      inventoryData: null,
-      purchaseInformation: null,
+      inventoryData: Object.assign({}, inventory.itemReturn),
 
       historyEditDialogVisible: false,
       historyEditToken: null
-
     }
   },
-  mounted() {
-    this.getInventoryData()
+  async mounted() {
+    await this.getInventoryData()
+    this.setTitle()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -186,29 +187,19 @@ export default {
   },
   methods: {
     checkPermission,
-    setTagsViewTitle() {
+    setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.inventoryData.InvNo}`
+        title: `${this.inventoryData.InventoryBarcode}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
+      document.title = `${this.inventoryData.InventoryBarcode} - ${this.inventoryData.Title}`
     },
-    setPageTitle() {
-      document.title = `${this.inventoryData.InvNo} - ${this.inventoryData.Title}`
+    async getInventoryData() {
+      this.inventoryData = await inventory.item(this.$route.params.invNo)
     },
     showEditHistoryDialog(editToken) {
       this.historyEditToken = editToken
       this.historyEditDialogVisible = true
-    },
-    getInventoryData() {
-      requestBN({
-        url: '/inventory/item',
-        methood: 'get',
-        params: { InvNo: this.$route.params.invNo }
-      }).then(response => {
-        this.inventoryData = response.data
-        this.setTagsViewTitle()
-        this.setPageTitle()
-      })
     },
     addPrint() {
       var cookieList = []
@@ -222,18 +213,18 @@ export default {
       var invNoList = []
       invNoList = invNoList.concat(cookieList)
 
-      invNoList.push(this.inventoryData.InvNo)
+      invNoList.push(this.inventoryData.InventoryBarcode)
       Cookies.set('invNo', invNoList)
 
       this.$message({
         showClose: true,
-        message: this.inventoryData.InvNo + ' Added to Printer Queue',
+        message: this.inventoryData.InventoryBarcode + ' Added to Printer Queue',
         type: 'success'
       })
     },
     copy() {
       this.$router.push(
-        '/inventory/inventoryCreate/' + this.inventoryData.InvNo
+        '/inventory/inventoryCreate/' + this.inventoryData.InventoryBarcode
       )
     }
   }

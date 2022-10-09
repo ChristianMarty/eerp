@@ -14,7 +14,7 @@
       </el-form-item>
       <el-form-item label="Manufacturer:">
         <el-input
-          v-model="postForm.Manufacturer"
+          v-model="postForm.ManufacturerName"
           placeholder="Please input"
         />
       </el-form-item>
@@ -29,8 +29,8 @@
       </el-form-item>
       <el-form-item label="Category:">
         <el-cascader-panel
-          v-model="postForm.InventoryCategoryId"
-          :options="inventoryCategories"
+          v-model="postForm.CategoryId"
+          :options="categories"
           :props="{
             emitPath: false,
             value: 'Id',
@@ -40,40 +40,13 @@
           }"
         />
       </el-form-item>
-      <el-form-item label="Purchase Date:">
-        <el-date-picker
-          v-model="postForm.PurchaseDate"
-          type="date"
-          placeholder="Pick a day"
-          value-format="yyyy-MM-dd"
-        />
-      </el-form-item>
-      <el-form-item label="Purchase Price:">
-        <el-input-number
-          v-model="postForm.PurchasePrice"
-          :precision="2"
-          :controls="false"
-        />
-      </el-form-item>
-      <el-row>
-        <el-form-item label="Supplier:">
-          <el-select v-model="postForm.SupplierId" filterable>
-            <el-option
-              v-for="item in suppliers"
-              :key="item.Name"
-              :label="item.Name"
-              :value="item.Id"
-            />
-          </el-select>
-        </el-form-item>
-      </el-row>
       <el-form-item label="Location:">
         <el-cascader-panel
-          v-model="postForm.LocationId"
+          v-model="postForm.LocationNumber"
           :options="locations"
           :props="{
             emitPath: false,
-            value: 'Id',
+            value: 'LocationNumber',
             label: 'Name',
             children: 'Children',
             checkStrictly: true
@@ -88,100 +61,54 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Inventory from '@/api/inventory'
+const inventory = new Inventory()
 
-const defaultForm = {
-  Title: '',
-  Manufacturer: '',
-  Type: '',
-  SerialNumber: '',
-  SupplierId: '',
-  LocationId: '',
-  InventoryCategoryId: '',
-  PurchaseDate: '',
-  PurchasePrice: '',
-  Description: '',
-  Note: ''
-}
+import Location from '@/api/location'
+const location = new Location()
 
 export default {
   components: {},
   data() {
     return {
-      postForm: Object.assign({}, defaultForm),
-      input: null,
-      locations: null,
-      suppliers: null,
-      inventoryCategories: null,
-      submitResponse: null
+      postForm: Object.assign({}, inventory.createParameters),
+      locations: Object.assign({}, location.searchReturn),
+      categories: Object.assign({}, inventory.categoriesReturn)
     }
   },
-  mounted() {
-    this.getLocations()
-    this.getSuppliers()
-    this.getInventoryCategories()
+  async mounted() {
+    this.categories = await inventory.categories(this.filter)
+    this.locations = await location.search()
     if (this.$route.params.invNo) this.getInventoryData()
   },
   methods: {
     getInventoryData() {
-      requestBN({
-        url: '/inventory/item',
-        methood: 'get',
-        params: { InvNo: this.$route.params.invNo }
-      }).then(response => {
-        this.postForm.Title = response.data.Title
-        this.postForm.Manufacturer = response.data.Manufacturer
-        this.postForm.Type = response.data.Type
-        this.postForm.SupplierId = response.data.SupplierName
-        this.postForm.LocationId = response.data.LocationName
-        this.postForm.InventoryCategoryId = response.data.CategorieName
-        this.postForm.PurchaseDate = response.data.PurchaseDate
-        this.postForm.PurchasePrice = response.data.PurchasePrice
-        this.postForm.Description = response.data.Description
-        this.postForm.Note = response.data.Note
+      inventory.item(this.$route.params.invNo).then(response => {
+        this.postForm.Title = response.Title
+        this.postForm.ManufacturerName = response.ManufacturerName
+        this.postForm.Type = response.Type
+        this.postForm.SerialNumber = ''
+        this.postForm.LocationNumber = response.LocationNumber
+        this.postForm.CategoryId = response.CategoryId
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     onSubmit() {
-      requestBN({
-        method: 'post',
-        url: '/inventory/item',
-        data: { data: this.postForm }
-      }).then(response => {
-        this.submitResponse = response
-        if (response.error == null) {
-          this.$router.push('/inventory/inventoryView/' + response.data.InvNo)
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
-      })
-    },
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
-    getSuppliers() {
-      requestBN({
-        url: '/supplier',
-        methood: 'get'
-      }).then(response => {
-        this.suppliers = response.data
-      })
-    },
-    getInventoryCategories() {
-      requestBN({
-        url: '/inventory/category',
-        methood: 'get'
-      }).then(response => {
-        this.inventoryCategories = response.data
+      inventory.create(this.postForm).then(response => {
+        this.$router.push('/inventory/inventoryView/' + response)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

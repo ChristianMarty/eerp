@@ -8,12 +8,12 @@
           </template>
           <el-form ref="filter" :model="filter" label-width="130px">
             <el-form-item label="Inventory No:">
-              <el-input v-model="filter.InventoryNo" placeholder="" clearable />
+              <el-input v-model="filter.InventoryNumber" placeholder="" clearable />
             </el-form-item>
             <el-form-item label="Category">
               <el-cascader-panel
-                v-model="filter.Category"
-                :options="inventoryCategories"
+                v-model="filter.CategoryId"
+                :options="categories"
                 :props="{
                   emitPath: false,
                   value: 'Id',
@@ -25,11 +25,11 @@
             </el-form-item>
             <el-form-item label="Locaton">
               <el-cascader-panel
-                v-model="filter.Location"
+                v-model="filter.LocationNumber"
                 :options="locations"
                 :props="{
                   emitPath: false,
-                  value: 'LocNr',
+                  value: 'LocationNumber',
                   label: 'Name',
                   children: 'Children',
                   checkStrictly: true
@@ -39,7 +39,7 @@
             <el-form-item>
               <el-button
                 type="primary"
-                @click="onFilterChange"
+                @click="getInventory()"
               >Filter</el-button>
               <el-button
                 type="info"
@@ -59,20 +59,20 @@
           <el-button type="primary" @click="addPrint">Print Label</el-button>
         </el-collapse-item>
       </el-collapse>
-      <p><b>Number of Results: </b>{{ numberOfResults }}</p>
+      <p><b>Number of Results: </b>{{ inventory.length }}</p>
       <el-table :data="inventory" style="width: 100%">
         <el-table-column prop="GroupSelect" label="Select" width="70">
           <template slot-scope="scope">
             <el-checkbox v-model="scope.row.GroupSelect" />
           </template>
         </el-table-column>
-        <el-table-column prop="InvNo" label="Inventory No" width="140" sortable>
+        <el-table-column prop="InventoryNumber" label="Inventory No" width="140" sortable>
           <template slot-scope="{ row }">
             <router-link
-              :to="'/inventory/inventoryView/' + row.InvNo"
+              :to="'/inventory/inventoryView/' + row.InventoryBarcode"
               class="link-type"
             >
-              <span>{{ row.InvNo }}</span>
+              <span>{{ row.InventoryBarcode }}</span>
             </router-link>
           </template>
         </el-table-column>
@@ -83,12 +83,9 @@
           </template>
         </el-table-column>
         <el-table-column prop="Title" label="Title" sortable />
-        <el-table-column prop="Manufacturer" label="Manufacturer" sortable />
+        <el-table-column prop="ManufacturerName" label="Manufacturer" sortable />
         <el-table-column prop="Type" label="Type" sortable />
         <el-table-column prop="SerialNumber" label="Serial Number" sortable />
-        <el-table-column prop="LocationName" label="Location" sortable />
-        <el-table-column prop="PurchasePrice" label="Purchase Price" sortable />
-        <el-table-column prop="PurchaseDate" label="Purchase Date" sortable />
         <el-table-column prop="Status" label="Status" sortable />
       </el-table>
     </template>
@@ -96,64 +93,42 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
 import Cookies from 'js-cookie'
 
-const FilterSettings = {
-  InventoryNo: null,
-  Location: null,
-  Category: null
-}
+import Inventory from '@/api/inventory'
+const inventory = new Inventory()
+
+import Location from '@/api/location'
+const location = new Location()
 
 export default {
   name: 'InventoryBrowser',
   components: {},
   data() {
     return {
-      filter: Object.assign({}, FilterSettings),
-      inventory: null,
-      numberOfResults: 0,
-      locations: null,
-      categories: null,
+      filter: Object.assign({}, inventory.searchParameters),
+      inventory: Object.assign({}, inventory.searchReturn),
+
+      locations: Object.assign({}, location.searchReturn),
+      categories: Object.assign({}, inventory.categoriesReturn),
+
       selected: null
     }
   },
-  mounted() {
-    this.getLocations()
-    this.getInventoryCategories()
+  async mounted() {
     this.onFilterReset()
+
+    this.locations = await location.search()
+    this.categories = await inventory.categories()
   },
   methods: {
-    onFilterChange() {
-      this.getInventory()
-    },
     onFilterReset() {
-      this.filter.InventoryNo = null
-      this.filter.Location = null
-      this.filter.Category = null
+      this.filter = Object.assign({}, inventory.searchParameters)
       this.getInventory()
     },
-    getInventory() {
-      requestBN({
-        url: '/inventory',
-        methood: 'get',
-        params: {
-          InvNo: this.filter.InventoryNo,
-          LocNr: this.filter.Location,
-          CategoryId: this.filter.Category
-        }
-      }).then(response => {
-        this.inventory = response.data.InventoryItems
-        this.numberOfResults = response.data.NumberOfResults
-      })
-    },
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
+    async getInventory() {
+      this.inventory = await inventory.search(this.filter)
     },
     addPrint() {
       var cookieList = []
@@ -178,14 +153,6 @@ export default {
       Cookies.set('invNo', invNoList)
 
       this.$router.push({ path: '/inventory/inventoryLabel' })
-    },
-    getInventoryCategories() {
-      requestBN({
-        url: '/inventory/category',
-        methood: 'get'
-      }).then(response => {
-        this.inventoryCategories = response.data
-      })
     }
   }
 }

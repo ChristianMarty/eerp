@@ -48,100 +48,58 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-import * as defaultSetting from '@/utils/defaultSetting'
 
-const historyData_empty = {
-  InventoryNumber: null,
-  Description: '',
-  Type: '',
-  Date: '',
-  NextDate: null,
-  EditToken: null
-}
+import Inventory from '@/api/inventory'
+const inventory = new Inventory()
 
 export default {
   name: 'InventoryItemHistoryData',
   props: { inventoryNumber: { type: String, default: '' }, visible: { type: Boolean, default: false }, editToken: { type: String, default: null }},
   data() {
     return {
-      historyData: Object.assign({}, historyData_empty),
+      historyData: Object.assign({}, inventory.history.itemReturn),
       recurring: false,
       historyTypeOptions: []
     }
   },
   mounted() {
-    // this.getPrintTemplate()
-  //  this.getPrinter()
   },
   methods: {
-    onOpen() {
-      this.getHistoryTypes()
+    async onOpen() {
+      this.historyTypeOptions = await inventory.history.types()
       this.getHistoryData()
     },
-    getHistoryTypes() {
-      requestBN({
-        url: '/inventory/history/type',
-        methood: 'get'
-      }).then(response => {
-        this.historyTypeOptions = response.data
-      })
-    },
     getHistoryData() {
-      this.historyData = historyData_empty
       if (this.$props.editToken == null) return
-
-      requestBN({
-        url: '/inventory/history/item',
-        methood: 'get',
-        params: { EditToken: this.$props.editToken }
-      }).then(response => {
-        this.historyData = response.data
-
-        if (this.historyData.NextDate !== null) this.recurring = true
-      })
+      inventory.history.search(null, this.$props.editToken)
+        .then(response => {
+          this.historyData = response
+          if (this.historyData.NextDate !== null) this.recurring = true
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response,
+            duration: 1500,
+            type: 'error'
+          })
+        })
     },
     recurringChange(state) {
       if (!state) this.historyData.NextDate = null
     },
     save() {
-      if (this.$props.editToken == null) {
-        this.historyData.InventoryNumber = this.$props.inventoryNumber
-        requestBN({
-          method: 'post',
-          url: '/inventory/history/item',
-          data: this.historyData
-        }).then(response => {
-          if (response.error !== null) {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 1500,
-              type: 'error'
-            })
-          } else {
-            this.closeDialog()
-          }
+      this.historyData.InventoryNumber = this.$props.inventoryNumber
+      this.historyData.EditToken = this.$props.editToken
+      inventory.history.save(this.historyData).then(response => {
+        this.closeDialog()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 1500,
+          type: 'error'
         })
-      } else {
-        this.historyData.EditToken = this.$props.editToken
-        requestBN({
-          method: 'patch',
-          url: '/inventory/history/item',
-          data: this.historyData
-        }).then(response => {
-          if (response.error !== null) {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 1500,
-              type: 'error'
-            })
-          } else {
-            this.closeDialog()
-          }
-        })
-      }
+      })
     },
     closeDialog() {
       this.visible = false
