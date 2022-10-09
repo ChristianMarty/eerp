@@ -64,14 +64,8 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-
-const ingestDocumentData = {
-  FileName: '',
-  Name: '',
-  Description: '',
-  Type: ''
-}
+import Document from '@/api/document'
+const document = new Document()
 
 export default {
   name: 'DocumentIngest',
@@ -81,44 +75,38 @@ export default {
       documentList: [],
       documentTypeOptions: [],
       showDialog: false,
-      dialogData: Object.assign({}, ingestDocumentData),
+      dialogData: Object.assign({}, document.ingestParameters),
       filePreviewPath: ''
     }
   },
-  mounted() {
+  async mounted() {
     this.getFileList()
-    this.getDocumentTypes()
+    this.documentTypeOptions = await document.types()
   },
   methods: {
     openDialog(row) {
       this.showDialog = true
-      this.dialogData = Object.assign({}, ingestDocumentData)
+      this.dialogData = Object.assign({}, document.ingestParameters)
       this.dialogData.FileName = row.FileName
       this.filePreviewPath = row.Path
     },
     ingestFile() {
-      requestBN({
-        method: 'post',
-        url: '/document/ingest/item',
-        data: this.dialogData
-      }).then(response => {
-        if (response.error == null) {
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-          this.showDialog = false
-          this.getFileList()
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 1500,
-            type: 'error'
-          })
-        }
+      document.ingest.ingest(this.dialogData).then(response => {
+        this.$message({
+          showClose: true,
+          message: 'Changes saved successfully',
+          duration: 1500,
+          type: 'success'
+        })
+        this.showDialog = false
+        this.getFileList()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     deleteFile() {
@@ -127,28 +115,22 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        requestBN({
-          method: 'delete',
-          url: '/document/ingest/item',
-          data: this.dialogData
-        }).then(response => {
-          if (response.error == null) {
-            this.$message({
-              showClose: true,
-              message: 'Delete completed',
-              duration: 1500,
-              type: 'success'
-            })
-            this.showDialog = false
-            this.getFileList()
-          } else {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 1500,
-              type: 'error'
-            })
-          }
+        document.ingest.delete(this.dialogData).then(response => {
+          this.$message({
+            showClose: true,
+            message: 'Delete completed',
+            duration: 1500,
+            type: 'success'
+          })
+          this.showDialog = false
+          this.getFileList()
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response.error,
+            duration: 1500,
+            type: 'error'
+          })
         })
       }).catch(() => {
         this.$message({
@@ -158,29 +140,15 @@ export default {
       })
     },
     getFileList() {
-      requestBN({
-        url: '/document/ingest/list',
-        methood: 'get'
-      }).then(response => {
-        if (response.error == null) {
-          this.documentList = response.data
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
-      })
-    },
-    getDocumentTypes() {
-      requestBN({
-        url: '/document/type',
-        methood: 'get',
-        params: { documents: '0' }
-      }).then(response => {
-        this.documentTypeOptions = response.data
+      document.ingest.search().then(response => {
+        this.documentList = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

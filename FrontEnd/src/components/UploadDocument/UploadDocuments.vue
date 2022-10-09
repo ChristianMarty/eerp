@@ -25,8 +25,9 @@
           :auto-upload="false"
           :name="Document"
           limit="1"
-          :on-success="handleSuccess"
+          :on-success="onUploadSuccess"
           :on-change="handlechange"
+          :on-error="onUploadError"
         >
           <i class="el-icon-upload" />
           <div class="el-upload__text">
@@ -50,7 +51,8 @@
         <el-input v-model="postForm.Link" />
       </el-form-item>
 */
-import requestBN from '@/utils/requestBN'
+import Document from '@/api/document'
+const document = new Document()
 
 const formData = {
   Description: null,
@@ -85,29 +87,20 @@ export default {
       return this.value
     }
   },
-  mounted() {
-    this.getDocumentTypes()
+  async mounted() {
+    this.documentTypeOptions = await document.types()
   },
   methods: {
     onSubmit() {
       this.creatDocument()
     },
-    getDocumentTypes() {
-      requestBN({
-        url: '/document/type',
-        methood: 'get',
-        params: { documents: '0' }
-      }).then(response => {
-        this.documentTypeOptions = response.data
-      })
-    },
     resetForm() {
-      this.$refs.upload.clearFiles()
-
       this.postForm.Type = null
       this.postForm.Link = null
       this.postForm.Document = null
       this.postForm.Description = null
+
+      this.$refs.upload.clearFiles()
     },
     handlechange(file, fileList) {
       if (this.postForm.Description === null) {
@@ -118,8 +111,7 @@ export default {
           .replaceAll('_', ' ')
       }
     },
-
-    handleSuccess(response, file, fileList) {
+    onUploadSuccess(response, file, fileList) {
       this.resp = response.data
       if (response.error === null) {
         this.$message({
@@ -136,6 +128,14 @@ export default {
           type: 'error'
         })
       }
+    },
+    onUploadError(err, file, fileList) {
+      this.$message({
+        showClose: true,
+        duration: 0,
+        message: err,
+        type: 'error'
+      })
     },
     creatDocument() {
       this.$refs.upload.submit()

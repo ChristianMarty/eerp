@@ -31,28 +31,21 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Document from '@/api/document'
+const document = new Document()
 
 export default {
   name: 'DocumentBrowser',
   components: {},
   data() {
     return {
-      documents: null
+      documents: []
     }
   },
-  mounted() {
-    this.getDocuments()
+  async mounted() {
+    this.documents = await document.search()
   },
   methods: {
-    getDocuments() {
-      requestBN({
-        url: '/document',
-        methood: 'get'
-      }).then(response => {
-        this.documents = response.data
-      })
-    }
   }
 }
 </script>
