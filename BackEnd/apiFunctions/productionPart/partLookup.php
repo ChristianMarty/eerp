@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$rows = array();
 	$query = "SELECT vendor.Name AS ManufacturerName, ManufacturerPartNumber, Description FROM partLookup "; 
-	$query .= "LEFT JOIN vendor ON vendor.Id = partLookup.VendorId ";
+	$query .= "LEFT JOIN vendor ON vendor.Id = partLookup.ManufacturerId ";
 	$query .= "WHERE partLookup.PartNo = '".$partNo."'";
 	
 
