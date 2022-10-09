@@ -7,10 +7,8 @@
         :cell-style="{ padding: '0', height: '20px' }"
         row-key="Id"
         border
-        stripe
         :tree-props="{ children: 'Children' }"
       >
-        >
         <el-table-column prop="Name" label="Name" />
         <el-table-column prop="LocNr" label="Location Nr">
           <template slot-scope="{ row }">
@@ -22,12 +20,12 @@
             </router-link>
           </template>
         </el-table-column>
-        <el-table-column prop="ESD" label="ESD Save">
+        <el-table-column prop="Attributes.EsdSave" label="ESD Save">
           <template slot-scope="scope">
-            <span v-if="scope.row.ESD == true">
+            <span v-if="scope.row.Attributes.EsdSave == true">
               Yes
             </span>
-            <span v-if="scope.row.ESD == false">
+            <span v-if="scope.row.Attributes.EsdSave == false">
               No
             </span>
           </template>
@@ -46,7 +44,7 @@ export default {
   components: {},
   data() {
     return {
-      locations: Object.assign({}, location.searchReturn)
+      locations: []
     }
   },
   async mounted() {
