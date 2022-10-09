@@ -70,23 +70,25 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-import Cookies from 'js-cookie'
+import Location from '@/api/location'
+const location = new Location()
+
+import Utility from '@/api/utility'
+const utility = new Utility()
 
 export default {
   name: 'LocationAssignment',
   components: {},
   data() {
     return {
+      locations: Object.assign({}, location.searchReturn),
       inputItemNr: null,
       inputLocNr: null,
-
-      locations: null,
       itemList: []
     }
   },
-  mounted() {
-    this.getLocations()
+  async mounted() {
+    this.locations = await location.search()
   },
   methods: {
     resetForm() {
@@ -94,37 +96,18 @@ export default {
       this.inputLocNr = null
       this.itemList = []
     },
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
     selectLocation() {},
     addItem() {
-      requestBN({
-        url: '/util/itemDescription',
-        methood: 'get',
-        params: { Item: this.inputItemNr }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else if (response.data.length == 0) {
+      utility.description(this.inputItemNr).then(response => {
+        if (response.length === 0) {
           this.$message({
             showClose: true,
             message: 'Item dose not exist!',
             type: 'warning'
           })
         } else {
-          if (response.data.Movable == true) {
-            this.itemList.unshift(response.data)
+          if (response.Movable === true) {
+            this.itemList.unshift(response)
           } else {
             this.$message({
               showClose: true,
@@ -133,6 +116,13 @@ export default {
             })
           }
         }
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
       this.inputItemNr = null
       this.$refs.itemNrInput.focus()
@@ -158,35 +148,25 @@ export default {
         return
       }
 
-      var transferData = {
-        LocNr: this.inputLocNr,
-        ItemList: []
-      }
-
+      var itemList = []
       this.itemList.forEach(element => {
-        transferData.ItemList.push(element.Item)
+        itemList.push(element.Item)
       })
 
-      requestBN({
-        method: 'post',
-        url: '/location/transfer',
-        data: { data: transferData }
-      }).then(response => {
-        if (response.error == null) {
-          this.resetForm()
-          this.$message({
-            showClose: true,
-            message: 'Item Transfer Successful',
-            type: 'success'
-          })
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      location.transfer(this.inputLocNr, itemList).then(response => {
+        this.resetForm()
+        this.$message({
+          showClose: true,
+          message: 'Item Transfer Successful',
+          type: 'success'
+        })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

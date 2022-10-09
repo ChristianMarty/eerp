@@ -12,8 +12,8 @@ require_once __DIR__ . "/../databaseConnector.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["LocationNr"])) sendResponse(null,"LocationNr not specified");
-	$locationNr = strtolower($_GET["LocationNr"]);
+	if(!isset($_GET["LocationNumber"])) sendResponse(null,"LocationNumber not specified");
+	$locationNr = strtolower($_GET["LocationNumber"]);
 	
 	if(substr($locationNr,0,4) != "loc-")  sendResponse(null,"Invalid Location Number");
 	$locationNr = str_replace("loc-","",$locationNr);

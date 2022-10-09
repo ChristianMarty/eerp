@@ -31,12 +31,16 @@
         @change="getSummary"
       />
     </p>
+    <p>
+      <el-button type="danger" @click="resetForm">Clear</el-button>
+    </p>
+
     <h2>{{ itemList.length }} Items Found</h2>
 
     <p>
       <el-table :data="itemList" border style="width: 100%">
-        <el-table-column prop="Item" label="Item Nr." width="120" sortable/>
-        <el-table-column prop="Category" label="Category" width="120" sortable/>
+        <el-table-column prop="Item" label="Item Nr." width="120" sortable />
+        <el-table-column prop="Category" label="Category" width="120" sortable />
         <el-table-column
           prop="Description"
           label="Description"
@@ -44,65 +48,47 @@
         />
       </el-table>
     </p>
-    <p>
-      <el-button type="danger" @click="resetForm">Clear</el-button>
-    </p>
   </div>
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Location from '@/api/location'
+const location = new Location()
 
 export default {
   name: 'LocationAssignment',
   data() {
     return {
-      inputLocNr: null,
-      locations: null,
+      locations: Object.assign({}, location.searchReturn),
+      inputLocNr: '',
       itemList: []
     }
   },
-  mounted() {
-    this.getLocations()
+  async mounted() {
+    this.locations = await location.search()
 
     if (this.$route.params.LocationNr != null) {
-      if (this.$route.params.LocationNr != ':LocationNr(.*)') {
+      if (this.$route.params.LocationNr !== ':LocationNr(.*)') {
         this.inputLocNr = this.$route.params.LocationNr
         this.getSummary()
       }
     }
-
-    
   },
   methods: {
     resetForm() {
       this.inputLocNr = null
       this.itemList = []
     },
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
     getSummary() {
-      requestBN({
-        url: '/location/summary',
-        methood: 'get',
-        params: { LocationNr: this.inputLocNr }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.itemList = response.data
-        }
+      location.summary(this.inputLocNr).then(response => {
+        this.itemList = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
       this.inputItemNr = null
     }

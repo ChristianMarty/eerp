@@ -70,8 +70,8 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-import Cookies from 'js-cookie'
+import Location from '@/api/location'
+const location = new Location()
 
 export default {
   name: 'LocationBulkTransfer',
@@ -80,13 +80,12 @@ export default {
     return {
       oldLocNr: null,
       newLocNr: null,
-
-      locations: null,
+      locations: Object.assign({}, location.searchReturn),
       itemList: []
     }
   },
-  mounted() {
-    this.getLocations()
+  async mounted() {
+    this.locations = await location.search()
   },
   methods: {
     resetForm() {
@@ -94,30 +93,16 @@ export default {
       this.newLocNr = null
       this.itemList = []
     },
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
     getSummary() {
-      requestBN({
-        url: '/location/summary',
-        methood: 'get',
-        params: { LocationNr: this.oldLocNr }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.itemList = response.data
-        }
+      location.summary(this.oldLocNr).then(response => {
+        this.itemList = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
       this.inputItemNr = null
     },
@@ -141,27 +126,20 @@ export default {
         return
       }
 
-      requestBN({
-        method: 'post',
-        url: '/location/bulkTransfer',
-        data: { OldLocationNr: this.oldLocNr, NewLocationNr: this.newLocNr }
-      }).then(response => {
-        if (response.error == null) {
-          this.resetForm()
-          this.$message({
-            showClose: true,
-            message: 'Transfer Successful',
-            type: 'success'
-          })
-          this.resetForm()
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      location.bulkTransfer(this.oldLocNr, this.newLocNr).then(response => {
+        this.resetForm()
+        this.$message({
+          showClose: true,
+          message: 'Transfer Successful',
+          type: 'success'
+        })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

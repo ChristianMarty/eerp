@@ -38,7 +38,7 @@ function generateSummary($locationNr)
 	
 	if($itemPrefix == "stk")
 	{
-		$query = "SELECT * FROM partStock_view WHERE StockNo = '".$itemNr."'";
+		$query = "SELECT ManufacturerName, ManufacturerPartNumber, Date, Quantity, LocationId FROM partStock_view WHERE StockNo = '".$itemNr."'";
 
 		$result = dbRunQuery($dbLink,$query);
 		
@@ -85,6 +85,32 @@ function generateSummary($locationNr)
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
 	}
+	else if($itemPrefix == "asi")  
+	{
+		$query  = "SELECT Name, Description, SerialNumber, LocationId FROM assembly_item ";
+		$query .= "LEFT JOIN assembly ON assembly.Id = assembly_item.AssemblyId ";
+		$query .= "WHERE AssemblyItemNo = '".$itemNr."'";
+		
+		$result = dbRunQuery($dbLink,$query);
+		
+		if(mysqli_num_rows($result) == 0)
+		{
+			$response['error'] ="Item not found";
+			return $response;
+		}
+		
+		$itemData = mysqli_fetch_assoc($result);
+		
+		$descriptor = $itemData["Name"];
+		$descriptor .= " - ".$itemData["Description"]." SN: ".$itemData["SerialNumber"];
+		
+		$locationId = $itemData["LocationId"];
+		
+		$data["Item"] = "ASI-".$itemNr;
+		$data["Category"] = "Assembly Item";
+		$data["Description"] = $descriptor; 
+		$data["Movable"] = true;
+	}
 	else if($itemPrefix == "loc")
 	{
 		$query = "SELECT LocNr, location_getName(Id) AS Name, Movable, location_getName(LocationId) AS LocationName from location where LocNr = ".$itemNr;
@@ -108,9 +134,6 @@ function generateSummary($locationNr)
 	}
 	else 
 	{
-		
-		
-		
 		$response['error'] ="Unknown Item Category";
 		return $response;
 	}

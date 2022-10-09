@@ -16,8 +16,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 
-	$oldLocationNr = dbEscapeString($dbLink,strtolower($data['OldLocationNr']));
-	$newLocationNr = dbEscapeString($dbLink,strtolower($data['NewLocationNr']));
+	$oldLocationNr = dbEscapeString($dbLink,strtolower($data['SourceLocationNumber']));
+	$newLocationNr = dbEscapeString($dbLink,strtolower($data['DestinationLocationNumber']));
 	
 	if(substr($oldLocationNr,0,4) != "loc-")  sendResponse(null,"Invalid sourse location");
 	$oldLocationNr = str_replace("loc-","",$oldLocationNr);
@@ -28,6 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$invQuery = "UPDATE inventory SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
 	$stkQuery = "UPDATE partStock SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
 	$locQuery = "UPDATE location  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
+	$locQuery = "UPDATE assembly_item  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
 	
 	$query = $invQuery.$stkQuery.$locQuery;
 	
@@ -42,3 +43,4 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	sendResponse(null,$error);
 }
 ?>
+

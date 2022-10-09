@@ -2,7 +2,7 @@
   <div class="app-container">
     <template>
       <el-table
-        :data="packages"
+        :data="locations"
         style="width: 100%;"
         :cell-style="{ padding: '0', height: '20px' }"
         row-key="Id"
@@ -38,28 +38,21 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Location from '@/api/location'
+const location = new Location()
 
 export default {
   name: 'LocationBrowser',
   components: {},
   data() {
     return {
-      packages: null
+      locations: Object.assign({}, location.searchReturn)
     }
   },
-  mounted() {
-    this.getPackages()
+  async mounted() {
+    this.locations = await location.search()
   },
   methods: {
-    getPackages() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.packages = response.data
-      })
-    }
   }
 }
 </script>
