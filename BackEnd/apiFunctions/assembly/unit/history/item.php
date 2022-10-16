@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : item.php
-// FilePath : apiFunctions/assembly/history/
+// FilePath : apiFunctions/assembly/unit/history/
 // Author   : Christian Marty
 // Date		: 21.08.2022
 // License  : MIT
@@ -106,7 +106,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNo = '".$assemblyNo."' )";
+	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyNo."' )";
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
 	$query = dbBuildInsertQuery($dbLink,"assembly_unit_history", $sqlData);
 	

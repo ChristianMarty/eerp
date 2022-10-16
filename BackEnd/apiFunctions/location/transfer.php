@@ -28,9 +28,9 @@ function filterLoc($var)
 	else return 0;
 }
 
-function filterAsi($var)
+function filterAsu($var)
 {
-	if(explode("-",strtolower($var))[0] == "asi") return 1;
+	if(explode("-",strtolower($var))[0] == "asu") return 1;
 	else return 0;
 }
 
@@ -69,13 +69,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$invList = array_filter($itemList, "filterInv");
 	$stkList = array_filter($itemList, "filteStk");
 	$locList = array_filter($itemList, "filterLoc");
-	$asiList = array_filter($itemList, "filterAsi");
+	$asiList = array_filter($itemList, "filterAsu");
 	
 	$error = "";
 	if(!empty($invList)) $error .= moveItems($dbLink, $invList, $locationNr, "inventory", "InvNo");
 	if(!empty($stkList)) $error .= moveItems($dbLink, $stkList, $locationNr, "partStock", "StockNo");
 	if(!empty($locList)) $error .= moveItems($dbLink, $locList, $locationNr, "location", "LocNr");
-	if(!empty($asiList)) $error .= moveItems($dbLink, $asiList, $locationNr, "assembly_item", "AssemblyItemNo");
+	if(!empty($asiList)) $error .= moveItems($dbLink, $asiList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
 	
 	if(empty($error)) $error = null;
 	

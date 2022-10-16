@@ -85,11 +85,11 @@ function generateSummary($locationNr)
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
 	}
-	else if($itemPrefix == "asi")  
+	else if($itemPrefix == "asu")  
 	{
-		$query  = "SELECT Name, Description, SerialNumber, LocationId FROM assembly_item ";
-		$query .= "LEFT JOIN assembly ON assembly.Id = assembly_item.AssemblyId ";
-		$query .= "WHERE AssemblyItemNo = '".$itemNr."'";
+		$query  = "SELECT Name, Description, SerialNumber, LocationId FROM assembly_unit ";
+		$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
+		$query .= "WHERE AssemblyUnitNumber = '".$itemNr."'";
 		
 		$result = dbRunQuery($dbLink,$query);
 		
@@ -106,7 +106,7 @@ function generateSummary($locationNr)
 		
 		$locationId = $itemData["LocationId"];
 		
-		$data["Item"] = "ASI-".$itemNr;
+		$data["Item"] = "ASU-".$itemNr;
 		$data["Category"] = "Assembly Item";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
