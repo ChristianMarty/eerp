@@ -117,7 +117,7 @@ export default {
     },
     addHistoryItem() {
       const historyCreateParameters = Object.assign({}, assembly.unit.history.historyCreateParameters)
-      historyCreateParameters.AssemblyUnitNumber = this.assemblyData.AssemblyItemNo
+      historyCreateParameters.AssemblyUnitNumber = this.assemblyUnitData.AssemblyUnitNumber
       historyCreateParameters.Title = this.editHistoryData.Title
       historyCreateParameters.Description = this.editHistoryData.Description
       historyCreateParameters.Data = this.editHistoryData.Data
