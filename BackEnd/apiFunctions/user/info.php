@@ -11,14 +11,31 @@
 require_once __DIR__ . "/../../config.php";
 global $devMode;
 
+function buildRoles($rolesObject, &$roleStringArray, $roleStringPart)
+{
+	$categoryStringPart = $roleStringPart;
+	
+	foreach($rolesObject as $key => $role)
+	{
+		if(is_object($role))
+		{
+			$roleStringPart = buildRoles($role,$roleStringArray,$categoryStringPart.$key.".");
+		}
+		else
+		{
+			if($role == true) array_push($roleStringArray, $roleStringPart.$key);
+		}
+	}
 
+	return $categoryStringPart;
+}
 
 $returnData = array();
 
 if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
-$json =  '{"assembly":{"view": true, "create": true, "history" : {"add": true, "edit": true}},
+$json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "history" : {"add": true, "edit": true}}},
 			"inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}},
 			"purchasing":{"create": true, "edit": true, "confirm": true},
 			"supplier":{"view": true, "create": true},
@@ -35,27 +52,7 @@ $json =  '{"assembly":{"view": true, "create": true, "history" : {"add": true, "
 	$roles = json_decode($json);
 	
 	$roles_array = array();
-	foreach($roles as $key => $category)
-	{
-		$categoryName = $key;
-		foreach($category as $key => $role)
-		{
-			if(is_object($role))
-			{
-				$subCategoryName = $key;
-				foreach($role as $key => $role)
-				{
-					$roleStr = $categoryName.".".$subCategoryName.".".$key;
-					if($role == true) array_push($roles_array, $roleStr);
-				}
-			}
-			else
-			{
-				$roleStr = $categoryName.".".$key;
-				if($role == true) array_push($roles_array, $roleStr);
-			}
-		}
-	}
+	buildRoles($roles, $roles_array, "");
 	
 	$returnData['roles'] = $roles_array;
 	$returnData['introduction'] = "I am Dev Mode";
@@ -69,7 +66,10 @@ $json =  '{"assembly":{"view": true, "create": true, "history" : {"add": true, "
 }
 else
 {
-	$returnData['roles'] = $_SESSION['UserRolesString'];
+	$roles_array = array();
+	buildRoles($_SESSION['UserRoles'], $roles_array, "");
+	
+	$returnData['roles'] = $roles_array;
 	$returnData['settings'] = $_SESSION["Settings"];
 	$returnData['rolesJson'] = $_SESSION['UserRoles'];
 	$returnData['introduction'] = "I am ".$_SESSION["username"];

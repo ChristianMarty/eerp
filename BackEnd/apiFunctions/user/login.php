@@ -92,33 +92,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$returnData = array();
 		$returnData['DisplayName'] = "User";//$userAttributes['displayName'][0];
 		$returnData['UserRoles'] = $userRolesTree;
-		
-		$roles_array = array();
-		$roles = $_SESSION['UserRoles'];
-
-		foreach($roles as $key => $category)
-		{
-			$categoryName = $key;
-			foreach($category as $key => $role)
-			{
-				if(is_object($role))
-				{
-					$subCategoryName = $key;
-					foreach($role as $key => $role)
-					{
-						$roleStr = $categoryName.".".$subCategoryName.".".$key;
-						if($role == true) array_push($roles_array, $roleStr);
-					}
-				}
-				else
-				{
-					$roleStr = $categoryName.".".$key;
-					if($role == true) array_push($roles_array, $roleStr);
-				}
-			}
-		}
-		
-		$_SESSION['UserRolesString'] = $roles_array;
 
 		sendResponse($returnData);
 	}
