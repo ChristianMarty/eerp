@@ -1,53 +1,61 @@
 <?php
 //*************************************************************************************************
-// FileName : assemblyItem.php
-// FilePath : apiFunctions/
+// FileName : unit.php
+// FilePath : apiFunctions/assembly/
 // Author   : Christian Marty
 // Date		: 16.08.2022
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/databaseConnector.php";
-require __DIR__ . "/../config.php";
+require_once __DIR__ . "/../../databaseConnector.php";
+require __DIR__ . "/../../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
+	if(!isset($_GET['AssemblyUnitNumber'])) sendResponse(null,"AssemblyUnitNumber missing");
+	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-
-	$query  = "SELECT * FROM assembly_item ";
-	$query .= "LEFT JOIN assembly ON assembly.Id = assembly_item.AssemblyId ";
 	
-	if(isset($_GET["SerialNumber"]))
-	{
-		$sn = dbEscapeString($dbLink, $_GET["SerialNumber"]);
-		$query .= "WHERE SerialNumber LIKE '".$sn."'";
-	}
+	$assemblyUnitNumber = dbEscapeString($dbLink, $_GET["AssemblyUnitNumber"]);
+	$assemblyUnitNumber = strtolower($assemblyUnitNumber);
+	$assemblyUnitNumber = str_replace("asu-","",$assemblyUnitNumber);
 	
-	$queryParam = array();
-
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	
+	// Get History Data
+	$query  = "SELECT * FROM assembly_unit_history ";
+	$query .= "WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyUnitNumber."')";
+	$query .= " ORDER BY Date DESC";
 	$result = dbRunQuery($dbLink,$query);
-	
 	$assembly = array();
-
+	
+	$history = array();
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$r['AssemblyBarcode'] = "ASM-".$r['AssemblyNo'];
-		$r['AssemblyItemBarcode'] = "ASI-".$r['AssemblyItemNo'];
-		$assembly[] = $r;
+		$history[] = $r;
 	}
 
+	$query  = "SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit ";
+	//$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
+	
+	$queryParam = array();
+	array_push($queryParam, " AssemblyUnitNumber = '".$assemblyUnitNumber."'");		
+	$query = dbBuildQuery($dbLink, $query, $queryParam);
+	$result = dbRunQuery($dbLink,$query);
+	
+	$output = array();
+
+	$output = mysqli_fetch_assoc($result);
+	$output['History'] = $history;
+	
 	dbClose($dbLink);	
-	sendResponse($assembly);
+	sendResponse($output);
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data['SerialNumber']) or !isset($data['AssemblyNumber'])) sendResponse($output,"SerialNumber or  AssemblyNumber missing");
+	if(!isset($data['SerialNumber']) or !isset($data['AssemblyNumber'])) sendResponse($output,"SerialNumber or AssemblyNumber missing");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
@@ -70,12 +78,12 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData = array();
 	$sqlData['SerialNumber'] = $serialNumber;
 	$sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNo = ".$workOrderNumber.")";
-	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNo = ".$assemblyNumber.")";
-	$sqlData['AssemblyItemNo']['raw'] = "(SELECT generateItemNumber())";
+	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNumber = ".$assemblyNumber.")";
+	$sqlData['AssemblyUnitNumber']['raw'] = "(SELECT generateItemNumber())";
 	
-	$query = dbBuildInsertQuery($dbLink,"assembly_item", $sqlData);
+	$query = dbBuildInsertQuery($dbLink,"assembly_unit", $sqlData);
 	
-	$query .= " SELECT AssemblyItemNo FROM assembly_item WHERE Id = LAST_INSERT_ID();";
+	$query .= " SELECT AssemblyUnitNumber FROM assembly_unit WHERE Id = LAST_INSERT_ID();";
 
 	$error = null;
 	$output = null;

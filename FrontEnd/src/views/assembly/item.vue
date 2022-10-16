@@ -1,77 +1,79 @@
 <template>
   <div class="app-container">
-    <h1>{{ assemblyData.AssemblyItemBarcode }}, {{ assemblyData.Name }}</h1>
-    <p><b>Assembly Barcode: </b>{{ assemblyData.AssemblyBarcode }}</p>
-    <p><b>Serial Number: </b>{{ assemblyData.SerialNumber }}</p>
-    <p><b>Location: </b>{{ assemblyData.LocationName }}</p>
+    <h1>{{ assemblyData.AssemblyBarcode }}, {{ assemblyData.Name }}</h1>
+    <p>{{ assemblyData.Description }}</p>
 
     <el-divider />
-    <h2>History</h2>
+
     <el-button
-      v-permission="['assembly.history.add']"
+      v-permission="['assembly.unit.add']"
       type="primary"
       icon="el-icon-plus"
       circle
       style="margin-top: 20px; margin-bottom: 20px"
-      @click="showEditHistoryDialog(null)"
+      @click="addUnit()"
     />
-    <el-timeline>
-      <el-timeline-item
-        v-for="(line, index) in assemblyData.History"
-        :key="index"
-        :color="line.color"
-        :timestamp="line.Date"
-        placement="top"
-      >
-        <el-card>
-          <b>{{ line.Title }}</b>
-          <p>{{ line.Description }}</p>
-          <el-button @click.native="showHistoryDialog(line.Id)">Show Data</el-button>
-          <el-button v-if="line.EditToken" v-permission="['assembly.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.Id)">Edit</el-button>
-        </el-card>
-      </el-timeline-item>
-    </el-timeline>
 
-    <el-dialog title="Add History Item" :visible.sync="editHistoryVisible">
+    <el-table
+      v-permission="['assembly.unit.add']"
+      :data="assemblyData.Unit"
+      style="width: 100%"
+      height="82vh"
+    >
+      <el-table-column prop="AssemblyUnitBarcode" label="Assembly Unit No" sortable width="180">
+        <template slot-scope="{ row }">
+          <router-link :to="'/assembly/unit/item/' + row.AssemblyUnitBarcode" class="link-type">
+            <span>{{ row.AssemblyUnitBarcode }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="SerialNumber" label="SerialNumber" sortable />
+      <el-table-column prop="LocationName" label="Location" sortable />
+    </el-table>
+
+    <el-dialog title="Add History Item" :visible.sync="unitCreateVisible">
       <el-form label-width="120px">
-        <el-form-item label="Title">
-          <el-input v-model="editHistoryData.Title" />
+        <el-form-item label="Serial Number:">
+          <el-input v-model="assemblyCreateData.SerialNumber" />
         </el-form-item>
-        <el-form-item label="Description">
-          <el-input v-model="editHistoryData.Description" type="textarea" />
-        </el-form-item>
-        <el-form-item label="Data (JSON)">
-          <el-input v-model="editHistoryData.Data" type="textarea" />
+        <el-form-item label="Work Order:">
+          <el-select v-model="assemblyCreateData.WorkOrderNumber" filterable style="width: 100%">
+            <el-option
+              v-for="wo in workOrders"
+              :key="wo.Id"
+              :label="wo.WorkOrderBarcode + ' -- ' + wo.Title"
+              :value="wo.WorkOrderNo"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="editHistoryItem();">Save</el-button>
-        <el-button @click="editHistoryVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="createUnit();">Save</el-button>
+        <el-button @click="unitCreateVisible = false">Cancel</el-button>
       </span>
     </el-dialog>
-
-    <assemblyDataDialog :id="historyId" :visible.sync="assemblyDataDialogVisible" />
 
   </div>
 </template>
 
 <script>
 import permission from '@/directive/permission/index.js'
-import requestBN from '@/utils/requestBN'
-import assemblyDataDialog from './components/dataDialog'
+
+import Assembly from '@/api/assembly'
+const assembly = new Assembly()
+
+import WorkOrder from '@/api/workOrder'
+const workOrder = new WorkOrder()
 
 export default {
   name: 'AssemblyView',
-  components: { assemblyDataDialog },
+  components: { },
   directives: { permission },
   data() {
     return {
       assemblyData: {},
-      editHistoryData: {},
-      historyItemData: {},
-      editHistoryVisible: false,
-      assemblyDataDialogVisible: false,
-      historyId: 0
+      assemblyCreateData: Object.assign({}, assembly.assemblyCreate),
+      unitCreateVisible: false
     }
   },
   created() {
@@ -80,125 +82,48 @@ export default {
     // https://github.com/PanJiaChen/vue-element-admin/issues/1221
     this.tempRoute = Object.assign({}, this.$route)
   },
-  mounted() {
-    this.getAssemblyItem()
-    this.setTagsViewTitle()
-    this.setPageTitle()
+  async mounted() {
+    this.assemblyData = await assembly.item(this.$route.params.AssemblyNumber)
+    this.workOrders = await workOrder.search('InProgress')
+    this.setTitle()
   },
   methods: {
-    setTagsViewTitle() {
+    setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.$route.params.AssemblyItemNo}`
+        title: `${this.$route.params.AssemblyNumber}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
+      document.title = `${this.$route.params.AssemblyNumber}`
     },
-    setPageTitle() {
-      document.title = `${this.$route.params.AssemblyItemNo}`
+    addUnit() {
+      this.unitCreateVisible = true
     },
-    showEditHistoryDialog(id) {
-      if (id === null) {
-        this.editHistoryData = {}
-      } else {
-        this.getHistoryData(id)
-      }
+    createUnit() {
+      this.assemblyCreateData.AssemblyNumber = this.assemblyData.AssemblyNumber
 
-      this.editHistoryVisible = true
-    },
-    showHistoryDialog(id) {
-      this.historyId = id
-      this.assemblyDataDialogVisible = true
-    },
-    editHistoryItem() {
-      if (this.editHistoryData.EditToken == null) {
-        this.addHistoryItem()
-      } else {
-        this.updateHistoryItem()
-      }
-    },
-    addHistoryItem() {
-      requestBN({
-        method: 'post',
-        url: '/assembly/history/item',
-        data: {
-          AssemblyItemNo: this.assemblyData.AssemblyItemNo,
-          Title: this.editHistoryData.Title,
-          Description: this.editHistoryData.Description,
-          Data: this.editHistoryData.Data
-        }
-      }).then(response => {
-        if (response.error !== null) {
+      assembly.unit.create(this.assemblyCreateData).then(response => {
+        assembly.item(this.$route.params.AssemblyNumber).then(response => {
+          this.assemblyData = response
+          this.assemblyCreateData = Object.assign({}, assembly.assemblyCreate)
+          this.unitCreateVisible = false
+        }).catch(response => {
           this.$message({
             showClose: true,
-            message: response.error,
-            duration: 1500,
+            message: response,
+            duration: 0,
             type: 'error'
           })
-        } else {
-          this.editHistoryVisible = false
-          this.editHistoryData = {}
-          this.getAssemblyItem()
-        }
-      })
-    },
-    updateHistoryItem() {
-      requestBN({
-        method: 'patch',
-        url: '/assembly/history/item',
-        data: {
-          EditToken: this.editHistoryData.EditToken,
-          Title: this.editHistoryData.Title,
-          Description: this.editHistoryData.Description,
-          Data: this.editHistoryData.Data
-        }
-      }).then(response => {
-        if (response.error !== null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 1500,
-            type: 'error'
-          })
-        } else {
-          this.editHistoryVisible = false
-          this.addHistoryData = {}
-          this.getAssemblyItem()
-        }
-      })
-    },
-    getHistoryData(id) {
-      requestBN({
-        url: '/assembly/history/item',
-        methood: 'get',
-        params: {
-          AssemblyHistoryId: id
-        }
-      }).then(response => {
-        this.editHistoryData = response.data
-        var data = this.editHistoryData.Data
-        if (data === null) this.editHistoryData.Data = ''
-        else this.editHistoryData.Data = JSON.stringify(data)
-        this.editHistoryToken = this.editHistoryData.EditToken
-      })
-    },
-    getAssemblyItem() {
-      requestBN({
-        url: '/assembly/item',
-        methood: 'get',
-        params: { AssemblyItemNo: this.$route.params.AssemblyItemNo }
-      }).then(response => {
-        this.assemblyData = response.data
+        })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }
 
 }
 </script>
-
-<style>
-.el-table .warning-row {
-  background: oldlace;
-}
-.el-table .error-row {
-  background: Lavenderblush;
-}
-</style>

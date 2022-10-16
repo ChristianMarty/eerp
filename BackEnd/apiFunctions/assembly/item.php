@@ -11,60 +11,52 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require __DIR__ . "/../../config.php";
 
-
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["AssemblyItemNo"])) sendResponse(Null,"AssemblyItemNo not set");
+	if(!isset($_GET["AssemblyNumber"])) sendResponse(Null,"Assembly Number not set");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "SELECT *, assembly_item_history.Id AS HistoryItemId, location_getName(LocationId) AS LocationName FROM assembly ";	
-	$query .= "LEFT JOIN assembly_item ON  assembly.Id = assembly_item.AssemblyId ";
-	$query .= "LEFT JOIN assembly_item_history ON  assembly_item.Id = assembly_item_history.AssemblyItemId ";
+	$query  = "SELECT AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName FROM assembly_unit ";
 
 	$queryParam = array();
-	$temp = dbEscapeString($dbLink, $_GET["AssemblyItemNo"]);
+	$temp = dbEscapeString($dbLink, $_GET["AssemblyNumber"]);
 	$temp = strtolower($temp);
-	$assemblyItemNo = str_replace("asi-","",$temp);
+	$assemblyNumber = str_replace("asm-","",$temp);
 
-	array_push($queryParam, "AssemblyItemNo LIKE '".$assemblyItemNo."'");		
+	array_push($queryParam, "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '".$assemblyNumber."')");		
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	$query .= " ORDER BY assembly_item_history.Date DESC";
-	
+	$query .= " ORDER BY assembly_unit.SerialNumber DESC";
 	
 	$result = dbRunQuery($dbLink,$query);
 	
-	$assembly = array();
-	$history = array();
+	$output = array();
+	$output['Unit'] = array();
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$assembly = $r;
 		$temp = array();
-		$temp['Title'] = $r['Title'];
-		$temp['Description'] = $r['Description'];
-		//$temp['Data'] = $r['Data'];
-		$temp['EditToken'] = $r['EditToken'];
-		$temp['Date'] = $r['Date'];
-		$temp['Id'] = intval($r['HistoryItemId']);
+		$temp['AssemblyUnitNumber'] = $r['AssemblyUnitNumber'];
+		$temp['AssemblyUnitBarcode'] = "ASU-".$r['AssemblyUnitNumber'];
+		$temp['Note'] = $r['Note'];
+		$temp['LocationName'] = $r['LocationName'];
+		$temp['SerialNumber'] = $r['SerialNumber'];
 		
-		$history[] = $temp;
+		$output['Unit'][] = $temp;
 	}
 	
-	$output = array();
-	$output['AssemblyBarcode'] = "ASM-".$assembly['AssemblyNo'];
-	$output['AssemblyItemBarcode'] = "ASI-".$assembly['AssemblyItemNo'];
-		
-	$output['AssemblyNo'] = $assembly['AssemblyNo'];
-	$output['AssemblyItemNo'] = $assembly['AssemblyItemNo'];
-	$output['Name'] = $assembly['Name'];
-	$output['Description'] = $assembly['Description'];
-	$output['SerialNumber'] = $assembly['SerialNumber'];
-	$output['LocationName'] = $assembly['LocationName'];
 	
-	$output['History'] = $history;
+	$query  = "SELECT * FROM assembly WHERE AssemblyNumber = ".$assemblyNumber;
+	$result = dbRunQuery($dbLink,$query);
+	
+	$r = mysqli_fetch_assoc($result);
+	$output['AssemblyNumber'] = $r['AssemblyNumber'];
+	$output['AssemblyBarcode'] = "ASM-".$r['AssemblyNumber'];
+	$output['Name'] = $r['Name'];
+	$output['Description'] = $r['Description'];
+	
 	
 	dbClose($dbLink);	
 	sendResponse($output);

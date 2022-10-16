@@ -15,12 +15,13 @@
       <p><b>Data</b></p>
       <el-table
         :data="tableData"
-        border
         style="width: 100%; margin-bottom: 20px"
         :header-cell-style="{ padding: '0', height: '20px' }"
         :cell-style="{ padding: '0', height: '20px' }"
         default-expand-all
         row-key="id"
+        border
+        :tree-props="{ children: 'children' }"
       >
         <el-table-column prop="key" label="Key" sortable />
         <el-table-column prop="value" label="Value" sortable />
@@ -42,6 +43,9 @@
 <script>
 import requestBN from '@/utils/requestBN'
 import * as defaultSetting from '@/utils/defaultSetting'
+
+import Assembly from '@/api/assembly'
+const assembly = new Assembly()
 
 export default {
   name: 'AssemblyItemHistoryData',
@@ -65,14 +69,8 @@ export default {
       this.getHistoryData()
     },
     getHistoryData() {
-      requestBN({
-        url: '/assembly/history/item',
-        methood: 'get',
-        params: {
-          AssemblyHistoryId: this.$props.id
-        }
-      }).then(response => {
-        this.data = response.data
+      assembly.unit.history.item(this.$props.id).then(response => {
+        this.data = response
         this.tableData = []
         if (this.data.Data === null) return
 
@@ -106,17 +104,11 @@ export default {
       })
     },
     print() {
-      requestBN({
-        url: '/assembly/history/item',
-        methood: 'get',
-        params: {
-          AssemblyHistoryId: this.$props.id
-        }
-      }).then(response => {
+      assembly.unit.history.item(this.$props.id).then(response => {
         requestBN({
           method: 'post',
           url: '/print/assemblyBonPrint',
-          data: { data: response.data, PrinterId: this.selectedPrinterId }
+          data: { data: response, PrinterId: this.selectedPrinterId }
         }).then(response => {
           if (response.error !== null) {
             this.$message({

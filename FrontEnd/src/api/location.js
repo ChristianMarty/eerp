@@ -27,7 +27,7 @@ class Location {
         if (response.error == null) {
           resolve(response.data)
         } else {
-          reject()
+          reject(response.error)
         }
       })
     })

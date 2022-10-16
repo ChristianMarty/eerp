@@ -5,30 +5,12 @@
 
     <el-form label-width="150px">
 
-      <el-form-item label="Assembly:">
-        <el-select v-model="assemblyData.AssemblyNumber" filterable style="width: 100%">
-          <el-option
-            v-for="item in assembly"
-            :key="item.AssemblyNo"
-            :label="item.Name + ' -- ' + item.Description"
-            :value="item.AssemblyNo"
-          />
-        </el-select>
+      <el-form-item label="Name:">
+        <el-input v-model="assemblyData.Name" />
       </el-form-item>
 
-      <el-form-item label="Serial Number:">
-        <el-input v-model="assemblyData.SerialNumber" />
-      </el-form-item>
-
-      <el-form-item label="Work Order:">
-        <el-select v-model="assemblyData.WorkOrderNumber" filterable style="width: 100%">
-          <el-option
-            v-for="wo in workOrders"
-            :key="wo.Id"
-            :label="wo.WorkOrderBarcode + ' -- ' + wo.Title"
-            :value="wo.WorkOrderNo"
-          />
-        </el-select>
+      <el-form-item label="Description:">
+        <el-input v-model="assemblyData.Description" />
       </el-form-item>
 
       <el-form-item>
@@ -39,62 +21,29 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-
-const assemblyDataEmpty = {
-  SerialNumber: '',
-  AssemblyNumber: '',
-  WorkOrderNumber: ''
-}
+import Assembly from '@/api/assembly'
+const assembly = new Assembly()
 
 export default {
   components: {},
   data() {
     return {
-      assemblyData: Object.assign({}, assemblyDataEmpty),
-      supplierName: '',
-      assembly: [],
-      workOrders: []
+      assemblyData: Object.assign({}, assembly.assemblyCreateParameters)
     }
   },
   mounted() {
-    this.getAssembly()
-    this.getWorkOrders()
   },
   methods: {
-    getAssembly() {
-      requestBN({
-        url: '/assembly',
-        methood: 'get'
-      }).then(response => {
-        this.assembly = response.data
-      })
-    },
-    getWorkOrders() {
-      requestBN({
-        url: '/workOrder',
-        methood: 'get',
-        params: { Status: 'InProgress' }
-      }).then(response => {
-        this.workOrders = response.data
-      })
-    },
     save() {
-      requestBN({
-        method: 'post',
-        url: '/assemblyItem',
-        data: this.assemblyData
-      }).then(response => {
-        if (response.error !== null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.$router.push('/assembly/item/' + response.data)
-        }
+      assembly.create(this.assemblyData).then(response => {
+        this.$router.push('/assembly/item/' + response)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

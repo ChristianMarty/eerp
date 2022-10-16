@@ -8,9 +8,10 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../util/_json.php";
+require_once __DIR__ . "/../../../databaseConnector.php";
+require __DIR__ . "/../../../../config.php";
+require_once __DIR__ . "/../../../util/_json.php";
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["AssemblyHistoryId"])) sendResponse(Null,"AssemblyHistoryId not set");
@@ -20,9 +21,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$assemblyHistoryId = dbEscapeString($dbLink, $_GET["AssemblyHistoryId"]);
 
-	$query  = "SELECT * FROM assembly_item_history ";
-	$query .= "LEFT JOIN assembly_item ON assembly_item.Id = assembly_item_history.AssemblyItemId ";	
-	$query .= "WHERE assembly_item_history.Id = {$assemblyHistoryId}";	
+	$query  = "SELECT * FROM assembly_unit_history ";
+	$query .= "LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId ";	
+	$query .= "WHERE assembly_unit_history.Id = {$assemblyHistoryId}";	
 
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -36,7 +37,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['Title'] = $r['Title'];
 		$temp['Description'] = $r['Description'];
 		$temp['SerialNumber'] = $r['SerialNumber'];
-		$temp['Barcode'] = "ASI-".$r['AssemblyItemNo'];
+		$temp['Barcode'] = "ASU-".$r['AssemblyUnitNumber'];
 		$temp['EditToken'] = $r['EditToken'];
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;
@@ -70,7 +71,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	$query = dbBuildUpdateQuery($dbLink,"assembly_item_history", $sqlData, 'EditToken = "'.$token.'"');
+	$query = dbBuildUpdateQuery($dbLink,"assembly_unit_history", $sqlData, 'EditToken = "'.$token.'"');
 	
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -85,7 +86,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data["AssemblyItemNo"])) sendResponse(Null,"AssemblyItemNo not set");
+	if(!isset($data["AssemblyUnitNumber"])) sendResponse(Null,"AssemblyUnitNumber not set");
 	
 	$jsonData = null;
 	if(isset($data['Data']))
@@ -97,7 +98,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyItemNo']);
+	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyUnitNumber']);
 	$assemblyNo = strtolower($assemblyNo);
 	$assemblyNo = str_replace("asm-","",$assemblyNo);
 	
@@ -105,11 +106,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	$sqlData['AssemblyItemId']['raw'] = "(SELECT Id FROM assembly_item WHERE AssemblyItemNo = '".$assemblyNo."' )";
+	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNo = '".$assemblyNo."' )";
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$query = dbBuildInsertQuery($dbLink,"assembly_item_history", $sqlData);
+	$query = dbBuildInsertQuery($dbLink,"assembly_unit_history", $sqlData);
 	
-	$query .= " SELECT EditToken FROM assembly_item_history WHERE Id = LAST_INSERT_ID();";
+	$query .= " SELECT EditToken FROM assembly_unit_history WHERE Id = LAST_INSERT_ID();";
 	
 	$error = null;
 	$output = array();

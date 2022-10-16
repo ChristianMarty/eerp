@@ -12,13 +12,20 @@ const assemblyRouter = {
       path: 'assemblyBrowser',
       component: () => import('@/views/assembly/browser'),
       name: 'assemblyBrowser',
-      meta: { title: 'Assembly', icon: 'list', roles: ['assembly.view'] }
+      meta: { title: 'Assembly Browser', icon: 'list', roles: ['assembly.view'] }
     },
     {
-      path: 'item/:AssemblyItemNo(.*)',
+      path: 'item/:AssemblyNumber(.*)',
       component: () => import('@/views/assembly/item'),
-      name: 'assemblyItem',
-      meta: { title: 'Item', icon: 'el-icon-finished', roles: ['assembly.view'] },
+      name: 'assembly',
+      meta: { title: 'Assembly', icon: 'el-icon-finished', roles: ['assembly.view'] },
+      hidden: true
+    },
+    {
+      path: 'unit/item/:AssemblyUnitNumber(.*)',
+      component: () => import('@/views/assembly/unit/item'),
+      name: 'assemblyUnit',
+      meta: { title: 'Unit', icon: 'el-icon-finished', roles: ['assembly.view'] },
       hidden: true
     },
     {
