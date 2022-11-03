@@ -13,6 +13,9 @@
         <el-table-column label="Manufacturer" prop="Manufacturer" sortable />
         <el-table-column label="Type" prop="Type" sortable />
         <el-table-column label="SerialNumber" prop="SerialNumber" sortable />
+        <el-table-column label="Usage" prop="Usage" sortable />
+        <el-table-column label="Calibration Date" prop="Date" sortable />
+        <el-table-column label="Next Calibration" prop="NextDate" sortable />
       </el-table>
     </template>
   </div>

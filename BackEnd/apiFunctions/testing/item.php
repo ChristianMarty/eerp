@@ -21,6 +21,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query  = "SELECT * FROM testSystem ";
 	$query .= "LEFT JOIN testSystem_item ON testSystem.Id = testSystem_item.TestSystemId ";
 	$query .= "LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId ";
+	$query .= "LEFT JOIN inventory_history ON inventory_history.Id = (SELECT Id FROM inventory_history WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id ORDER BY Date DESC LIMIT 1)";
+	
+	
+	
+
 	
 	$queryParam = array();
 	$temp = dbEscapeString($dbLink, $_GET["TestSystemNumber"]);
