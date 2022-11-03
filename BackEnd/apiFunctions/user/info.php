@@ -37,6 +37,7 @@ if($devMode) // TODO: This is fundamentally broken -> fix it
 	
 $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "history" : {"add": true, "edit": true}}},
 			"inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}},
+			"testing":{"view": true, "create": true},
 			"purchasing":{"create": true, "edit": true, "confirm": true},
 			"supplier":{"view": true, "create": true},
 			"supplierPart":{"create": true},

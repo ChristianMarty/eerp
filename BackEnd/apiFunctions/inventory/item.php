@@ -204,6 +204,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 
 	$sqlData = array();
+	$sqlData['InvNo']['raw'] = "(SELECT generateItemNumber())";
 	$sqlData['Title'] = $data['Title'];
 	$sqlData['Manufacturer'] = $data['ManufacturerName'];
 	$sqlData['Type'] = $data['Type'];
