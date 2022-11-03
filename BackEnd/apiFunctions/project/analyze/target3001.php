@@ -48,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 		$BoMData[$i]["RefDes"] = $temp["0"];
 		$BoMData[$i]["Value"] =  $temp["1"];
-		$BoMData[$i]["PartNo"] = $temp["2"];
+		$BoMData[$i]["PartNo"] = $temp["5"];
 	}
 
 	$BoM = array();

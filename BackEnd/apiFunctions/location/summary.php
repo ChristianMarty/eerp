@@ -29,9 +29,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
 	
 	$query  = "SELECT * FROM partStock_view WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
-	
 
-	
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
@@ -47,11 +45,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		array_push($response, $data);
 	}
 	
+	
+	
 	$query  = "SELECT InvNo, Title, Manufacturer, Type, LocationId FROM inventory ";
 	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
 	
-	
-
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
@@ -62,6 +60,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$data = array();
 		$data["Item"] = "Inv-".$itemData["InvNo"];
 		$data["Category"] = "Inventory";
+		$data["Description"] = $descriptor; 
+		
+		array_push($response, $data);
+	}
+	
+	
+	$query  = "SELECT AssemblyUnitNumber, SerialNumber, Name, Description,  LocationId FROM assembly_unit ";
+	$query .= "LEFT JOIN assembly on assembly.Id =  assembly_unit.AssemblyId ";
+	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
+	
+	$result = dbRunQuery($dbLink,$query);
+		
+	while($itemData = mysqli_fetch_assoc($result))
+	{
+		$descriptor = $itemData["Name"];
+		$descriptor .= " - ".$itemData["Description"]." SN:".$itemData["SerialNumber"];
+		
+		$data = array();
+		$data["Item"] = "Asu-".$itemData["AssemblyUnitNumber"];
+		$data["Category"] = "Assembly Unit";
 		$data["Description"] = $descriptor; 
 		
 		array_push($response, $data);

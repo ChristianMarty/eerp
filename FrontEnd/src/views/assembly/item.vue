@@ -15,7 +15,6 @@
     />
 
     <el-table
-      v-permission="['assembly.unit.add']"
       :data="assemblyData.Unit"
       style="width: 100%"
       height="82vh"
@@ -34,7 +33,7 @@
     <el-dialog title="Add History Item" :visible.sync="unitCreateVisible">
       <el-form label-width="120px">
         <el-form-item label="Serial Number:">
-          <el-input v-model="assemblyCreateData.SerialNumber" />
+          <el-input ref="serialNumberInput" v-model="assemblyCreateData.SerialNumber" />
         </el-form-item>
         <el-form-item label="Work Order:">
           <el-select v-model="assemblyCreateData.WorkOrderNumber" filterable style="width: 100%">
@@ -97,6 +96,7 @@ export default {
     },
     addUnit() {
       this.unitCreateVisible = true
+      this.$refs.serialNumberInput.focus()
     },
     createUnit() {
       this.assemblyCreateData.AssemblyNumber = this.assemblyData.AssemblyNumber

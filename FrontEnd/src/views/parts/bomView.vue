@@ -119,7 +119,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/print/bonPrint',
-        data: { data: this.bom }
+        data: { data: this.bom, PrinterId: 2 }
       }).then(response => {
         if (response.error !== null) {
           this.$message({

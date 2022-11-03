@@ -7,13 +7,27 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+
+require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
+require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
+require_once __DIR__ . "/../apiFunctions/vendor/_function.php";
+
+$poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
+
+$vendor = getVenderContact($poData["MetaData"]["VendorContactId"]);
+$shipping = getVenderContact($poData["MetaData"]["ShippingContactId"]);
+$billing = getVenderContact($poData["MetaData"]["BillingContactId"]);
+$buyer = getVenderContact($poData["MetaData"]["PurchaseContactId"]);
+
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>PO-<?php echo $_GET["PurchaseOrderNo"]; ?> </title>
+<title>PO-<?php echo $_GET["PurchaseOrderNo"]." - ".$vendor['VendorName']; ?> </title>
 <link  media="print" />
  <link rel="stylesheet" href="documentTemplate_A4.css">
 </head>
@@ -169,18 +183,6 @@ if(!isset($_GET["PurchaseOrderNo"]))
 
 
 <?php
-
-require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
-require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
-require_once __DIR__ . "/../apiFunctions/vendor/_function.php";
-
-$poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
-
-$vendor = getVenderContact($poData["MetaData"]["VendorContactId"]);
-$shipping = getVenderContact($poData["MetaData"]["ShippingContactId"]);
-$billing = getVenderContact($poData["MetaData"]["BillingContactId"]);
-$buyer = getVenderContact($poData["MetaData"]["PurchaseContactId"]);
 
 global $addressId;
 $footer = getVenderAddress($addressId);

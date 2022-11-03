@@ -69,13 +69,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$invList = array_filter($itemList, "filterInv");
 	$stkList = array_filter($itemList, "filteStk");
 	$locList = array_filter($itemList, "filterLoc");
-	$asiList = array_filter($itemList, "filterAsu");
+	$asuList = array_filter($itemList, "filterAsu");
 	
 	$error = "";
 	if(!empty($invList)) $error .= moveItems($dbLink, $invList, $locationNr, "inventory", "InvNo");
 	if(!empty($stkList)) $error .= moveItems($dbLink, $stkList, $locationNr, "partStock", "StockNo");
 	if(!empty($locList)) $error .= moveItems($dbLink, $locList, $locationNr, "location", "LocNr");
-	if(!empty($asiList)) $error .= moveItems($dbLink, $asiList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
+	if(!empty($asuList)) $error .= moveItems($dbLink, $asuList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
 	
 	if(empty($error)) $error = null;
 	
