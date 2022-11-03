@@ -22,6 +22,7 @@ import reportRouter from './modules/report'
 import projectRouter from './modules/project'
 import workOrderRouter from './modules/workOrder'
 import assemblyRouter from './modules/assembly'
+import testingRouter from './modules/testing'
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -144,6 +145,7 @@ export const asyncRoutes = [
   stockRouter,
   assemblyRouter,
   inventoryRouter,
+  testingRouter,
   locationsRouter,
   documentRouter,
   labelRouter,
