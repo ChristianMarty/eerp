@@ -145,7 +145,7 @@ export default {
       this.inventory.forEach(element => {
         if (typeof element.GroupSelect !== 'undefined') {
           if (element.GroupSelect === true) {
-            invNoList.push(element.InvNo)
+            invNoList.push(element.InventoryNumber)
           }
         }
       })

@@ -27,6 +27,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	array_push($queryParam, "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '".$assemblyNumber."')");		
 	
+	if(isset($_GET['SerialNumber']))
+	{
+		$serialNumber = dbEscapeString($dbLink, $_GET['SerialNumber']);
+		array_push($queryParam, "SerialNumber = '".$serialNumber."'");	
+	}
+	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	$query .= " ORDER BY assembly_unit.SerialNumber DESC";
 	
@@ -62,3 +68,4 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	sendResponse($output);
 }
 ?>
+
