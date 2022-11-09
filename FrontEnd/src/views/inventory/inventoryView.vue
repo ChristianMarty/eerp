@@ -48,8 +48,21 @@
         </p>
       </el-main>
     </el-container>
-    <el-divider />
 
+    <el-divider />
+    <h2>Accessories</h2>
+    <el-table :data="inventoryData.Accessory" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
+      <el-table-column prop="AccessoryBarcode" label="Barcode" width="120" sortable />
+      <el-table-column prop="Description" label="Description" sortable />
+      <el-table-column prop="Note" label="Note" sortable />
+      <el-table-column prop="Labeled" label="Labeled" width="120" sortable>
+        <template slot-scope="{ row }">
+          {{ row.Labeled }}
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-divider />
     <h2>Purchase Information</h2>
 
     <el-table :data="inventoryData.PurchaseInformation" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">

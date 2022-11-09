@@ -123,33 +123,29 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		array_push($purchase, $row);
 	}
-
-	/*
-	
-	if($r['ReceivalId'] !== null)
-	{
-		$purchase = getPurchaseInformation($r['ReceivalId']);
-	}
-	else
-	{
-		$row = array();
-		$row["PoNo"] = null;
-		$row["Price"] = $r["PurchasePrice"];
-		$row["Currency"] = "CHF"; // TODO: Fix this
-		$row["SupplierPartNumber"] = null;
-		$row["SupplierName"] = $r["SupplierName"];
-		$row["OrderReference"] = null;
-		$row["VendorId"] = 0;
-		$row["Quantity"] = 1;
-		$row["Description"] = "";
-		
-		array_push($purchase, $row);
-	}*/
 	
 	$output["PurchaseInformation"] = $purchase;
 	
 	$output["TotalPrice"] =  round($totalPrice, 2);
 	$output["TotalCurrency"] = "CHF"; //TODO: FIx  $purchase[0]["Currency"];
+	
+	// Get Accessory
+	
+	$query  = "SELECT AccessoryNumber, Description, Note, Labeled FROM inventory_accessory ";
+	$query .= "WHERE InventoryId = ".$id;
+	$query .= " ORDER BY AccessoryNumber ASC";
+	
+	$accessory = array();
+	$result = dbRunQuery($dbLink,$query);
+	while($acs = mysqli_fetch_assoc($result))
+	{
+		$acs["AccessoryBarcode"] = $output['InventoryBarcode']."-".$acs["AccessoryNumber"];
+		if($acs["Labeled"] == "0") $acs["Labeled"] = false;
+		else $acs["Labeled"] = true;
+		array_push($accessory, $acs);
+	}
+	
+	$output["Accessory"] = $accessory;
 	
 	// Get Documents
 	if(isset($r['DocumentIds'])) $DocIds = $r['DocumentIds'];
