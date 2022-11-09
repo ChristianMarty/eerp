@@ -1,7 +1,21 @@
 <template>
   <div class="app-container">
+    <h1>{{ testSystemData.TestSystemBarcode }} - {{ testSystemData.Name }}</h1>
+    <p><b>Description: </b>{{ testSystemData.Description }}</p>
+
+    <p><b>Test Date: </b><el-date-picker
+      v-model="date"
+      type="date"
+      placeholder="Pick a day"
+      value-format="yyyy-MM-dd"
+      @change="getData()"
+    /></p>
+    <p>Select the date of testing to verify the calibration.</p>
+
+    <el-divider />
+    <h2>Equipment List</h2>
     <template>
-      <el-table :data="testSystemData.Item" style="width: 100%">
+      <el-table :data="testSystemData.Item" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
         <el-table-column prop="InventoryNumber" label="Inventory No" width="140" sortable>
           <template slot-scope="{ row }">
             <router-link :to="'/inventory/inventoryView/' + row.InventoryBarcode" class="link-type">
@@ -14,8 +28,8 @@
         <el-table-column label="Type" prop="Type" sortable />
         <el-table-column label="SerialNumber" prop="SerialNumber" sortable />
         <el-table-column label="Usage" prop="Usage" sortable />
-        <el-table-column label="Calibration Date" prop="Date" sortable />
-        <el-table-column label="Next Calibration" prop="NextDate" sortable />
+        <el-table-column label="Calibration Date" prop="CalibrationDate" sortable />
+        <el-table-column label="Next Calibration" prop="NextCalibrationDate" sortable />
       </el-table>
     </template>
   </div>
@@ -31,23 +45,15 @@ export default {
   components: { },
   data() {
     return {
-      testSystemData: {}
+      testSystemData: {},
+      date: ''
 
     }
   },
   mounted() {
     this.setTitle()
-
-    testing.system.item(this.$route.params.TestSystemNumber).then(response => {
-      this.testSystemData = response
-    }).catch(response => {
-      this.$message({
-        showClose: true,
-        message: response,
-        duration: 0,
-        type: 'error'
-      })
-    })
+    this.date = new Date().toISOString().slice(0, 10)
+    this.getData()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -62,6 +68,18 @@ export default {
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = `${this.$route.params.TestSystemNumber}`
+    },
+    getData() {
+      testing.system.item(this.$route.params.TestSystemNumber, this.date).then(response => {
+        this.testSystemData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
     }
   }
 }

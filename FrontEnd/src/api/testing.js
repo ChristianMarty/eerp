@@ -40,13 +40,14 @@ class Testing {
   }
 
   system = {
-    item(TestSystemNumber) {
+    item(TestSystemNumber, TestDate) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/testing/item',
           methood: 'get',
           params: {
-            TestSystemNumber: TestSystemNumber
+            TestSystemNumber: TestSystemNumber,
+            TestDate: TestDate
           }
         }).then(response => {
           if (response.error == null) {

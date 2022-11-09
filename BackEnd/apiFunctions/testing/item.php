@@ -17,55 +17,57 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-
-	$query  = "SELECT * FROM testSystem ";
-	$query .= "LEFT JOIN testSystem_item ON testSystem.Id = testSystem_item.TestSystemId ";
-	$query .= "LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId ";
-	$query .= "LEFT JOIN inventory_history ON inventory_history.Id = (SELECT Id FROM inventory_history WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id ORDER BY Date DESC LIMIT 1)";
 	
+	$testDate = null;
+	if(isset($_GET["TestDate"])) 
+	{
+		$testDate = dbEscapeString($dbLink, $_GET["TestDate"]);
+	}
 	
-	
-
-	
-	$queryParam = array();
 	$temp = dbEscapeString($dbLink, $_GET["TestSystemNumber"]);
 	$temp = strtolower($temp);
 	$testSystemNumber = str_replace("tsy-","",$temp);
 
-	array_push($queryParam, "testSystem.Id = (SELECT Id FROM testSystem WHERE TestSystemNumber = '".$testSystemNumber."')");		
-	
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-
+	$query  = "SELECT * FROM testSystem ";
+	$query .= "WHERE TestSystemNumber = '".$testSystemNumber."' LIMIT 1";
 	
 	$result = dbRunQuery($dbLink,$query);
 	
+	$testSystem = mysqli_fetch_assoc($result);
+	
 	$output = array();
+	$output['TestSystemNumber'] = $testSystem['TestSystemNumber'];
+	$output['TestSystemBarcode'] = "TSY-".$testSystem['TestSystemNumber'];
+	$output['Name'] = $testSystem['Name'];
+	$output['Description'] = $testSystem['Description'];
+
+	$query  = "SELECT inventory.InvNo, inventory.Title, inventory.Manufacturer, inventory.SerialNumber, inventory.Type, testSystem_item.Usage , inventory_history.Date, inventory_history.NextDate  FROM testSystem_item ";
+	$query .= "LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId ";
+	$query .= "LEFT JOIN inventory_history ON inventory_history.Id = (SELECT Id FROM inventory_history WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id AND Date <= '".$testDate."' ORDER BY Date DESC LIMIT 1) ";
+	$query .= "WHERE testSystem_item.TestSystemId = ".$testSystem['Id'];
+	
+	$queryParam = array();
+
+	$result = dbRunQuery($dbLink,$query);
+	
 	$output['Item'] = array();
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$invNo = $r['InvNo'];
+		unset($r['InvNo']);
 		$temp = array();
-		$temp = $r;
-		$temp['InventoryNumber'] = $r['InvNo'];
-		$temp['InventoryBarcode'] = "Inv-".$r['InvNo'];
 		
-		/*$temp['Note'] = $r['Note'];
-		$temp['LocationName'] = $r['LocationName'];
-		$temp['SerialNumber'] = $r['SerialNumber'];
-		*/
+		$temp = $r;
+		$temp['InventoryNumber'] = $invNo;
+		$temp['InventoryBarcode'] = "Inv-".$invNo;
+		$temp['CalibrationDate'] = $r['Date'];
+		$temp['NextCalibrationDate'] = $r['NextDate'];
+		unset($temp['Date']);
+		unset($temp['NextDate']);
+		
 		$output['Item'][] = $temp;
 	}
-	
-	
-	/*$query  = "SELECT * FROM assembly WHERE AssemblyNumber = ".$assemblyNumber;
-	$result = dbRunQuery($dbLink,$query);
-	
-	$r = mysqli_fetch_assoc($result);
-	$output['AssemblyNumber'] = $r['AssemblyNumber'];
-	$output['AssemblyBarcode'] = "ASM-".$r['AssemblyNumber'];
-	$output['Name'] = $r['Name'];
-	$output['Description'] = $r['Description'];
-	*/
 	
 	dbClose($dbLink);	
 	sendResponse($output);
