@@ -20,7 +20,7 @@
         v-for="(line, index) in assemblyUnitData.History"
         :key="index"
         :color="line.color"
-        :timestamp="line.Date"
+        :timestamp="line.Date+' - '+line.Type"
         placement="top"
       >
         <el-card>
@@ -39,6 +39,16 @@
         </el-form-item>
         <el-form-item label="Description">
           <el-input v-model="editHistoryData.Description" type="textarea" />
+        </el-form-item>
+        <el-form-item label="Type:">
+          <el-select v-model="editHistoryData.Type" filterable>
+            <el-option
+              v-for="item in historyTypeOptions"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="Data (JSON)">
           <el-input v-model="editHistoryData.Data" type="textarea" />
@@ -74,7 +84,8 @@ export default {
       editHistoryData: {},
       historyItemData: {},
       editHistoryVisible: false,
-      historyId: 0
+      historyId: 0,
+      historyTypeOptions: []
     }
   },
   created() {
@@ -83,9 +94,10 @@ export default {
     // https://github.com/PanJiaChen/vue-element-admin/issues/1221
     this.tempRoute = Object.assign({}, this.$route)
   },
-  mounted() {
+  async mounted() {
     this.getAssemblyItem()
     this.setTitle()
+    this.historyTypeOptions = await assembly.unit.history.types()
   },
   methods: {
     setTitle() {
@@ -120,6 +132,7 @@ export default {
       historyCreateParameters.AssemblyUnitNumber = this.assemblyUnitData.AssemblyUnitNumber
       historyCreateParameters.Title = this.editHistoryData.Title
       historyCreateParameters.Description = this.editHistoryData.Description
+      historyCreateParameters.Type = this.editHistoryData.Type
       historyCreateParameters.Data = this.editHistoryData.Data
 
       assembly.unit.history.create(historyCreateParameters).then(response => {
@@ -140,6 +153,7 @@ export default {
       historyUpdateParameters.EditToken = this.editHistoryData.EditToken
       historyUpdateParameters.Title = this.editHistoryData.Title
       historyUpdateParameters.Description = this.editHistoryData.Description
+      historyUpdateParameters.Type = this.editHistoryData.Type
       historyUpdateParameters.Data = this.editHistoryData.Data
 
       assembly.unit.history.update(historyUpdateParameters).then(response => {
@@ -167,6 +181,28 @@ export default {
     getAssemblyItem() {
       assembly.unit.item(this.$route.params.AssemblyUnitNumber).then(response => {
         this.assemblyUnitData = response
+        // 'Unknown','Note','Production','Inspection Fail','Inspection Pass','Repair','Test Fail','Test Pass'
+        this.assemblyUnitData.History.forEach(element => {
+          switch (element.Type) {
+            case 'Test Pass':
+            case 'Inspection Pass':
+              element.color = '#67C23A' // Green
+              break
+            case 'Test Fail':
+            case 'Inspection Fail':
+              element.color = '#F56C6C' // Red
+              break
+            case 'Repair':
+              element.color = '#E6A23C' // Orange
+              break
+            case 'Production':
+              element.color = '#409EFF' // Blue
+              break
+            case 'Note':
+              element.color = '#909399' // Gray
+              break
+          }
+        })
       })
     }
   }

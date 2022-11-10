@@ -116,10 +116,25 @@ class Assembly {
           })
         })
       },
+      types() {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            url: '/assembly/unit/history/type',
+            methood: 'get'
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
       historyCreateParameters: {
         AssemblyUnitNumber: '',
         Title: '',
         Description: '',
+        Type: '',
         Data: ''
       },
       create(historyCreateParameters) {
@@ -141,6 +156,7 @@ class Assembly {
         EditToken: '',
         Title: '',
         Description: '',
+        Type: '',
         Data: ''
       },
       update(historyUpdateParameters) {

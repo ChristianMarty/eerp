@@ -38,6 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['Description'] = $r['Description'];
 		$temp['SerialNumber'] = $r['SerialNumber'];
 		$temp['Barcode'] = "ASU-".$r['AssemblyUnitNumber'];
+		$temp['Type'] = $r['Type'];
 		$temp['EditToken'] = $r['EditToken'];
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;
@@ -70,6 +71,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData = array();
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
+	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
 	$query = dbBuildUpdateQuery($dbLink,"assembly_unit_history", $sqlData, 'EditToken = "'.$token.'"');
 	
@@ -105,6 +107,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData = array();
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
+	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
 	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyNo."' )";
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";

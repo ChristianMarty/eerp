@@ -9,7 +9,7 @@
     >
 
       <p><b>{{ data.Title }}</b></p>
-      <p>{{ data.Date }}</p>
+      <p>{{ data.Type }}, {{ data.Date }}</p>
       <p>{{ data.Description }}</p>
 
       <p><b>Data</b></p>
