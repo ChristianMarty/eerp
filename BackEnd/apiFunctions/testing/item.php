@@ -41,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['Name'] = $testSystem['Name'];
 	$output['Description'] = $testSystem['Description'];
 
-	$query  = "SELECT inventory.InvNo, inventory.Title, inventory.Manufacturer, inventory.SerialNumber, inventory.Type, testSystem_item.Usage , inventory_history.Date, inventory_history.NextDate  FROM testSystem_item ";
+	$query  = "SELECT inventory.InvNo, inventory.Title, inventory.Manufacturer, inventory.SerialNumber, inventory.Type, testSystem_item.Usage, testSystem_item.CalibrationRequired, inventory_history.Date, inventory_history.NextDate  FROM testSystem_item ";
 	$query .= "LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId ";
 	$query .= "LEFT JOIN inventory_history ON inventory_history.Id = (SELECT Id FROM inventory_history WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id AND Date <= '".$testDate."' ORDER BY Date DESC LIMIT 1) ";
 	$query .= "WHERE testSystem_item.TestSystemId = ".$testSystem['Id'];
@@ -61,8 +61,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp = $r;
 		$temp['InventoryNumber'] = $invNo;
 		$temp['InventoryBarcode'] = "Inv-".$invNo;
-		$temp['CalibrationDate'] = $r['Date'];
-		$temp['NextCalibrationDate'] = $r['NextDate'];
+		
+		if($r['CalibrationRequired'] == 0) 
+		{
+			$temp['CalibrationRequired'] = false;
+			$temp['CalibrationDate'] = "N/A";
+			$temp['NextCalibrationDate'] = "N/A";
+		}
+		else 
+		{
+			$temp['CalibrationRequired'] = true;
+			$temp['CalibrationDate'] = $r['Date'];
+			$temp['NextCalibrationDate'] = $r['NextDate'];
+		}
+		
 		unset($temp['Date']);
 		unset($temp['NextDate']);
 		

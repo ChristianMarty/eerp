@@ -28,6 +28,11 @@
         <el-table-column label="Type" prop="Type" sortable />
         <el-table-column label="SerialNumber" prop="SerialNumber" sortable />
         <el-table-column label="Usage" prop="Usage" sortable />
+        <el-table-column label="Calibration Required" prop="CalibrationRequired" sortable>
+          <template slot-scope="{ row }">
+            {{ row.CalibrationRequired }}
+          </template>
+        </el-table-column>
         <el-table-column label="Calibration Date" prop="CalibrationDate" sortable />
         <el-table-column label="Next Calibration" prop="NextCalibrationDate" sortable />
       </el-table>
