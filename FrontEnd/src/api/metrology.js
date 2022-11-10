@@ -1,13 +1,13 @@
 import eerpApi from '@/api/apiQuery'
 
-class Testing {
+class Metrology {
 /* Search *************************************************
 
 **********************************************************/
   search() {
     return new Promise((resolve, reject) => {
       eerpApi({
-        url: '/testing',
+        url: '/metrology',
         methood: 'get'
       }).then(response => {
         if (response.error == null) {
@@ -27,7 +27,7 @@ class Testing {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/testing ',
+        url: '/metrology ',
         data: testingCreateParameters
       }).then(response => {
         if (response.error == null) {
@@ -43,7 +43,7 @@ class Testing {
     item(TestSystemNumber, TestDate) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          url: '/testing/item',
+          url: '/metrology/item',
           methood: 'get',
           params: {
             TestSystemNumber: TestSystemNumber,
@@ -61,4 +61,4 @@ class Testing {
   }
 }
 
-export default Testing
+export default Metrology

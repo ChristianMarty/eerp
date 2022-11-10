@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : testing.php
+// FileName : metrology.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
 // Date		: 01.08.2020

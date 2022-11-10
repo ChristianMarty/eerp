@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : item.php
-// FilePath : apiFunctions/testing/
+// FilePath : apiFunctions/metrology/
 // Author   : Christian Marty
 // Date		: 16.08.2022
 // License  : MIT

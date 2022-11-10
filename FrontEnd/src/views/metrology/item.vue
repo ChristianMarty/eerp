@@ -42,8 +42,8 @@
 
 <script>
 
-import Testing from '@/api/testing'
-const testing = new Testing()
+import Metrology from '@/api/metrology'
+const metrology = new Metrology()
 
 export default {
   name: 'TestingView',
@@ -75,7 +75,7 @@ export default {
       document.title = `${this.$route.params.TestSystemNumber}`
     },
     getData() {
-      testing.system.item(this.$route.params.TestSystemNumber, this.date).then(response => {
+      metrology.system.item(this.$route.params.TestSystemNumber, this.date).then(response => {
         this.testSystemData = response
       }).catch(response => {
         this.$message({

@@ -22,14 +22,14 @@
 
 <script>
 
-import Testing from '@/api/testing'
-const testing = new Testing()
+import Metrology from '@/api/metrology'
+const metrology = new Metrology()
 
 export default {
   components: {},
   data() {
     return {
-      testSystemData: Object.assign({}, testing.testingCreateParameters)
+      testSystemData: Object.assign({}, metrology.testingCreateParameters)
     }
   },
   async mounted() {
@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     save() {
-      testing.create(this.testSystemData).then(response => {
+      metrology.create(this.testSystemData).then(response => {
         this.$router.push('/testing/item/' + response)
       }).catch(response => {
         this.$message({
