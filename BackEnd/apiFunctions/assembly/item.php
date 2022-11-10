@@ -18,8 +18,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "SELECT AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName FROM assembly_unit ";
-
+	$query  = "SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName FROM assembly_unit ";
+	$query .= "LEFT JOIN assembly_unit_history AS Test ON Test.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Test Fail','Test Pass') ORDER BY Data DESC LIMIT 1) ";
+	$query .= "LEFT JOIN assembly_unit_history AS Inspection ON Inspection.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Inspection Fail','Inspection Pass') ORDER BY Data DESC LIMIT 1) "; 
+	
 	$queryParam = array();
 	$temp = dbEscapeString($dbLink, $_GET["AssemblyNumber"]);
 	$temp = strtolower($temp);
@@ -34,8 +36,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	$query .= " ORDER BY assembly_unit.SerialNumber DESC";
-	
+	$query .= " ORDER BY assembly_unit.SerialNumber ASC";
+
 	$result = dbRunQuery($dbLink,$query);
 	
 	$output = array();
@@ -49,6 +51,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['Note'] = $r['Note'];
 		$temp['LocationName'] = $r['LocationName'];
 		$temp['SerialNumber'] = $r['SerialNumber'];
+		
+		if($r['Test'] == 'Test Pass') $temp['LastTestPass'] = true;
+		else if($r['Test'] == 'Test Fail') $temp['LastTestPass'] = false;
+		else $temp['LastTestPass'] = null;
+		
+		if($r['Inspection'] == 'Inspection Pass') $temp['LastInspectionPass'] = true;
+		else if($r['Inspection'] == 'Inspection Fail') $temp['LastInspectionPass'] = false;
+		else $temp['LastInspectionPass'] = null;
 		
 		$output['Unit'][] = $temp;
 	}

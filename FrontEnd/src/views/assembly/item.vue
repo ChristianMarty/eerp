@@ -17,7 +17,8 @@
     <el-table
       :data="assemblyData.Unit"
       style="width: 100%"
-      height="82vh"
+      border
+      :cell-style="{ padding: '0', height: '20px' }"
     >
       <el-table-column prop="AssemblyUnitBarcode" label="Assembly Unit No" sortable width="180">
         <template slot-scope="{ row }">
@@ -26,8 +27,20 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="SerialNumber" label="SerialNumber" sortable />
+      <el-table-column prop="SerialNumber" label="Serial Number" sortable />
       <el-table-column prop="LocationName" label="Location" sortable />
+      <el-table-column prop="LastInspectionPass" label="Last Inspection Result" sortable width="220">
+        <template slot-scope="{ row }">
+          <span v-if="row.LastInspectionPass === true" class="pass">Pass</span>
+          <span v-if="row.LastInspectionPass === false" class="fail">Fail</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="LastTestResult" label="Last Test Result" sortable width="220">
+        <template slot-scope="{ row }">
+          <span v-if="row.LastTestPass === true" class="pass">Pass</span>
+          <span v-if="row.LastTestPass === false" class="fail">Fail</span>
+        </template>
+      </el-table-column>
     </el-table>
 
     <el-dialog title="Add History Item" :visible.sync="unitCreateVisible">
@@ -127,3 +140,13 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.pass {
+  color:green;
+}
+
+.fail {
+  color: red;
+}
+</style>
