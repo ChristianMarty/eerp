@@ -54,7 +54,11 @@ const inventory = new Inventory()
 
 export default {
   name: 'InventoryItemHistoryData',
-  props: { inventoryNumber: { type: String, default: '' }, visible: { type: Boolean, default: false }, editToken: { type: String, default: null }},
+  props: {
+    inventoryNumber: { type: String, default: '' },
+    visible: { type: Boolean, default: false },
+    editToken: { type: String, default: null }
+  },
   data() {
     return {
       historyData: Object.assign({}, inventory.history.itemReturn),

@@ -51,6 +51,15 @@
 
     <el-divider />
     <h2>Accessories</h2>
+    <template v-if="checkPermission(['inventory.accessory.add'])">
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        circle
+        style="margin-top: 00px; margin-bottom: 20px"
+        @click="showEditAccessoryDialog(null)"
+      />
+    </template>
     <el-table :data="inventoryData.Accessory" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
       <el-table-column prop="AccessoryBarcode" label="Barcode" width="120" sortable />
       <el-table-column prop="Description" label="Description" sortable />
@@ -60,6 +69,20 @@
           {{ row.Labeled }}
         </template>
       </el-table-column>
+      <template v-if="checkPermission(['inventory.accessory.edit'])">
+        <el-table-column label="Edit" width="50">
+          <template slot-scope="{ row }">
+            <el-button
+              size="mini"
+              type="primary"
+              icon="el-icon-edit"
+              circle
+              style="margin-top: 5px; margin-bottom: 5px"
+              @click="showEditAccessoryDialog(row.AccessoryNumber)"
+            />
+          </template>
+        </el-table-column>
+      </template>
     </el-table>
 
     <el-divider />
@@ -118,14 +141,15 @@
     <h2>Documents</h2>
     <documentsList :documents="inventoryData.Documents" />
     <h2>History</h2>
-    <el-button
-      v-permission="['inventory.history.add']"
-      type="primary"
-      icon="el-icon-plus"
-      circle
-      style="margin-top: 20px; margin-bottom: 20px"
-      @click="showEditHistoryDialog(null)"
-    />
+    <template v-if="checkPermission(['inventory.history.add'])">
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        circle
+        style="margin-top: 20px; margin-bottom: 20px"
+        @click="showEditHistoryDialog(null)"
+      />
+    </template>
     <el-timeline reverse="true">
       <el-timeline-item
         v-for="(line, index) in inventoryData.History"
@@ -161,6 +185,13 @@
       @change="getInventoryData()"
     />
 
+    <accessoryEditDataDialog
+      :inventory-number="inventoryData.InventoryNumber"
+      :accessory-number="accessoryNumber"
+      :visible.sync="accessoryEditDialogVisible"
+      @change="getInventoryData()"
+    />
+
     <el-divider />
     <el-button v-if="checkPermission(['inventory.print'])" type="primary" @click="addPrint">Print</el-button>
     <el-button v-if="checkPermission(['inventory.create'])" type="primary" @click="copy">Create Copy</el-button>
@@ -173,19 +204,23 @@ import checkPermission from '@/utils/permission'
 import documentsList from '@/views/document/components/listDocuments'
 
 import historyEditDataDialog from './components/historyDialog'
+import accessoryEditDataDialog from './components/accessoryDialog'
 
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
 export default {
   name: 'InventoryView',
-  components: { documentsList, historyEditDataDialog },
+  components: { documentsList, historyEditDataDialog, accessoryEditDataDialog },
   data() {
     return {
       inventoryData: Object.assign({}, inventory.itemReturn),
 
       historyEditDialogVisible: false,
-      historyEditToken: null
+      historyEditToken: null,
+
+      accessoryEditDialogVisible: false,
+      accessoryNumber: null
     }
   },
   async mounted() {
@@ -209,6 +244,10 @@ export default {
     },
     async getInventoryData() {
       this.inventoryData = await inventory.item(this.$route.params.invNo)
+    },
+    showEditAccessoryDialog(accessoryNumber) {
+      this.accessoryNumber = accessoryNumber
+      this.accessoryEditDialogVisible = true
     },
     showEditHistoryDialog(editToken) {
       this.historyEditToken = editToken
