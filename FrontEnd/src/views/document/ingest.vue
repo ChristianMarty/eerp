@@ -2,7 +2,10 @@
   <div class="app-container">
     <h1>Document Ingestion</h1>
     <p>Select a document to import it into the system.</p>
-    <el-button type="primary" @click="getFileList()">Reload</el-button>
+    <template v-if="checkPermission(['document.upload'])">
+      <el-button type="primary" icon="el-icon-upload" @click="uploadFile()">Upload</el-button>
+    </template>
+    <el-button type="primary" icon="el-icon-refresh-right" @click="getFileList()">Reload</el-button>
     <el-table
       :data="documentList"
       style="width: 100%"
@@ -20,12 +23,26 @@
 
         <el-col :span="12">
           <iframe :src="filePreviewPath" width="100%" height="500px" />
+          <el-button
+            type="info"
+            icon="el-icon-document"
+            @click="openInTab(filePreviewPath)"
+          >View file in new tab</el-button>
         </el-col>
 
         <el-col :span="12">
+
           <el-form label-width="120px">
             <el-form-item label="Name:">
               {{ dialogData.FileName }}
+            </el-form-item>
+
+            <el-form-item>
+              <el-button
+                type="primary"
+                icon="el-icon-magic-stick"
+                @click="openInTab(filePreviewPath)"
+              >Use Template</el-button>
             </el-form-item>
 
             <el-form-item label="Name:">
@@ -60,23 +77,33 @@
       </span>
     </el-dialog>
 
+    <uploadDialog
+      :visible.sync="uploadDialogVisible"
+      @change="getFileList()"
+    />
+
   </div>
 </template>
 
 <script>
+import uploadDialog from './components/uploadDialog'
+import checkPermission from '@/utils/permission'
+
 import Document from '@/api/document'
 const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { },
+  components: { uploadDialog },
   data() {
     return {
       documentList: [],
       documentTypeOptions: [],
       showDialog: false,
       dialogData: Object.assign({}, document.ingestParameters),
-      filePreviewPath: ''
+      filePreviewPath: '',
+
+      uploadDialogVisible: false
     }
   },
   async mounted() {
@@ -84,6 +111,7 @@ export default {
     this.documentTypeOptions = await document.types()
   },
   methods: {
+    checkPermission,
     openDialog(row) {
       this.showDialog = true
       this.dialogData = Object.assign({}, document.ingestParameters)
@@ -150,6 +178,12 @@ export default {
           type: 'error'
         })
       })
+    },
+    uploadFile() {
+      this.uploadDialogVisible = true
+    },
+    openInTab(path) {
+      window.open(path, '_blank').focus()
     }
   }
 }
