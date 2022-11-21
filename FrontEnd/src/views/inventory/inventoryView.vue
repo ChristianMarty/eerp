@@ -87,16 +87,24 @@
 
     <el-divider />
     <h2>Purchase Information</h2>
-
+    <template v-if="checkPermission(['inventory.purchase.edit'])">
+      <el-button
+        type="primary"
+        icon="el-icon-edit"
+        circle
+        style="margin-top: 00px; margin-bottom: 20px"
+        @click="showEditPurchaseDialog(null)"
+      />
+    </template>
     <el-table :data="inventoryData.PurchaseInformation" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
 
-      <el-table-column prop="PoNo" label="Po No" width="140" sortable>
+      <el-table-column prop="PurchaseOrderBarcode" label="Po No" width="140" sortable>
         <template slot-scope="{ row }">
           <router-link
-            :to="'/purchasing/edit/' + row.PoNo"
+            :to="'/purchasing/edit/' + row.PurchaseOrderBarcode"
             class="link-type"
           >
-            <span>{{ row.PoNo }}</span>
+            <span>{{ row.PurchaseOrderBarcode }}</span>
           </router-link>
         </template>
       </el-table-column>
@@ -192,6 +200,12 @@
       @change="getInventoryData()"
     />
 
+    <purchaseEditDataDialog
+      :inventory-number="inventoryData.InventoryNumber"
+      :visible.sync="purchaseEditDataDialogVisible"
+      @change="getInventoryData()"
+    />
+
     <el-divider />
     <el-button v-if="checkPermission(['inventory.print'])" type="primary" @click="addPrint">Print</el-button>
     <el-button v-if="checkPermission(['inventory.create'])" type="primary" @click="copy">Create Copy</el-button>
@@ -205,13 +219,14 @@ import documentsList from '@/views/document/components/listDocuments'
 
 import historyEditDataDialog from './components/historyDialog'
 import accessoryEditDataDialog from './components/accessoryDialog'
+import purchaseEditDataDialog from './components/purchaseDialog'
 
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
 export default {
   name: 'InventoryView',
-  components: { documentsList, historyEditDataDialog, accessoryEditDataDialog },
+  components: { documentsList, historyEditDataDialog, accessoryEditDataDialog, purchaseEditDataDialog },
   data() {
     return {
       inventoryData: Object.assign({}, inventory.itemReturn),
@@ -220,7 +235,9 @@ export default {
       historyEditToken: null,
 
       accessoryEditDialogVisible: false,
-      accessoryNumber: null
+      accessoryNumber: null,
+
+      purchaseEditDataDialogVisible: false
     }
   },
   async mounted() {
@@ -252,6 +269,9 @@ export default {
     showEditHistoryDialog(editToken) {
       this.historyEditToken = editToken
       this.historyEditDialogVisible = true
+    },
+    showEditPurchaseDialog() {
+      this.purchaseEditDataDialogVisible = true
     },
     addPrint() {
       var cookieList = []

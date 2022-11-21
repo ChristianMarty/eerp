@@ -36,13 +36,13 @@ if($devMode) // TODO: This is fundamentally broken -> fix it
 {
 	
 $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "history" : {"add": true, "edit": true}}},
-			"inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}},
+			"inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}, "purchase": {"edit": true}},
 			"metrology":{"view": true, "create": true},
 			"purchasing":{"create": true, "edit": true, "confirm": true},
 			"supplier":{"view": true, "create": true},
 			"supplierPart":{"create": true},
 			"process":{"run": true},
-			"document":{"create": true, "ingest": true},
+			"document":{"upload": true, "create": true, "ingest": true},
 			"manufacturerPart":{"create": true,"edit": true},
 			"stock":{"create": true, "add": true, "remove":true, "count":true}, 
 			"location":{"transfer":true, "bulkTransfer":true, "print": true}}';

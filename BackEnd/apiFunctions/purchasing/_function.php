@@ -37,7 +37,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 		$purchaseOrderNo = str_replace("po-","",$purchaseOrderNo);
 		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
 	}
-	
+
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	$PoId = 0;
@@ -45,6 +45,8 @@ function getPurchaseOrderData($purchaseOrderNo)
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$purchaseOrderNumber= $r['PoNo'];
+		$r['PurchaseOrderNumber'] = $r['PoNo'];
 		$r['CurrencyId'] = intval($r['CurrencyId']);
 		$r['VendorContactId'] = intval($r['VendorContactId']);
 		$r['VendorAddressId'] = intval($r['VendorAddressId']);
@@ -103,15 +105,6 @@ function getPurchaseOrderData($purchaseOrderNo)
 	STR;
 	
 	
-	
-	/*$query = "SELECT *, purchasOrder_itemOrder.Description, purchasOrder_itemOrder.Type AS LineType, finance_tax.Value AS VatValue, unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, purchasOrder_itemOrder.Id AS OrderLineId,  purchasOrder_itemReceive.Id AS ReceiveId ";
-	$query .= "FROM purchasOrder_itemOrder ";
-	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchasOrder_itemOrder.UnitOfMeasurementId ";
-	$query .= "LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_itemOrder.VatTaxId ";
-	$query .= "WHERE PurchasOrderId = ".$PoId." ";
-	$query .= "ORDER BY LineNo";*/
-	
 	$result = dbRunQuery($dbLink,$query);
 	
 	$lines = array();
@@ -123,7 +116,11 @@ function getPurchaseOrderData($purchaseOrderNo)
 			
 		if(!array_key_exists($orderLineId,$lines))
 		{
-			$lines[$r['OrderLineId']]['LineNo'] = intval($r['LineNo']);
+			$lineNumber = intval($r['LineNo']);
+
+			$lines[$r['OrderLineId']]["PurchaseOrderBarcode"] = "PO-".$purchaseOrderNumber."#".$lineNumber;
+			$lines[$r['OrderLineId']]['LineNo'] = $lineNumber;
+			$lines[$r['OrderLineId']]['LineNumber'] = $lineNumber;
 			$lines[$r['OrderLineId']]['Price'] = $r['Price'];
 			$lines[$r['OrderLineId']]['SupplierSku'] = $r['Sku'];
 			$lines[$r['OrderLineId']]['LineType'] = $r['LineType'];

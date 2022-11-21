@@ -84,7 +84,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	
 	// Get Purchase Information
-	$query  = "SELECT  PoNo, purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate  FROM inventory_purchasOrderReference ";
+	$query  = "SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber  ";
+	$query .= "FROM inventory_purchasOrderReference ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id ";
 	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
 	$query .= "LEFT JOIN purchasOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id ";
@@ -97,7 +98,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$totalPrice = 0;
 	while($por = mysqli_fetch_assoc($result))
 	{
+		$por["PurchaseOrderNumber"] = $por['PoNo'];
+		$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
 		$por['PoNo'] ="PO-".$por['PoNo']; 
+		
 		
 		$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
 		
@@ -108,6 +112,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$row = array();
 		$row["PoNo"] = null;
+		$row["LineNumber"] = null;
 		$row["Price"] = $r["PurchasePrice"];
 		$row["Currency"] = "CHF"; // TODO: Fix this
 		$row["SupplierPartNumber"] = null;
