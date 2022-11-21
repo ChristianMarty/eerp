@@ -60,6 +60,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$certaintyFactor -= ($noOfMoves*0.025);
 		
 		$certaintyFactor -= ($daysSinceStocktaking*0.0025);
+		
+		if($certaintyFactor<0) $certaintyFactor = 0;
 	}
 	
 	$output = array();

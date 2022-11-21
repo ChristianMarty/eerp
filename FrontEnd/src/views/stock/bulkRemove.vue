@@ -132,7 +132,6 @@ export default {
     }
   },
   mounted() {
-    this.getWorkOrders()
     this.loadSelectPartPagre()
     this.getPrinter()
     // this.$refs.stockNoInput.focus()
@@ -245,6 +244,7 @@ export default {
       this.$refs.stockNoInput.focus()
     },
     loadCheckoutPage() {
+      this.getWorkOrders()
       this.step = 1
     },
     loadCompletePage() {
