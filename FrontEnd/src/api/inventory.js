@@ -90,7 +90,7 @@ class Inventory {
   /* create *************************************************
   Creates new inventory item
   Returns Inventory Number of the created item
-**********************************************************/
+  **********************************************************/
   createParameters = {
     Title: '',
     ManufacturerName: '',
@@ -115,8 +115,8 @@ class Inventory {
     })
   }
   /* categories *************************************************
-Returns tree of inventory categories
-**********************************************************/
+  Returns tree of inventory categories
+  **********************************************************/
   categoriesReturn = []
   categories() {
     return new Promise((resolve, reject) => {
@@ -131,6 +131,88 @@ Returns tree of inventory categories
         }
       })
     })
+  }
+  accessory = {
+    itemReturn: {
+      InventoryNumber: null,
+      AccessoryNumber: null,
+      Description: '',
+      Note: '',
+      Labeled: ''
+    },
+    search(InventoryNumber = null) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/inventory/accessory/item',
+          methood: 'get',
+          params: {
+            InventoryNumber: InventoryNumber
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    save(Data) {
+      let method = null
+      if (Data.AccessoryNumber == null) { // Make new enty if no AccessoryNumber is specefied
+        method = 'post'
+      } else {
+        method = 'patch'
+      }
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: method,
+          url: '/inventory/accessory/item',
+          data: Data
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
+
+  purchase ={
+    search(InventoryNumber = null) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/inventory/purchase/item',
+          methood: 'get',
+          params: {
+            InventoryNumber: InventoryNumber
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    save(InventoryNumber, PurchaseOrderItems) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'patch',
+          url: '/inventory/purchase/item',
+          data: { InventoryNumber: InventoryNumber, PurchaseOrderItems: PurchaseOrderItems }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
   }
 
   history = {
