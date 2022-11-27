@@ -95,6 +95,9 @@ import requestBN from '@/utils/requestBN'
 import * as print from '@/utils/printLabel'
 import printDialog from './components/printDialog'
 
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
 const emptyData = {
   ManufacturerId: '',
   ManufacturerPartNumber: '',
@@ -182,13 +185,13 @@ export default {
       printDialogVisible: false
     }
   },
-  mounted() {
+  async mounted() {
+    this.suppliers = await vendor.search(true, false)
     this.getLocations()
     this.getManufacturers()
     this.resetForm()
     this.getLabel()
     this.getPrinter()
-    this.getSuppliers()
   },
   methods: {
     getLocations() {
@@ -205,14 +208,6 @@ export default {
         methood: 'get'
       }).then(response => {
         this.manufacturer = response.data
-      })
-    },
-    getSuppliers() {
-      requestBN({
-        url: '/supplier',
-        methood: 'get'
-      }).then(response => {
-        this.suppliers = response.data
       })
     },
     searchManufacturerPartNumber(queryString, cb) {
