@@ -198,6 +198,9 @@ import closedOrder from './components/closed'
 import permission from '@/directive/permission/index.js'
 import documentsList from '@/views/document/components/listDocuments'
 
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
 export default {
   name: 'PurchaseOrder',
   components: { editOrder, placedOrder, confirmedOrder, closedOrder, documentsList },
@@ -246,8 +249,8 @@ export default {
       this.orderData.Status = 'Closed'
       this.saveStatus(this.orderData.Status)
     },
-    editMeta() {
-      this.getSuppliers()
+    async editMeta() {
+      this.suppliers = await vendor.search(true, false)
       this.dialogData = Object.assign({}, this.orderData)
       this.showDialog = true
     },
@@ -331,14 +334,6 @@ export default {
             type: 'error'
           })
         }
-      })
-    },
-    getSuppliers() {
-      requestBN({
-        url: '/supplier',
-        methood: 'get'
-      }).then(response => {
-        this.suppliers = response.data
       })
     },
     getSupplierAddress() {

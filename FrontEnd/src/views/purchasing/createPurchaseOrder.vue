@@ -52,6 +52,9 @@
 <script>
 import requestBN from '@/utils/requestBN'
 
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
 const emptyData = {
   SupplierId: '',
   Title: '',
@@ -68,18 +71,10 @@ export default {
       suppliers: null
     }
   },
-  mounted() {
-    this.getSuppliers()
+  async mounted() {
+    this.suppliers = await vendor.search(true, false)
   },
   methods: {
-    getSuppliers() {
-      requestBN({
-        url: '/supplier',
-        methood: 'get'
-      }).then(response => {
-        this.suppliers = response.data
-      })
-    },
     dateToday() {
       this.formData.PurchaseDate = new Date().toISOString().slice(0, 10)
     },

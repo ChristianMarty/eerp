@@ -39,7 +39,7 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 			"inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}, "purchase": {"edit": true}},
 			"metrology":{"view": true, "create": true},
 			"purchasing":{"create": true, "edit": true, "confirm": true},
-			"supplier":{"view": true, "create": true},
+			"vendor":{"view": true, "create": true, "edit": true},
 			"supplierPart":{"create": true},
 			"process":{"run": true},
 			"document":{"upload": true, "create": true, "ingest": true},

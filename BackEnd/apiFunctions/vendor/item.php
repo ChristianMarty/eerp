@@ -7,17 +7,140 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../../config.php";
 
-require_once __DIR__ . "/_function.php";
 
-	
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["VendorAddressId"]))sendResponse(NULL, "No Address Id");
-		
-	$vendor = getVenderContact($_GET["VendorAddressId"]);
-
-	sendResponse($vendor);
+	if(!isset($_GET["VendorId"]))sendResponse(null, "VendorId not specified");
+	
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$vendorId = dbEscapeString($dbLink, trim($_GET["VendorId"]));
+	
+	$query = "SELECT * FROM vendor WHERE Id = {$vendorId} ";
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$data = dbGetResult($result);
+	
+	$output = array();
+	
+	$output['Id'] = intval($data['Id']);
+	$output['ParentId'] = intval($data['ParentId']);
+	if($output['ParentId'] == 0) $output['ParentId'] = null;
+	$output['Name'] = $data['Name'];
+	$output['CustomerNumber'] = $data['CustomerNumber'];
+	$output['ShortName'] = $data['ShortName'];
+	if($data['IsSupplier'] != 0) $output['IsSupplier'] = true;
+	else $output['IsSupplier'] = false;
+	if($data['IsManufacturer'] != 0) $output['IsManufacturer'] = true;
+	else $output['IsManufacturer'] = false;
+	if($data['OrderImportSupported'] != 0) $output['OrderImportSupported'] = true;
+	else $output['OrderImportSupported'] = false;
+	
+	// Get Aliases
+	$query = "SELECT * FROM vendor_alias WHERE VendorId = {$vendorId} ";
+	
+	$result = dbRunQuery($dbLink,$query);
+	$alias = array();
+	while($r = dbGetResult($result))
+	{
+		$temp = array();
+		$temp['Id'] = intval($r['Id']);
+		$temp['Name'] = $r['Name'];
+		$temp['Note'] = $r['Note'];
+		$alias[] = $temp;
+	}
+	
+	$output['Alias'] = $alias;
+	
+	// Get Children
+	$query = "SELECT * FROM vendor WHERE ParentId = {$vendorId} ";
+	
+	$result = dbRunQuery($dbLink,$query);
+	$children = array();
+	while($r = dbGetResult($result))
+	{
+		$temp = array();
+		$temp['Id'] = $r['Id'];
+		$temp['Name'] = $r['Name'];
+		$temp['CustomerNumber'] = $r['CustomerNumber'];
+		$children[] = $temp;
+	}
+	
+	$output['Children'] = $children;
+	
+	
+	// Get Addresses
+	$query  = "SELECT vendor_address.Id, PhonePrefix, CountryCode, Name AS CountryName, CountryId, PostalCode, City, Street, VatTaxNumber, CustomsAccountNumber FROM vendor_address ";
+	$query .= "LEFT JOIN country ON country.Id = CountryId ";
+	$query .= "WHERE VendorId = {$vendorId} ";
+	
+	$result = dbRunQuery($dbLink,$query);
+	$address = array();
+	while($r = dbGetResult($result))
+	{
+		$r['Id'] = intval($r['Id']);
+		$r['CountryId'] = intval($r['CountryId']);
+		$address[] = $r;
+	}
+	
+	$output['Address'] = $address;
+	
+	// Get Contacts
+	$query  = "SELECT Id, Gender, FirstName, LastName, Language, Phone, `E-Mail` AS EMail FROM vendor_contact ";
+	$query .= "WHERE VendorId = {$vendorId} ";
+	
+	$result = dbRunQuery($dbLink,$query);
+	$contact = array();
+	while($r = dbGetResult($result))
+	{
+		$contact[] = $r;
+	}
+	
+	$output['Contact'] = $contact;
+	
+	dbClose($dbLink);	
+	sendResponse($output);
+}
+else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+{
+	$data = json_decode(file_get_contents('php://input'),true);
+	
+	$dbLink = dbConnect();
+	if($dbLink == null) return null;
+	
+	$vendorId = dbEscapeString($dbLink,$data['VendorId']);
+	
+	$inserData = array();
+	$inserData['Name']  = dbEscapeString($dbLink,trim($data['Name']));
+	$inserData['ShortName']  = dbEscapeString($dbLink,trim($data['ShortName']));
+	$inserData['CustomerNumber']  = dbEscapeString($dbLink,trim($data['CustomerNumber']));
+	
+	if($data['IsSupplier'] == true) $inserData['IsSupplier']['raw']  = "b'1'";
+	else $inserData['IsSupplier']['raw']  = "b'0'";
+	if($data['IsManufacturer'] == true) $inserData['IsManufacturer']['raw']  = "b'1'";
+	else $inserData['IsManufacturer']['raw']  = "b'0'";
+	
+	$inserData['ParentId']['raw'] = dbIntegerNull($data['ParentId']);
+	
+	
+	$query = dbBuildUpdateQuery($dbLink, "vendor", $inserData, "Id = {$vendorId}");
+	
+	$result = dbRunQuery($dbLink,$query);
+	
+	$error = null;
+	if($result == false)
+	{
+		$error = "Error description: " . dbGetErrorString($dbLink);
+	}
+	
+	dbClose($dbLink);	
+	sendResponse(null, $error);
 }
 
 	

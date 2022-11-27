@@ -21,9 +21,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$queryParam = array();
 	
 	if(isset($_GET["OrderImportSupported"])) array_push($queryParam,"OrderImportSupported = true");
+	if(isset($_GET["Supplier"]) AND filter_var($_GET["Supplier"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "IsSupplier = b'1'");
+	if(isset($_GET["Manufacturer"]) AND filter_var($_GET["Manufacturer"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "IsManufacturer = b'1'");
 
-	array_push($queryParam, "IsSupplier = b'1'");
-	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	
 	$query .= " ORDER BY `Name` ASC ";
@@ -35,7 +35,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$suppliers = array();
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$suppliers[] = $r;
+		$temp = array();
+		$temp['Id'] = intval($r['Id']);
+		$temp['ParentId'] = intval($r['ParentId']);
+		$temp['Name'] = $r['Name'];
+		$temp['ShortName'] = $r['ShortName'];
+		
+		if($r['IsSupplier'] != 0) $temp['IsSupplier'] = true;
+		else $temp['IsSupplier'] = false;
+		if($r['IsManufacturer'] != 0) $temp['IsManufacturer'] = true;
+		else $temp['IsManufacturer'] = false;
+		if($r['OrderImportSupported'] != 0) $temp['OrderImportSupported'] = true;
+		else $temp['OrderImportSupported'] = false;
+		
+		$suppliers[] = $temp;
 	}
 	
 	$locationsTree = array();
@@ -52,31 +65,37 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$supplierName = dbEscapeString($dbLink,$data['SupplierName']);
+	$vendorName = dbEscapeString($dbLink,$data['Name']);
 	$inserData['IsSupplier']['raw']  = "b'1'";
-	$inserData['Name']  = $supplierName;
+	$inserData['Name']  = $vendorName;
 	
 	$query = dbBuildInsertQuery($dbLink, "vendor", $inserData);
 	
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	$manufacturerPart = array();
+	$data = array();
 	if($result == false)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}
 	
-	$query = "SELECT Id FROM manufacturerPart WHERE Id = LAST_INSERT_ID();";
+	$query = "SELECT Id FROM vendor WHERE Id = LAST_INSERT_ID();";
 	$result = dbRunQuery($dbLink,$query);
 	
-	$manufacturerPart['SupplierId'] = dbGetResult($result)['Id'];
+	$result = dbGetResult($result);
 	
-	$result = dbRunQuery($dbLink,$query);
-	$stockPart = dbGetResult($result);
+	if(isset($result['Id']))
+	{
+		$data['VendorId'] = $result['Id'];
+	}
+	else
+	{
+		$error = "Vendor creation failed! Maybe it already exists? ";
+	}
 	
 	dbClose($dbLink);	
-	sendResponse($manufacturerPart, $error);
+	sendResponse($data, $error);
 }
 
 function hasChild($rows,$id)

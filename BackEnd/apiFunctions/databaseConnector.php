@@ -50,6 +50,16 @@ function dbStringNull($string)
 	else return "'".$string."' ";
 }
 
+function dbIntegerNull($integer)
+{
+	$isNull = false;
+	if($integer == null) $isNull = true;
+	if(!is_integer($integer)) $isNull = true;
+	
+	if($isNull) return "NULL";
+	else return $integer;
+}
+
 function dbClose($dbLink)
 {
 	mysqli_close($dbLink);
