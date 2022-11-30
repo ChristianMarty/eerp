@@ -42,7 +42,7 @@
           <el-table-column prop="Title" label="Title" sortable />
           <el-table-column prop="SupplierName" label="Supplier Name" sortable width="160">
             <template slot-scope="{ row }">
-              <router-link :to="'/supplier/supplierView/' + row.SupplierId" class="link-type">
+              <router-link :to="'/vendor/view/' + row.SupplierId" class="link-type">
                 <span>{{ row.SupplierName }}</span>
               </router-link>
             </template>

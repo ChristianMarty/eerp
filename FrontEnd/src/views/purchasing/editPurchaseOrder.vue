@@ -35,7 +35,7 @@
     <p>
       <b>
 
-        <router-link :to="'/supplier/supplierView/' + orderData.SupplierId" class="link-type">
+        <router-link :to="'/vendor/view/' + orderData.SupplierId" class="link-type">
           <span>{{ orderData.SupplierName }}</span>
         </router-link> -
         {{ orderData.PurchaseDate }}
