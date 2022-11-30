@@ -29,11 +29,24 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = dbRunQuery($dbLink,$query);
 	$assembly = array();
 	
+	$shippingProhibited = false;
+	$shippingClearance = false;
+	
 	$history = array();
 	while($r = mysqli_fetch_assoc($result)) 
-	{
+	{	
+		if($r['ShippingClearance'] != 0) $r['ShippingClearance'] = true;
+		else $r['ShippingClearance'] = false;
+		if($r['ShippingProhibited'] != 0) $r['ShippingProhibited'] = true;
+		else $r['ShippingProhibited'] = false;
+		
+		if($r['ShippingClearance'] == true) $shippingClearance = true; 
+		if($r['ShippingProhibited'] == true) $shippingProhibited = true; 
+
 		$history[] = $r;
 	}
+	
+	if($shippingProhibited == true) $shippingClearance = false;
 
 	$query  = "SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit ";
 	//$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
@@ -46,6 +59,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = array();
 
 	$output = mysqli_fetch_assoc($result);
+	$output['ShippingClearance'] =  $shippingClearance;
+	$output['ShippingProhibited'] = $shippingProhibited;
 	$output['History'] = $history;
 	
 	dbClose($dbLink);	

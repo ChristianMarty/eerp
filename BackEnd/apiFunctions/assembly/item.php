@@ -18,9 +18,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName FROM assembly_unit ";
+	$query  = "SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName, ShippingProhibited.ShippingProhibited, ShippingClearance.ShippingClearance FROM assembly_unit ";
 	$query .= "LEFT JOIN assembly_unit_history AS Test ON Test.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Test Fail','Test Pass') ORDER BY Data DESC LIMIT 1) ";
 	$query .= "LEFT JOIN assembly_unit_history AS Inspection ON Inspection.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Inspection Fail','Inspection Pass') ORDER BY Data DESC LIMIT 1) "; 
+	$query .= "LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1) "; 
+	$query .= "LEFT JOIN assembly_unit_history AS ShippingClearance ON ShippingClearance.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingClearance = 1) "; 
 	
 	$queryParam = array();
 	$temp = dbEscapeString($dbLink, $_GET["AssemblyNumber"]);
@@ -51,6 +53,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['Note'] = $r['Note'];
 		$temp['LocationName'] = $r['LocationName'];
 		$temp['SerialNumber'] = $r['SerialNumber'];
+		
+		
+		if($r['ShippingClearance'] != 0) $temp['ShippingClearance'] = true;
+		else $temp['ShippingClearance'] = false;
+		if($r['ShippingProhibited'] != 0) $temp['ShippingProhibited'] = true;
+		else $temp['ShippingProhibited'] = false;
+		
+		if($temp['ShippingProhibited'] == true) $temp['ShippingClearance'] = false;
 		
 		if($r['Test'] == 'Test Pass') $temp['LastTestPass'] = true;
 		else if($r['Test'] == 'Test Fail') $temp['LastTestPass'] = false;

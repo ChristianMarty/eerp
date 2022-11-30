@@ -39,11 +39,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['SerialNumber'] = $r['SerialNumber'];
 		$temp['Barcode'] = "ASU-".$r['AssemblyUnitNumber'];
 		$temp['Type'] = $r['Type'];
+		if($r['ShippingClearance'] != 0) $temp['ShippingClearance'] = true;
+		else $r['ShippingClearance'] = false;
+		if($r['ShippingProhibited'] != 0) $temp['ShippingProhibited'] = true;
+		else $r['ShippingProhibited'] = false;
 		$temp['EditToken'] = $r['EditToken'];
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;
 		$temp['Date'] = $r['Date'];
-		
+
 		$history = $temp;
 	}
 	
@@ -72,10 +76,15 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
+	
+	if(isset($data['ShippingClearance']) AND $data['ShippingClearance'] == true) $sqlData['ShippingClearance']['raw']  = "b'1'";
+	else $sqlData['LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1) ']['raw']  = "b'0'";
+	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited'] == true) $sqlData['ShippingProhibited']['raw']  = "b'1'";
+	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
+	
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
 	$query = dbBuildUpdateQuery($dbLink,"assembly_unit_history", $sqlData, 'EditToken = "'.$token.'"');
-	
-	
+
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
@@ -109,6 +118,12 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
+	
+	if(isset($data['ShippingClearance']) AND $data['ShippingClearance'] == true) $sqlData['ShippingClearance']['raw']  = "b'1'";
+	else $sqlData['ShippingClearance']['raw']  = "b'0'";
+	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited'] == true) $sqlData['ShippingProhibited']['raw']  = "b'1'";
+	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
+
 	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyNo."' )";
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
 	$query = dbBuildInsertQuery($dbLink,"assembly_unit_history", $sqlData);

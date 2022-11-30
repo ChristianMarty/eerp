@@ -135,6 +135,8 @@ class Assembly {
         Title: '',
         Description: '',
         Type: '',
+        ShippingClearance: false,
+        ShippingProhibited: false,
         Data: ''
       },
       create(historyCreateParameters) {
@@ -157,6 +159,8 @@ class Assembly {
         Title: '',
         Description: '',
         Type: '',
+        ShippingClearance: false,
+        ShippingProhibited: false,
         Data: ''
       },
       update(historyUpdateParameters) {

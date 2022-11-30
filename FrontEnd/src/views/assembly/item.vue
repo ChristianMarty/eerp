@@ -4,6 +4,9 @@
     <p>{{ assemblyData.Description }}</p>
 
     <el-divider />
+    <el-input ref="serialNumberSearchInput" v-model="serialNumberSearchInput" placeholder="Serial Number Search" @keyup.enter.native="serialNumberSearch(serialNumberSearchInput)">
+      <el-button slot="append" icon="el-icon-search" @click="serialNumberSearch(serialNumberSearchInput)" />
+    </el-input>
 
     <el-button
       v-permission="['assembly.unit.add']"
@@ -39,6 +42,12 @@
         <template slot-scope="{ row }">
           <span v-if="row.LastTestPass === true" class="pass">Pass</span>
           <span v-if="row.LastTestPass === false" class="fail">Fail</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="ShippingClearance" label="Shipping Clearance" sortable>
+        <template slot-scope="{ row }">
+          <span v-if="row.ShippingProhibited === true" class="fail">Prohibited</span>
+          <span v-else-if="row.ShippingClearance === true" class="pass">Approved</span>
         </template>
       </el-table-column>
     </el-table>
@@ -85,7 +94,8 @@ export default {
     return {
       assemblyData: {},
       assemblyCreateData: Object.assign({}, assembly.assemblyCreate),
-      unitCreateVisible: false
+      unitCreateVisible: false,
+      serialNumberSearchInput: ''
     }
   },
   created() {
@@ -98,6 +108,8 @@ export default {
     this.assemblyData = await assembly.item(this.$route.params.AssemblyNumber)
     this.workOrders = await workOrder.search('InProgress')
     this.setTitle()
+
+    this.$refs.serialNumberSearchInput.focus()
   },
   methods: {
     setTitle() {
@@ -106,6 +118,21 @@ export default {
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = `${this.$route.params.AssemblyNumber}`
+    },
+    serialNumberSearch(SerialNumber) {
+      console.log('lll')
+      console.log(SerialNumber)
+      try {
+        const AssemblyUnitBarcode = this.assemblyData.Unit.find(unit => unit.SerialNumber === SerialNumber).AssemblyUnitBarcode
+        this.$router.push('/assembly/unit/item/' + AssemblyUnitBarcode)
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          message: 'Serial Number does not exist',
+          duration: 3000,
+          type: 'warning'
+        })
+      }
     },
     addUnit() {
       this.unitCreateVisible = true
@@ -149,4 +176,6 @@ export default {
 .fail {
   color: red;
 }
+
 </style>
+

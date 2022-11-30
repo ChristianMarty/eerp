@@ -19,6 +19,7 @@
       <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="SerialNumber" label="SerialNumber" sortable />
       <el-table-column prop="LocationName" label="Location" sortable />
+      <el-table-column prop="ShippingClearance" label="Shipping Clearance" sortable />
     </el-table>
   </div>
 </template>

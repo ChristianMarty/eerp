@@ -3,7 +3,10 @@
     <h1>{{ assemblyUnitData.AssemblyItemBarcode }}</h1>
     <p><b>Serial Number: </b>{{ assemblyUnitData.SerialNumber }}</p>
     <p><b>Location: </b>{{ assemblyUnitData.LocationName }}</p>
-
+    <p><b>Shipping Prohibited: </b>{{ assemblyUnitData.ShippingProhibited }}</p>
+    <p><b>Shipping Clearance: </b>{{ assemblyUnitData.ShippingClearance }}</p>
+    <p v-if="assemblyUnitData.ShippingProhibited" class="shippingProhibitedWarning">! DO NOT SEND THIS UNIT TO TO CUSTOMER !</p>
+    <p v-if="assemblyUnitData.ShippingClearance" class="shippingClearance">This unit is ready for shipment.</p>
     <el-divider />
 
     <h2>History</h2>
@@ -28,12 +31,14 @@
           <p>{{ line.Description }}</p>
           <el-button @click.native="showHistoryDialog(line.Id)">Show Data</el-button>
           <el-button v-if="line.EditToken" v-permission="['assembly.unit.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.Id)">Edit</el-button>
+          <p v-if="line.ShippingClearance" class="shippingClearance">Ready for shipment</p>
+          <p v-if="line.ShippingProhibited" class="shippingProhibitedWarning">Shipping Prohibited</p>
         </el-card>
       </el-timeline-item>
     </el-timeline>
 
-    <el-dialog title="Add History Item" :visible.sync="editHistoryVisible">
-      <el-form label-width="120px">
+    <el-dialog title="Edit History Item" :visible.sync="editHistoryVisible">
+      <el-form label-width="170px">
         <el-form-item label="Title">
           <el-input v-model="editHistoryData.Title" />
         </el-form-item>
@@ -49,6 +54,12 @@
               :value="item"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item label="Shipping Clearance">
+          <el-checkbox v-model="editHistoryData.ShippingClearance" :disabled="assemblyUnitData.ShippingProhibited" />
+        </el-form-item>
+        <el-form-item label="Shipping Prohibited">
+          <el-checkbox v-model="editHistoryData.ShippingProhibited" />
         </el-form-item>
         <el-form-item label="Data (JSON)">
           <el-input v-model="editHistoryData.Data" type="textarea" />
@@ -133,6 +144,8 @@ export default {
       historyCreateParameters.Title = this.editHistoryData.Title
       historyCreateParameters.Description = this.editHistoryData.Description
       historyCreateParameters.Type = this.editHistoryData.Type
+      historyCreateParameters.ShippingClearance = this.editHistoryData.ShippingClearance
+      historyCreateParameters.ShippingProhibited = this.editHistoryData.ShippingProhibited
       historyCreateParameters.Data = this.editHistoryData.Data
 
       assembly.unit.history.create(historyCreateParameters).then(response => {
@@ -154,6 +167,8 @@ export default {
       historyUpdateParameters.Title = this.editHistoryData.Title
       historyUpdateParameters.Description = this.editHistoryData.Description
       historyUpdateParameters.Type = this.editHistoryData.Type
+      historyUpdateParameters.ShippingClearance = this.editHistoryData.ShippingClearance
+      historyUpdateParameters.ShippingProhibited = this.editHistoryData.ShippingProhibited
       historyUpdateParameters.Data = this.editHistoryData.Data
 
       assembly.unit.history.update(historyUpdateParameters).then(response => {
@@ -196,6 +211,7 @@ export default {
               element.color = '#E6A23C' // Orange
               break
             case 'Production':
+            case 'Modification':
               element.color = '#409EFF' // Blue
               break
             case 'Note':
@@ -209,3 +225,16 @@ export default {
 
 }
 </script>
+
+<style scoped>
+
+.shippingProhibitedWarning {
+  color: red;
+  font-size: 25px;
+}
+
+.shippingClearance {
+  color:green;
+}
+
+</style>
