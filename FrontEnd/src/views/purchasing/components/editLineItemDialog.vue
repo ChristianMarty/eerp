@@ -42,8 +42,8 @@
           <el-input-number
             v-model="line.Price"
             :controls="false"
-            :precision="4"
-            :min="0.0000"
+            :precision="6"
+            :min="0.000000"
             :max="999999"
             style="width: 70pt"
           />
@@ -59,6 +59,7 @@
           >
             <el-option v-for="item in vat" :key="item.Id" :label="item.Value +'% - '+item.Description" :value="item.Id" />
           </el-select>
+          <span :style="{margin: '10px'}"><el-button type="primary" @click="line.Price = line.Price/(1+vat.find(x => x.Id === line.VatTaxId).Value/100)">Remove VAT from Price</el-button></span>
         </el-form-item>
 
         <el-form-item label="Discount:">
