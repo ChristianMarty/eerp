@@ -110,7 +110,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$query  = "SELECT AccessoryNumber+1 AS NextAccessoryNumber FROM inventory_accessory ";
 	$query .= "WHERE InventoryId = {$id} ORDER BY AccessoryNumber DESC LIMIT 1";	
 	$result = dbRunQuery($dbLink,$query);
-	$nextAccessoryNumber = mysqli_fetch_assoc($result)['NextAccessoryNumber'];
+    $resultData = mysqli_fetch_assoc($result);
+    $nextAccessoryNumber = 1; // Value for first Item
+    if(isset($resultData['NextAccessoryNumber'])) $nextAccessoryNumber = $resultData['NextAccessoryNumber'];
 	
 	$sqlData = array();
 	$sqlData['InventoryId'] = $id;
