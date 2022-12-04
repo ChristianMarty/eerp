@@ -32,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$tmp["Path"] = $dataRootPath.$ingestPath."/".$line;
 		
-		array_push($output, $tmp); 
+		$output[] = $tmp;
 	}
 	
 	sendResponse($output);

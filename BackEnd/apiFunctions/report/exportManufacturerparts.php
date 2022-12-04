@@ -14,7 +14,7 @@ require_once __DIR__ . "/../util/location.php";
 
 global $devMode;
 
-$titel = "Manufacturer Part List";
+$title = "Manufacturer Part List";
 $description = "Export Manufacturer Part List with Lifecycle Status.";
 
 if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode))

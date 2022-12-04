@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$query  = "SELECT * FROM assembly_unit_history ";
 	$query .= "LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId ";	
-	$query .= "WHERE assembly_unit_history.Id = {$assemblyHistoryId}";	
+	$query .= "WHERE assembly_unit_history.Id = $assemblyHistoryId";
 
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -77,9 +77,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
 	
-	if(isset($data['ShippingClearance']) AND $data['ShippingClearance'] == true) $sqlData['ShippingClearance']['raw']  = "b'1'";
+	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";
 	else $sqlData['LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1) ']['raw']  = "b'0'";
-	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited'] == true) $sqlData['ShippingProhibited']['raw']  = "b'1'";
+	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited']) $sqlData['ShippingProhibited']['raw']  = "b'1'";
 	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
 	
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
@@ -88,7 +88,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if($result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);
@@ -119,9 +119,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
 	
-	if(isset($data['ShippingClearance']) AND $data['ShippingClearance'] == true) $sqlData['ShippingClearance']['raw']  = "b'1'";
+	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";
 	else $sqlData['ShippingClearance']['raw']  = "b'0'";
-	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited'] == true) $sqlData['ShippingProhibited']['raw']  = "b'1'";
+	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited']) $sqlData['ShippingProhibited']['raw']  = "b'1'";
 	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
 
 	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyNo."' )";

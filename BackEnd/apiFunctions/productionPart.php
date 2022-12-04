@@ -27,17 +27,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["ManufacturerPartId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		array_push($queryParam, "productionPartMapping.ManufacturerPartId = '".$temp."'");		
+		$queryParam[] = "productionPartMapping.ManufacturerPartId = '" . $temp . "'";
 	}
 	else if(isset($_GET["ProductionPartNo"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
-		array_push($queryParam, "productionPart.PartNo LIKE '".$temp."'");	
+		$queryParam[] = "productionPart.PartNo LIKE '" . $temp . "'";
 	}
 	
 	if($hideNoManufacturerPart)
 	{
-		array_push($queryParam, "ManufacturerPartId IS NOT NULL");
+		$queryParam[] = "ManufacturerPartId IS NOT NULL";
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
@@ -51,7 +51,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		unset($r['Id']);
-		array_push($rows,$r);	
+		$rows[] = $r;
 	}
 
 	dbClose($dbLink);	

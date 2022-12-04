@@ -36,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$error = null;
 	$accessory = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	else $accessory = mysqli_fetch_assoc($result);
 	
 	if($accessory["Labeled"] == "0") $accessory["Labeled"] = false;
@@ -71,7 +71,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['AccessoryNumber'] = $data['AccessoryNumber'];
 	$sqlData['Description'] = $data['Description'];
 	$sqlData['Note'] = $data['Note'];
-	if($data['Labeled'] == true) $sqlData['Labeled']['raw'] = "b'1'";
+	if($data['Labeled']) $sqlData['Labeled']['raw'] = "b'1'";
 	else $sqlData['Labeled']['raw'] = "b'0'";
 
 	$query = dbBuildUpdateQuery($dbLink,"inventory_accessory", $sqlData, "InventoryId = {$id} AND AccessoryNumber = {$accessoryNumber}");
@@ -80,7 +80,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	$error = null;
 	
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);
@@ -119,7 +119,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['AccessoryNumber'] = $nextAccessoryNumber;
 	$sqlData['Description'] = $data['Description'];
 	$sqlData['Note'] = $data['Note'];
-	if($data['Labeled'] == true) $sqlData['Labeled']['raw'] = "b'1'";
+	if($data['Labeled']) $sqlData['Labeled']['raw'] = "b'1'";
 	else $sqlData['Labeled']['raw'] = "b'0'";
 	
 	$query = dbBuildInsertQuery($dbLink,"inventory_accessory", $sqlData);
@@ -128,7 +128,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$error = null;
 	
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);

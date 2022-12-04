@@ -71,9 +71,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$result = mysqli_query($dbLink,$query);
 		
 		$rows = array();
-		
 		$userid = 0;
-
+        $settings = null;
 		while($r = mysqli_fetch_assoc($result)) 
 		{
 			$settings = json_decode($r['Settings']);

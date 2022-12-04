@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$r['Id'] = intval($r['Id']);
 		$r['VendorId'] = intval($r['VendorId']);
 		$r['CountryId'] = intval($r['CountryId']);
-		array_push($address, $r);
+		$address[] = $r;
 	}
 
 	dbClose($dbLink);	

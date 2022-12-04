@@ -32,9 +32,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	
 	$parameters = array();
-	if(isset($manufacturerPartId)) array_push($parameters, 'supplierPart.ManufacturerPartId = '. $manufacturerPartId);
-	if(isset($supplierId)) array_push($parameters, 'supplierPart.VendorId = '.$supplierId);
-	if(isset($productionPartNo)) array_push($parameters, "productionPart.PartNo = '".$productionPartNo."'");
+	if(isset($manufacturerPartId)) $parameters[] = 'supplierPart.ManufacturerPartId = ' . $manufacturerPartId;
+	if(isset($supplierId)) $parameters[] = 'supplierPart.VendorId = ' . $supplierId;
+	if(isset($productionPartNo)) $parameters[] = "productionPart.PartNo = '" . $productionPartNo . "'";
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
 	
@@ -42,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($supplier = mysqli_fetch_assoc($supplierParts)) 
 	{
-		array_push($supplierData, $supplier);
+		$supplierData[] = $supplier;
 	}
 
 	dbClose($dbLink);	

@@ -14,7 +14,7 @@ require_once __DIR__ . "/../util/location.php";
 
 global $devMode;
 
-$titel = "Stock List";
+$title = "Stock List";
 $description = "Export Stock List.";
 
 if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode))

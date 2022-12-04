@@ -42,19 +42,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["ManufacturerName"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerName"]);
-		array_push($queryParam, "vendor.Name = '".$temp."'");
+		$queryParam[] = "vendor.Name = '" . $temp . "'";
 	}
 	
 	if(isset($_GET["ManufacturerId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerId"]);
-		array_push($queryParam, "vendor.Id = '".$temp."'");
+		$queryParam[] = "vendor.Id = '" . $temp . "'";
 	}
 	
 	if(isset($_GET["ManufacturerPartNumber"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumber"]);
-		array_push($queryParam, "manufacturerPart.ManufacturerPartNumber LIKE '".$temp."'");
+		$queryParam[] = "manufacturerPart.ManufacturerPartNumber LIKE '" . $temp . "'";
 	}
 	
 	if(isset($_GET["classId"]))
@@ -73,7 +73,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		}
 		$classIdList = substr($classIdList, 0, -1);
 
-		array_push($queryParam, "PartClassId IN(".$classIdList.")");
+		$queryParam[] = "PartClassId IN(" . $classIdList . ")";
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
@@ -112,12 +112,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				$dataSet['Value']= $value;
 				$dataSet['Unit']= $attributes[$key]['Unit'];
 				$dataSet['Symbol']= $attributes[$key]['Symbol'];
-				array_push($partData,$dataSet);
+				$partData[] = $dataSet;
 			}
 		}
 		
 		$r['PartData'] = $partData;
-		array_push($rows,$r);	
+		$rows[] = $r;
 	}
 
 	dbClose($dbLink);	
@@ -133,16 +133,16 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$manufacturerName = dbEscapeString($dbLink,$data['data']['ManufacturerName']);
 	$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
 
-	$inserData['VendorId']['raw']  = "(SELECT Id FROM vendor WHERE Name = '".$manufacturerName."')";
-	$inserData['ManufacturerPartNumber']  = $manufacturerPartNumber;
+	$insertData['VendorId']['raw']  = "(SELECT Id FROM vendor WHERE Name = '".$manufacturerName."')";
+	$insertData['ManufacturerPartNumber']  = $manufacturerPartNumber;
 	
-	$query = dbBuildInsertQuery($dbLink, "manufacturerPart", $inserData);
+	$query = dbBuildInsertQuery($dbLink, "manufacturerPart", $insertData);
 	
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
 	$manufacturerPart = array();
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}

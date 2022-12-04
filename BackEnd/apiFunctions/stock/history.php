@@ -72,7 +72,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$r['Type'] = $type;
 		$r['Description'] = trim($description);
-		array_push($output, $r);
+		$output[] = $r;
 	}
 	
 	dbClose($dbLink);	

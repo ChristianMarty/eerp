@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r['TestSystemBarcode'] = "TSY-".$r['TestSystemNumber'];
-		array_push($output, $r);
+		$output[] = $r;
 	}
 
 	dbClose($dbLink);	
@@ -34,7 +34,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data['Name'])) sendResponse($output,"Name missing");
+	if(!isset($data['Name'])) sendResponse(null,"Name missing");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;

@@ -55,10 +55,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				$priceLine['Quantity'] = $price->quantity;
 				$priceLine['Currency'] = $price->currency;
 				
-				array_push($line['Price'],$priceLine);
+				$line['Price'][] = $priceLine;
 			}
 			
-			array_push($availability,$line);
+			$availability[] = $line;
 		}
 	}
 	

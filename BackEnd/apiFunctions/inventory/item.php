@@ -29,7 +29,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	else
 	{
-		sendResponse($output,"No inventory item specified");
+		sendResponse(null,"No inventory item specified");
 	}
 	
 	$locations = getLocations();
@@ -53,8 +53,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	global $dataRootPath;
 	global $picturePath;
-	
-	$output = array();
+
 	$pictureRootPath = $dataRootPath.$picturePath."/";
 	
 	$result = dbRunQuery($dbLink,$baseQuery);
@@ -62,7 +61,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$id = $r['Id'];
 	
 	$output = array();
-
 	$output['PicturePath'] = $pictureRootPath.$r['PicturePath'];
 	$output['InventoryNumber'] = $r['InvNo'];
 	$output['InventoryBarcode'] = "Inv-".$r['InvNo'];
@@ -105,7 +103,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
 		
-		array_push($purchase, $por);
+		$purchase[] = $por;
 	}
 	
 	if(count($purchase) == 0) // Fallback to legacy data
@@ -126,7 +124,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$totalPrice = $row["Price"];
 		
-		array_push($purchase, $row);
+		$purchase[] = $row;
 	}
 	
 	$output["PurchaseInformation"] = $purchase;
@@ -147,7 +145,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$acs["AccessoryBarcode"] = $output['InventoryBarcode']."-".$acs["AccessoryNumber"];
 		if($acs["Labeled"] == "0") $acs["Labeled"] = false;
 		else $acs["Labeled"] = true;
-		array_push($accessory, $acs);
+		$accessory[] = $acs;
 	}
 	
 	$output["Accessory"] = $accessory;
@@ -160,7 +158,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	// Get History
 	$History = array();
-	
+	global $documentRootPath;
+
 	$baseQuery = "SELECT * FROM `inventory_history` WHERE InventoryId = ".$id." ORDER BY `Date` ASC";
 		
 	$result = dbRunQuery($dbLink,$baseQuery);
@@ -179,7 +178,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			while($j = mysqli_fetch_assoc($result2))
 			{
 				$j['Path'] = $documentRootPath."/".$j['Type']."/".$j['Path'];
-				array_push($Documents, $j);
+				$Documents[] = $j;
 			}
 		}
 		$r['Documents'] = $Documents;
@@ -188,7 +187,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		unset($r['Id']);
 		unset($r['InventoryId']);
 		
-		array_push($History, $r);
+		$History[] = $r;
 	}
 	
 	$output["History"] = $History;
@@ -202,7 +201,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
 
 	$sqlData = array();
 	$sqlData['InvNo']['raw'] = "(SELECT generateItemNumber())";

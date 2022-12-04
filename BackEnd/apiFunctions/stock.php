@@ -32,19 +32,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$stockNo = dbEscapeString($dbLink, trim($_GET["StockNo"]));
 		$stockNo = strtolower($stockNo);
 		$stockNo = str_replace("stk-","",$stockNo);	
-		array_push($queryParam, "StockNo = '".$stockNo."'");			
+		$queryParam[] = "StockNo = '" . $stockNo . "'";
 	}
 	 
 	if(isset($_GET["ManufacturerPartId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		array_push($queryParam, "manufacturerPart.Id = '".$temp."'");		
+		$queryParam[] = "manufacturerPart.Id = '" . $temp . "'";
 	}
 	
 	if(isset($_GET["HideEmpty"]))
 	{
 		//if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Quantity != 0");
-		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "partStock_getQuantity(partStock.StockNo) != 0");	
+		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "partStock_getQuantity(partStock.StockNo) != 0";
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
@@ -63,7 +63,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$r['DateCode'] = $date->format("yW");
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
 
-		array_push($output, $r);
+		$output[] = $r;
 	}
 	
 	sendResponse($output);

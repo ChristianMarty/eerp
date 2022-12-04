@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../config.php";
 
-function dbConnect()
+function dbConnect(): ?mysqli
 {
 	global $databaseServerAddress;
 	global $databasePort;
@@ -32,7 +32,7 @@ function dbConnect()
 	return $dbLink;
 }
 
-function dbStringNull($string)
+function dbStringNull($string): string
 {
 	$isNull = false;
 	if($string == null) $isNull = true;
@@ -61,36 +61,47 @@ function dbIntegerNull($integer)
 	else return $integer;
 }
 
-function dbClose($dbLink)
+function dbClose($dbLink): void
 {
 	mysqli_close($dbLink);
 }
 
-function dbEscapeString($dbLink, $string)
+function dbEscapeString($dbLink, $string): string
 {
 	return trim(mysqli_real_escape_string($dbLink, $string));
 }
 
-function dbGetResult($result)
+function dbGetResult($result): bool|array|null
 {
 	return mysqli_fetch_assoc($result);
 }
 
-function dbRunQuery($dbLink, $query)
+function dbRunQuery($dbLink, $query): mysqli_result|bool
 {
 	return mysqli_query($dbLink,$query);
 }
 
-function dbGetErrorString($dbLink)
+function dbGetErrorString($dbLink): string
 {
 	return  mysqli_error($dbLink);
 }
 
-function dbToBit($value)
+function dbToBit($value): string
 {
 	if($value) return "b'1'";
 	else return "b'0'";
-}	
+}
+
+function dbGetEnumOptions($dbLink, $table , $column ): array|bool
+{
+    $query = "SHOW COLUMNS FROM $table LIKE '$column'";
+
+    $result = dbRunQuery($dbLink,$query);
+    if (!$result) return false;
+
+    $result = mysqli_fetch_assoc($result)['Type'];
+    return explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
+}
 
 function dbBuildQuery($dbLink, $baseQuery, $queryParam)
 {
@@ -112,7 +123,7 @@ function dbBuildQuery($dbLink, $baseQuery, $queryParam)
 	return $query;
 }
 
-function dbBuildInsertQuery($dbLink, $tableName, $data)
+function dbBuildInsertQuery($dbLink, $tableName, $data): string
 {
 	$keys ="";
 	$values ="";
@@ -137,7 +148,7 @@ function dbBuildInsertQuery($dbLink, $tableName, $data)
 	return "INSERT INTO ".$tableName." (".$keys.") VALUES (".$values.");";	
 }
 
-function dbBuildUpdateQuery($dbLink, $tableName, $data, $condition = NULL)
+function dbBuildUpdateQuery($dbLink, $tableName, $data, $condition = NULL): string
 {
 
 	$pairs ="";

@@ -52,13 +52,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		foreach ($BoM as $PartDataLine)
 		{
-			$partTitel = $PartDataLine["PartNo"]." ".$PartDataLine['Value'];
-			$partRefdes = $PartDataLine['RefDes'];
+			$partTitle = $PartDataLine["PartNo"]." ".$PartDataLine['Value'];
+			$partRefDes = $PartDataLine['RefDes'];
 
 			$printer->setEmphasis(true);
-			$printer->text($partTitel."\n");
+			$printer->text($partTitle."\n");
 			$printer->setEmphasis(false);
-			$printer->text($partRefdes."\n");
+			$printer->text($partRefDes."\n");
 		}
 		
 		$printer -> cut();

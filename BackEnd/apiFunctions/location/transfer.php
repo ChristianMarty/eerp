@@ -10,25 +10,25 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 
-function filterInv($var)
+function filterInv($var): int
 {
 	if(explode("-",strtolower($var))[0] == "inv") return 1;
 	else return 0;
 }
 
-function filteStk($var)
+function filteStk($var): int
 {
 	if(explode("-",strtolower($var))[0] == "stk") return 1;
 	else return 0;
 }
 
-function filterLoc($var)
+function filterLoc($var): int
 {
 	if(explode("-",strtolower($var))[0] == "loc") return 1;
 	else return 0;
 }
 
-function filterAsu($var)
+function filterAsu($var): int
 {
 	if(explode("-",strtolower($var))[0] == "asu") return 1;
 	else return 0;
@@ -62,7 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$locationNr = strtolower(dbEscapeString($dbLink, $data['DestinationLocationNumber']));
 	$itemList =  $data['TransferList'];
 	
-	if(substr($locationNr,0,4) != "loc-")  sendResponse(null,"Invalid destination location");
+	if(!str_starts_with($locationNr, "loc-"))  sendResponse(null,"Invalid destination location");
 	$locationNr = str_replace("loc-","",$locationNr);
 	
 	// Split into different categories

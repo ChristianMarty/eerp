@@ -25,13 +25,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["PurchaseOrderNo"]))
 	{
 		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
-		array_push($queryParam, "PoNo = ".$purchaseOrderNo);
+		$queryParam[] = "PoNo = " . $purchaseOrderNo;
 	}
 	
 	if(isset($_GET["VendorId"]))
 	{
 		$vendorId = dbEscapeString($dbLink, $_GET["VendorId"]);
-		array_push($queryParam, "VendorId = ".$vendorId);
+		$queryParam[] = "VendorId = " . $vendorId;
 	}
 	
 	if(isset($_GET["HideClosed"]))
@@ -41,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	else if(isset($_GET["Status"]))
 	{
 		$status = dbEscapeString($dbLink, $_GET["Status"]);
-		array_push($queryParam, "Status = '".$status."'");
+		$queryParam[] = "Status = '" . $status . "'";
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
@@ -55,7 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$r['CurrencyId'] = intval($r['CurrencyId']);
 		if($r['Title'] == null) $r['Title'] = $r['SupplierName']." - ".$r['PurchaseDate'];
 		
-		array_push($output, $r);
+		$output[] = $r;
 	}
 
 	dbClose($dbLink);	

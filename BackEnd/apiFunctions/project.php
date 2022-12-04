@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		array_push($output, $r);
+		$output[] = $r;
 	}
 
 	dbClose($dbLink);	

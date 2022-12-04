@@ -58,7 +58,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}
@@ -88,7 +88,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}

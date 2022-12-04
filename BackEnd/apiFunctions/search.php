@@ -50,8 +50,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		sendResponse(null,"Number format invalide.");
 	}
-	
-	
+
 	sendResponse($data);
 }
 ?>

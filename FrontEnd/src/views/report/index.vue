@@ -6,7 +6,7 @@
       border
       style="width: 100%"
     >
-      <el-table-column prop="Titel" sortable label="Report" width="240">
+      <el-table-column prop="Title" sortable label="Report" width="240">
         <template slot-scope="{ row }">
           <a :href="row.Path" target="blank">
             <el-button>

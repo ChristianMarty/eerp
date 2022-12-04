@@ -13,23 +13,11 @@ require_once __DIR__ . "/../../../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SHOW COLUMNS FROM assembly_unit_history LIKE 'Type'";
-	
-	$output = array();
-	$option_array = array();
-	
-	$result = dbRunQuery($dbLink,$query);
-	if ($result) 
-	{
-		$result = mysqli_fetch_assoc($result)['Type'];
-		$option_array = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
-	}
-	
-	$output = $option_array;
+    $output = dbGetEnumOptions($dbLink, 'assembly_unit_history','Type');
+    dbClose($dbLink);
 
-	dbClose($dbLink);	
+    if(!$output) sendResponse(null, "Database error for assembly_unit_history Type");
+
 	sendResponse($output);
 }
 ?>

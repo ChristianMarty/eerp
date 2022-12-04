@@ -20,9 +20,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$queryParam = array();
 	
-	if(isset($_GET["OrderImportSupported"])) array_push($queryParam,"OrderImportSupported = true");
-	if(isset($_GET["Supplier"]) AND filter_var($_GET["Supplier"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "IsSupplier = b'1'");
-	if(isset($_GET["Manufacturer"]) AND filter_var($_GET["Manufacturer"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "IsManufacturer = b'1'");
+	if(isset($_GET["OrderImportSupported"])) $queryParam[] = "OrderImportSupported = true";
+	if(isset($_GET["Supplier"]) AND filter_var($_GET["Supplier"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsSupplier = b'1'";
+	if(isset($_GET["Manufacturer"]) AND filter_var($_GET["Manufacturer"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsManufacturer = b'1'";
 
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	
@@ -66,16 +66,16 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($dbLink == null) return null;
 	
 	$vendorName = dbEscapeString($dbLink,$data['Name']);
-	$inserData['IsSupplier']['raw']  = "b'1'";
-	$inserData['Name']  = $vendorName;
+	$insertData['IsSupplier']['raw']  = "b'1'";
+	$insertData['Name']  = $vendorName;
 	
-	$query = dbBuildInsertQuery($dbLink, "vendor", $inserData);
+	$query = dbBuildInsertQuery($dbLink, "vendor", $insertData);
 	
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
 	$data = array();
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}
@@ -98,7 +98,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	sendResponse($data, $error);
 }
 
-function hasChild($rows,$id)
+function hasChild($rows,$id): bool
 {
 	foreach ($rows as $row) 
 	{
@@ -107,7 +107,7 @@ function hasChild($rows,$id)
 	return false;
 }
 
-function buildTree($rows, $parentId)
+function buildTree($rows, $parentId): array
 {  
 	$treeItem = array();
 	foreach ($rows as $row)
@@ -124,7 +124,7 @@ function buildTree($rows, $parentId)
 				$temp['Children'] = array();
 				$temp['Children'] =  buildTree($rows,$row['Id']);
 			}
-			array_push($treeItem, $temp);
+			$treeItem[] = $temp;
 		}
 	}
 	

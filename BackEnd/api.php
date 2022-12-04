@@ -52,13 +52,13 @@ $filePath .= ".php";
 if(!file_exists($filePath)) sendResponse(null, "Invalid URL");
 
 $tmp = explode('/', $filePath);
-if( substr(end($tmp),0,1) == "_") sendResponse(null, "Invalid URL"); //Files starting with "_" are hidden
+if(str_starts_with(end($tmp), "_")) sendResponse(null, "Invalid URL"); //Files starting with "_" are hidden
 
 if( $apiRequest == "user/login" || $apiRequest == "user/logout" || $apiRequest == "user/info")
 {
 	require $filePath;
 }
-else if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode) 
+else if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'])||$devMode)
 {
 	require $filePath;
 }
@@ -68,7 +68,7 @@ else
 }
 
 
-function sendResponse($data,$error = null)
+function sendResponse($data, $error = null): void
 {
 	header("Content-Type:application/json; charset=UTF-8");
 	
@@ -83,7 +83,7 @@ function sendResponse($data,$error = null)
 	$response['loggedin'] = $loginState;
 
 	$json_response = json_encode($response);
-	if( $json_response  == false)
+	if(!$json_response)
 	{
 		$errorResponse['error'] = "JSON encoding error";
 		$errorResponse['loggedin'] = $_SESSION['loggedin'];
@@ -97,4 +97,3 @@ function sendResponse($data,$error = null)
 }
 
 ?>
-

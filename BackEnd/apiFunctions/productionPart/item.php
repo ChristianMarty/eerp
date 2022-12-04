@@ -27,9 +27,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN partStock ON partStock.ManufacturerPartId = manufacturerPart.Id ";
 	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
 	$query .= "WHERE productionPart.PartNo = '".$partNo."'";
-	
-
-	
 
 	$result = mysqli_query($dbLink,$query);
 	
@@ -39,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$manufacturerParts = array();
 	
-	array_push($manufacturerParts, array());
+	$manufacturerParts[] = array();
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
@@ -70,7 +67,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$StockRow['PartId'] = $r['PartId']+10;
 		
 				
-		array_push($manufacturerParts[$r['PartId']]['Stock'], $StockRow);	
+		$manufacturerParts[$r['PartId']]['Stock'][] = $StockRow;
 	}
 	unset($manufacturerParts[0]);
 	$manufacturerParts = array_values($manufacturerParts);

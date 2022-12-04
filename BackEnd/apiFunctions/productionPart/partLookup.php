@@ -36,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		array_push($rows, $r);
+		$rows[] = $r;
 	}
 	
 	dbClose($dbLink);

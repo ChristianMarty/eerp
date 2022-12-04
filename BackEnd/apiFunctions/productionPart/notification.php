@@ -26,8 +26,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		
-		
 		$quantity = intval($r['StockQuantity']);
 		$minimum = intval($r['StockMinimum']);
 		$maximum = intval($r['StockMaximum']);
@@ -41,8 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$r["Status"] = $status;
 		
-		if($status != null) array_push($rows, $r);
-		
+		if($status != null) $rows[] = $r;
 
 	}
 

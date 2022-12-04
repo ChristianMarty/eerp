@@ -121,9 +121,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$inserData['ShortName']  = dbEscapeString($dbLink,trim($data['ShortName']));
 	$inserData['CustomerNumber']  = dbEscapeString($dbLink,trim($data['CustomerNumber']));
 	
-	if($data['IsSupplier'] == true) $inserData['IsSupplier']['raw']  = "b'1'";
+	if($data['IsSupplier']) $inserData['IsSupplier']['raw']  = "b'1'";
 	else $inserData['IsSupplier']['raw']  = "b'0'";
-	if($data['IsManufacturer'] == true) $inserData['IsManufacturer']['raw']  = "b'1'";
+	if($data['IsManufacturer']) $inserData['IsManufacturer']['raw']  = "b'1'";
 	else $inserData['IsManufacturer']['raw']  = "b'0'";
 	
 	$inserData['ParentId']['raw'] = dbIntegerNull($data['ParentId']);
@@ -134,7 +134,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}

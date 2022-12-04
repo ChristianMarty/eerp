@@ -17,13 +17,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$children = true;
 	if(isset($_GET["children"]))
 	{
-		if($_GET["children"] != true) $children = false; 
+		if(!$_GET["children"]) $children = false;
 	}
 	
 	$parents = false;
 	if(isset($_GET["parents"]))
 	{
-		if($_GET["parents"] == true) $parents = true; 
+		if($_GET["parents"]) $parents = true;
 	}
 	
 	$classId = 0;
@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$attributeList = array();
 	
-	if($parents == false)
+	if(!$parents)
 	{
 		$attributeList = buildTree($attributes,$classId,$children, $parents);
 	}
@@ -76,7 +76,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			//if($attributes[$attributeId]['UseMinTypMax']) $attribute['MinMax'] = true;
 			//else $attribute['MinMax'] = false;
 			
-			array_push($attributeList, $attribute);
+			$attributeList[] = $attribute;
 		}
 	}
 	
@@ -138,7 +138,7 @@ function getParentAttributes($rows, $childId)
 	return $attributeList;
 }
 
-function hasChild($rows,$id)
+function hasChild($rows,$id): bool
 {
 	foreach ($rows as $row) 
 	{
@@ -147,7 +147,7 @@ function hasChild($rows,$id)
 	return false;
 }
 
-function buildTree($attributes, $parentId, $children, $parents)
+function buildTree($attributes, $parentId, $children, $parents): array
 {  
 	$treeItem = array();
 	foreach ($attributes as $row)
@@ -166,12 +166,12 @@ function buildTree($attributes, $parentId, $children, $parents)
 			$temp['Type'] = $unitType;
 			$temp['Scale'] = $row['Scale'];
 		
-			if ($children == true && hasChild($attributes,$row['Id']))
+			if ($children && hasChild($attributes,$row['Id']))
 			{
 				$temp['Children'] = array();
 				$temp['Children'] =  buildTree($attributes,$row['Id'], $children, $parents);
 			}
-			array_push($treeItem, $temp);
+			$treeItem[] = $temp;
 		}
 	}
 	

@@ -66,7 +66,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);

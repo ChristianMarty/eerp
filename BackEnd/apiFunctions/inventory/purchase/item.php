@@ -11,16 +11,17 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_json.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["InventoryNumber"]) ) sendResponse(Null,"Inventory Number not set");
 	
+	$inventoryNumber = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
+	if(!$inventoryNumber)sendResponse(Null,"Inventory Number invalide");
+	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$inventoryNumber = $_GET["InventoryNumber"];
-	$inventoryNumber = strtolower($inventoryNumber);
-	$inventoryNumber = str_replace("inv-","",$inventoryNumber);
 	
 	// Get Purchase Information
 	$query  = "SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, purchasOrder_itemReceive.Id AS ReceivalId ";
@@ -37,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$error = null;
 	
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . mysqli_error($dbLink);
 	}
@@ -54,7 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			
 			//$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
 			
-			array_push($purchase, $por);
+			$purchase[] = $por;
 		}
 	}
 
@@ -97,7 +98,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 		
 		$result = dbRunQuery($dbLink,$query);
 		
-		if($result == false)
+		if(!$result)
 		{
 			$error = "Error description: " . mysqli_error($dbLink);
 			break;
@@ -111,7 +112,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	$result = dbRunQuery($dbLink,$query);
 
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);

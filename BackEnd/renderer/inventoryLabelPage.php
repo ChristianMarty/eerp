@@ -83,7 +83,7 @@
 	$query = "SELECT `InvNo`,`Title`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN(".implode(", ",$invNo).")";
 	$result = dbRunQuery($dbLink,$query);
 
-	if($result == false)
+	if(!$result)
 	{
 		exit;
 	}

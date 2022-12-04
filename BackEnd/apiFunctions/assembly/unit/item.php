@@ -40,19 +40,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['ShippingProhibited'] != 0) $r['ShippingProhibited'] = true;
 		else $r['ShippingProhibited'] = false;
 		
-		if($r['ShippingClearance'] == true) $shippingClearance = true; 
-		if($r['ShippingProhibited'] == true) $shippingProhibited = true; 
+		if($r['ShippingClearance']) $shippingClearance = true;
+		if($r['ShippingProhibited']) $shippingProhibited = true;
 
 		$history[] = $r;
 	}
 	
-	if($shippingProhibited == true) $shippingClearance = false;
+	if($shippingProhibited) $shippingClearance = false;
 
 	$query  = "SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit ";
 	//$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
 	
 	$queryParam = array();
-	array_push($queryParam, " AssemblyUnitNumber = '".$assemblyUnitNumber."'");		
+	$queryParam[] = " AssemblyUnitNumber = '" . $assemblyUnitNumber . "'";
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -70,7 +70,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
-	if(!isset($data['SerialNumber']) or !isset($data['AssemblyNumber'])) sendResponse($output,"SerialNumber or AssemblyNumber missing");
+	if(!isset($data['SerialNumber']) or !isset($data['AssemblyNumber'])) sendResponse(null,"SerialNumber or AssemblyNumber missing");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;

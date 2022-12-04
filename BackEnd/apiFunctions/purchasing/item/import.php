@@ -22,7 +22,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$supplierId = $_GET["SupplierId"];
 	$orderNumber = $_GET["OrderNumber"];
-	
+
+    $data = null;
 	if($supplierId == $mouserSupplierId)
 	{
 		$data = mouser_getOrderInformation($orderNumber);
@@ -150,8 +151,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		dbClose($dbLink);	
 	}
 	$output = array();
-	$output["PurchaseOrderNo"] = $poNo;
-	sendResponse($output, $error);
+	$output["PurchaseOrderNo"] = $purchaseOrderNo;
+	sendResponse($output);
 }
 
 ?>

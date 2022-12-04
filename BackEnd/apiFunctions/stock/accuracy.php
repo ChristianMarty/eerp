@@ -43,18 +43,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		}
 		else
 		{
-			
-			array_push($movements, $r);
+			$movements[] = $r;
 		}
 	}
 	
-	if($daysSinceStocktaking <= 1) 
+	if($daysSinceStocktaking > 1) // If not counted today
 	{
-		$certaintyFactor = 1; // If counted today or yesterday
-	}
-	else
-	{
-		
 		// TODO: Make this better
 		$noOfMoves = count($movements);
 		$certaintyFactor -= ($noOfMoves*0.025);

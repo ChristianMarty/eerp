@@ -61,17 +61,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$code = str_replace("inv","",$code);
 		$code = str_replace("-","",$code);
 		$temp = dbEscapeString($dbLink, $code );
-		array_push($queryParam, "InvNo LIKE '".$temp."'");
+		$queryParam[] = "InvNo LIKE '" . $temp . "'";
 	}
 	
 	if(isset( $locationIds))
 	{
-		array_push($queryParam, "LocationId IN (".$locationIds.")");
+		$queryParam[] = "LocationId IN (" . $locationIds . ")";
 	}
 	
 	if(isset($categories))
 	{
-		array_push($queryParam, "InventoryCategoryId IN (".$categories.")");
+		$queryParam[] = "InventoryCategoryId IN (" . $categories . ")";
 	}
 
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);

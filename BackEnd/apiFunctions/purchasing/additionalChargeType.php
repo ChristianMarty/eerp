@@ -12,24 +12,12 @@ require_once __DIR__ . "/../databaseConnector.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SHOW COLUMNS FROM purchasOrder_additionalCharges LIKE 'Type'";
-	
-	$output = array();
-	$option_array = array();
-	
-	$result = dbRunQuery($dbLink,$query);
-	if ($result) 
-	{
-		$result = mysqli_fetch_assoc($result)['Type'];
-		$option_array = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
-	}
-	
-	$output = $option_array;
+    $dbLink = dbConnect();
+    $output = dbGetEnumOptions($dbLink, 'purchasOrder_additionalCharges','Type');
+    dbClose($dbLink);
 
-	dbClose($dbLink);	
-	sendResponse($output);
+    if(!$output) sendResponse(null, "Database error for purchasOrder_additionalCharges Type");
+
+    sendResponse($output);
 }
 ?>

@@ -33,10 +33,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$suppliers = $r;
 	}
-	
-	
-	
-	
+
 	dbClose($dbLink);	
 	sendResponse($suppliers);
 }

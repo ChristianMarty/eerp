@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		{
 			if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php")
 			{
-				array_push($output, getInfo("",$file));
+				$output[] = getInfo("", $file);
 			}				
 			
 		}
@@ -39,7 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			{
 				if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php")
 				{
-					array_push($output, getInfo($file, $file2));
+					$output[] = getInfo($file, $file2);
 				}
 			}
 		}
@@ -57,7 +57,7 @@ function getInfo($path, $file)
 	$filename = pathinfo($filePath,PATHINFO_FILENAME);
 	$output["FileName"] = $filename;
 	
-	$output["Titel"] = extractVariable($filePath,"titel");
+	$output["Title"] = extractVariable($filePath,"title");
 	$output["Description"] = extractVariable($filePath,"description");
 	$output["Parameter"] =  json_decode(extractVariable($filePath,"parameter"),true);
 	$output["Path"] =  $apiRootPath."/process/".$path."/".$filename;

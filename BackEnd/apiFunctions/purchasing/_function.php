@@ -163,7 +163,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 			$received['ReceivalDate'] = $r['ReceivalDate'];
 			$received['ReceivalId'] = intval($r['ReceiveId']);
 			
-			array_push($lines[$r['OrderLineId']]['Received'],$received);
+			$lines[$r['OrderLineId']]['Received'][] = $received;
 		}
 	}
 

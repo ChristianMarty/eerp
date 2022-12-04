@@ -12,20 +12,12 @@ require_once __DIR__ . "/../databaseConnector.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SHOW COLUMNS FROM document LIKE 'Type'";
-	
-	$output = array();
-	$result = dbRunQuery($dbLink,$query);
-	if ($result) 
-	{
-		$result = mysqli_fetch_assoc($result)['Type'];
-        $output = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
-	}
+    $dbLink = dbConnect();
+    $output = dbGetEnumOptions($dbLink, 'document','Type');
+    dbClose($dbLink);
 
-	dbClose($dbLink);	
-	sendResponse($output);
+    if(!$output) sendResponse(null, "Database error for document Type");
+
+    sendResponse($output);
 }
 ?>

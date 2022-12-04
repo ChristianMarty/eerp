@@ -21,11 +21,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["Status"]))
 	{
 		$status = dbEscapeString($dbLink, $_GET["Status"]);
-		array_push($queryParam, "Status = '".$status."'");
+		$queryParam[] = "Status = '" . $status . "'";
 	}
 	else if(isset($_GET["HideClosed"]))
 	{
-		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Status != 'Complete'");
+		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "Status != 'Complete'";
 	}
 
 	$baseQuery = "SELECT workOrder.Id, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status  FROM workOrder ";
@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r['WorkOrderBarcode'] = "WO-".$r['WorkOrderNo'];
-		array_push($output, $r);
+		$output[] = $r;
 	}
 
 	dbClose($dbLink);	
@@ -61,7 +61,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$error = null;
 	$workOrder = array();
-	if($result == false)
+	if(!$result)
 	{
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}

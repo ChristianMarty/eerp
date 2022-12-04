@@ -30,11 +30,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["ManufacturerPartId"]))
 	{
-		array_push($parameters, 'supplierPart.ManufacturerPartId = '.dbEscapeString($dbLink, $_GET["ManufacturerPartId"]));
+		$parameters[] = 'supplierPart.ManufacturerPartId = ' . dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
 	}
 	else if(isset($_GET["ProductionPartNo"]))
 	{
-		array_push($parameters, "productionPart.PartNo = '".dbEscapeString($dbLink, $_GET["ProductionPartNo"])."'");
+		$parameters[] = "productionPart.PartNo = '" . dbEscapeString($dbLink, $_GET["ProductionPartNo"]) . "'";
 	}
 	else
 	{
@@ -58,7 +58,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$totalQuantity += $r['Quantity'];
 		$receivedQuantity += $r['TotalQuantityReceived'];
 		
-		array_push($rows,$r);	
+		$rows[] = $r;
 	}
 	
 	$output = array();

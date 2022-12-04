@@ -47,7 +47,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$queryParam = array();
 
 	$partId = dbEscapeString($dbLink, $_GET["PartId"]);
-	array_push($queryParam, "manufacturerPart.Id = '".$partId."'");
+	$queryParam[] = "manufacturerPart.Id = '" . $partId . "'";
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 	
@@ -106,14 +106,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				$dataSet['Value']= $value;
 				$dataSet['Unit']= $attributes[$key]['Unit'];
 				$dataSet['Symbol']= $attributes[$key]['Symbol'];
-				array_push($partData,$dataSet);
+				$partData[] = $dataSet;
 			}
 		}
 		
 	//	$r['Supplier'] = $supplierData;
 		$r['PartData'] = $partData;
 		//$r['Documents'] = $documents;
-		array_push($rows,$r);	
+		$rows[] = $r;
 	}
 
 	dbClose($dbLink);	

@@ -11,9 +11,9 @@
 require __DIR__ . "/../databaseConnector.php";
 
 
-//Generates an universal description of a item of any catogery
+//Generates a universal description of a item of any catogery
 
-function generateSummary($locationNr)
+function generateSummary($locationNr): array
 {
 	$response['data'] = null;
 	$response['error'] = null;
@@ -156,13 +156,10 @@ function generateSummary($locationNr)
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["Item"])) sendResponse($output,"No item specified");
+	if(!isset($_GET["Item"])) sendResponse(null,"No item specified");
 	
 	$data = generateSummary($_GET["Item"]);
 		
 	sendResponse($data['data'], $data['error']);
 } 
-
-
-	
 ?>

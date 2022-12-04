@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-$titel = "Production Parts from Order Reference";
+$title = "Production Parts from Order Reference";
 $description = "Import Production Parts based on Order Reference.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')

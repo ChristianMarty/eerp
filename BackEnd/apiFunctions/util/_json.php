@@ -8,7 +8,7 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-function json_validateString($input)
+function json_validateString($input): bool|string|null
 {
 	$jsonData = trim($input);
 	if($jsonData == "") return null;

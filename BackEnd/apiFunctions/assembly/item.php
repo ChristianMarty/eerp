@@ -29,12 +29,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$temp = strtolower($temp);
 	$assemblyNumber = str_replace("asm-","",$temp);
 
-	array_push($queryParam, "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '".$assemblyNumber."')");		
+	$queryParam[] = "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '" . $assemblyNumber . "')";
 	
 	if(isset($_GET['SerialNumber']))
 	{
 		$serialNumber = dbEscapeString($dbLink, $_GET['SerialNumber']);
-		array_push($queryParam, "SerialNumber = '".$serialNumber."'");	
+		$queryParam[] = "SerialNumber = '" . $serialNumber . "'";
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
@@ -60,7 +60,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['ShippingProhibited'] != 0) $temp['ShippingProhibited'] = true;
 		else $temp['ShippingProhibited'] = false;
 		
-		if($temp['ShippingProhibited'] == true) $temp['ShippingClearance'] = false;
+		if($temp['ShippingProhibited']) $temp['ShippingClearance'] = false;
 		
 		if($r['Test'] == 'Test Pass') $temp['LastTestPass'] = true;
 		else if($r['Test'] == 'Test Fail') $temp['LastTestPass'] = false;

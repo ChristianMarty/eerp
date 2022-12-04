@@ -37,7 +37,7 @@ if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	$type = strtolower($data['Type']);
 
-	if(!is_numeric($data['Quantity']))sendResponse($output,"Quantity is not numeric");
+	if(!is_numeric($data['Quantity']))sendResponse(null,"Quantity is not numeric");
 	$quantity = intval($data['Quantity']);
 	
 	if($type == "remove") $quantity = abs($quantity)*-1;
@@ -54,7 +54,7 @@ if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);

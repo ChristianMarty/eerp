@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$labels = array();
 	while($r = dbGetResult($result)) 
 	{
-		array_push($labels, $r);
+		$labels[] = $r;
 	}
 	
 	dbClose($dbLink);	

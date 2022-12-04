@@ -33,7 +33,7 @@ function mouser_getPartData($mouserPartNumber)
     return json_decode($result);
 }
 
-function mouser_getOrderHistory( )
+function mouser_getOrderHistory( ): array
 {
 	global $mouserApiPath;
 	global $mouserApiKey;
@@ -71,7 +71,7 @@ function mouser_getOrderHistory( )
 	return $data;
 }
 
-function mouser_getOrderInformation($mouserOrderNumber )
+function mouser_getOrderInformation($mouserOrderNumber ): array
 {
 	global $mouserApiPath;
 	global $mouserApiKey;

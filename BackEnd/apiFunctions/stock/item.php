@@ -65,7 +65,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
 		$r['OrderReference']  = $r['OrderReference'];
 		
-		array_push($output, $r);
+		$output[] = $r;
 		$stockNoValid = true;
 	}
 	
@@ -76,7 +76,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	// Get Description	-> This is a hack
-	if(!empty($gctNr) and isset($_GET["StockNo"]) AND $stockNoValid == true)
+	if(!empty($gctNr) and isset($_GET["StockNo"]) AND $stockNoValid)
 	{
 		$dbLink = dbConnect();
 		if($dbLink == null) return null;
@@ -158,7 +158,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$stockPart = dbGetResult($result);
 	
 	$error = null;
-	if($stockPart != false)
+	if($stockPart)
 	{
 		$orderReference = $stockPart['OrderReference'];
 		$stockPart['Barcode'] = "STK-".$stockPart['StockNo'];

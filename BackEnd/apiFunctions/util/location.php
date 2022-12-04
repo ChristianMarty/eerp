@@ -31,7 +31,7 @@ function getLocations()
 	return $locations;
 }
 
-function hasChild($rows,$id)
+function hasChild($rows,$id): bool
 {
 	foreach ($rows as $row) 
 	{
@@ -40,7 +40,7 @@ function hasChild($rows,$id)
 	return false;
 }
 
-function buildLocationTree($rows, $parentId)
+function buildLocationTree($rows, $parentId): array
 {
 	$treeItem = array();
 	foreach ($rows as $row)
@@ -112,7 +112,7 @@ function buildLocation($rows, $id)
 	return $descriptionString;
 }
 
-function buildLocationPath($rows, $id, $depth)
+function buildLocationPath($rows, $id, $depth): string
 {
 	if($id == NULL) return "";
 	

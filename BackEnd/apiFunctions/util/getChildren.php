@@ -22,13 +22,13 @@ function getChildren($tableName, $parentId)
 	$data = array();
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		array_push($data, $r);
+		$data[] = $r;
 	}	
 	
 	return $parentId.getChild($data, $parentId); 
 }
 
-function hasChild($rows,$id)
+function hasChild($rows,$id): bool
 {
 	foreach ($rows as $row) 
 	{
@@ -37,7 +37,7 @@ function hasChild($rows,$id)
 	return false;
 }
 
-function getChild($rows, $parentId)
+function getChild($rows, $parentId): string
 {  
 	$childrenId = "";
 	foreach ($rows as $row)

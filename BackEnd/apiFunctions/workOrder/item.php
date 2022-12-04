@@ -49,10 +49,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		array_push($partUsed,$r);
+		$partUsed[] = $r;
 	}
-	
-	$workOrderId = $workOrderData['WorkOrderId'];
 	
 	$workOrderData['PartsUsed'] = $partUsed;
 	dbClose($dbLink);	

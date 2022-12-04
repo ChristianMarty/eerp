@@ -23,7 +23,7 @@ function buildRoles($rolesObject, &$roleStringArray, $roleStringPart)
 		}
 		else
 		{
-			if($role == true) array_push($roleStringArray, $roleStringPart.$key);
+			if($role) $roleStringArray[] = $roleStringPart . $key;
 		}
 	}
 

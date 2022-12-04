@@ -37,7 +37,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	sendResponse($locationsTree);
 }
 
-function hasChild($rows,$id)
+function hasChild($rows,$id): bool
 {
 	foreach ($rows as $row) 
 	{
@@ -46,7 +46,7 @@ function hasChild($rows,$id)
 	return false;
 }
 
-function buildTree($rows, $parentId)
+function buildTree($rows, $parentId): array
 {  
 	$treeItem = array();
 	foreach ($rows as $row)
@@ -70,7 +70,7 @@ function buildTree($rows, $parentId)
 				$temp['Children'] = array();
 				$temp['Children'] =  buildTree($rows,$row['Id']);
 			}
-			array_push($treeItem, $temp);
+			$treeItem[] = $temp;
 		}
 	}
 	

@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r['Type'] = "Part Stock";
-		array_push($output, $r);
+		$output[] = $r;
 	}
 	
 	$query = "SELECT InvNo FROM inventory ";
@@ -42,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$r['Type'] = "Inventory";
 		$r['CreateQuantity'] = 1;
-		array_push($output, $r);
+		$output[] = $r;
 	}
 
 

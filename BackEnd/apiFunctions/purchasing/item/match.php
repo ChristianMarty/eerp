@@ -36,7 +36,7 @@ function loadDatabaseData($purchaseOrderNo)
 		if($r['PartVendorId'] != null) $r['ManufacturerName'] = $r['ManufacturerNameDatabase'];
 		unset($r['ManufacturerNameDatabase']);
 		
-		array_push($lines, $r);
+		$lines[] = $r;
 	}
 	
 	dbClose($dbLink);
@@ -57,7 +57,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		if($line['Type'] ==  "Part")
 		{
-			array_push($output["Lines"], $line);
+			$output["Lines"][] = $line;
 		}
 	}
 		

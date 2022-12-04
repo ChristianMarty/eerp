@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))
 	{
-		array_push($manufacturers, $r);
+		$manufacturers[] = $r;
 	}
 	
 	dbClose($dbLink);	

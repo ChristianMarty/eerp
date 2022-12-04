@@ -14,12 +14,11 @@ function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode)
 {
 	$euroRate = ecb_getEcdData($sourceCurrencyCode, "EUR");
 	
-	// The ECB API can only convert from/to Euro. Therefore this additional step is needed
+	// The ECB API can only convert from/to Euro. Therefore, this additional step is needed
 	if($targetCurrencyCode != "EUR")
 	{
 		$otherRate = ecb_getEcdData($targetCurrencyCode, "EUR");
-		$exchangeRate = (1/$euroRate) * $otherRate;
-		return $exchangeRate ;
+        return (1/$euroRate) * $otherRate;
 	}
 	else
 	{

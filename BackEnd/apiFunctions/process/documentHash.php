@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-$titel = "Hash Documents";
+$title = "Hash Documents";
 $description = "Calculate missing document hash.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -39,7 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$updateQuery = "UPDATE document SET Hash='".$fileMd5."' WHERE  Id=".$doc['Id'];
 		dbRunQuery($dbLink,$updateQuery);
 		
-		array_push($output,$doc);
+		$output[] = $doc;
 	}
 
 	dbClose($dbLink);

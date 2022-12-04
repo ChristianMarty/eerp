@@ -19,8 +19,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query = "SELECT * FROM label ";	
 	
 	$param = array();
-	if(isset($_GET["Id"])) array_push($param , "Id = ".dbEscapeString($dbLink, $_GET["Id"]));
-	if(isset($_GET["Tag"]))array_push($param , "Tag = '".dbEscapeString($dbLink, $_GET["Tag"])."'");
+	if(isset($_GET["Id"])) $param[] = "Id = " . dbEscapeString($dbLink, $_GET["Id"]);
+	if(isset($_GET["Tag"])) $param[] = "Tag = '" . dbEscapeString($dbLink, $_GET["Tag"]) . "'";
 	
 	$query = dbBuildQuery($dbLink, $query, $param);
 	$query .= " ORDER BY `Name` ASC";
@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$labels = array();
 	while($r = dbGetResult($result)) 
 	{
-		array_push($labels, $r);
+		$labels[] = $r;
 	}
 	
 	dbClose($dbLink);	

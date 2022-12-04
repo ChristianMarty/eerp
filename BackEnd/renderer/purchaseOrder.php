@@ -276,7 +276,7 @@ foreach( $poData['Lines'] AS $srcLine)
 	if(intval($srcLine['Discount']) != 0) $hasDiscount = true;
 	if(intval($srcLine['VatValue']) != 0) $hasVat = true;
 	
-	array_push($lines, $line);
+	$lines[] = $line;
 }
 
 $alphabet = range('A', 'Z');
@@ -295,10 +295,10 @@ foreach( $poData['AdditionalCharges'] AS $srcLine)
 	
 	if(intval($srcLine['VatValue']) != 0) $hasVat = true;
 	
-	array_push($additionalCharges, $line);
+	$additionalCharges[] = $line;
 }
 
-function add_meta($meta)
+function add_meta($meta): string
 {
 	$temp = "<div class='meta'>";
 	
@@ -361,7 +361,7 @@ function add_meta($meta)
 	return $temp;
 }
 
-function table_start()
+function table_start(): string
 {
 	global $hasDiscount;
 	global $hasVat;
@@ -389,7 +389,7 @@ function table_start()
 	return $temp;
 }
 
-function table_addLine($line)
+function table_addLine($line): string
 {
 	global $hasDiscount;
 	global $hasVat;
@@ -410,9 +410,9 @@ function table_addLine($line)
 	return $temp;
 }
 
-function table_addContinuationLine($nextPage)
+function table_addContinuationLine($nextPage): string
 {
-	$temp .= "<tr class='lines' >";
+	$temp  = "<tr class='lines' >";
 	$temp .= "<td class='lines' colspan='100%' style='border: none;'>";
 	$temp .= "<b>Continued on Page {$nextPage}</b></br>";
 	$temp .= "</td>";
@@ -422,12 +422,12 @@ function table_addContinuationLine($nextPage)
 }
 
 
-function table_end()
+function table_end(): string
 {
 	return "</table>";
 }
 
-function table_total($total)
+function table_total($total): string
 {
 	global $hasDiscount;
 	global $hasVat;
@@ -465,23 +465,22 @@ function table_total($total)
 	return $temp;
 }
 
-function price_formater($price)
+function price_formater($price): string
 {
 	return number_format($price,4,".","´");
 }
 
-function total_formater($price)
+function total_formater($price): string
 {
 	return number_format($price,2,".","´");
 }
 
-function additionalCharges_start()
+function additionalCharges_start(): string
 {
 	global $hasDiscount;
 	global $hasVat;
-	
-	$temp  = "";
-	$temp .= "<tr class='lines' >";
+
+	$temp  = "<tr class='lines' >";
 	$temp .= "<td class='lines' colspan='100%' style='border: none;'>";
 	$temp .= "<b>Additional Charges:</b></br>";
 	$temp .= "</td>";
@@ -499,7 +498,7 @@ function additionalCharges_start()
 	return $temp;
 }
 
-function additionalCharges_addLine($line)
+function additionalCharges_addLine($line): string
 {
 	global $hasDiscount;
 	global $hasVat;
@@ -521,7 +520,7 @@ function additionalCharges_addLine($line)
 }
 
 
-function add_page($metaData, $content)
+function add_page($metaData, $content): void
 {
 	global $assetsRootPath;
 	
@@ -549,7 +548,7 @@ function add_page($metaData, $content)
 }
 
 
-function footnote($metaData)
+function footnote($metaData): string
 {
 	$temp = "<div class='note'>";
 	if($metaData->footNote != null) $temp .= "<p class='address'>{$metaData->footNote}</p>";
@@ -591,19 +590,19 @@ foreach( $lines as $index => $line)
 		
 		if(count($lines) != $index+1)
 		{
-			array_push($pages,$content1); 
+			$pages[] = $content1;
 			$content1 = table_start();
 		}
 		$i = 0;
 		$firstPage = false;
 	}
 	
-	if($firstPage == false and $i >29)
+	if(!$firstPage and $i >30)
 	{
 		$pageIndex ++;
 		$content1 .= table_addContinuationLine($pageIndex+1);
 		$content1 .= table_end();
-		array_push($pages,$content1); 
+		$pages[] = $content1;
 		$content1 = table_start();
 		$i = 0;
 	}
@@ -628,7 +627,7 @@ $content1 .= table_end();
 
 if($firstPage)$content1 .= footnote($meta);
 
-array_push($pages,$content1); 
+$pages[] = $content1;
 
 
 $meta->page->total = 2+$pageIndex;

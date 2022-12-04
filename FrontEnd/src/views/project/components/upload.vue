@@ -5,7 +5,7 @@
       <el-option
         v-for="item in analyzeOptions"
         :key="item"
-        :label="item.Titel"
+        :label="item.Title"
         :value="item.Path"
       />
     </el-select>

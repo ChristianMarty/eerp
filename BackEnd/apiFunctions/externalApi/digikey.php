@@ -163,7 +163,7 @@ function digikey_getOrderInformation($salesOrderId)
 		
 		$data['MerchandisePrice'] += $temp['Price'];
 		
-		array_push($lines, $temp);
+		$lines[] = $temp;
 	}
 	
 	$data['Lines'] = $lines;

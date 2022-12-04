@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-$titel = "Match Parts";
+$title = "Match Parts";
 $description = "Match Manufacturer Part against PartLookup and production parts.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -35,7 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$mfrId = $part['ManufacturerId'];
 		
 		if(!is_array($partLookup[$mfrId])) $partLookup[$mfrId] = array();
-		array_push($partLookup[$mfrId], $part);
+		$partLookup[$mfrId][] = $part;
 	}
 	
 	$query = "SELECT * FROM `manufacturerPart` ";
@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$mfrId = $part['VendorId'];
 		
 		if(!is_array($mfrParts[$mfrId])) $mfrParts[$mfrId] = array();
-		array_push($mfrParts[$mfrId], $part);
+		$mfrParts[$mfrId][] = $part;
 	}
 	
 	dbClose($dbLink);
@@ -74,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				if(!is_null($temp))
 				{
 					$count++;
-					array_push($matches,$temp);
+					$matches[] = $temp;
 				}
 			}
 		}
@@ -102,7 +102,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($part = mysqli_fetch_assoc($queryResult))
 	{
 		addProdPart($part['OrderReference'],$part['ManufacturerPartId'],"5");
-		array_push($matches,$part);
+		$matches[] = $part;
 	}
 	
 	sendResponse($matches);
@@ -199,7 +199,7 @@ function findMatch($lookup, $part)
 	return null;
 }
 
-function like_match($pattern, $subject)
+function like_match($pattern, $subject): bool
 {
     $pattern = str_replace('%', '.*', preg_quote($pattern, '/'));
     return (bool) preg_match("/^{$pattern}$/i", $subject);
