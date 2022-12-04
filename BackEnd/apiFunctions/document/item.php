@@ -13,22 +13,16 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
+	if(!isset($_GET["DocId"])) sendResponse(null,"No Document Item Specified");
 
-	if(isset($_GET["DocId"]))
-	{
-		$DocId = $_GET["DocId"];
-	}
-	else
-	{
-		sendResponse($output,"No Document Item Specified");
-	}
-	
+    $docId = $_GET["DocId"];
+
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$DocId = dbEscapeString($dbLink, $DocId );
+	$DocId = dbEscapeString($dbLink, $docId );
 	
-	$query = "SELECT * FROM `document` WHERE `Id` = '".$DocId."' ";
+	$query = "SELECT * FROM `document` WHERE `Id` = '".$docId."' ";
 	
 	$output = array();
 
@@ -76,21 +70,19 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$dbFileDescription = dbEscapeString($dbLink,$_POST["Description"]);
 		$dbFileType = dbEscapeString($dbLink,$_POST["Type"]);
 		
-		$query = "INSERT INTO `document` (`Path`,`Type`,`Description`,`Hash`)";
-		$query .= "VALUES ('".$dbPath."', '".$dbFileType."', '".$dbFileDescription."', '".$dbFileHash."')";
+        $query = "INSERT INTO `document` (`Path`,`Type`,`Description`,`Hash`)
+                  VALUES ('".$dbPath."', '".$dbFileType."', '".$dbFileDescription."', '".$dbFileHash."')";
 		
 
-		if(dbRunQuery($dbLink,$query)) 
-		{
-			move_uploaded_file($file, $fileDir.$_POST["Type"]."/".$fileName);
-		}
-		else
-		{
-			$dbError = mysqli_error($dbLink);
-			dbClose($dbLink);	
-			sendResponse($output,$dbError);
-		}
-		
+		if(!dbRunQuery($dbLink,$query))
+        {
+            $dbError = mysqli_error($dbLink);
+            dbClose($dbLink);
+            sendResponse($output, $dbError);
+        }
+
+        move_uploaded_file($file, $fileDir.$_POST["Type"]."/".$fileName);
+
 		$query = "SELECT * FROM `document` WHERE `Hash`='".$fileMd5."'";
 		$result = dbRunQuery($dbLink,$query);
 		if($result) 
@@ -107,10 +99,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	}	
 
 	$output["fileInfo"]= $result;
-	
-	
-	 
+
 	dbClose($dbLink);	
 	sendResponse($output,$error);
 }
 ?>
+

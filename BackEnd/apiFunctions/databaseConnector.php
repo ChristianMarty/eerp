@@ -22,7 +22,8 @@ function dbConnect()
 
 	if ($dbLink->connect_errno) 
 	{
-		echo "Failed to connect to SQL Server: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+		$error =  "Failed to connect to SQL Server: (" . $dbLink->connect_errno . ") " . $dbLink->connect_error;
+        sendResponse(null,$error);
 		return null;
 	}
 

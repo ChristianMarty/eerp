@@ -33,46 +33,52 @@
         <el-col :span="12">
 
           <el-form label-width="120px">
-            <el-form-item label="Name:">
-              {{ dialogData.FileName }}
-            </el-form-item>
-
-            <el-form-item>
-              <el-button
-                type="primary"
-                icon="el-icon-magic-stick"
-                @click="openInTab(filePreviewPath)"
-              >Use Template</el-button>
-            </el-form-item>
-
-            <el-form-item label="Name:">
-              <el-input v-model="dialogData.Name" />
-              <p>Please follow the naming convention!</p>
-            </el-form-item>
-
-            <el-form-item label="Type:">
-              <el-select v-model="dialogData.Type" filterable>
+            <el-form-item label="Template:">
+              <el-select v-model="selectedTemplate" placeholder="Select Template" style="width: 100%">
                 <el-option
-                  v-for="item in documentTypeOptions"
-                  :key="item"
-                  :label="item"
-                  :value="item"
+                  v-for="item in templateOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
                 />
               </el-select>
             </el-form-item>
-
-            <el-form-item label="Description:">
-              <el-input v-model="dialogData.Description" />
-            </el-form-item>
-
           </el-form>
+
+          <genericIngest
+            v-if="selectedTemplate == 'genereic'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
+
+          <poDeliveryNoteIngest
+            v-if="selectedTemplate == 'poDeliveryNote'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
+
+          <poInvoiceIngest
+            v-if="selectedTemplate == 'poInvoice'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
+
+          <poReceiptIngest
+            v-if="selectedTemplate == 'poReceipt'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
 
         </el-col>
 
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button type="danger" @click="deleteFile()">Delete</el-button>
-        <el-button type="primary" @click="ingestFile()">Ingest</el-button>
+        <el-button type="primary" :disabled="selectedTemplate == null" @click="ingestFile()">Ingest</el-button>
         <el-button @click="showDialog = false">Cancel</el-button>
       </span>
     </el-dialog>
@@ -89,53 +95,58 @@
 import uploadDialog from './components/uploadDialog'
 import checkPermission from '@/utils/permission'
 
+import genericIngest from './components/ingestTemplates/generic'
+import poDeliveryNoteIngest from './components/ingestTemplates/purchaseOrderDeliveryNote'
+import poInvoiceIngest from './components/ingestTemplates/purchaseOrderInvoice'
+import poReceiptIngest from './components/ingestTemplates/purchaseOrderReceipt'
+
 import Document from '@/api/document'
 const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { uploadDialog },
+  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest },
   data() {
     return {
       documentList: [],
-      documentTypeOptions: [],
       showDialog: false,
       dialogData: Object.assign({}, document.ingestParameters),
       filePreviewPath: '',
-
-      uploadDialogVisible: false
+      uploadDialogVisible: false,
+      selectedTemplate: null,
+      templateOptions: [{
+        value: 'genereic',
+        label: 'Generic'
+      }, {
+        value: 'poDeliveryNote',
+        label: 'Purchase Order Delivery Note'
+      }, {
+        value: 'poInvoice',
+        label: 'Purchase Order Invoice'
+      }, {
+        value: 'poReceipt',
+        label: 'Purchase Order Receipt'
+      }]
     }
   },
   async mounted() {
     this.getFileList()
-    this.documentTypeOptions = await document.types()
   },
   methods: {
     checkPermission,
     openDialog(row) {
+      this.selectedTemplate = null
       this.showDialog = true
       this.dialogData = Object.assign({}, document.ingestParameters)
       this.dialogData.FileName = row.FileName
       this.filePreviewPath = row.Path
     },
     ingestFile() {
-      document.ingest.ingest(this.dialogData).then(response => {
-        this.$message({
-          showClose: true,
-          message: 'Changes saved successfully',
-          duration: 1500,
-          type: 'success'
-        })
-        this.showDialog = false
-        this.getFileList()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
+      this.$refs.ingestForm.ingest()
+    },
+    ingestSuccess() {
+      this.showDialog = false
+      this.getFileList()
     },
     deleteFile() {
       this.$confirm('This will permanently delete the file. Continue?', 'Warning', {

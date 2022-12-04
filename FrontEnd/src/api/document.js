@@ -54,7 +54,8 @@ class Document {
       FileName: '',
       Name: '',
       Description: '',
-      Type: ''
+      Type: '',
+      Note: ''
     },
     ingest(ingestParameters) {
       return new Promise((resolve, reject) => {
@@ -71,6 +72,60 @@ class Document {
         })
       })
     },
+
+    template: {
+      purchaseOrderParameters: {
+        FileName: '',
+        PurchaseOrderNumber: '',
+        Note: ''
+      },
+      purchaseOrderDeliveryNote(purchaseOrderParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/document/ingest/template/purchaseOrderDeliveryNote',
+            data: purchaseOrderParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      purchaseOrderInvoice(purchaseOrderParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/document/ingest/template/purchaseOrderInvoice',
+            data: purchaseOrderParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      purchaseOrderReceipt(purchaseOrderParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/document/ingest/template/purchaseOrderReceipt',
+            data: purchaseOrderParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
+    },
+
     delete(ingestParameters) {
       return new Promise((resolve, reject) => {
         eerpApi({

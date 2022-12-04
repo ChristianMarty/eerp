@@ -16,12 +16,6 @@ const documentRouter = {
       meta: { title: 'Document Browser', icon: 'list' }
     },
     {
-      path: 'uploadDocument',
-      component: () => import('@/views/document/uploadDocument'),
-      name: 'uploadDocument',
-      meta: { title: 'Upload Document', icon: 'documentation', roles: ['document.create'] }
-    },
-    {
       path: 'ingestDocument',
       component: () => import('@/views/document/ingest'),
       name: 'ingestDocument',

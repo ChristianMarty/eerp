@@ -28,13 +28,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$id = $r['Id'];
 		unset($r['Id']);
+		
 		$r["FileName"] = $r['Path'];
 		$r['Path'] = $dataRootPath.$documentPath."/".$r['Type']."/".$r['Path'];
 		$r['Barcode'] = "Doc-".$r['DocumentNumber'];
 		$output[] = $r;
 	}
-	
-	$output = array();
 	
 	dbClose($dbLink);	
 	sendResponse($output);

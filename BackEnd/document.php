@@ -31,7 +31,7 @@ $filePath .= $apiRequest;
 
 if(file_exists($filePath))
 {
-	if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode) 
+	if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'])||$devMode)
 	{
 		$filename = pathinfo($filePath)['filename'];
 		

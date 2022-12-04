@@ -18,16 +18,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query = "SHOW COLUMNS FROM document LIKE 'Type'";
 	
 	$output = array();
-	$option_array = array();
-	
 	$result = dbRunQuery($dbLink,$query);
 	if ($result) 
 	{
 		$result = mysqli_fetch_assoc($result)['Type'];
-		$option_array = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
+        $output = explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result));
 	}
-	
-	$output = $option_array;
 
 	dbClose($dbLink);	
 	sendResponse($output);

@@ -13,7 +13,7 @@
     <p>The prefix is used to determine what category a code belongs to.
       The prefix can be optional if, in context, it is clear what category a code belongs to.</p>
 
-      <p><b>Number</b>  (numerical, mandatory)</p>
+    <p><b>Number</b>  (numerical, mandatory)</p>
     <p>The Number part of the code shall uniquely identify an item within a given category.</p>
 
     <p><b>Index</b>  (numerical, should be optional)</p>
