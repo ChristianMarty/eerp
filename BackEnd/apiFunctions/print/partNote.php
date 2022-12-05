@@ -84,7 +84,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$printer -> text($line['ManufacturerName']." ".$line['ManufacturerPartNumber']."\n");
 			
 	
-			if($line['Note'] != null && $line['Note'] != "")
+			if(isset($line['Note']) && $line['Note'] != null && $line['Note'] != "")
 			{
 				$printer -> feed(1);
 				$printer -> text($line['Note']."\n");

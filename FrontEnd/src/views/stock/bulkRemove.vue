@@ -28,7 +28,8 @@
     <template v-if="step == 1">
       <el-form label-width="150px">
         <el-form-item label="Work Order:">
-          <el-select v-model="workOrderId" filterable style="width: 100%">
+
+          <el-select v-model="workOrderId" filterable>
             <el-option
               v-for="wo in workOrders"
               :key="wo.Id"
@@ -36,12 +37,14 @@
               :value="wo.Id"
             />
           </el-select>
+          <el-button type="primary" @click="workOrderId = null">Clear</el-button>
+
         </el-form-item>
       </el-form>
     </template>
 
     <template v-if="step == 3">
-      <p><b>Work Order:</b> WO-{{ workOrders.find( element => element.Id == workOrderId).WorkOrderNo }}  {{ workOrders.find( element => element.Id == workOrderId).Title }}</p>
+      <p><b>Work Order:</b> WO-{{ selectedWorkOrderData.WorkOrderNo }}  {{ selectedWorkOrderData.Title }}</p>
     </template>
 
     <h2>Items</h2>
@@ -109,8 +112,10 @@
 
 <script>
 import requestBN from '@/utils/requestBN'
-import Cookies from 'js-cookie'
 import * as defaultSetting from '@/utils/defaultSetting'
+
+import WorkOrder from '@/api/workOrder'
+const workOrder = new WorkOrder()
 
 export default {
   name: 'BulkRemove',
@@ -128,7 +133,9 @@ export default {
       itemList: [],
 
       workOrders: [],
-      note: ''
+      note: '',
+
+      selectedWorkOrderData: null
     }
   },
   mounted() {
@@ -141,7 +148,7 @@ export default {
   methods: {
     printReceipt() {
       const printData = {
-        WorkOrderNo: this.workOrders.find(element => element.Id === this.workOrderId).WorkOrderNo,
+        WorkOrderNo: this.findWorkOrder(this.workOrderId).WorkOrderNo,
         Items: this.itemList
       }
       requestBN({
@@ -159,9 +166,13 @@ export default {
         }
       })
     },
+    findWorkOrder(workOrderId) {
+      if (workOrderId == null) return { WorkOrderNo: null, Title: null }
+      return this.workOrders.find(element => element.Id === this.workOrderId)
+    },
     printAllNotes() {
       const printData = {
-        WorkOrderNo: this.workOrders.find(element => element.Id === this.workOrderId).WorkOrderNo,
+        WorkOrderNo: this.findWorkOrder(this.workOrderId).WorkOrderNo,
         Items: this.itemList
       }
       requestBN({
@@ -243,13 +254,13 @@ export default {
       this.step = 0
       this.$refs.stockNoInput.focus()
     },
-    loadCheckoutPage() {
-      this.getWorkOrders()
+    async loadCheckoutPage() {
+      this.workOrders = await workOrder.search('InProgress')
       this.step = 1
     },
     loadCompletePage() {
       const data = {
-        WorkOrderNo: this.workOrders.find(element => element.Id === this.workOrderId).WorkOrderNo,
+        WorkOrderNo: this.findWorkOrder(this.workOrderId).WorkOrderNo,
         Items: this.itemList
       }
       requestBN({
@@ -272,6 +283,8 @@ export default {
             type: 'success'
           })
           this.step = 3
+
+          this.selectedWorkOrderData = this.findWorkOrder(this.workOrderId)
         }
       })
     },
@@ -291,15 +304,6 @@ export default {
 
       invNoList.push(this.inventoryData.InvNo)
       Cookies.set('invNo', invNoList)*/
-    },
-    getWorkOrders() {
-      requestBN({
-        url: '/workOrder',
-        methood: 'get',
-        params: { Status: 'InProgress' }
-      }).then(response => {
-        this.workOrders = response.data
-      })
     }
   }
 }
