@@ -9,12 +9,9 @@
     >
       <el-table-column prop="Title" sortable label="Process" width="240">
         <template slot-scope="{ row }">
-          <a :href="row.Path" target="blank">
-            <el-button>
-              {{ row.Titel }}
-            </el-button>
-          </a>
-          </router-link>
+          <el-button @click="run(row)">
+            {{ row.Title }}
+          </el-button>
         </template>
       </el-table-column>
       <el-table-column prop="Description" label="Description" sortable />
@@ -30,7 +27,10 @@ export default {
   name: 'Processes',
   data() {
     return {
-      data: null
+      showDialog: false,
+      formData: {},
+      data: null,
+      selectedProcess: {}
     }
   },
   computed: {},
@@ -39,6 +39,14 @@ export default {
     this.getData()
   },
   methods: {
+    run(process) {
+      if (process.Parameter !== null) {
+        this.selectedProcess = process
+        this.showDialog = true
+      } else {
+        window.open(process.Path, '_blank').focus()
+      }
+    },
     getData() {
       requestBN({
         url: '/process',

@@ -10,7 +10,7 @@
         <template slot-scope="{ row }">
           <a :href="row.Path" target="blank">
             <el-button>
-              {{ row.Titel }}
+              {{ row.Title }}
             </el-button>
           </a>
         </template>
