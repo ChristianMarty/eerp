@@ -47,6 +47,7 @@
             :max="999999"
             style="width: 70pt"
           />
+          <b>   Amount:</b> {{ calculatePrice(line).price }}
           <span :style="{margin: '10px'}"><el-button type="primary" @click="line.Price = line.Price/line.QuantityOrderd">Divide by Quantity</el-button></span>
         </el-form-item>
 
@@ -59,24 +60,25 @@
           >
             <el-option v-for="item in vat" :key="item.Id" :label="item.Value +'% - '+item.Description" :value="item.Id" />
           </el-select>
+          <b>   Amount:</b> {{ calculatePrice(line).vat }}
           <span :style="{margin: '10px'}"><el-button type="primary" @click="line.Price = line.Price/(1+vat.find(x => x.Id === line.VatTaxId).Value/100)">Remove VAT from Price</el-button></span>
         </el-form-item>
 
         <el-form-item label="Discount:">
-          <el-input-number
-            v-model="line.Discount"
-            :controls="false"
-            :precision="3"
-            :min="0.00"
-            :max="100.00"
-            style="width: 70pt"
-          />
+          <el-col :span="11">
+            <el-input-number
+              v-model="line.Discount"
+              :controls="false"
+              :precision="3"
+              :min="0.00"
+              :max="100.00"
+              style="width: 70pt"
+            />
+            <b>   Amount:</b> {{ calculatePrice(line).discount }}
+          </el-col>
         </el-form-item>
-
         <el-form-item label="Total:">
-          <span>{{
-            (Math.round((line.QuantityOrderd * line.Price) * 100000) / 100000)
-          }}</span>
+          <span>{{ calculatePrice(line).total }}</span>
         </el-form-item>
         <el-form-item label="Expected Receipt:">
           <el-date-picker
@@ -178,6 +180,19 @@ export default {
     this.getManufacturers()
   },
   methods: {
+    calculatePrice(line) {
+      const price = line.Price * line.QuantityOrderd
+      const discount = price / 100 * line.Discount
+      const vat = Math.round((price - discount) * (this.vat.find(x => x.Id === line.VatTaxId).Value / 100) * 1000000) / 1000000
+
+      const data = {
+        price: price,
+        vat: vat,
+        discount: discount,
+        total: (price - discount) + vat
+      }
+      return data
+    },
     getPartData(row) {
       if (row.PartNo === null) return
       requestBN({
