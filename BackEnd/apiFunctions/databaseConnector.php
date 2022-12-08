@@ -66,8 +66,9 @@ function dbClose($dbLink): void
 	mysqli_close($dbLink);
 }
 
-function dbEscapeString($dbLink, $string): string
+function dbEscapeString($dbLink, $string): null|string
 {
+    if($string == null) return null;
 	return trim(mysqli_real_escape_string($dbLink, $string));
 }
 
