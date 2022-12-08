@@ -16,16 +16,28 @@ function loadDatabaseData($purchaseOrderNo)
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$query  = "SELECT purchasOrder_itemOrder.Id AS OrderLineId, supplier.Name AS SupplierName, LineNo, purchasOrder_itemOrder.Type, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, manufacturer.Name AS ManufacturerNameDatabase, manufacturer.Id AS PartVendorId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId ";
-	$query .= "FROM purchasOrder_itemOrder ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN (SELECT Id, Name, Alias, AliasDigikey FROM vendor)manufacturer ON manufacturer.Name = purchasOrder_itemOrder.ManufacturerName OR manufacturer.Alias = purchasOrder_itemOrder.ManufacturerName OR manufacturer.AliasDigikey = purchasOrder_itemOrder.ManufacturerName ";
-	$query .= "LEFT JOIN manufacturerPart ON manufacturerPart.VendorId = manufacturer.Id AND manufacturerPart.ManufacturerPartNumber = purchasOrder_itemOrder.ManufacturerPartNumber ";
-	$query .= "LEFT JOIN supplierPart ON supplierPart.VendorId = purchasOrder.VendorId AND supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku ";
-	$query .= "LEFT JOIN (SELECT Id, Name FROM vendor)supplier on supplier.Id = supplierPart.VendorId ";
-	$query .= "WHERE purchasOrder.PoNo = ".$purchaseOrderNo;
-	$query .= " ORDER BY LineNo";
+
+    $purchaseOrderNo = dbEscapeString($dbLink, $purchaseOrderNo);
+
+    $query = <<<STR
+        SELECT purchasOrder_itemOrder.Id AS OrderLineId, supplier.Name AS SupplierName, LineNo, purchasOrder_itemOrder.Type, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, manufacturer.Name AS ManufacturerNameDatabase, manufacturer.Id AS PartVendorId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId
+        FROM purchasOrder_itemOrder
+        LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId
+        
+        LEFT JOIN (
+            SELECT  Id, ShortName AS Name FROM vendor WHERE ShortName IS NOT NULL
+            UNION
+            SELECT  Id, Name FROM vendor
+            UNION
+            SELECT VendorId AS Id, NAME FROM vendor_alias
+        )manufacturer ON manufacturer.Name = purchasOrder_itemOrder.ManufacturerName
+        
+        LEFT JOIN manufacturerPart ON manufacturerPart.VendorId = manufacturer.Id AND manufacturerPart.ManufacturerPartNumber = purchasOrder_itemOrder.ManufacturerPartNumber
+        LEFT JOIN supplierPart ON supplierPart.VendorId = purchasOrder.VendorId AND supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku
+        LEFT JOIN (SELECT Id, Name FROM vendor)supplier on supplier.Id = supplierPart.VendorId
+        WHERE purchasOrder.PoNo = $purchaseOrderNo
+        ORDER BY LineNo
+    STR;
 	
 	$result = dbRunQuery($dbLink,$query);
 
