@@ -21,11 +21,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$assemblyHistoryId = dbEscapeString($dbLink, $_GET["AssemblyHistoryId"]);
 
-	$query  = "SELECT * FROM assembly_unit_history ";
-	$query .= "LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId ";	
-	$query .= "WHERE assembly_unit_history.Id = $assemblyHistoryId";
+    $query  = <<< STR
+        SELECT * FROM assembly_unit_history
+        LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId
+        WHERE assembly_unit_history.Id = $assemblyHistoryId
+    STR;
 
-	
 	$result = dbRunQuery($dbLink,$query);
 	
 	$history = array();
@@ -40,9 +41,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['Barcode'] = "ASU-".$r['AssemblyUnitNumber'];
 		$temp['Type'] = $r['Type'];
 		if($r['ShippingClearance'] != 0) $temp['ShippingClearance'] = true;
-		else $r['ShippingClearance'] = false;
+		else $temp['ShippingClearance'] = false;
 		if($r['ShippingProhibited'] != 0) $temp['ShippingProhibited'] = true;
-		else $r['ShippingProhibited'] = false;
+		else $temp['ShippingProhibited'] = false;
 		$temp['EditToken'] = $r['EditToken'];
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;
@@ -78,7 +79,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
 	
 	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";
-	else $sqlData['LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1) ']['raw']  = "b'0'";
+	else $sqlData['ShippingClearance']['raw']  = "b'0'";
 	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited']) $sqlData['ShippingProhibited']['raw']  = "b'1'";
 	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
 	
@@ -88,7 +89,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
-	if($result) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	
 	dbClose($dbLink);	
 	sendResponse(null,$error);
