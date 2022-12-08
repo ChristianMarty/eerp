@@ -49,9 +49,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> selectPrintMode(Printer::MODE_FONT_A);
 	$printer -> text($printData['Description']."\n");
 	$printer -> feed(1);
-	
+
+    $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
+    $printer -> text($printData['Type']."\n");
+
 	$printer -> setJustification(Printer::JUSTIFY_LEFT);
-	
+
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> text("SN: ");
 	$printer -> selectPrintMode(Printer::MODE_FONT_A);
