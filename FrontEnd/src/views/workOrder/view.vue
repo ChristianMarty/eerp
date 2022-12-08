@@ -15,13 +15,27 @@
       :summary-method="calcSum"
       show-summary
     >
-      <el-table-column prop="StockNo" label="Stock No" width="120" sortable>
+      <el-table-column prop="StockNumber" label="Stock No" width="120" sortable>
         <template slot-scope="{ row }">
-          <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-            <span>{{ row.StockNo }}</span>
+          <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
+            <span>{{ row.StockNumber }}</span>
           </router-link>
         </template>
       </el-table-column>
+
+      <el-table-column prop="ProductionPartNumber" label="Production Part Number" sortable width="240">
+        <template slot-scope="{ row }">
+          <template v-for="part in row.ProductionPartNumber">
+              <router-link
+                :to="('/prodParts/prodPartView/' + part)"
+                class="link-type"
+              >
+                <span>{{ part }} </span>
+              </router-link>
+          </template>
+        </template>
+      </el-table-column>
+
       <el-table-column prop="ManufacturerName" label="Manufacturer" sortable />
       <el-table-column
         prop="ManufacturerPartNumber"

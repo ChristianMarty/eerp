@@ -38,17 +38,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$workOrderId = $workOrderData['WorkOrderId'];
 	
 	$partUsed = array();
-	
-	$query = "SELECT *,vendor.Name as ManufacturerName, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price ";
-	$query .= "FROM partStock_history ";
-	$query .= "LEFT JOIN partStock On partStock.Id = partStock_history.StockId ";
-	$query .= "LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId ";
-	$query .= "LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId ";
-	$query .= "WHERE partStock_history.workOrderId = ".$workOrderId;
+
+    $query = <<<STR
+    SELECT  prodPart.ProductionPartNumber, partStock.StockNo AS StockNumber, ManufacturerPartNumber, vendor.Name as ManufacturerName, partStock_history.Quantity, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price
+    FROM partStock_history
+    LEFT JOIN partStock On partStock.Id = partStock_history.StockId
+    LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId
+    LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId
+    LEFT JOIN (
+        SELECT GROUP_CONCAT(productionPart.PartNo) AS ProductionPartNumber, ManufacturerPartId FROM productionPartMapping 
+        LEFT JOIN productionPart On productionPart.Id = productionPartMapping.ProductionPartId
+        GROUP BY ManufacturerPartId
+    )prodPart On prodPart.ManufacturerPartId = manufacturerPart.Id
+    WHERE partStock_history.workOrderId = $workOrderId
+    STR;
 
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+        if($r['ProductionPartNumber'] != null) $r['ProductionPartNumber'] = explode(",", $r['ProductionPartNumber']);
 		$partUsed[] = $r;
 	}
 	
