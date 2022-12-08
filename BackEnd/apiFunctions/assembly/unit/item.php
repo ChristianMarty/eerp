@@ -59,6 +59,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = array();
 
 	$output = mysqli_fetch_assoc($result);
+    $output['AssemblyUnitBarcode'] =  "ASU-".$output['AssemblyUnitNumber'];
 	$output['ShippingClearance'] =  $shippingClearance;
 	$output['ShippingProhibited'] = $shippingProhibited;
 	$output['History'] = $history;

@@ -1,12 +1,14 @@
 <template>
   <div class="app-container">
-    <h1>{{ assemblyUnitData.AssemblyItemBarcode }}</h1>
+    <h1>{{ assemblyUnitData.AssemblyUnitBarcode }}</h1>
     <p><b>Serial Number: </b>{{ assemblyUnitData.SerialNumber }}</p>
     <p><b>Location: </b>{{ assemblyUnitData.LocationName }}</p>
     <p><b>Shipping Prohibited: </b>{{ assemblyUnitData.ShippingProhibited }}</p>
     <p><b>Shipping Clearance: </b>{{ assemblyUnitData.ShippingClearance }}</p>
-    <p v-if="assemblyUnitData.ShippingProhibited" class="shippingProhibitedWarning">! DO NOT SEND THIS UNIT TO TO CUSTOMER !</p>
+    <p v-if="assemblyUnitData.ShippingProhibited" class="shippingProhibitedWarning">! DO NOT SEND THIS UNIT TO THE CUSTOMER !</p>
     <p v-if="assemblyUnitData.ShippingClearance" class="shippingClearance">This unit is ready for shipment.</p>
+
+    <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
     <el-divider />
 
     <h2>History</h2>
@@ -72,6 +74,7 @@
     </el-dialog>
 
     <assemblyDataDialog :id="historyId" :visible.sync="assemblyDataDialogVisible" />
+    <locationTransferDialog :barcode="assemblyUnitData.AssemblyUnitBarcode" :visible.sync="locationTransferDialogVisible" @change="getAssemblyItem()" />
 
   </div>
 </template>
@@ -79,13 +82,14 @@
 <script>
 import permission from '@/directive/permission/index.js'
 import assemblyDataDialog from './components/dataDialog'
+import locationTransferDialog from './components/locationTransferDialog'
 
 import Assembly from '@/api/assembly'
 const assembly = new Assembly()
 
 export default {
   name: 'AssemblyView',
-  components: { assemblyDataDialog },
+  components: { assemblyDataDialog, locationTransferDialog },
   directives: { permission },
   data() {
     return {
@@ -96,7 +100,9 @@ export default {
       historyItemData: {},
       editHistoryVisible: false,
       historyId: 0,
-      historyTypeOptions: []
+      historyTypeOptions: [],
+
+      locationTransferDialogVisible: false
     }
   },
   created() {
@@ -117,6 +123,9 @@ export default {
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = `${this.$route.params.AssemblyUnitNumber}`
+    },
+    showLocationTransferDialog() {
+      this.locationTransferDialogVisible = true
     },
     showEditHistoryDialog(id) {
       if (id === null) {

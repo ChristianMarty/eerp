@@ -12,6 +12,10 @@
       <p>{{ data.Type }}, {{ data.Date }}</p>
       <p>{{ data.Description }}</p>
 
+      <p><b>Shipping</b></p>
+      <p>Clearance: {{ data.ShippingClearance }}</p>
+      <p>Prohibited: {{ data.ShippingProhibited }}</p>
+
       <p><b>Data</b></p>
       <el-table
         :data="tableData"
