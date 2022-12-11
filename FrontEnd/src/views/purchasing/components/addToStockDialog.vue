@@ -8,7 +8,7 @@
       @open="loadData()"
     >
 
-      <el-form ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
+      <el-form ref="inputForm" label-width="150px">
         <el-form-item label="Manufacturer:" prop="ManufacturerName">
           {{ receivalData.ManufacturerName }}
         </el-form-item>
@@ -28,26 +28,26 @@
           {{ receivalData.OrderReference }}
         </el-form-item>
 
-        <el-form-item label="Quantity:" prop="QuantityReceived">
-          <el-input-number v-model="quantity" placeholder="Please input" :controls="false" />
+        <el-form-item label="Quantity:">
+          <el-input-number v-model="data.Quantity" placeholder="Please input" :controls="false" />
         </el-form-item>
 
-        <el-form-item label="Mfr. Date:" prop="Date">
-          <el-date-picker v-model="dateCode" type="week" format="yyyy Week WW" value-format="yyyy-MM-dd">
+        <el-form-item label="Mfr. Date:">
+          <el-date-picker v-model="data.Date" type="week" format="yyyy Week WW" value-format="yyyy-MM-dd">
             >
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item label="Location:" prop="Location">
+        <el-form-item label="Location:">
           <span>
             <el-input
               ref="locNrInput"
-              v-model="locationNo"
+              v-model="data.Location"
               placeholder="Loc-xxxxx"
               style="width: 150px; margin-right: 10px"
             />
             <el-cascader
-              v-model="locationNo"
+              v-model="data.Location"
               :options="locations"
               :props="{
                 emitPath: false,
@@ -114,6 +114,14 @@ const receivedItemData = {
   SupplierPartId: 0
 }
 
+const saveData = {
+  ReceivalId: 0,
+  Date: '',
+  Quantity: 0,
+  Location: '',
+  OrderReference: ''
+}
+
 import requestBN from '@/utils/requestBN'
 
 export default {
@@ -121,6 +129,7 @@ export default {
   props: { receivalData: { type: Object, default: receivedItemData }, visible: { type: Boolean, default: false }},
   data() {
     return {
+      data: Object.assign({}, saveData),
       locations: null,
       locationNo: null,
       dateCode: '',
@@ -133,6 +142,12 @@ export default {
     loadData() {
       this.getTrackData()
       this.getLocations()
+
+      this.data.ReceivalId = this.$props.receivalData.ReceivalId
+      this.data.Quantity = this.$props.receivalData.QuantityReceived
+      this.data.OrderReference = this.$props.receivalData.OrderReference
+
+      console.log(this.$props.receivalData.QuantityReceived)
     },
     getLocations() {
       requestBN({
@@ -154,18 +169,10 @@ export default {
       })
     },
     saveToStock() {
-      const saveData = {
-        ReceivalId: this.$props.receivalData.ReceivalId,
-        Date: this.dateCode,
-        Quantity: this.receivalData.QuantityReceived,
-        Location: this.locationNo,
-        OrderReference: this.receivalData.OrderReference
-      }
-
       requestBN({
         method: 'post',
         url: '/stock/item',
-        data: { data: saveData }
+        data: { data: this.data }
       }).then(response => {
         if (response.error == null) {
           this.partData = response.data
