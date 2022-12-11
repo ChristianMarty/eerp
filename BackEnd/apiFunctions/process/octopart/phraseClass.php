@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../databaseConnector.php";
 
-$titel = "Octopart Phrase Part Class";
+$title = "Octopart Phrase Part Class";
 $description = "Phrases Octopart Class and converts it to BlueNova Part Class.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')

@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../databaseConnector.php";
 
-$titel = "Octopart Get Id";
+$title = "Octopart Get Id";
 $description = "Queries Manufacturer and Part Number on octopart to get Octopart Part Id.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')

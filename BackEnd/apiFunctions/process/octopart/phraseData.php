@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../databaseConnector.php";
 
-$titel = "Octopart Phrase Data";
+$title = "Octopart Phrase Data";
 $description = "Phrases Octopart Data and converts it to BlueNova Part Attributes.";
 
 
@@ -56,6 +56,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			{
 				$vlaue = rtrim($attributeValue, "V");
 				$PartData["19"] = phrase_si($vlaue);
+			}
+			else if($attributeName == "Forward Current")
+			{
+				$vlaue = rtrim($attributeValue, "A");
+				$PartData["26"] = phrase_si($vlaue);
+			}
+			else if($attributeName == "Max Reverse Voltage (DC)")
+			{
+				$vlaue = rtrim($attributeValue, "V");
+				$PartData["24"] = phrase_si($vlaue);
 			}
 			else if($attributeName == "Min Supply Voltage")
 			{
