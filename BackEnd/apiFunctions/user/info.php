@@ -34,7 +34,6 @@ $returnData = array();
 
 if($devMode) // TODO: This is fundamentally broken -> fix it
 {
-	
 $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "history" : {"add": true, "edit": true}}},
 			"inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}, "purchase": {"edit": true}},
 			"metrology":{"view": true, "create": true},
@@ -45,7 +44,8 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 			"document":{"upload": true, "create": true, "ingest": true},
 			"manufacturerPart":{"create": true,"edit": true},
 			"stock":{"create": true, "add": true, "remove":true, "count":true}, 
-			"location":{"transfer":true, "bulkTransfer":true, "print": true}}';
+			"location":{"transfer":true, "bulkTransfer":true, "print": true},
+			"finance":{"view":true}}';
 			
 	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2,"AssemblyReportPrinter": 2, "AssemblyReportTemplate": 3, "PartReceiptPrinter":2, "PurchasOrder": {"UoM": 29, "VAT": 1}}}';
 	
