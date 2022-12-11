@@ -23,7 +23,7 @@
       border
       :cell-style="{ padding: '0', height: '20px' }"
     >
-      <el-table-column prop="AssemblyUnitBarcode" label="Assembly Unit No" sortable width="180">
+      <el-table-column prop="AssemblyUnitBarcode" label="Assembly Unit" sortable width="150">
         <template slot-scope="{ row }">
           <router-link :to="'/assembly/unit/item/' + row.AssemblyUnitBarcode" class="link-type">
             <span>{{ row.AssemblyUnitBarcode }}</span>
@@ -31,6 +31,17 @@
         </template>
       </el-table-column>
       <el-table-column prop="SerialNumber" label="Serial Number" sortable />
+      <el-table-column prop="WorkOrderBarcode" label="Work Order" sortable width="150">
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/workOrder/workOrderView/' + row.WorkOrderBarcode"
+            class="link-type"
+          >
+            <span> {{ row.WorkOrderBarcode }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="WorkOrderTitle" label="Work Order Title" sortable />
       <el-table-column prop="LocationName" label="Location" sortable />
       <el-table-column prop="LastInspectionPass" label="Last Inspection Result" sortable width="220">
         <template slot-scope="{ row }">
