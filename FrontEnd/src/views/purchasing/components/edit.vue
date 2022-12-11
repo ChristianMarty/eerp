@@ -91,7 +91,7 @@
     <orderTotal :total="poData.Total" />
 
     <template v-permission="['purchasing.edit']">
-      <editLineItemDialog :visible.sync="orderLineEditDialogVisible" :line="orderLineEditData" :supplier-id="Number(orderData.SupplierId)" :po-no="orderData.PoNo" @closed="getOrderLines()" @refresh="refreshPage()" />
+      <editLineItemDialog :visible.sync="orderLineEditDialogVisible" :line="orderLineEditData" :supplier-id="Number(orderData.SupplierId)" :po="orderData" @closed="getOrderLines()" @refresh="refreshPage()" />
       <editAdditionalChargesDialog :visible.sync="additionalChargesDialogVisible" :line="additionalChargesLine" :po-no="orderData.PoNo" @closed="getOrderLines()" @refresh="refreshPage()" />
 
       <orderImportDialog v-if="poData.MetaData.OrderImportSupported == true" :visible.sync="importDialogVisible" :meat="poData.MetaData" @closed="getOrderLines()" />

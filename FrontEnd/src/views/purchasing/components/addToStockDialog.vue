@@ -146,8 +146,6 @@ export default {
       this.data.ReceivalId = this.$props.receivalData.ReceivalId
       this.data.Quantity = this.$props.receivalData.QuantityReceived
       this.data.OrderReference = this.$props.receivalData.OrderReference
-
-      console.log(this.$props.receivalData.QuantityReceived)
     },
     getLocations() {
       requestBN({
