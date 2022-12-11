@@ -55,6 +55,7 @@
         <p><b>Stock Certainty Factor: </b>{{ stockAccuracy.CertaintyFactor }}</p>
         <el-rate v-model="stockAccuracy.CertaintyFactor * 5" disabled />
       </span>
+      <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">Location Transfer</el-button>
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
       <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
@@ -138,6 +139,8 @@
     <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
     <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
     <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />
+
+    <locationTransferDialog :barcode="partData.Barcode" :visible.sync="locationTransferDialogVisible" @change="loadItem()" />
   </div>
 </template>
 
@@ -153,6 +156,8 @@ import addStockDialog from './components/addStockDialog'
 import removeStockDialog from './components/removeStockDialog'
 import countStockDialog from './components/countStockDialog'
 import stockHistory from './components/stockHistory'
+
+import locationTransferDialog from '@/components/Location/locationTransferDialog'
 
 const partDataEmpty = {
   StockId: '',
@@ -178,7 +183,7 @@ const stockAccuracyData = {
 
 export default {
   name: 'LocationAssignment',
-  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory },
+  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory, locationTransferDialog },
   directives: { permission },
   data() {
     return {
@@ -198,7 +203,8 @@ export default {
       removeStockDialogVisible: false,
       countStockDialogVisible: false,
       editStockHistoryDialogVisible: false,
-      stockHistoryKey: 0
+      stockHistoryKey: 0,
+      locationTransferDialogVisible: false
     }
   },
   watch: {
@@ -230,14 +236,15 @@ export default {
       this.$refs.itemNrInput.focus()
       this.reset()
     },
-    setTagsViewTitle(title) {
+    setTitle(title) {
       const route = Object.assign({}, this.tempRoute, {
         title: `${title}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-    },
-    setPageTitle() {
       document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
+    },
+    showLocationTransferDialog() {
+      this.locationTransferDialogVisible = true
     },
     setItem() {
       this.$router.push('/stock/item/' + this.inputStockId)
@@ -272,8 +279,7 @@ export default {
         } else {
           this.partData = response.data[0]
           this.getProductionPartData()
-          this.setTagsViewTitle(this.partData.Barcode)
-          this.setPageTitle()
+          this.setTitle(this.partData.Barcode)
         }
       })
     },
@@ -337,7 +343,7 @@ export default {
       this.inputStockId = null
       this.showItem = false
       this.printDialogVisible = false
-      this.setTagsViewTitle('Stock Item')
+      this.setTitle('Stock Item')
     },
     getLabel() {
       requestBN({

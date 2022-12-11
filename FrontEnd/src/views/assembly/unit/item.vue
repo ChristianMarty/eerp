@@ -82,7 +82,7 @@
 <script>
 import permission from '@/directive/permission/index.js'
 import assemblyDataDialog from './components/dataDialog'
-import locationTransferDialog from './components/locationTransferDialog'
+import locationTransferDialog from '@/components/Location/locationTransferDialog'
 
 import Assembly from '@/api/assembly'
 const assembly = new Assembly()

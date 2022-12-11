@@ -48,7 +48,7 @@
         </p>
       </el-main>
     </el-container>
-
+    <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
     <el-divider />
     <h2>Accessories</h2>
     <template v-if="checkPermission(['inventory.accessory.add'])">
@@ -206,6 +206,12 @@
       @change="getInventoryData()"
     />
 
+    <locationTransferDialog
+      :barcode="inventoryData.InventoryBarcode"
+      :visible.sync="locationTransferDialogVisible"
+      @change="getInventoryData()"
+    />
+
     <el-divider />
     <el-button v-if="checkPermission(['inventory.print'])" type="primary" @click="addPrint">Print</el-button>
     <el-button v-if="checkPermission(['inventory.create'])" type="primary" @click="copy">Create Copy</el-button>
@@ -221,12 +227,14 @@ import historyEditDataDialog from './components/historyDialog'
 import accessoryEditDataDialog from './components/accessoryDialog'
 import purchaseEditDataDialog from './components/purchaseDialog'
 
+import locationTransferDialog from '@/components/Location/locationTransferDialog'
+
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
 export default {
   name: 'InventoryView',
-  components: { documentsList, historyEditDataDialog, accessoryEditDataDialog, purchaseEditDataDialog },
+  components: { documentsList, historyEditDataDialog, accessoryEditDataDialog, purchaseEditDataDialog, locationTransferDialog },
   data() {
     return {
       inventoryData: Object.assign({}, inventory.itemReturn),
@@ -237,7 +245,9 @@ export default {
       accessoryEditDialogVisible: false,
       accessoryNumber: null,
 
-      purchaseEditDataDialogVisible: false
+      purchaseEditDataDialogVisible: false,
+
+      locationTransferDialogVisible: false
     }
   },
   async mounted() {
@@ -258,6 +268,9 @@ export default {
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = `${this.inventoryData.InventoryBarcode} - ${this.inventoryData.Title}`
+    },
+    showLocationTransferDialog() {
+      this.locationTransferDialogVisible = true
     },
     async getInventoryData() {
       this.inventoryData = await inventory.item(this.$route.params.invNo)

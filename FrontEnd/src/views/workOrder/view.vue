@@ -26,12 +26,12 @@
       <el-table-column prop="ProductionPartNumber" label="Production Part Number" sortable width="240">
         <template slot-scope="{ row }">
           <template v-for="part in row.ProductionPartNumber">
-              <router-link
-                :to="('/prodParts/prodPartView/' + part)"
-                class="link-type"
-              >
-                <span>{{ part }} </span>
-              </router-link>
+            <router-link
+              :to="('/prodParts/prodPartView/' + part)"
+              class="link-type"
+            >
+              <span>{{ part }} </span>
+            </router-link>
           </template>
         </template>
       </el-table-column>

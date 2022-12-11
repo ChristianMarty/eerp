@@ -7,7 +7,7 @@
       @open="onOpen()"
     >
 
-      <el-descriptions title="Details:" :column="2" >
+      <el-descriptions title="Details:" :column="2">
         <el-descriptions-item label-class-name="my-label" label="Type"> {{ line.LineType }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Price">{{ line.Price }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Quantity">{{ line.QuantityOrderd }}</el-descriptions-item>
@@ -19,7 +19,7 @@
         <el-descriptions-item label-class-name="my-label" label="Total">{{ line.FullTotal }}</el-descriptions-item>
       </el-descriptions>
       <p />
-      <el-descriptions title="Part:" :column="2" >
+      <el-descriptions title="Part:" :column="2">
         <el-descriptions-item label-class-name="my-label" label="Manufacturer ">{{ line.ManufacturerName }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Sku ">{{ line.SupplierSku }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Part Number">{{ line.ManufacturerPartNumber }}</el-descriptions-item>
