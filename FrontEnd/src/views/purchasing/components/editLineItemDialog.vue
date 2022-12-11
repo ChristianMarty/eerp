@@ -114,12 +114,17 @@
         <el-form-item label="Order Reference:">
           <el-input v-model="line.OrderReference" />
         </el-form-item>
-
-        <el-form-item label="Sku:">
-          <el-input v-model="line.SupplierSku" />
+        <el-form-item v-if="line.LineType == 'Part'" label="Stock Part:">
+          <el-checkbox v-model="line.StockPart" />
         </el-form-item>
 
-        <el-form-item v-if="line.LineType == 'Part'" label="Manufacturer:">
+        <el-form-item label="Sku:">
+          <el-input v-model="line.SupplierSku" @keyup.enter.native="searchSku(line.SupplierSku)">
+            <el-button v-if="po.SkuSearchSupported == true" slot="append" icon="el-icon-search"  @click="searchSku(line.SupplierSku)">Import</el-button>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item label="Manufacturer:">
           <el-select
             v-model="line.ManufacturerName"
             placeholder="Manufacturer"
@@ -130,11 +135,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item v-if="line.LineType == 'Part'" label="MPN:">
+        <el-form-item label="MPN:">
           <el-input v-model="line.ManufacturerPartNumber" />
-        </el-form-item>
-        <el-form-item v-if="line.LineType == 'Part'" label="Stock Part:">
-          <el-checkbox v-model="line.StockPart" />
         </el-form-item>
         <el-form-item label="Description:">
           <el-input v-model="line.Description" />
@@ -160,11 +162,10 @@ import requestBN from '@/utils/requestBN'
 export default {
   name: 'EditLineItemDialog',
   props: {
-    receivalId: { type: Number, default: 0 },
     line: { type: Object, default: null },
     supplierId: { type: Number, default: 0 },
     visible: { type: Boolean, default: false },
-    poNo: { type: String, default: '' }
+    po: { type: String, default: '' }
   },
   data() {
     return {
@@ -212,6 +213,25 @@ export default {
       data.Description = row.Description
       data.ManufacturerPartNumber = row.ManufacturerPartNumber
     },
+    searchSku(sku) {
+      requestBN({
+        url: '/purchasing/item/skuSearch',
+        methood: 'get',
+        params: { SupplierId: this.$props.supplierId, SKU: sku }
+      }).then(response => {
+        const skuData = response.data
+
+        this.line.Description = skuData.Description
+        this.line.ManufacturerPartNumber = skuData.ManufacturerPartNumber
+        this.line.ManufacturerName = skuData.ManufacturerName
+
+        skuData.Pricing.forEach(price => {
+          if (this.line.QuantityOrderd >= price.MinimumQuantity) {
+            this.line.Price = price.Price
+          }
+        })
+      })
+    },
     getManufacturers() {
       requestBN({
         url: '/part/manufacturer',
@@ -253,7 +273,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/item/edit',
-        data: { data: { Action: 'save', Lines: [this.$props.line], PoNo: this.$props.poNo }}
+        data: { data: { Action: 'save', Lines: [this.$props.line], PoNo: this.$props.po.PoNo }}
       }).then(response => {
         if (response.error == null) {
           this.$message({
@@ -283,7 +303,7 @@ export default {
         requestBN({
           method: 'post',
           url: '/purchasing/item/edit',
-          data: { data: { Action: 'delete', OrderLineId: this.line.OrderLineId, PoNo: this.$props.poNo }}
+          data: { data: { Action: 'delete', OrderLineId: this.line.OrderLineId, PoNo: this.$props.po.PoNo }}
         }).then(response => {
           if (response.error != null) {
             this.$message({
