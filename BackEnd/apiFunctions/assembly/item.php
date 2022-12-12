@@ -19,12 +19,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 
 	$query = <<<STR
-		SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName, ShippingProhibited.ShippingProhibited, ShippingClearance.ShippingClearance, WorkOrderNo AS WorkOrderNumber, workOrder.Title AS WorkOrderTitle
+		SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName, ShippingProhibited.ShippingProhibited, ShippingClearance.ShippingClearance, WorkOrderNo AS WorkOrderNumber, LastHistory.Title AS LastHistoryTitle, LastHistory.Type AS LastHistoryType, workOrder.Title AS WorkOrderTitle
 		FROM assembly_unit
 		LEFT JOIN assembly_unit_history AS Test ON Test.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Test Fail','Test Pass') ORDER BY Data DESC LIMIT 1)
 		LEFT JOIN assembly_unit_history AS Inspection ON Inspection.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Inspection Fail','Inspection Pass') ORDER BY Data DESC LIMIT 1)
 		LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1)
 		LEFT JOIN assembly_unit_history AS ShippingClearance ON ShippingClearance.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingClearance = 1)
+		LEFT JOIN assembly_unit_history AS LastHistory ON LastHistory.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit_history.AssemblyUnitId = assembly_unit.Id ORDER BY Data DESC LIMIT 1)
 		LEFT JOIN workOrder ON workOrder.Id = assembly_unit.WorkOrderId
 	STR;
 
@@ -44,7 +45,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	$query .= " ORDER BY assembly_unit.SerialNumber ASC";
 
-
 	$result = dbRunQuery($dbLink,$query);
 	
 	$output = array();
@@ -63,12 +63,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['WorkOrderNumber'] != null) $temp['WorkOrderBarcode'] = "WO-".$r['WorkOrderNumber'];
 		else $temp['WorkOrderBarcode'] = null;
 		$temp['WorkOrderTitle'] = $r['WorkOrderTitle'];
-		
-		if($r['ShippingClearance'] != 0) $temp['ShippingClearance'] = true;
-		else $temp['ShippingClearance'] = false;
-		if($r['ShippingProhibited'] != 0) $temp['ShippingProhibited'] = true;
-		else $temp['ShippingProhibited'] = false;
-		
+
+		$temp['ShippingClearance'] = filter_var($r['ShippingClearance'], FILTER_VALIDATE_BOOLEAN);
+		$temp['ShippingProhibited'] = filter_var($r['ShippingProhibited'], FILTER_VALIDATE_BOOLEAN);
+
 		if($temp['ShippingProhibited']) $temp['ShippingClearance'] = false;
 		
 		if($r['Test'] == 'Test Pass') $temp['LastTestPass'] = true;
@@ -78,6 +76,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['Inspection'] == 'Inspection Pass') $temp['LastInspectionPass'] = true;
 		else if($r['Inspection'] == 'Inspection Fail') $temp['LastInspectionPass'] = false;
 		else $temp['LastInspectionPass'] = null;
+
+		$temp['LastHistoryTitle'] = $r['LastHistoryTitle'];
+		$temp['LastHistoryType'] = $r['LastHistoryType'];
 		
 		$output['Unit'][] = $temp;
 	}

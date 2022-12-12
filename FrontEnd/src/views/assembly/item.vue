@@ -43,19 +43,21 @@
       </el-table-column>
       <el-table-column prop="WorkOrderTitle" label="Work Order Title" sortable />
       <el-table-column prop="LocationName" label="Location" sortable />
-      <el-table-column prop="LastInspectionPass" label="Last Inspection Result" sortable width="220">
+      <el-table-column prop="LastHistoryTitle" label="Last History Title" sortable />
+      <el-table-column prop="LastHistoryType" label="Last History Type" sortable width="180" />
+      <el-table-column prop="LastInspectionPass" label="Last Inspection" sortable width="160">
         <template slot-scope="{ row }">
           <span v-if="row.LastInspectionPass === true" class="pass">Pass</span>
           <span v-if="row.LastInspectionPass === false" class="fail">Fail</span>
         </template>
       </el-table-column>
-      <el-table-column prop="LastTestResult" label="Last Test Result" sortable width="220">
+      <el-table-column prop="LastTestResult" label="Last Test" sortable width="160">
         <template slot-scope="{ row }">
           <span v-if="row.LastTestPass === true" class="pass">Pass</span>
           <span v-if="row.LastTestPass === false" class="fail">Fail</span>
         </template>
       </el-table-column>
-      <el-table-column prop="ShippingClearance" label="Shipping Clearance" sortable>
+      <el-table-column prop="ShippingClearance" label="Shipping Clearance" sortable width="200">
         <template slot-scope="{ row }">
           <span v-if="row.ShippingProhibited === true" class="fail">Prohibited</span>
           <span v-else-if="row.ShippingClearance === true" class="pass">Approved</span>
