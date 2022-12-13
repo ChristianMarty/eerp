@@ -15,10 +15,11 @@ require_once __DIR__ . "/../apiFunctions/vendor/_function.php";
 
 $poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
 
-$vendor = getVenderContact($poData["MetaData"]["VendorContactId"]);
-$shipping = getVenderContact($poData["MetaData"]["ShippingContactId"]);
-$billing = getVenderContact($poData["MetaData"]["BillingContactId"]);
-$buyer = getVenderContact($poData["MetaData"]["PurchaseContactId"]);
+
+$vendor = getVendorContact($poData["MetaData"]["VendorContactId"]);
+$shipping = getVendorContact($poData["MetaData"]["ShippingContactId"]);
+$billing = getVendorContact($poData["MetaData"]["BillingContactId"]);
+$buyer = getVendorContact($poData["MetaData"]["PurchaseContactId"]);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -183,7 +184,7 @@ if(!isset($_GET["PurchaseOrderNo"]))
 <?php
 
 global $addressId;
-$footer = getVenderAddress($addressId);
+$footer = getVendorAddress($addressId);
 
 $meta = new stdClass;
 

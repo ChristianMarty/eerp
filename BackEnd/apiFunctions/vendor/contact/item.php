@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		require_once __DIR__ . "/_function.php";
 		// legacy behavior
-		$vendor = getVenderContact($_GET["VendorAddressId"]);
+		$vendor = getVendorContact($_GET["VendorAddressId"]);
 		sendResponse($vendor);
 	}
 	else if(isset($_GET["ContactId"]))
