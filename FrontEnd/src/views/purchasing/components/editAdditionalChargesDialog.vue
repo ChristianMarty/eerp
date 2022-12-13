@@ -34,8 +34,8 @@
           <el-input-number
             v-model="line.Price"
             :controls="false"
-            :precision="4"
-            :min="0.0000"
+            :precision="6"
+            :min="-999999"
             :max="999999"
             style="width: 70pt"
           />
