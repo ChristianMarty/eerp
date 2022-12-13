@@ -85,12 +85,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$rowcount = mysqli_num_rows($result);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		
-		// Decode Attributes
-		$partDataRaw = json_decode($r['PartData']);
+        // Decode Attributes
+        $partDataRaw = null;
+        if($r['PartData'] != null ) $partDataRaw = json_decode($r['PartData']);
+
 		$partData = array();
-		
-		
 		if($partDataRaw != null)
 		{
 			foreach ($partDataRaw as $key =>$value) 

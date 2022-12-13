@@ -120,7 +120,7 @@
 
         <el-form-item label="Sku:">
           <el-input v-model="line.SupplierSku" @keyup.enter.native="searchSku(line.SupplierSku)">
-            <el-button v-if="po.SkuSearchSupported == true" slot="append" icon="el-icon-search"  @click="searchSku(line.SupplierSku)">Import</el-button>
+            <el-button v-if="po.SkuSearchSupported == true" slot="append" icon="el-icon-search" @click="searchSku(line.SupplierSku)">Import</el-button>
           </el-input>
         </el-form-item>
 
