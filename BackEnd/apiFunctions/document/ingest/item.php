@@ -11,8 +11,6 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../_functions.php";
 
-$fileNameIllegalCharactersRegex = '/[ :"*?<>|\\/]+/';
-
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
@@ -31,8 +29,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
 	global $ingestPath;
 	
 	if(!isset($data['FileName']) OR $data['FileName'] == "" OR $data['FileName'] == null) sendResponse(null,"File name is not set.");
-
-	if(preg_match($fileNameIllegalCharactersRegex,$data['FileName']) != 0) sendResponse(null,'File name contains illegal character. [/]');
 	
 	$src = $serverDataPath.$ingestPath."/".$data['FileName'];
 	

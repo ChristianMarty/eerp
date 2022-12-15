@@ -73,6 +73,13 @@
             @success="ingestSuccess()"
           />
 
+          <poQuoteIngest
+            v-if="selectedTemplate == 'poQuote'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
+
         </el-col>
 
       </el-row>
@@ -99,13 +106,14 @@ import genericIngest from './components/ingestTemplates/generic'
 import poDeliveryNoteIngest from './components/ingestTemplates/purchaseOrderDeliveryNote'
 import poInvoiceIngest from './components/ingestTemplates/purchaseOrderInvoice'
 import poReceiptIngest from './components/ingestTemplates/purchaseOrderReceipt'
+import poQuoteIngest from './components/ingestTemplates/purchaseOrderQuote'
 
 import Document from '@/api/document'
 const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest },
+  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest },
   data() {
     return {
       documentList: [],
@@ -126,6 +134,9 @@ export default {
       }, {
         value: 'poReceipt',
         label: 'Purchase Order Receipt'
+      }, {
+        value: 'poQuote',
+        label: 'Purchase Order Quote'
       }]
     }
   },
@@ -139,7 +150,7 @@ export default {
       this.showDialog = true
       this.dialogData = Object.assign({}, document.ingestParameters)
       this.dialogData.FileName = row.FileName
-      this.filePreviewPath = row.Path
+      this.filePreviewPath = process.env.VUE_APP_BLUENOVA_BASE + '/' + row.Path
     },
     ingestFile() {
       this.$refs.ingestForm.ingest()

@@ -70,14 +70,13 @@ function ingest($data): int|array
     if(!isset($data['Type']) OR $data['Type'] == "" OR $data['Type'] == null) return array('error' => "Type is not set.");
     if(!isset($data['FileName']) OR $data['FileName'] == "" OR $data['FileName'] == null) return array('error' => "File name is not set.");
 
-    if(preg_match($fileNameIllegalCharactersRegex,$data['FileName']) != 0) return array('error' => "File name contains illegal character.");
     if(preg_match($fileNameIllegalCharactersRegex,$data['Name']) != 0) return array('error' => "File name contains illegal character.");
 
     global $serverDataPath;
     global $ingestPath;
     global $documentPath;
     $src = $serverDataPath.$ingestPath."/".$data['FileName'];
-    $dstFileName = $data['Name'].".".pathinfo($src, PATHINFO_EXTENSION);
+    $dstFileName = $data['Name']."_".time().".".pathinfo($src, PATHINFO_EXTENSION);
 
     $dst = $serverDataPath.$documentPath."/".$data['Type']."/".$dstFileName;
 
