@@ -105,11 +105,14 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 		}
 
 	}
-	
-	$temp = implode(", ", $receivalIdList);
-	$query  = "DELETE FROM inventory_purchasOrderReference ";
-	$query .= "WHERE InventoryId = {$id} AND NOT ReceivalId IN({$temp});";
-	
+
+    $query  = "DELETE FROM inventory_purchasOrderReference WHERE InventoryId = {$id} ";
+    if(!empty($receivalIdList))
+    {
+        $temp = implode(", ", $receivalIdList);
+        $query .= "AND NOT ReceivalId IN({$temp});";
+    }
+    
 	$result = dbRunQuery($dbLink,$query);
 
 	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
