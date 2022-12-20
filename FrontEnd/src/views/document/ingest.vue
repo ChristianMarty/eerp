@@ -150,7 +150,7 @@ export default {
       this.showDialog = true
       this.dialogData = Object.assign({}, document.ingestParameters)
       this.dialogData.FileName = row.FileName
-      this.filePreviewPath = process.env.VUE_APP_BLUENOVA_BASE + '/' + row.Path
+      this.filePreviewPath = row.Path
     },
     ingestFile() {
       this.$refs.ingestForm.ingest()
