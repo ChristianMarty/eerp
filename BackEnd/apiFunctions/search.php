@@ -53,7 +53,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		}
 		else
 		{
-			$output = search_MPN($search);
+			$output = array_merge(search_MPN($search), search_assemblySerialNumber($search));
 			if(!empty($output)) sendResponse($output);
 			else sendResponse(null,"Number format invalid.");
 		}
@@ -61,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	else
 	{
 		// Search MPN manufacturerPart
-		$output = search_MPN($search);
+		$output = array_merge(search_MPN($search), search_assemblySerialNumber($search));
 		if(!empty($output)) sendResponse($output);
 		else sendResponse(null,"Number format invalid.");
 	}
@@ -88,6 +88,29 @@ function search_MPN($input): array
 		$temp["Item"] = $r['ManufacturerPartNumber'];
 		$temp["Code"] = $r['ManufacturerPartNumber'];
 		$temp["Id"] = $r['Id'];
+
+		$output[] = $temp;
+
+	}
+
+	return $output;
+}
+function search_assemblySerialNumber($input): array
+{
+	$dbLink = dbConnect();
+	$input = dbEscapeString($dbLink,$input);
+
+	$query = "SELECT Id, AssemblyUnitNumber, SerialNumber FROM assembly_unit WHERE SerialNumber LIKE '$input'";
+	$result = dbRunQuery($dbLink,$query);
+
+	$output = array();
+
+	while($r = mysqli_fetch_assoc($result))
+	{
+		$temp = array();
+		$temp["Category"] = 'AssemblyUnit';
+		$temp["Item"] = $r['SerialNumber'];
+		$temp["Code"] = "ASU-".$r['AssemblyUnitNumber'];
 
 		$output[] = $temp;
 
