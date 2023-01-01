@@ -14,12 +14,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
 
-	$baseQuery  = "SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor_name_recursive(vendor.Id) AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
-	$baseQuery .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
-	$baseQuery .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
-	
+	$baseQuery = <<<STR
+		SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor_name_recursive(vendor.Id) AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber, 
+		SUM(purchasOrder_itemOrder.Quantity) AS TotalQuantityOrdered, SUM(purchasOrder_itemReceive.QuantityReceived) AS TotalQuantityReceived
+		FROM purchasOrder
+		LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId
+		LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId
+		LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id
+		LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id
+	STR;
+
 	$queryParam = array();
 	
 	if(isset($_GET["PurchaseOrderNo"]))
@@ -36,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["HideClosed"]))
 	{
-		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Status != 'Closed'");
+		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "Status != 'Closed'";
 	}
 	else if(isset($_GET["Status"]))
 	{
@@ -45,7 +50,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	$query.= " ORDER BY purchasOrder.PoNo DESC";	
+	$query.= " GROUP BY purchasOrder.Id ORDER BY purchasOrder.PoNo DESC";
 
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
@@ -54,7 +59,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$r['CurrencyId'] = intval($r['CurrencyId']);
 		if($r['Title'] == null) $r['Title'] = $r['SupplierName']." - ".$r['PurchaseDate'];
-		
+
+		$totalQuantityOrdered =  intval($r['TotalQuantityOrdered']);
+		$totalQuantityReceived =  intval($r['TotalQuantityReceived']);
+
+		$r['TotalQuantityOrdered'] = $totalQuantityOrdered;
+		$r['TotalQuantityReceived'] = $totalQuantityReceived;
+
+		if($totalQuantityOrdered != 0) $r['ReceiveProgress'] = intval($totalQuantityReceived/$totalQuantityOrdered*100);
+		else $r['ReceiveProgress'] = 0;
+
+
 		$output[] = $r;
 	}
 
