@@ -110,7 +110,7 @@ const emptyData = {
   OrderReference: '',
   Date: '',
   Quantity: '',
-  Location: 'Loc-00000', 
+  Location: 'Loc-00000',
   LotNumber: ''
 }
 

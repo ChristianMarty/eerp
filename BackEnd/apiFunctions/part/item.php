@@ -81,12 +81,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		// Decode Attributes
 		
-		$partDataRaw = json_decode($r['PartData']);
+
 		$partData = array();
 		
 		
-		if($partDataRaw != null)
+		if($r['PartData'] != null)
 		{
+            $partDataRaw = json_decode($r['PartData']);
 			foreach ($partDataRaw as $key =>$value) 
 			{
 				$dataSet = array();

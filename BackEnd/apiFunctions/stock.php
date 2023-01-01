@@ -59,8 +59,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = dbGetResult($result)) 
 	{
 		$r['Barcode'] = "STK-".$r['StockNo'];
-		$date = new DateTime($r['Date']);
-		$r['DateCode'] = $date->format("yW");
+		if($r['Date']) {
+			$date = new DateTime($r['Date']);
+			$r['DateCode'] = $date->format("yW");
+		}
+		else{
+			$r['DateCode'] = null;
+		}
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
 
 		$output[] = $r;

@@ -112,7 +112,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
         $temp = implode(", ", $receivalIdList);
         $query .= "AND NOT ReceivalId IN({$temp});";
     }
-    
+
 	$result = dbRunQuery($dbLink,$query);
 
 	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
