@@ -7,6 +7,7 @@
         <el-input ref="searchInput" v-model="searchInput" placeholder="Search" @keyup.enter.native="search()">
           <el-button slot="append" icon="el-icon-search" @click="search()" />
         </el-input>
+        <p>Use SQL LIKE syntax for MPN search.</p>
       </template>
     </el-card>
     <el-card class="small-box">

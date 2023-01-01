@@ -19,7 +19,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$parts = explode('-',$search);
 	
 	$data = array();
-	
+
+	$found = false;
+
 	if(count($parts) >= 2)
 	{
 		$category = "";	
@@ -36,21 +38,61 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			{
 				$category = $r['Category'];
 				$prefix = $r['Prefix'];
+				$found = true;
 				break;
 			}
 		}
 
 		dbClose($dbLink);
-		
-		$data["Category"] = $category;
-		$data["Item"] =  $parts[1];
-		$data["Code"] = $prefix."-".$parts[1];
+
+		if($found)
+		{
+			$data["Category"] = $category;
+			$data["Item"] = $parts[1];
+			$data["Code"] = $prefix . "-" . $parts[1];
+		}
+		else
+		{
+			$output = search_MPN($search);
+			if(!empty($output)) sendResponse($output);
+			else sendResponse(null,"Number format invalid.");
+		}
 	}
 	else
 	{
-		sendResponse(null,"Number format invalide.");
+		// Search MPN manufacturerPart
+		$output = search_MPN($search);
+		if(!empty($output)) sendResponse($output);
+		else sendResponse(null,"Number format invalid.");
 	}
 
-	sendResponse($data);
+	$output = array();
+	$output[] = $data;
+	sendResponse($output);
+}
+
+function search_MPN($input): array
+{
+	$dbLink = dbConnect();
+	$input = dbEscapeString($dbLink,$input);
+
+	$query = "SELECT Id, ManufacturerPartNumber FROM manufacturerPart WHERE ManufacturerPartNumber LIKE '$input'";
+	$result = dbRunQuery($dbLink,$query);
+
+	$output = array();
+
+	while($r = mysqli_fetch_assoc($result))
+	{
+		$temp = array();
+		$temp["Category"] = 'ManufacturerPartNumber';
+		$temp["Item"] = $r['ManufacturerPartNumber'];
+		$temp["Code"] = $r['ManufacturerPartNumber'];
+		$temp["Id"] = $r['Id'];
+
+		$output[] = $temp;
+
+	}
+
+	return $output;
 }
 ?>

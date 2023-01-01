@@ -2,9 +2,17 @@
   <div class="app-container">
     <h1> Search Result for : {{ searchTerm }}</h1>
 
-    <el-table :data="itemList" border style="width: 100%">
-      <el-table-column prop="Item" label="Item Nr." width="120" />
-      <el-table-column prop="Category" label="Category" width="120" />
+    <el-table
+      :data="result"
+      border
+      style="width: 100%"
+    >
+      <el-table-column prop="Item" label="Item Nr." width="200">
+        <template slot-scope="{ row }">
+          <span class="link-type" @click="redirect(row)">{{ row.Item }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Category" label="Category" width="200" />
       <el-table-column prop="Description" label="Description" />
       <el-table-column prop="Location" label="Current Location" />
     </el-table>  </div>
@@ -25,7 +33,7 @@ export default {
   data() {
     return {
       searchTerm: '',
-      itemList: {}
+      result: {}
     }
   },
   mounted() {
@@ -54,6 +62,28 @@ export default {
         document.title = `${title} - ${this.supplierData.Name}`
       }*/
 
+    redirect(item) {
+      this.$store.dispatch('tagsView/delView', this.$route) // close search view
+
+      switch (item.Category) {
+        case 'Location': this.$router.push('/location/summary/' + item.Code)
+          break
+        case 'Stock': this.$router.push('/stock/item/' + item.Code)
+          break
+        case 'Inventory': this.$router.push('/Inventory/inventoryView/' + item.Code)
+          break
+        case 'PurchaseOrder': this.$router.push('/purchasing/edit/' + item.Code)
+          break
+        case 'WorkOrder': this.$router.push('/workOrder/workOrderView/' + item.Code)
+          break
+        case 'ProductPart': this.$router.push('/prodParts/prodPartView/' + item.Code)
+          break
+        case 'AssemblyUnit': this.$router.push('/assembly/unit/item/' + item.Code)
+          break
+        case 'ManufacturerPartNumber': this.$router.push('/mfrParts/partView/' + item.Id)
+          break
+      }
+    },
     search(term) {
       requestBN({
         url: '/search',
@@ -62,23 +92,8 @@ export default {
       }).then(response => {
         this.result = response.data
 
-        this.$store.dispatch('tagsView/delView', this.$route) // close search view
-
-        switch (this.result.Category) {
-          case 'Location': this.$router.push('/location/summary/' + this.result.Code)
-            break
-          case 'Stock': this.$router.push('/stock/item/' + this.result.Code)
-            break
-          case 'Inventory': this.$router.push('/Inventory/inventoryView/' + this.result.Code)
-            break
-          case 'PurchaseOrder': this.$router.push('/purchasing/edit/' + this.result.Code)
-            break
-          case 'WorkOrder': this.$router.push('/workOrder/workOrderView/' + this.result.Code)
-            break
-          case 'ProductPart': this.$router.push('/prodParts/prodPartView/' + this.result.Code)
-            break
-          case 'AssemblyUnit': this.$router.push('/assembly/unit/item/' + this.result.Code)
-            break
+        if (this.result.length === 1) {
+          this.redirect(this.result[0])
         }
       })
     }
