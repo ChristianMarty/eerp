@@ -65,6 +65,14 @@
       <b>Description:</b>
       {{ orderData.Description }}
     </p>
+    <p>
+      <b>Head Note:</b>
+      {{ orderData.HeadNote }}
+    </p>
+    <p>
+      <b>Foot Note:</b>
+      {{ orderData.FootNote }}
+    </p>
 
     <el-button
       v-if="orderData.Status == 'Editing'"
@@ -177,6 +185,14 @@
 
         <el-form-item label="Description:">
           <el-input v-model="dialogData.Description" type="textarea" placeholder="Description" />
+        </el-form-item>
+
+        <el-form-item label="Head Note:">
+          <el-input v-model="dialogData.HeadNote" type="textarea" placeholder="Head Note" />
+        </el-form-item>
+
+        <el-form-item label="Foot Note:">
+          <el-input v-model="dialogData.FootNote" type="textarea" placeholder="Foot Note" />
         </el-form-item>
       </el-form>
 
