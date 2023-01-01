@@ -38,6 +38,10 @@
           </el-date-picker>
         </el-form-item>
 
+        <el-form-item label="Lot Number:" prop="LotNumber">
+          <el-input v-model="data.LotNumber" placeholder="Please input" />
+        </el-form-item>
+
         <el-form-item label="Location:">
           <span>
             <el-input
@@ -111,7 +115,8 @@ const receivedItemData = {
   SupplierPartNumber: '',
   QuantityReceived: 0,
   OrderReference: '',
-  SupplierPartId: 0
+  SupplierPartId: 0,
+  LotNumber: ''
 }
 
 const saveData = {
@@ -119,7 +124,8 @@ const saveData = {
   Date: '',
   Quantity: 0,
   Location: '',
-  OrderReference: ''
+  OrderReference: '',
+  LotNumber: ''
 }
 
 import requestBN from '@/utils/requestBN'

@@ -49,6 +49,8 @@
       <p><b>Home Location: </b>{{ partData.HomeLocation }}</p>
       <p><b>Home Location Path: </b>{{ partData.HomeLocationPath }}</p>
       <p><b>Quantity: </b>{{ partData.Quantity }}</p>
+      <p><b>Lot Number: </b>{{ partData.LotNumber }}</p>
+      <p><b>Date Code: </b>{{ partData.DateCode }}</p>
       <p><b>Reserved Quantity: </b>{{ partData.ReservedQuantity }}</p>
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
       <span>

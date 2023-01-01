@@ -49,6 +49,10 @@
         </el-date-picker>
       </el-form-item>
 
+      <el-form-item label="Lot Number:" prop="LotNumber">
+        <el-input v-model="formData.LotNumber" placeholder="Please input" />
+      </el-form-item>
+
       <el-form-item label="Location" prop="Location">
         <el-input ref="locNrInput" v-model="formData.Location" placeholder="Please input" />
         <el-cascader-panel
@@ -106,7 +110,8 @@ const emptyData = {
   OrderReference: '',
   Date: '',
   Quantity: '',
-  Location: 'Loc-00000'
+  Location: 'Loc-00000', 
+  LotNumber: ''
 }
 
 const returnData = {
@@ -241,6 +246,7 @@ export default {
       this.formData.Date = ''
       this.formData.Quantity = ''
       this.formData.Location = 'Loc-00000'
+      this.formData.LotNumber = ''
     },
     isValid() {
       this.$refs.inputForm.validate(valid => {
