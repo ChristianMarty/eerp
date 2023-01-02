@@ -60,6 +60,18 @@ if( $apiRequest == "user/login" || $apiRequest == "user/logout" || $apiRequest =
 }
 else if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'])||$devMode)
 {
+	$idempotencyToken = null;
+	if(isset(getallheaders()['Idempotency-Key'])) $idempotencyToken = getallheaders()['Idempotency-Key'];
+
+	if($_SERVER['REQUEST_METHOD'] == 'POST' && !$devMode)
+	{
+		if($idempotencyToken !== $_SESSION['idempotency'])
+		{
+			sendResponse(null, "Idempotency Key Expired.");
+		}
+		$_SESSION['idempotency'] = generateIdempotenceToken();
+	}
+
 	require $filePath;
 }
 else
@@ -67,6 +79,16 @@ else
 	sendResponse(null, "User Session Invalid. Please Log In.");
 }
 
+function generateIdempotenceToken(): string
+{
+	$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	$charactersLength = strlen($characters);
+	$randomString = '';
+	for ($i = 0; $i < 20; $i++) {
+		$randomString .= $characters[rand(0, $charactersLength - 1)];
+	}
+	return $randomString;
+}
 
 function sendResponse($data, $error = null): void
 {
@@ -75,12 +97,21 @@ function sendResponse($data, $error = null): void
 	require_once __DIR__ . "/config.php";
 	global $devMode;
 
-	if($devMode) $loginState = true;
-	else $loginState = $_SESSION['loggedin'];
-	
+	if($devMode)
+	{
+		$loginState = true;
+		$_SESSION['idempotency'] = "abcdefghijklmnopqrstuvwxyz";
+	}
+	else
+	{
+		if(!isset($_SESSION['idempotency'])) $_SESSION['idempotency'] = generateIdempotenceToken();
+		$loginState = $_SESSION['loggedin'];
+	}
+
 	$response['data'] = $data;
 	$response['error'] = $error;
 	$response['loggedin'] = $loginState;
+	$response['idempotency'] = $_SESSION['idempotency'];
 
 	$json_response = json_encode($response);
 	if(!$json_response)

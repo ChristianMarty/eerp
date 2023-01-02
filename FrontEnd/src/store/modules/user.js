@@ -8,7 +8,8 @@ const state = {
   avatar: '',
   introduction: '',
   roles: [],
-  settings: {}
+  settings: {},
+  idempotency: '1234'
 }
 
 const mutations = {
@@ -29,6 +30,9 @@ const mutations = {
   },
   SET_SETTINGS: (state, settings) => {
     state.settings = settings
+  },
+  SET_IDEMPOTENCY: (state, idempotency) => {
+    state.idempotency = idempotency
   }
 }
 
@@ -46,6 +50,10 @@ const actions = {
         reject(error)
       })
     })
+  },
+
+  setIdempotency({ commit }, idempotency) {
+    commit('SET_IDEMPOTENCY', idempotency.idempotency)
   },
 
   // get user info
