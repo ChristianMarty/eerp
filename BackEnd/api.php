@@ -62,8 +62,8 @@ else if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'])||$devMode)
 {
 	$idempotencyToken = null;
 	if(isset(getallheaders()['Idempotency-Key'])) $idempotencyToken = getallheaders()['Idempotency-Key'];
-
-	if($_SERVER['REQUEST_METHOD'] == 'POST' && !$devMode)
+	
+	if($_SERVER['REQUEST_METHOD'] == 'POST' && !$devMode && $filePath != 'apiFunctions/document/ingest/upload.php')
 	{
 		if($idempotencyToken !== $_SESSION['idempotency'])
 		{

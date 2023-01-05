@@ -59,12 +59,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$manufacturerName = null;
 			$manufacturerPartNumber = null;
 			
-			if($type == "Part")
-			{
-				$partNo = $line['PartNo'];
-				$manufacturerName = $line['ManufacturerName'];
-				$manufacturerPartNumber = $line['ManufacturerPartNumber'];
-			}
+		
+			$partNo = $line['PartNo'];
+			$manufacturerName = $line['ManufacturerName'];
+			$manufacturerPartNumber = $line['ManufacturerPartNumber'];
+			
 			
 			$sqlData['Type'] = $type;
 			$sqlData['PartNo'] = $partNo;
