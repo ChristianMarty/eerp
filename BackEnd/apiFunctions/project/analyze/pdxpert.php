@@ -84,12 +84,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$result = false;
 			if($PartNo!= Null)
 			{
-				$query = "SELECT *, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity FROM manufacturerPart ";
-				$query .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";
-				$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
-				$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-				$query .= "WHERE productionPart.PartNo ='".dbEscapeString($dbLink, $PartNo)."'";  
-				$query .= " GROUP BY manufacturerPart.Id ";
+                $partNo = dbEscapeString($dbLink, $PartNo);
+                $query = <<<STR
+                    SELECT *, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity 
+                    FROM productionPart
+                    LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
+                    LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
+                    LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
+                    WHERE productionPart.PartNo ='$partNo'
+                    GROUP BY manufacturerPart.Id
+                STR;
 				
 				$result = dbRunQuery($dbLink,$query);
 			}
