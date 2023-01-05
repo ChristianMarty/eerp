@@ -142,8 +142,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$bomLine['Value'] = $PartDataLine["Value"];
 		if(isset($PartDataLine["Stock"])) $bomLine['Stock'] = $PartDataLine["Stock"];
 		else $bomLine['Stock'] = 0;
-		
-		
+
 		array_push($bom, $bomLine);
 	}
 

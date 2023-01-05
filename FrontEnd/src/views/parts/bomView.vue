@@ -54,6 +54,7 @@
        </template>
      </el-table-column>
       <el-table-column prop="RefDes" label="RefDes" />
+      <el-table-column prop="Description" label="Description" />
       <el-table-column prop="Quantity" label="Quantity" width="100" />
       <el-table-column prop="TotalQuantity" label="Total" width="100" />
 
@@ -61,6 +62,7 @@
       <!-- <el-table-column prop="Name" label="Manufacturer Part" />
     <el-table-column prop="Price" label="Price" width="100" />-->
       <el-table-column prop="Stock" label="Stock" width="100" />
+      <el-table-column prop="Name" label="Manufacturer Parts" />
     </el-table>
   </div>
 </template>

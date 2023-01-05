@@ -43,9 +43,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$i = 0;
 	while (($bomLine = fgetcsv($bomCsvFile, 1000, ",",'"',"\\")) !== FALSE) 
 	{
-		$BoMData[$i]["RefDes"] = $bomLine[$refDesIndex];
-		$BoMData[$i]["Value"] =  $bomLine[$descriptionIndex];
-		$BoMData[$i]["PartNo"] = $bomLine[$partNoIndex];
+        $BoMData[$i]["PartNo"] = $bomLine[$partNoIndex];
+
+		if($descriptionIndex === false) $BoMData[$i]["Value"] = "";
+        else $BoMData[$i]["Value"] =  $bomLine[$descriptionIndex];
+        if($refDesIndex === false) $BoMData[$i]["RefDes"] = "";
+        $BoMData[$i]["RefDes"] = $bomLine[$refDesIndex];
 		
 		$i++;
     }
@@ -77,65 +80,48 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			}
 		}
 		else
-		{
-			$BoMadd = array();
-			
-			$PartNo = $PartDataLine["PartNo"];
-			$result = false;
-			if($PartNo!= Null)
-			{
-                $partNo = dbEscapeString($dbLink, $PartNo);
-                $query = <<<STR
-                    SELECT *, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity 
-                    FROM productionPart
-                    LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
-                    LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
-                    LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
-                    WHERE productionPart.PartNo ='$partNo'
-                    GROUP BY manufacturerPart.Id
-                STR;
-				
-				$result = dbRunQuery($dbLink,$query);
-			}
-			$PartData  = array();
-			$TotalQuantity = 0;
-			$ManufacturerParts = "";
-			
-			if($result)
-			{
-				while($r = mysqli_fetch_assoc($result)) 
-				{
-					$PartData = $r;
-					$TotalQuantity = $PartData["StockQuantity"];
-					$ManufacturerParts = $ManufacturerParts.", ".$PartData["ManufacturerPartNumber"];
-				}
-			}
-			
-			$ManufacturerParts = substr($ManufacturerParts, 2);
-			
-			$BoMadd["PartNo"] = $PartDataLine["PartNo"];
-			
-			if(!empty($PartData))
-			{
-				$BoMadd["ManufacturerPartNumber"]= $ManufacturerParts;
-				$BoMadd["Stock"] = $TotalQuantity;
-			}
-			else
-			{
-				$BoMadd["PartNo"] = "Unknown ".$PartDataLine["PartNo"];
-				$BoMadd["ManufacturerPartNumber"]="";
-				$BoMadd["Stock"] = 0;
-			}
-			
-			$BoMadd["PaidPrice"] = "";
-			
-			$BoMadd["RefDes"] = $PartDataLine["RefDes"];
-			$BoMadd["Quantity"] = 1;
-			$BoMadd["Value"] = $PartDataLine["Value"];
-			
-			if($PartDataLine["Value"] == "DNP") $PartData["PaidPrice"] = 0;
-		
-			$BoM[$PartDataLine["PartNo"]] = $BoMadd ;
+        {
+            $PartNo = $PartDataLine["PartNo"];
+            if ($PartNo == Null) continue;
+
+            $BoMadd = array();
+
+            $partNo = dbEscapeString($dbLink, $PartNo);
+            $query = <<<STR
+                SELECT PartNo, Description, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, ",")  AS ManufacturerPartNumbers
+                FROM productionPart
+                LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
+                LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
+                LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
+                WHERE productionPart.PartNo ='$partNo'
+                GROUP BY manufacturerPart.Id
+            STR;
+
+            $result = dbRunQuery($dbLink, $query);
+
+            if ($r = mysqli_fetch_assoc($result))
+            {
+                $BoMadd["PartNo"] = $PartDataLine["PartNo"];
+
+                $BoMadd["ManufacturerPartNumber"] = substr($r["ManufacturerPartNumbers"], 0,-1);
+                $BoMadd["Stock"] = $r["StockQuantity"];
+
+
+                $BoMadd["RefDes"] = $PartDataLine["RefDes"];
+                if ($PartDataLine["Value"] == "DNP") $BoMadd["Quantity"] = 0;
+                else  $BoMadd["Quantity"] = 1;
+
+                $BoMadd["Value"] = $PartDataLine["Value"];
+                $BoMadd["Description"] = $r["Description"];
+            }
+            else
+            {
+                $BoMadd["PartNo"] = "Unknown " . $PartDataLine["PartNo"];
+                $BoMadd["ManufacturerPartNumber"] = "";
+                $BoMadd["Stock"] = 0;
+            }
+
+            $BoM[$PartDataLine["PartNo"]] = $BoMadd;
 		}
 	}
 
@@ -147,16 +133,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		//$PriceTotal += $PartDataLine["PaidPrice"]*$PartDataLine["Quantity"];
 
 		$bomLine['RefDes'] = $PartDataLine["RefDes"];
-		
-
-		
-		
 		$bomLine['Quantity'] = count(explode(",", $PartDataLine["RefDes"]));//$PartDataLine["Quantity"];
 		$bomLine['PartNo'] = $PartDataLine["PartNo"];
 		$bomLine['Name'] = $PartDataLine["ManufacturerPartNumber"];
 		$bomLine['Value'] = $PartDataLine["Value"];
-		$bomLine['Price'] = $PartDataLine["PaidPrice"];
 		$bomLine['Stock'] = $PartDataLine["Stock"];
+        $bomLine["Description"] = $PartDataLine["Description"];
 		
 		array_push($bom, $bomLine);
 	}
