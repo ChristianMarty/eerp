@@ -43,8 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["HideEmpty"]))
 	{
-		//if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) array_push($queryParam, "Quantity != 0");
-		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "partStock_getQuantity(partStock.StockNo) != 0";
+		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "partStock.Empty = '0'";
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);

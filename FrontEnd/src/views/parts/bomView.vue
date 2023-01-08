@@ -10,7 +10,7 @@
           <el-option
             v-for="item in analyzeOptions"
             :key="item"
-            :label="item.Titel"
+            :label="item.Title"
             :value="item.Path"
           />
         </el-select>
@@ -43,6 +43,7 @@
       :cell-style="{ padding: '0', height: '15px' }"
       style="width: 100%"
       :row-class-name="tableAnalyzer"
+      border
     ><el-table-column prop="PartNo" label="Part No" width="150" sortable>
        <template slot-scope="{ row }">
          <router-link
@@ -57,10 +58,7 @@
       <el-table-column prop="Description" label="Description" />
       <el-table-column prop="Quantity" label="Quantity" width="100" />
       <el-table-column prop="TotalQuantity" label="Total" width="100" />
-
       <el-table-column prop="Value" label="Description from CSV" />
-      <!-- <el-table-column prop="Name" label="Manufacturer Part" />
-    <el-table-column prop="Price" label="Price" width="100" />-->
       <el-table-column prop="Stock" label="Stock" width="100" />
       <el-table-column prop="Name" label="Manufacturer Parts" />
     </el-table>

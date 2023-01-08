@@ -59,8 +59,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$gctNr  = $r['OrderReference'];
 		$r['Barcode'] = "STK-".$r['StockNo'];
-		$date = new DateTime($r['Date']);
-		$r['DateCode'] = $date->format("yW");
+		if($r['Date']) {
+			$date = new DateTime($r['Date']);
+			$r['DateCode'] = $date->format("yW");
+		}else{
+			$r['DateCode'] = "";
+		}
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
 		$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
 		$r['OrderReference']  = $r['OrderReference'];

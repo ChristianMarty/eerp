@@ -4,6 +4,7 @@
       {{ partData.ManufacturerName }}
       {{ partData.ManufacturerPartNumber }}
     </h1>
+    <h2>{{ partData.Description }} </h2>
     <el-divider />
     <div class="components-container">
       <split-pane split="vertical" :default-percent="90" @resize="resize">

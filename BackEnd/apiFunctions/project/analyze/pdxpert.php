@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
-$titel = "PDXpert";
+$title = "PDXpert";
 $description = "";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -88,7 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
             $partNo = dbEscapeString($dbLink, $PartNo);
             $query = <<<STR
-                SELECT PartNo, Description, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, ",")  AS ManufacturerPartNumbers
+                SELECT PartNo, productionPart.Description, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers
                 FROM productionPart
                 LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
                 LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
@@ -103,7 +103,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
             {
                 $BoMadd["PartNo"] = $PartDataLine["PartNo"];
 
-                $BoMadd["ManufacturerPartNumber"] = substr($r["ManufacturerPartNumbers"], 0,-1);
+                //$BoMadd["ManufacturerPartNumber"] = substr($r["ManufacturerPartNumbers"], 0,-1);
+                $BoMadd["ManufacturerPartNumber"] = $r["ManufacturerPartNumbers"];
                 $BoMadd["Stock"] = $r["StockQuantity"];
 
 
@@ -140,7 +141,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$bomLine['Stock'] = $PartDataLine["Stock"];
         $bomLine["Description"] = $PartDataLine["Description"];
 		
-		array_push($bom, $bomLine);
+		$bom[] = $bomLine;
 	}
 	
 

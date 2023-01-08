@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$attributes[$id] = $r;
 	}
 
-	$baseQuery = "SELECT manufacturerPart.Id AS PartId, vendor.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, PartData, partPackage.name AS Package, Status, sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity, partClass_getName(partClass.Id) AS PartClassName FROM manufacturerPart ";
+	$baseQuery = "SELECT manufacturerPart.Id AS PartId, vendor.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Description, PartData, partPackage.name AS Package, Status, sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity, partClass_getName(partClass.Id) AS PartClassName FROM manufacturerPart ";
 	$baseQuery .= "LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId ";
 	$baseQuery .= "LEFT JOIN partPackage On partPackage.Id = manufacturerPart.PackageId ";
 	$baseQuery .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";

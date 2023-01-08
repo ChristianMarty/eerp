@@ -56,7 +56,7 @@ function getInfo($path, $file)
 	$filename = pathinfo($filePath,PATHINFO_FILENAME);
 	$output["FileName"] = $filename;
 	
-	$output["Titel"] = extractVariable($filePath,"titel");
+	$output["Title"] = extractVariable($filePath,"title");
 	$output["Description"] = extractVariable($filePath,"description");
 	$output["Path"] =  "/project/analyze/".$path."/".$filename;
 	
