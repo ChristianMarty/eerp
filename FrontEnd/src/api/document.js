@@ -138,6 +138,21 @@ class Document {
             }
           })
         })
+      },
+      purchaseOrderConfirmation(purchaseOrderParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/document/ingest/template/purchaseOrderConfirmation',
+            data: purchaseOrderParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
       }
     },
 

@@ -80,6 +80,13 @@
             @success="ingestSuccess()"
           />
 
+          <poQuoteConfirmation
+            v-if="selectedTemplate == 'poConfirmation'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
+
         </el-col>
 
       </el-row>
@@ -107,13 +114,14 @@ import poDeliveryNoteIngest from './components/ingestTemplates/purchaseOrderDeli
 import poInvoiceIngest from './components/ingestTemplates/purchaseOrderInvoice'
 import poReceiptIngest from './components/ingestTemplates/purchaseOrderReceipt'
 import poQuoteIngest from './components/ingestTemplates/purchaseOrderQuote'
+import poQuoteConfirmation from './components/ingestTemplates/purchaseOrderConfirmation'
 
 import Document from '@/api/document'
 const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest },
+  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation },
   data() {
     return {
       documentList: [],
@@ -137,6 +145,9 @@ export default {
       }, {
         value: 'poQuote',
         label: 'Purchase Order Quote'
+      }, {
+        value: 'poConfirmation',
+        label: 'Purchase Order Confirmation'
       }]
     }
   },
