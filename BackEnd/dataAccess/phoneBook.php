@@ -22,7 +22,6 @@ if($_GET["token"] != $phoneToken)
     exit;
 }
 
-
 function escape($input):string
 {
     $input = str_replace('&', '&amp;', $input);
@@ -35,7 +34,7 @@ function escape($input):string
 $dbLink = dbConnect();
 
 $query = <<< STR
-    SELECT Name, FirstName, LastName, CustomerNumber, Phone, Gender, Language, `E-Mail` AS EMail  FROM vendor
+    SELECT Name, ShortName, FirstName, LastName, CustomerNumber, Phone, Gender, Language, `E-Mail` AS EMail  FROM vendor
     LEFT JOIN vendor_contact ON vendor_contact.VendorId = vendor.Id
 STR;
 
@@ -43,28 +42,39 @@ $result = dbRunQuery($dbLink,$query);
 
 header("Content-type: text/xml");
 
-echo '<?xml version="1.0"?>';
 echo "<YealinkIPPhoneDirectory>";
 
 while($r = mysqli_fetch_assoc($result))
 {
-    $name = $r['Name'];
+	if(!$r['Phone']) continue;
+	
+	$number = $r['Phone'];
+	$number = str_replace(' ', '', $number);
+	$number = str_replace('-', '', $number);
+
+	if(str_starts_with($number, "+")) $number = "00".substr($number, 1);
+	if(str_starts_with($number, "0041")) $number = "0".substr($number, 4);
+	
+	if($r['ShortName']) $name = $r['ShortName'];	
+    else $name = $r['Name'];
+	
+	if($r['FirstName'] || $r['LastName']) $name .=";";
+	
     if($r['FirstName']) $name .= " ".$r['FirstName'];
     if($r['LastName']) $name .= " ".$r['LastName'];
 
     echo "<DirectoryEntry>";
     echo "<Name>".escape($name)."</Name>";
-    if($r['Phone']) echo "<Telephone>".str_replace(' ', '', escape($r['Phone']))."</Telephone>";
+    echo "<Telephone>".$number."</Telephone>";
     if($r['CustomerNumber']) echo '<Extra label="Customer Number">'.escape($r['CustomerNumber'])."</Extra>";
+	if($r['Name']) echo '<Extra label="Company">'.escape($r['Name'])."</Extra>";
     if($r['Gender']) echo '<Extra label="Gender">'.escape($r['Gender'])."</Extra>";
     if($r['Language']) echo '<Extra label="Language">'.escape($r['Language'])."</Extra>";
     if($r['EMail'])  echo '<Extra label="E-Mail">'.escape($r['EMail'])."</Extra>";
     echo "</DirectoryEntry>";
 }
 
-
 echo "</YealinkIPPhoneDirectory>";
-
 
 dbClose($dbLink);
 

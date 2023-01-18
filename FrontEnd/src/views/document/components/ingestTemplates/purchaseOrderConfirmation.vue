@@ -39,7 +39,7 @@ export default {
   methods: {
     ingest() {
       this.dialogData.FileName = this.fileInfo.FileName
-      document.ingest.template.purchaseOrderReceipt(this.dialogData).then(response => {
+      document.ingest.template.purchaseOrderConfirmation(this.dialogData).then(response => {
         this.$message({
           showClose: true,
           message: 'Changes saved successfully',
