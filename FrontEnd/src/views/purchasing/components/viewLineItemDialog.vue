@@ -44,18 +44,19 @@
         <el-table-column label="Reference" sortable>
           <template slot-scope="{ row }">
             <template v-if="row.Type == 'Part Stock'">
-              <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-                <span>STK-{{ row.StockNo }} </span>
+              <router-link :to="'/stock/item/' + row.Barcode" class="link-type">
+                <span>{{ row.Barcode }} </span>
               </router-link>
               <span style="float: right;"> Original Quantity: {{ row.CreateQuantity }} </span>
             </template>
             <template v-if="row.Type == 'Inventory'">
               <router-link
-                :to="'/inventory/inventoryView/' + row.InvNo"
+                :to="'/inventory/inventoryView/' + row.Barcode"
                 class="link-type"
               >
-                <span>Inv-{{ row.InvNo }}</span>
+                <span>{{ row.Barcode }} </span>
               </router-link>
+              <span style="float: right;"> {{ row.Description }} </span>
             </template>
           </template>
         </el-table-column>

@@ -13,6 +13,7 @@
       row-key="lineKey"
       :cell-style="{ padding: '0', height: '15px' }"
       :tree-props="{ children: 'Received' }"
+      :cell-class-name="tableAnalyzer"
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
       <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="100" />
@@ -152,6 +153,15 @@ export default {
     this.$refs.searchInput.focus()
   },
   methods: {
+    tableAnalyzer({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex !== 2) return ''
+
+      if (row.QuantityReceived >= row.QuantityOrderd) {
+        return 'success-row'
+      } else {
+        return 'warning-row'
+      }
+    },
     openConfirmDialog(dialogData) {
       this.showConfirmDialog = true
       this.receiveDialog = dialogData
@@ -298,3 +308,17 @@ export default {
   }
 }
 </script>
+
+<style>
+.el-table .warning-row {
+  background: oldlace;
+}
+.el-table .error-row {
+  background: Lavenderblush;
+}
+
+.el-table .success-row {
+  background: Honeydew;
+}
+
+</style>

@@ -29,20 +29,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$r['Type'] = "Part Stock";
-		$output[] = $r;
+        $temp = array();
+        $temp['Barcode'] = 'Stk-'.$r['StockNo'];
+        $temp['Type'] = "Part Stock";
+        $temp['Description'] = null;
+        $temp['CreateQuantity'] = $r['CreateQuantity'];;
+		$output[] = $temp;
 	}
 	
-	$query = "SELECT InvNo FROM inventory ";
+	$query = "SELECT InvNo, Title FROM inventory ";
 	$query .= "LEFT JOIN inventory_purchasOrderReference ON inventory_purchasOrderReference.InventoryId = inventory.Id ";
 	$query .= "WHERE ReceivalId = ".$receivalId;
 	$result = dbRunQuery($dbLink,$query);
 
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$r['Type'] = "Inventory";
-		$r['CreateQuantity'] = 1;
-		$output[] = $r;
+        $temp = array();
+        $temp['Barcode'] = 'Inv-'.$r['InvNo'];
+        $temp['Type'] = "Inventory";
+        $temp['CreateQuantity'] = null;
+        $temp['Description'] = $r['Title'];
+		$output[] = $temp;
 	}
 
 
