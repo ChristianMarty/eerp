@@ -34,6 +34,7 @@ function getDocuments($documentIds)
 			$r['Path'] = $dataRootPath.$documentPath."/".$r['Type']."/".$r['Path'];
 			$r['Barcode'] = "Doc-".$r['DocumentNumber'];
 			if($r['Barcode'] === null) $r['Barcode'] = "";
+            $r['Note'] = $r['Note'];
 			$documents[] = $r;
 		}
 	}
