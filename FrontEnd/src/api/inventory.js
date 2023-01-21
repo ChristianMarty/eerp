@@ -212,6 +212,20 @@ class Inventory {
           }
         })
       })
+    },
+    type() {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/inventory/purchase/type'
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
     }
   }
 

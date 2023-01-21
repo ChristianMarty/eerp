@@ -32,12 +32,22 @@
               :title="row.PurchaseOrderBarcode"
               placement="left"
               width="400"
-              trigger="hover"
+              trigger="click"
             >
               <el-form>
-                <el-form-item label="ReceivalId">{{ row.ReceivalId }}</el-form-item>
+                <!-- <el-form-item label="ReceivalId">{{ row.ReceivalId }}</el-form-item> -->
                 <el-form-item label="Quantity">
                   <el-input-number v-model="addQuantity" controls-position="right" :min="1" :max="10" @change="handleChange" />
+                </el-form-item>
+                <el-form-item label="Type">
+                  <el-select v-model="addCostType" controls-position="right" @change="handleChange">
+                    <el-option
+                      v-for="item in costType"
+                      :key="item"
+                      :label="item"
+                      :value="item"
+                    />
+                  </el-select>
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="addItem(row)">Add</el-button>
@@ -63,6 +73,7 @@
         >
           <p><b>{{ tag.SupplierName }} -  {{ tag.SupplierPartNumber }}</b></p>
           <p>{{ tag.Description }}</p>
+          <p><b>Type: </b>{{ tag.CostType }}</p>
           <p><b>Quantity: </b>{{ tag.Quantity }}</p>
 
           <el-tag
@@ -105,7 +116,9 @@ export default {
       purchaseData: [],
       poSearchInput: '',
       addQuantity: 1,
-      poData: {}
+      addCostType: null,
+      poData: {},
+      costType: []
     }
   },
   mounted() {
@@ -115,6 +128,8 @@ export default {
       // this.poData = []
       // this.poSearchInput = ''
       this.purchaseData = await inventory.purchase.search(this.$props.inventoryNumber)
+      this.costType = await inventory.purchase.type()
+      this.addCostType = this.costType[0]
     },
     searchPo() {
       purchase.item.search(this.poSearchInput).then(response => {
@@ -130,6 +145,7 @@ export default {
       data.Description = row.Description
       data.PurchaseOrderBarcode = row.PurchaseOrderBarcode
       data.Quantity = this.addQuantity
+      data.CostType = this.addCostType
       data.ReceivalId = row.ReceivalId
 
       this.purchaseData.push(data)

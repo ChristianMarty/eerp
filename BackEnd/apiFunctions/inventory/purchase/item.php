@@ -18,13 +18,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["InventoryNumber"]) ) sendResponse(Null,"Inventory Number not set");
 	
 	$inventoryNumber = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
-	if(!$inventoryNumber)sendResponse(Null,"Inventory Number invalide");
+	if(!$inventoryNumber)sendResponse(Null,"Inventory Number invalid");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
 	// Get Purchase Information
-	$query  = "SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, purchasOrder_itemReceive.Id AS ReceivalId ";
+	$query  = "SELECT PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, purchasOrder_itemReceive.Id AS ReceivalId, inventory_purchasOrderReference.Type AS CostType ";
 	$query .= "FROM inventory_purchasOrderReference ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id ";
 	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
@@ -32,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN vendor ON purchasOrder.VendorId = vendor.Id ";
 	$query .= "LEFT JOIN finance_currency ON purchasOrder.CurrencyId = finance_currency.Id ";
 	$query .= "WHERE inventory_purchasOrderReference.InventoryId = (SELECT Id from inventory WHERE InvNo = {$inventoryNumber})";
-	
+
 	$purchase = array();
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -50,8 +50,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$por["Quantity"] = intval($por['Quantity']);
 			$por["PurchaseOrderNumber"] = $por['PoNo'];
 			$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
-			$por['PoNo'] ="PO-".$por['PoNo']; 
-			
+			$por['PoNo'] ="PO-".$por['PoNo'];
 			
 			//$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
 			
@@ -88,14 +87,14 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$receivalIdList = array();
 	foreach($purchaseOrderItems as $item)
 	{
-		
+        $costType = dbEscapeString($dbLink,$item['CostType']);
 		$quantity = dbEscapeString($dbLink,$item['Quantity']);
 		$receivalId = dbEscapeString($dbLink,$item['ReceivalId']);
 		$receivalIdList[] = $receivalId;
 		
 		$query  = "INSERT IGNORE INTO inventory_purchasOrderReference SET ";
-		$query .= "InventoryId = {$id}, Quantity = {$quantity}, ReceivalId = {$receivalId};";
-		
+		$query .= "InventoryId = {$id}, Quantity = {$quantity}, ReceivalId = {$receivalId}, Type = '{$costType}';";
+
 		$result = dbRunQuery($dbLink,$query);
 		
 		if(!$result)

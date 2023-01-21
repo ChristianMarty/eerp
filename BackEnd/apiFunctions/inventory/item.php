@@ -82,7 +82,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	
 	// Get Purchase Information
-	$query  = "SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber  ";
+	$query  = "SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, inventory_purchasOrderReference.Type AS CostType  ";
 	$query .= "FROM inventory_purchasOrderReference ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id ";
 	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
@@ -93,16 +93,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$purchase = array();
 	$result = dbRunQuery($dbLink,$query);
-	$totalPrice = 0;
+	$totalPurchase = 0;
+	$totalMaintenance = 0;
 	while($por = mysqli_fetch_assoc($result))
 	{
 		$por["PurchaseOrderNumber"] = $por['PoNo'];
 		$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
 		$por['PoNo'] ="PO-".$por['PoNo']; 
-		
-		
-		$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
-		
+
+		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity'];
+		if($por['CostType'] == 'Purchase')  $totalPurchase += $price;
+		else $totalMaintenance += $price;
+
 		$purchase[] = $por;
 	}
 	
@@ -120,6 +122,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$row["OrderReference"] = null;
 		$row["VendorId"] = 0;
 		$row["Quantity"] = 1;
+		$row["CostType"] = 'Legacy Purchase';
 		$row["Description"] = "";
 		
 		$totalPrice = $row["Price"];
@@ -128,9 +131,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$output["PurchaseInformation"] = $purchase;
-	
-	$output["TotalPrice"] =  round($totalPrice, 2);
-	$output["TotalCurrency"] = "CHF"; //TODO: FIx  $purchase[0]["Currency"];
+
+	$output["TotalPurchaseCost"] =  round($totalPurchase, 2);
+	$output["TotalMaintenanceCost"] =  round($totalMaintenance, 2);
+	$output["TotalCostOfOwnership"] =  round($totalPurchase+$totalMaintenance, 2);
+	$output["TotalCurrency"] = "CHF"; //TODO: Fix  $purchase[0]["Currency"];
 	
 	// Get Accessory
 	

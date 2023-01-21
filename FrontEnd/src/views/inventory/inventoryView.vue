@@ -108,6 +108,7 @@
           </router-link>
         </template>
       </el-table-column>
+      <el-table-column prop="CostType" label="Type" width="120" sortable />
       <el-table-column prop="Quantity" label="Quantity" width="120" sortable />
       <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="Price" label="Price" width="140" align="right" header-align="left">
@@ -131,8 +132,16 @@
     </el-table>
 
     <p>
-      <b>Total Price:</b>
-      {{ inventoryData.TotalPrice }} {{ inventoryData.TotalCurrency }}
+      <b>Total Purchase Cost:</b>
+      {{ inventoryData.TotalPurchaseCost }} {{ inventoryData.TotalCurrency }}
+    </p>
+    <p>
+      <b>Total Maintenance Cost:</b>
+      {{ inventoryData.TotalMaintenanceCost }} {{ inventoryData.TotalCurrency }}
+    </p>
+    <p>
+      <b>Total Cost of Ownership:</b>
+      {{ inventoryData.TotalCostOfOwnership }} {{ inventoryData.TotalCurrency }}
     </p>
 
     <el-divider />
