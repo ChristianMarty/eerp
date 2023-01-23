@@ -146,6 +146,9 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData['QuotationNumber'] = $data['data']['QuotationNumber'];
 	$poData['OrderNumber'] = $data['data']['OrderNumber'];
 	$poData['Description'] = $data['data']['Description'];
+	$poData['Carrier'] = $data['data']['Carrier'];
+	$poData['PaymentTerms'] = $data['data']['PaymentTerms'];
+	$poData['InternationalCommercialTerms'] = $data['data']['InternationalCommercialTerms'];
 	$poData['HeadNote'] = $data['data']['HeadNote'];
 	$poData['FootNote'] = $data['data']['FootNote'];
 	$poData['CurrencyId'] = intval($data['data']['CurrencyId']);

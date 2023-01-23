@@ -66,6 +66,18 @@
       {{ orderData.Description }}
     </p>
     <p>
+      <b>Payment Terms:</b>
+      {{ orderData.PaymentTerms }}
+    </p>
+    <p>
+      <b>Incoterms:</b>
+      {{ orderData.InternationalCommercialTerms }}
+    </p>
+    <p>
+      <b>Carrier:</b>
+      {{ orderData.Carrier }}
+    </p>
+    <p>
       <b>Head Note:</b>
       {{ orderData.HeadNote }}
     </p>
@@ -185,6 +197,30 @@
 
         <el-form-item label="Description:">
           <el-input v-model="dialogData.Description" type="textarea" placeholder="Description" />
+        </el-form-item>
+
+        <el-form-item label="Payment Terms:">
+          <el-input
+            v-model="dialogData.PaymentTerms"
+            style="width: 350px"
+            placeholder="Payment Terms"
+          />
+        </el-form-item>
+
+        <el-form-item label="Incoterms:">
+          <el-input
+            v-model="dialogData.InternationalCommercialTerms"
+            style="width: 350px"
+            placeholder="International Commercial Terms"
+          />
+        </el-form-item>
+
+        <el-form-item label="Carrier:">
+          <el-input
+            v-model="dialogData.Carrier"
+            style="width: 350px"
+            placeholder="Carrier"
+          />
         </el-form-item>
 
         <el-form-item label="Head Note:">
