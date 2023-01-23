@@ -47,7 +47,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		while($por = mysqli_fetch_assoc($result))
 		{	
 			$por["ReceivalId"] = intval($por['ReceivalId']);
-			$por["Quantity"] = intval($por['Quantity']);
+			$por["Quantity"] = floatval($por['Quantity']);
 			$por["PurchaseOrderNumber"] = $por['PoNo'];
 			$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
 			$por['PoNo'] ="PO-".$por['PoNo'];

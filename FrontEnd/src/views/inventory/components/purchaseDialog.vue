@@ -37,7 +37,7 @@
               <el-form>
                 <!-- <el-form-item label="ReceivalId">{{ row.ReceivalId }}</el-form-item> -->
                 <el-form-item label="Quantity">
-                  <el-input-number v-model="addQuantity" controls-position="right" :min="1" :max="10" @change="handleChange" />
+                  <el-input-number v-model="addQuantity" controls-position="right" :min="0.01" :max="999" :precision="2" @change="handleChange" />
                 </el-form-item>
                 <el-form-item label="Type">
                   <el-select v-model="addCostType" controls-position="right" @change="handleChange">
