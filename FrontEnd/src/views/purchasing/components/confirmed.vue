@@ -46,6 +46,16 @@
         </template>
       </el-table-column>
 
+      <el-table-column width="100">
+        <template slot-scope="{ row }">
+          <el-button
+            type="text"
+            size="mini"
+            @click="openViewLineItemDialog(row)"
+          >Details</el-button>
+        </template>
+      </el-table-column>
+
       <el-table-column width="150px">
         <template slot-scope="{ row }">
           <el-button
@@ -81,6 +91,8 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <viewLineItemDialog :visible.sync="showLineDialog" :line="viewLine" />
 
     <el-dialog title="Confirm Item Received" :visible.sync="showConfirmDialog" width="50%" center>
 
@@ -125,9 +137,10 @@ import requestBN from '@/utils/requestBN'
 import addToStock from './addToStockDialog'
 import trackDialog from './trackDialog'
 import permission from '@/directive/permission/index.js'
+import viewLineItemDialog from './viewLineItemDialog'
 
 export default {
-  components: { addToStock, trackDialog },
+  components: { addToStock, trackDialog, viewLineItemDialog },
   directives: { permission },
   props: { orderData: { type: Object, default: null }},
   data() {
@@ -141,7 +154,10 @@ export default {
       trackDialogVisible: false,
       rowReceivalId: 0,
       searchInput: '',
-      rowReceivalData: {}
+      rowReceivalData: {},
+
+      showLineDialog: false,
+      viewLine: {}
 
     }
   },
@@ -161,6 +177,10 @@ export default {
       } else {
         return 'warning-row'
       }
+    },
+    openViewLineItemDialog(row) {
+      this.showLineDialog = true
+      this.viewLine = row
     },
     openConfirmDialog(dialogData) {
       this.showConfirmDialog = true
