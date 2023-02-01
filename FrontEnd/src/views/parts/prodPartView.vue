@@ -72,6 +72,114 @@
     <p><b>Stock Warning:</b> {{ partData.StockWarning }}</p>
     <p><b>Stock Maximum:</b> {{ partData.StockMaximum }}</p>
 
+    <h2>Lead Time Reference</h2>
+    <el-table
+      :data="leadTime.Data"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column
+        prop="LeadTime"
+        label="Lead Time"
+        sortable
+        width="120"
+      />
+      <el-table-column
+        prop="Weight"
+        label="Weight"
+        sortable
+        width="100"
+      />
+      <el-table-column
+        prop="InformationSource"
+        label="Information Source"
+        sortable
+        width="200"
+      />
+      <el-table-column
+        prop="InformationDate"
+        label="Information Date"
+        sortable
+        width="200"
+      />
+      <el-table-column
+        prop="ManufacturerPart"
+        label="Manufacturer Part"
+        sortable
+        width="200"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+            class="link-type"
+          >
+            <span>{{ row.ManufacturerPart }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="Note"
+        label="Note"
+      />
+    </el-table>
+    <p><b>Minimum:</b> {{ leadTime.Statistics.Minimum }}</p>
+    <p><b>Maximum:</b> {{ leadTime.Statistics.Maximum }}</p>
+    <p><b>Average:</b> {{ leadTime.Statistics.Average }}</p>
+    <p><b>Weighted Average:</b> {{ leadTime.Statistics.WeightedAverage }}</p>
+
+    <h2>Price Reference</h2>
+    <el-table
+      :data="price.Data"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column
+        prop="Price"
+        label="Price"
+        sortable
+        width="120"
+      />
+      <el-table-column
+        prop="Weight"
+        label="Weight"
+        sortable
+        width="100"
+      />
+      <el-table-column
+        prop="InformationSource"
+        label="Information Source"
+        sortable
+        width="200"
+      />
+      <el-table-column
+        prop="InformationSource"
+        label="Information Source"
+        sortable
+        width="200"
+      />
+      <el-table-column
+        prop="ManufacturerPart"
+        label="Manufacturer Part"
+        sortable
+        width="200"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+            class="link-type"
+          >
+            <span>{{ row.ManufacturerPart }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="Note"
+        label="Note"
+      />
+    </el-table>
+    <p><b>Minimum:</b> {{ price.Statistics.Minimum }}</p>
+    <p><b>Maximum:</b> {{ price.Statistics.Maximum }}</p>
+    <p><b>Average:</b> {{ price.Statistics.Average }}</p>
+    <p><b>Weighted Average:</b> {{ price.Statistics.WeightedAverage }}</p>
+
     <h2>Purchase Orders</h2>
 
     <el-table
@@ -122,7 +230,9 @@ export default {
     return {
       partData: null,
       purchaseOrder: null,
-      purchaseOrderData: null
+      purchaseOrderData: null,
+      leadTime: null,
+      price: null
     }
   },
   mounted() {
@@ -146,6 +256,8 @@ export default {
       }).then(response => {
         this.partData = response.data
         this.getPurchasOrder()
+        this.getLeadTime()
+        this.getPrice()
       })
     },
     getPartLookup() {
@@ -155,6 +267,24 @@ export default {
         params: { PartNo: this.$route.params.partNo }
       }).then(response => {
         this.partLookup = response.data
+      })
+    },
+    getLeadTime() {
+      requestBN({
+        url: '/productionPart/leadTime',
+        methood: 'get',
+        params: { ProductionPartNumber: this.$route.params.partNo }
+      }).then(response => {
+        this.leadTime = response.data
+      })
+    },
+    getPrice() {
+      requestBN({
+        url: '/productionPart/price',
+        methood: 'get',
+        params: { ProductionPartNumber: this.$route.params.partNo }
+      }).then(response => {
+        this.price = response.data
       })
     },
     getPurchasOrder() {
@@ -179,3 +309,10 @@ export default {
   }
 }
 </script>
+
+<style>
+h2 {
+  margin-top: 80px;
+}
+</style>
+

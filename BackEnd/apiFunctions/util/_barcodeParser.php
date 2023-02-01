@@ -45,4 +45,27 @@ function barcodeParser_PurchaseOrderNumber($input): bool|int
 
     return intval($poCodeParts[1]);
 }
+
+function barcodeParser_ProductionPart($input): bool|string
+{
+    return $input;
+
+    // TODO: Fix this
+
+    $poCode = trim($input);
+    $poCode = strtolower($poCode);
+
+    if( substr_count($poCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($poCode)) return false;
+        return intval($poCode);
+    }
+
+    $poCodeParts = explode('-',$poCode);
+
+    //if($poCodeParts[0] != "po") return false; //TODO: check prefix
+    if(!is_numeric($poCodeParts[1])) return false;
+
+    return intval($poCodeParts[1]);
+}
 ?>
