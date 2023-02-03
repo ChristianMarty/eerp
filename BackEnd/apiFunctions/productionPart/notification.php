@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-	$query  = "productionPart_getQuantity(numbering.Id, productionPart.Number) as StockQuantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning FROM productionPart ";
+	$query  = "SELECT CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartNumber, productionPart_getQuantity(numbering.Id, productionPart.Number) as StockQuantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning, productionPart.Description FROM productionPart ";
     $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
     $query .= "WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null";
 

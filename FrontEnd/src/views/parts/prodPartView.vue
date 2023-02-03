@@ -132,7 +132,7 @@
         label="Note"
       />
     </el-table>
-    <p></p>
+    <p />
     <table>
       <tr>
         <td><b>Minimum:</b></td>
@@ -207,7 +207,7 @@
         label="Note"
       />
     </el-table>
-    <p></p>
+    <p />
     <table>
       <tr>
         <td><b>Minimum:</b></td>

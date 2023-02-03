@@ -19,14 +19,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
     $query .= "WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null";
 
-    
-    //echo $query;
-	//exit;
-	
 	$result = mysqli_query($dbLink,$query);
-	
-	
-	
+
 	$warningNotifications = 0;
 	$minimumNotifications = 0;
 	$maximumNotifications = 0;

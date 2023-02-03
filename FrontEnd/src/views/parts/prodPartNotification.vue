@@ -9,13 +9,13 @@
       style="width: 100%"
       :row-class-name="tableAnalyzer"
     >
-      <el-table-column prop="PartNo" sortable label="Part No" width="120">
+      <el-table-column prop="ProductionPartNumber" sortable label="Part No" width="120">
         <template slot-scope="{ row }">
           <router-link
-            :to="'/prodParts/prodPartView/' + row.PartNo"
+            :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
             class="link-type"
           >
-            <span>{{ row.PartNo }}</span>
+            <span>{{ row.ProductionPartNumber }}</span>
           </router-link>
         </template>
       </el-table-column>
