@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
     $query = <<< STR
-        SELECT Price, Weight, InformationSource, InformationDate, Note, CurrencyCode, productionPartMapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName FROM  part_referencePrice
+        SELECT Price, MinimumOrderQuantity, Weight, InformationSource, InformationDate, Note, CurrencyCode, productionPartMapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName FROM  part_referencePrice
         LEFT JOIN productionPartMapping ON part_referencePrice.ManufacturerPartId = productionPartMapping.ManufacturerPartId
         LEFT JOIN productionPart ON productionPartMapping.ProductionPartId = productionPart.Id OR part_referencePrice.ProductionPartId = productionPart.Id
         LEFT JOIN finance_currency ON part_referencePrice.CurrencyId = finance_currency.Id
@@ -62,10 +62,23 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	dbClose($dbLink);
 
-    $output['Statistics']['Minimum'] = $minimum;
-    $output['Statistics']['Maximum'] = $maximum;
-    $output['Statistics']['Average'] = round($averageSum / count($output['Data']),2);
-    $output['Statistics']['WeightedAverage'] =  round($weightedAverageSum / $weightSum,2);
+
+	if(count($output['Data']))
+	{
+		$output['Statistics']['Minimum'] = round($minimum,6);
+		$output['Statistics']['Maximum'] = round($maximum,6);
+		$output['Statistics']['Average'] = round($averageSum / count($output['Data']),6);
+		$output['Statistics']['WeightedAverage'] =  round($weightedAverageSum / $weightSum,6);
+	}
+	else
+	{
+		$output['Statistics']['Minimum'] = null;
+		$output['Statistics']['Maximum'] = null;
+		$output['Statistics']['Average'] = null;
+		$output['Statistics']['WeightedAverage'] =  null;
+	}
+	
+		
 
 	sendResponse($output);
 }

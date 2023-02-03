@@ -60,11 +60,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 
 	dbClose($dbLink);
-
-    $output['Statistics']['Minimum'] = $minimum;
-    $output['Statistics']['Maximum'] = $maximum;
-    $output['Statistics']['Average'] = round($averageSum / count($output['Data']),2);
-    $output['Statistics']['WeightedAverage'] =  round($weightedAverageSum / $weightSum,2);
+	
+	if(count($output['Data']))
+	{
+		$output['Statistics']['Minimum'] = intval($minimum);
+		$output['Statistics']['Maximum'] = intval($maximum);
+		$output['Statistics']['Average'] = intval($averageSum / count($output['Data']));
+		$output['Statistics']['WeightedAverage'] =  intval($weightedAverageSum / $weightSum);
+	}
+	else
+	{
+		$output['Statistics']['Minimum'] = null;
+		$output['Statistics']['Maximum'] = null;
+		$output['Statistics']['Average'] = null;
+		$output['Statistics']['WeightedAverage'] =  null;
+	}
 
 	sendResponse($output);
 }
