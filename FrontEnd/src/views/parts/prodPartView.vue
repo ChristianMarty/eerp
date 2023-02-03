@@ -68,9 +68,20 @@
     <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
 
     <h2>Stock Notification</h2>
-    <p><b>Stock Minimum:</b> {{ partData.StockMinimum }}</p>
-    <p><b>Stock Warning:</b> {{ partData.StockWarning }}</p>
-    <p><b>Stock Maximum:</b> {{ partData.StockMaximum }}</p>
+    <table>
+      <tr>
+        <td><b>Minimum:</b></td>
+        <td>{{ partData.StockMinimum }}</td>
+      </tr>
+      <tr>
+        <td><b>Maximum:</b></td>
+        <td>{{ partData.StockMaximum }}</td>
+      </tr>
+      <tr>
+        <td><b>Warning:</b></td>
+        <td>{{ partData.StockWarning }}</td>
+      </tr>
+    </table>
 
     <h2>Lead Time Reference</h2>
     <el-table
@@ -121,10 +132,25 @@
         label="Note"
       />
     </el-table>
-    <p><b>Minimum:</b> {{ leadTime.Statistics.Minimum }}</p>
-    <p><b>Maximum:</b> {{ leadTime.Statistics.Maximum }}</p>
-    <p><b>Average:</b> {{ leadTime.Statistics.Average }}</p>
-    <p><b>Weighted Average:</b> {{ leadTime.Statistics.WeightedAverage }}</p>
+    <p></p>
+    <table>
+      <tr>
+        <td><b>Minimum:</b></td>
+        <td>{{ leadTime.Statistics.Minimum }}</td>
+      </tr>
+      <tr>
+        <td><b>Maximum:</b></td>
+        <td>{{ leadTime.Statistics.Maximum }}</td>
+      </tr>
+      <tr>
+        <td><b>Average:</b></td>
+        <td>{{ leadTime.Statistics.Average }}</td>
+      </tr>
+      <tr>
+        <td><b>Weighted Average:</b></td>
+        <td>{{ leadTime.Statistics.WeightedAverage }}</td>
+      </tr>
+    </table>
 
     <h2>Price Reference</h2>
     <el-table
@@ -136,6 +162,12 @@
         label="Price"
         sortable
         width="120"
+      />
+      <el-table-column
+        prop="MinimumOrderQuantity"
+        label="MOQ"
+        sortable
+        width="100"
       />
       <el-table-column
         prop="Weight"
@@ -150,8 +182,8 @@
         width="200"
       />
       <el-table-column
-        prop="InformationSource"
-        label="Information Source"
+        prop="InformationDate"
+        label="Information Date"
         sortable
         width="200"
       />
@@ -175,10 +207,25 @@
         label="Note"
       />
     </el-table>
-    <p><b>Minimum:</b> {{ price.Statistics.Minimum }}</p>
-    <p><b>Maximum:</b> {{ price.Statistics.Maximum }}</p>
-    <p><b>Average:</b> {{ price.Statistics.Average }}</p>
-    <p><b>Weighted Average:</b> {{ price.Statistics.WeightedAverage }}</p>
+    <p></p>
+    <table>
+      <tr>
+        <td><b>Minimum:</b></td>
+        <td>{{ price.Statistics.Minimum }}</td>
+      </tr>
+      <tr>
+        <td><b>Maximum:</b></td>
+        <td>{{ price.Statistics.Maximum }}</td>
+      </tr>
+      <tr>
+        <td><b>Average:</b></td>
+        <td>{{ price.Statistics.Average }}</td>
+      </tr>
+      <tr>
+        <td><b>Weighted Average:</b></td>
+        <td>{{ price.Statistics.WeightedAverage }}</td>
+      </tr>
+    </table>
 
     <h2>Purchase Orders</h2>
 
@@ -215,7 +262,7 @@
       />
 
     </el-table>
-    <p><b>Total Order Quantity: </b>{{ purchaseOrder.TotalOrderQuantity }}</p>
+    <p><b>Total Order Quantity: </b> {{ purchaseOrder.TotalOrderQuantity }}</p>
     <p><b>Pending Order Quantity: </b>{{ purchaseOrder.PendingOrderQuantity }}</p>
 
   </div>
@@ -252,7 +299,7 @@ export default {
       requestBN({
         url: '/productionPart/item',
         methood: 'get',
-        params: { PartNo: this.$route.params.partNo }
+        params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.partData = response.data
         this.getPurchasOrder()
@@ -264,7 +311,7 @@ export default {
       requestBN({
         url: '/productionPart/partLookup',
         methood: 'get',
-        params: { PartNo: this.$route.params.partNo }
+        params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.partLookup = response.data
       })
@@ -291,7 +338,7 @@ export default {
       requestBN({
         url: '/purchasing/partPurchase',
         methood: 'get',
-        params: { ProductionPartNo: this.$route.params.partNo }
+        params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.purchaseOrder = response.data
         this.purchaseOrderData = this.purchaseOrder.PurchaseOrderData

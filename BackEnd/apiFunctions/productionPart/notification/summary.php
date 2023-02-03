@@ -13,14 +13,14 @@ require_once __DIR__ . "/../../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
+    $dbLink = dbConnect();
 
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+	$query = "SELECT productionPart_getQuantity(numbering.Id, productionPart.Number) as StockQuantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning FROM productionPart ";
+    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
+    $query .= "WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null";
 
-	$query = "SELECT productionPart.PartNo, productionPart_getQuantity(productionPart.PartNo) as StockQuantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning FROM productionPart "; 
-	$query .= "WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null";
-	
-	//echo $query;
+    
+    //echo $query;
 	//exit;
 	
 	$result = mysqli_query($dbLink,$query);

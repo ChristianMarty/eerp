@@ -210,13 +210,13 @@
                       <b>Production Parts</b>
                     </template>
                     <el-table :data="productionPartData" style="width: 100%">
-                      <el-table-column prop="PartNo" label="Part No" sortable width="100">
+                      <el-table-column prop="ProductionPartNumber" label="Part No" sortable width="100">
                         <template slot-scope="{ row }">
                           <router-link
-                            :to="'/prodParts/prodPartView/' + row.PartNo"
+                            :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
                             class="link-type"
                           >
-                            <span>{{ row.PartNo }}</span>
+                            <span>{{ row.ProductionPartNumber }}</span>
                           </router-link>
                         </template>
                       </el-table-column>

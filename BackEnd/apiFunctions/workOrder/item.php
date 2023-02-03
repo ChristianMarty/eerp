@@ -39,6 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$partUsed = array();
 
+
     $query = <<<STR
     SELECT  prodPart.ProductionPartNumber, partStock.StockNo AS StockNumber, ManufacturerPartNumber, vendor.Name as ManufacturerName, partStock_history.Quantity, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price
     FROM partStock_history
@@ -46,8 +47,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId
     LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId
     LEFT JOIN (
-        SELECT GROUP_CONCAT(productionPart.PartNo) AS ProductionPartNumber, ManufacturerPartId FROM productionPartMapping 
+        SELECT GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number)) AS ProductionPartNumber, ManufacturerPartId FROM productionPartMapping 
         LEFT JOIN productionPart On productionPart.Id = productionPartMapping.ProductionPartId
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         GROUP BY ManufacturerPartId
     )prodPart On prodPart.ManufacturerPartId = manufacturerPart.Id
     WHERE partStock_history.workOrderId = $workOrderId

@@ -14,7 +14,7 @@ require_once __DIR__ . "/../../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	
-	if(!isset($_GET["ManufacturerPartId"]) && !isset($_GET["ProductionPartNo"])) sendResponse(NULL,"ManufacturerPartId or ProductionPartNo Required!");
+	if(!isset($_GET["ManufacturerPartId"]) && !isset($_GET["ProductionPartNumber"])) sendResponse(NULL,"ManufacturerPartId or ProductionPartNumber Required!");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
@@ -25,6 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = supplierPart.ManufacturerPartId ";
 	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
 	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
+    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
 	
 	$parameters = array();
 	
@@ -32,9 +33,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$parameters[] = 'supplierPart.ManufacturerPartId = ' . dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
 	}
-	else if(isset($_GET["ProductionPartNo"]))
+	else if(isset($_GET["ProductionPartNumber"]))
 	{
-		$parameters[] = "productionPart.PartNo = '" . dbEscapeString($dbLink, $_GET["ProductionPartNo"]) . "'";
+		$parameters[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = '" . dbEscapeString($dbLink, $_GET["ProductionPartNumber"]) . "'";
 	}
 	else
 	{

@@ -29,7 +29,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN productionPart ON productionPartMapping.ProductionPartId = productionPart.Id OR part_referenceLeadTime.ProductionPartId = productionPart.Id
         LEFT JOIN manufacturerPart ON manufacturerPart.Id = productionPartMapping.ManufacturerPartId
         LEFT JOIN vendor ON manufacturerPart.VendorId = vendor.Id
-        WHERE productionPart.PartNo = '$partNumber';
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$partNumber';
     STR;
 
 	$result = mysqli_query($dbLink,$query);

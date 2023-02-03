@@ -19,9 +19,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$hideNoManufacturerPart = false;
 	if(isset($_GET["HideNoManufacturerPart"])) $hideNoManufacturerPart = filter_var($_GET["HideNoManufacturerPart"], FILTER_VALIDATE_BOOLEAN);
 	
-	$query  = "SELECT productionPart.PartNo, Description FROM productionPart ";
+	$query  = "SELECT numbering.Prefix, productionPart.Number, Description FROM productionPart ";
 	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id ";
-	
+    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
+
 	$queryParam = array();
 	
 	if(isset($_GET["ManufacturerPartId"]))
@@ -29,10 +30,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
 		$queryParam[] = "productionPartMapping.ManufacturerPartId = '" . $temp . "'";
 	}
-	else if(isset($_GET["ProductionPartNo"]))
+	else if(isset($_GET["ProductionPartNumber"]))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
-		$queryParam[] = "productionPart.PartNo LIKE '" . $temp . "'";
+		$temp = dbEscapeString($dbLink, $_GET["ProductionPartNumber"]);
+		$queryParam[] = " CONCAT(numbering.Prefix,'-',productionPart.Number) LIKE '" . $temp . "'";
 	}
 	
 	if($hideNoManufacturerPart)
@@ -50,6 +51,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$rowcount = mysqli_num_rows($result);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+        $r['ProductionPartNumber'] = $r['Prefix']."-".$r['Number'];
 		unset($r['Id']);
 		$rows[] = $r;
 	}

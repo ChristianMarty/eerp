@@ -13,27 +13,18 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["PartNo"])) sendResponse(NULL, "Part Number Undefined");
+	if(!isset($_GET["ProductionPartNumber"])) sendResponse(NULL, "Production Part Number Undefined");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$partNo = dbEscapeString($dbLink, $_GET["PartNo"]);
+	$partNo = dbEscapeString($dbLink, $_GET["ProductionPartNumber"]);
 
-	$rows = array();
 	$query = "SELECT vendor.Name AS ManufacturerName, ManufacturerPartNumber, Description FROM partLookup "; 
-	$query .= "LEFT JOIN vendor ON vendor.Id = partLookup.ManufacturerId ";
+	$query .= "LEFT JOIN vendor ON vendor.Id = partLookup.VendorId ";
 	$query .= "WHERE partLookup.PartNo = '".$partNo."'";
-	
 
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	
 	$result = mysqli_query($dbLink,$query);
-	
-	
+
+    $rows = array();
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$rows[] = $r;

@@ -14,19 +14,20 @@ require_once __DIR__ . "/../../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	
-	if(!isset($_GET["PartNo"])) sendResponse(NULL, "Part Number Undefined");
+	if(!isset($_GET["ProductionPartNumber"])) sendResponse(NULL, "Production Part Number Undefined");
 
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$partNo = dbEscapeString($dbLink, $_GET["PartNo"]);
+	$partNo = dbEscapeString($dbLink, $_GET["ProductionPartNumber"]);
 
-	$query = "SELECT productionPart.Description AS ProductionPartDescription, manufacturerPart.Id AS PartId, vendor.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart "; 
+	$query = "SELECT numbering.Prefix, productionPart.Number, productionPart.Description AS ProductionPartDescription, manufacturerPart.Id AS PartId, vendor.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart ";
 	$query .= "LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId ";
 	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
 	$query .= "LEFT JOIN partStock ON partStock.ManufacturerPartId = manufacturerPart.Id ";
 	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-	$query .= "WHERE productionPart.PartNo = '".$partNo."'";
+    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
+	$query .= "WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '".$partNo."'";
 
 	$result = mysqli_query($dbLink,$query);
 	
