@@ -62,8 +62,9 @@ export default {
     },
     getSuppliers() {
       requestBN({
-        url: '/supplier',
-        methood: 'get'
+        url: '/vendor',
+        methood: 'get',
+        params: { Supplier: false, Manufacturer: false }
       }).then(response => {
         this.suppliers = response.data
       })
