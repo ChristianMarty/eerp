@@ -88,7 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
             $partNo = dbEscapeString($dbLink, $PartNo);
             $query = <<<STR
-                SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers
+                SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers, Cache_ReferencePrice_WeightedAverage, Cache_PurchasePrice_WeightedAverage
                 FROM productionPart
                 LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
                 LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
@@ -108,6 +108,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
                 $BoMadd["ManufacturerPartNumber"] = $r["ManufacturerPartNumbers"];
                 $BoMadd["Stock"] = $r["StockQuantity"];
 
+                $BoMadd["Cache_ReferencePrice_WeightedAverage"] = $r["Cache_ReferencePrice_WeightedAverage"];
+                $BoMadd["Cache_PurchasePrice_WeightedAverage"] = $r["Cache_PurchasePrice_WeightedAverage"];
 
                 $BoMadd["RefDes"] = $PartDataLine["RefDes"];
                 if ($PartDataLine["Value"] == "DNP") $BoMadd["Quantity"] = 0;
@@ -141,6 +143,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$bomLine['Value'] = $PartDataLine["Value"];
 		$bomLine['Stock'] = $PartDataLine["Stock"];
         $bomLine["Description"] = $PartDataLine["Description"];
+        $bomLine["ReferencePriceWeightedAverage"] = $PartDataLine["Cache_ReferencePrice_WeightedAverage"];
+        $bomLine["PurchasePriceWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
 		
 		$bom[] = $bomLine;
 	}

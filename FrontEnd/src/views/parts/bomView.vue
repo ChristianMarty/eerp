@@ -61,6 +61,10 @@
       <el-table-column prop="Value" label="Description from CSV" />
       <el-table-column prop="Stock" label="Stock" width="100" />
       <el-table-column prop="Name" label="Manufacturer Parts" />
+
+      <el-table-column prop="ReferencePriceWeightedAverage" label="Reference Price" />
+      <el-table-column prop="PurchasePriceWeightedAverage" label="Purchase Price" />
+      <el-table-column prop="ReferenceLeadTimeWeightedAverage" label="Purchase Lead Time" />
     </el-table>
   </div>
 </template>
