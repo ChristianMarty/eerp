@@ -66,8 +66,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$output['Statistics']['Minimum'] = intval($minimum);
 		$output['Statistics']['Maximum'] = intval($maximum);
-		$output['Statistics']['Average'] = intval($averageSum / count($output['Data']));
-		$output['Statistics']['WeightedAverage'] =  intval($weightedAverageSum / $weightSum);
+		$output['Statistics']['Average'] = round($averageSum / count($output['Data']),1);
+		$output['Statistics']['WeightedAverage'] =  round($weightedAverageSum / $weightSum,1);
 	}
 	else
 	{
