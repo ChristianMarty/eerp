@@ -43,8 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
-	
-	$query .= " GROUP BY purchasOrder_itemOrder.PurchasOrderId";
+	$query .= " GROUP BY purchasOrder_itemOrder.Id";
 
 	$result = dbRunQuery($dbLink,$query);
 
@@ -82,6 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['Statistics']['Quantity']['Ordered'] = $totalQuantity;
 	$output['Statistics']['Quantity']['Pending'] = $totalQuantity - $receivedQuantity;
 	$output['Statistics']['Quantity']['Received'] = $receivedQuantity;
+
     $output['Statistics']['Price'] = array();
     if(count($rows) != 0)
     {
