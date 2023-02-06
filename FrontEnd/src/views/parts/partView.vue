@@ -150,7 +150,7 @@
                     <template slot="title">
                       <b>Purchase Order</b>
                     </template>
-                    <el-table :data="purchaseOrderData" style="width: 100%; margin-top:10px">
+                    <el-table :data="purchaseOrder.Data" style="width: 100%; margin-top:10px">
                       <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
                         <template slot-scope="{ row }">
                           <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
@@ -166,11 +166,11 @@
                     </el-table>
                     <p>
                       <b>Total Order Quantity:</b>
-                      {{ purchaseOrder.TotalOrderQuantity }}
+                      {{ purchaseOrder.Statistics.Quantity.Ordered }}
                     </p>
                     <p>
                       <b>Pending Order Quantity:</b>
-                      {{ purchaseOrder.PendingOrderQuantity }}
+                      {{ purchaseOrder.Statistics.Quantity.Pending }}
                     </p>
                   </el-collapse-item>
                   <el-collapse-item name="availability">
@@ -288,7 +288,6 @@ export default {
       availabilityData: null,
       orderRequests: null,
       purchaseOrder: null,
-      purchaseOrderData: null,
 
       attributeEditVisible: false,
       createSupplierPartDialogVisible: false,
@@ -406,7 +405,6 @@ export default {
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.purchaseOrder = response.data
-        this.purchaseOrderData = this.purchaseOrder.PurchaseOrderData
       })
     }
   }
