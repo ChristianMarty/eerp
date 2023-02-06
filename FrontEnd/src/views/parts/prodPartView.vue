@@ -230,7 +230,7 @@
     <h2>Purchase Orders</h2>
 
     <el-table
-      :data="purchaseOrderData"
+      :data="purchaseOrder.Data"
       style="width: 100%; margin-top:10px"
     >
       <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
@@ -262,8 +262,37 @@
       />
 
     </el-table>
-    <p><b>Total Order Quantity: </b> {{ purchaseOrder.TotalOrderQuantity }}</p>
-    <p><b>Pending Order Quantity: </b>{{ purchaseOrder.PendingOrderQuantity }}</p>
+    <p />
+    <table>
+      <tr>
+        <td><b>Total Order Quantity:</b></td>
+        <td>{{ purchaseOrder.Statistics.Quantity.Ordered }}</td>
+      </tr>
+      <tr>
+        <td><b>Pending Order Quantity:</b></td>
+        <td>{{ purchaseOrder.Statistics.Quantity.Pending }}</td>
+      </tr>
+      <tr>
+        <td><b>Received Order Quantity:</b></td>
+        <td>{{ purchaseOrder.Statistics.Quantity.Received }}</td>
+      </tr>
+      <tr>
+        <td><b>Minimum Price:</b></td>
+        <td>{{ purchaseOrder.Statistics.Price.Minimum }}</td>
+      </tr>
+      <tr>
+        <td><b>Maximum Price:</b></td>
+        <td>{{ purchaseOrder.Statistics.Price.Maximum }}</td>
+      </tr>
+      <tr>
+        <td><b>Average:</b></td>
+        <td>{{ purchaseOrder.Statistics.Price.Average }}</td>
+      </tr>
+      <tr>
+        <td><b>Weighted Average:</b></td>
+        <td>{{ purchaseOrder.Statistics.Price.WeightedAverage }}</td>
+      </tr>
+    </table>
 
   </div>
 </template>
@@ -277,7 +306,6 @@ export default {
     return {
       partData: null,
       purchaseOrder: null,
-      purchaseOrderData: null,
       leadTime: null,
       price: null
     }
@@ -341,7 +369,6 @@ export default {
         params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.purchaseOrder = response.data
-        this.purchaseOrderData = this.purchaseOrder.PurchaseOrderData
       })
     },
     setTagsViewTitle() {

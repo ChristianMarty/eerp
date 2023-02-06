@@ -45,28 +45,60 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query = dbBuildQuery($dbLink, $query, $parameters);
 	
 	$query .= " GROUP BY purchasOrder_itemOrder.PurchasOrderId";
-	
+
 	$result = dbRunQuery($dbLink,$query);
 
 	$rows = array();
 	$rowcount = mysqli_num_rows($result);
 	$totalQuantity = 0;
 	$receivedQuantity = 0;
+
+    $priceMinimum = 100000000;
+    $priceMaximum = 0;
+    $priceAverageSum = 0;
+    $priceWeightedAverageSum = 0;
+    $priceWeightSum = 0;
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		unset($r['Id']);
 		$totalQuantity += $r['Quantity'];
 		$receivedQuantity += $r['TotalQuantityReceived'];
+
+        if($r['Price'] < $priceMinimum ) $priceMinimum = $r['Price'];
+        if($r['Price'] > $priceMaximum ) $priceMaximum = $r['Price'];
+
+        $priceAverageSum +=  $r['Price'];
+        $priceWeightedAverageSum +=  $r['Price'] * $r['Quantity'];
+        $priceWeightSum += $r['Quantity'];
 		
 		$rows[] = $r;
 	}
 	
 	$output = array();
-	$output['TotalOrderQuantity'] = $totalQuantity;
-	$output['PendingOrderQuantity'] = $totalQuantity - $receivedQuantity;
-	$output['ReceivedOrderQuantity'] = $receivedQuantity;
-	$output['PurchaseOrderData'] = $rows;
+
+    $output['Statistics'] = array();
+    $output['Statistics']['Quantity'] = array();
+	$output['Statistics']['Quantity']['Ordered'] = $totalQuantity;
+	$output['Statistics']['Quantity']['Pending'] = $totalQuantity - $receivedQuantity;
+	$output['Statistics']['Quantity']['Received'] = $receivedQuantity;
+    $output['Statistics']['Price'] = array();
+    if(count($rows) != 0)
+    {
+        $output['Statistics']['Price']['Minimum'] = round($priceMinimum, 6);
+        $output['Statistics']['Price']['Maximum'] = round($priceMaximum, 6);
+        $output['Statistics']['Price']['Average'] = round($priceAverageSum / count($rows), 6);
+        $output['Statistics']['Price']['WeightedAverage'] = round($priceWeightedAverageSum / $priceWeightSum, 6);
+    }
+    else
+    {
+        $output['Statistics']['Price']['Minimum'] = null;
+        $output['Statistics']['Price']['Maximum'] = null;
+        $output['Statistics']['Price']['Average'] = null;
+        $output['Statistics']['Price']['WeightedAverage'] = null;
+    }
+
+	$output['Data'] = $rows;
 	
 	dbClose($dbLink);	
 	sendResponse($output);
