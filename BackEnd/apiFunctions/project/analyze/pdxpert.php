@@ -88,12 +88,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
             $partNo = dbEscapeString($dbLink, $PartNo);
             $query = <<<STR
-                SELECT PartNo, productionPart.Description, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers
+                SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers
                 FROM productionPart
                 LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
                 LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
                 LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
-                WHERE productionPart.PartNo ='$partNo'
+                LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+                WHERE productionPart.Number ='$partNo'
                 GROUP BY manufacturerPart.Id
             STR;
 

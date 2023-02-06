@@ -20,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$query = "SELECT vendor.Name AS ManufacturerName, ManufacturerPartNumber, Description FROM partLookup "; 
 	$query .= "LEFT JOIN vendor ON vendor.Id = partLookup.VendorId ";
-	$query .= "WHERE partLookup.PartNo = '".$partNo."'";
+	$query .= "WHERE CONCAT('GCT-',partLookup.PartNo) = '".$partNo."'";
 
 	$result = mysqli_query($dbLink,$query);
 

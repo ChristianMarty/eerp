@@ -32,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	// Sort by ManufacturerId
 	while($part = mysqli_fetch_assoc($queryResult))
 	{
-		$mfrId = $part['ManufacturerId'];
+		$mfrId = $part['VendorId'];
 		
 		if(!is_array($partLookup[$mfrId])) $partLookup[$mfrId] = array();
 		$partLookup[$mfrId][] = $part;
@@ -61,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$count = 0;
 	foreach($partLookup as  $partLookupMfr)
 	{
-		$mfrId = $partLookupMfr[0]['ManufacturerId'];
+		$mfrId = $partLookupMfr[0]['VendorId'];
 
 		if(!array_key_exists($mfrId, $mfrParts)) continue;
 		
@@ -85,14 +85,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		addProdPart($line['PartNo'],$line['MpnId'],$line['MatchCertainty']);
 	}
 	
-	// Add manualy enterd PartNo if no found
+	// Add manualy enterd Part Number if no found
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
 	$query  = "SELECT partStock.ManufacturerPartId,partStock.OrderReference FROM partStock  ";
 	$query .= "LEFT JOIN productionPartMapping ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId ";
 	$query .= "LEFT JOIN productionPart ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId ";
-	$query .= "WHERE (partStock.OrderReference != productionPart.PartNo OR (productionPart.PartNo IS NULL AND partStock.OrderReference IS NOT NULL)) AND partStock.OrderReference != ''  ";
+	$query .= "WHERE (partStock.OrderReference != productionPart.Number OR (productionPart.Number IS NULL AND partStock.OrderReference IS NOT NULL)) AND partStock.OrderReference != ''  ";
 	$query .="GROUP BY partStock.ManufacturerPartId,partStock.OrderReference";
 	
 	$queryResult = dbRunQuery($dbLink,$query);
@@ -110,7 +110,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 function findMatch($lookup, $part)
 {
-	$mfrId = $part['ManufacturerId'];
+	$mfrId = $part['VendorId'];
 	$mfrPartNr = trim($part['ManufacturerPartNumber']);
 	$mfrPartId = $part['Id'];
 			
