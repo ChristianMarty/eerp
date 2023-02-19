@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$baseQuery = "SELECT * FROM  partStock_view ";
 	
-	$baseQuery  = "SELECT partStock.Id AS PartStockId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName,  partStock.LotNumber, ";
+	$baseQuery  = "SELECT partStock.Id AS PartStockId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturer.Id AS ManufacturerId, partStock.LotNumber, ";
 	$baseQuery .= "manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date, ";
 	$baseQuery .= "partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId,  ";
 	$baseQuery .= "hc.CreateQuantity,  partStock_getQuantity(partStock.StockNo) AS Quantity, r.ReservedQuantity AS ReservedQuantity, lc.LastCountDate AS LastCountDate, hc.CreateData ";

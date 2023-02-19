@@ -73,17 +73,22 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$stockNo = strtolower($stockNo);
 	$stockNo = str_replace("stk-","",$stockNo);
 
+	$query = 'SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'"';
+	$result = dbRunQuery($dbLink,$query);
+	$stockId = dbGetResult($result)['Id'];
+
 	if(isset($data["WorkOrderId"])) $workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
 	else $workOrderId = null;
 
 	$sqlData = array();
-	
-	$note = trim(dbEscapeString($dbLink, $data["Note"]));
+
+	$note = dbEscapeString($dbLink, $data["Note"]);
+	if($note != null)$note = trim($note);
 	if($note == "") $note = null;
 	
 	$sqlData['Note'] = $note;
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$sqlData['StockId']['raw'] = '(SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'")';
+	$sqlData['StockId']['raw'] = $stockId;
 	
 	if(isset($data["RemoveQuantity"]))
 	{
@@ -124,6 +129,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	}
 
 	$query = dbBuildInsertQuery($dbLink,"partStock_history", $sqlData);
+
 	
 	$result = dbRunQuery($dbLink,$query);
 	

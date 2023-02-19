@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 //	$baseQuery = "SELECT ManufacturerName, ManufacturerPartNumber, Quantity, StockNo, Date, LocationId FROM partStock_view ";
 	
-	$baseQuery  = "SELECT StockNo, ManufacturerPartNumber , vendor.Name AS ManufacturerName, partStock_getQuantity(partStock.StockNo) AS Quantity, partStock.Date, LocationId FROM partStock ";
+	$baseQuery  = "SELECT StockNo, ManufacturerPartNumber , vendor.Name AS ManufacturerName, Cache_Quantity AS Quantity, partStock.Date, LocationId FROM partStock ";
 	$baseQuery .= "LEFT JOIN (	SELECT SupplierPartId, purchasOrder_itemReceive.Id FROM purchasOrder_itemOrder  ";
 	$baseQuery .= "				LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId ";
 	$baseQuery .= "LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId) ";
@@ -43,7 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["HideEmpty"]))
 	{
-		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "partStock.Empty = '0'";
+		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "partStock.Cache_Quantity != '0'";
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
