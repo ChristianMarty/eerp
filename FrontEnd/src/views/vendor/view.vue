@@ -182,6 +182,23 @@
     </el-table>
 
     <el-divider />
+    <h2>Manufacturerart Parts</h2>
+    <p><b>Number of Manufacturerart Parts:</b> {{ manufacturerartPartData.length }}</p>
+    <el-table
+      :data="manufacturerartPartData"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column label="Part Number" sortable  width="250">
+        <template slot-scope="{ row }">
+          <router-link :to="'/mfrParts/partView/' + row.ManufacturerPartNumber" class="link-type">
+            <span>{{ row.ManufacturerPartNumber }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Description" label="Description" sortable />
+    </el-table>
+
+    <el-divider />
     <h2>Supplier Parts</h2>
     <p><b>Number of supplier parts:</b> {{ supplierPartData.length }}</p>
     <el-table
@@ -256,6 +273,7 @@ export default {
       supplierData: null,
       supplierPartData: null,
       purchasOrders: [],
+      manufacturerartPartData: null,
 
       editAliasVisible: false,
       editAliasId: null,
@@ -265,12 +283,14 @@ export default {
 
       editContactVisible: false,
       editContactId: null
+
     }
   },
   async mounted() {
     this.update()
     this.getSupplier()
     this.getSupplierPart()
+    this.getManufacturerartPart()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -317,6 +337,15 @@ export default {
         params: { SupplierId: this.$route.params.vendorNo }
       }).then(response => {
         this.supplierPartData = response.data
+      })
+    },
+    getManufacturerartPart() {
+      requestBN({
+        url: '/part',
+        methood: 'get',
+        params: { ManufacturerId: this.$route.params.vendorNo }
+      }).then(response => {
+        this.manufacturerartPartData = response.data
       })
     },
     getPurchasOrder() {

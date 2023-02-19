@@ -19,7 +19,11 @@
     <el-card v-if="showItem">
       <h3>Part Information</h3>
       <el-divider />
-      <p><b>Manufacturer: </b>{{ partData.ManufacturerName }}</p>
+      <p><b>Manufacturer: </b>
+        <router-link :to="'/vendor/view/' + partData.ManufacturerId" class="link-type">
+          {{ partData.ManufacturerName }}
+        </router-link>
+      </p>
 
       <p><b>Part Number: </b>
         <router-link :to="'/mfrParts/partView/' + partData.ManufacturerPartId" class="link-type">

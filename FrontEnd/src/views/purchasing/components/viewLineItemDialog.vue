@@ -22,7 +22,20 @@
       <el-descriptions title="Part:" :column="2">
         <el-descriptions-item label-class-name="my-label" label="Manufacturer ">{{ line.ManufacturerName }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Sku ">{{ line.SupplierSku }}</el-descriptions-item>
-        <el-descriptions-item label-class-name="my-label" label="Part Number">{{ line.ManufacturerPartNumber }}</el-descriptions-item>
+        <el-descriptions-item label-class-name="my-label" label="Part Number">
+          <template v-if="line.ManufacturerPartId">
+            <router-link
+              :to="'/mfrParts/partView/' + line.ManufacturerPartId"
+              class="link-type"
+            >
+              <span>{{ line.ManufacturerPartNumber }}</span>
+            </router-link>
+          </template>
+          <template v-else>
+            {{ line.ManufacturerPartNumber }}
+          </template>
+        </el-descriptions-item>
+
         <el-descriptions-item label-class-name="my-label" label="Order Reference">{{ line.OrderReference }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Description">{{ line.Description }}</el-descriptions-item>
       </el-descriptions>
