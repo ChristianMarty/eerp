@@ -24,11 +24,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
     $query = <<< STR
-        SELECT LeadTime, Weight, InformationSource, InformationDate, Note, productionPartMapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName FROM  part_referenceLeadTime
+        SELECT LeadTime, Weight, InformationSource, InformationDate, Note, productionPartMapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName, suppier.Name AS SuppierName, suppier.ShortName AS SuppierShortName, suppier.Id AS SuppierId 
+        FROM  part_referenceLeadTime
         LEFT JOIN productionPartMapping ON part_referenceLeadTime.ManufacturerPartId = productionPartMapping.ManufacturerPartId
         LEFT JOIN productionPart ON productionPartMapping.ProductionPartId = productionPart.Id OR part_referenceLeadTime.ProductionPartId = productionPart.Id
         LEFT JOIN manufacturerPart ON manufacturerPart.Id = productionPartMapping.ManufacturerPartId
         LEFT JOIN vendor ON manufacturerPart.VendorId = vendor.Id
+        LEFT JOIN vendor AS suppier ON part_referenceLeadTime.SupplierId = vendor.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$partNumber';
     STR;
@@ -49,6 +51,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     {
         if($r['VendorShortName']) $r['ManufacturerPart'] = $r['VendorShortName']." ".$r['ManufacturerPartNumber'];
         else $r['ManufacturerPart'] = $r['VendorName']." ".$r['ManufacturerPartNumber'];
+
+        if($r['SuppierShortName']) $r['SuppierName'] = $r['SuppierShortName'];
+        unset($r['SuppierShortName']);
 
         $output['Data'][] = $r;
 

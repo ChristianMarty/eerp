@@ -113,6 +113,21 @@
         width="200"
       />
       <el-table-column
+        prop="SuppierName"
+        label="Suppier"
+        sortable
+        width="100"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/vendor/view/' + row.SuppierId"
+            class="link-type"
+          >
+            <span>{{ row.SuppierId }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="ManufacturerPart"
         label="Manufacturer Part"
         sortable
@@ -152,6 +167,8 @@
       </tr>
     </table>
 
+    <h1>Question: Should price and lead time be combined? -> Rename to Quotation?</h1>
+
     <h2>Price Reference</h2>
     <el-table
       :data="price.Data"
@@ -166,6 +183,12 @@
       <el-table-column
         prop="MinimumOrderQuantity"
         label="MOQ"
+        sortable
+        width="100"
+      />
+      <el-table-column
+        prop="IncrementalOrderQuantity"
+        label="IOQ"
         sortable
         width="100"
       />
@@ -187,6 +210,22 @@
         sortable
         width="200"
       />
+      <el-table-column
+        prop="SuppierName"
+        label="Suppier"
+        sortable
+        width="100"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/vendor/view/' + row.SuppierId"
+            class="link-type"
+          >
+            <span>{{ row.SuppierId }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+
       <el-table-column
         prop="ManufacturerPart"
         label="Manufacturer Part"

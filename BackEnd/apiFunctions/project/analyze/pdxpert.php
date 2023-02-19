@@ -88,7 +88,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
             $partNo = dbEscapeString($dbLink, $PartNo);
             $query = <<<STR
-                SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers, Cache_ReferencePrice_WeightedAverage, Cache_PurchasePrice_WeightedAverage
+                SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers, 
+                       Cache_ReferencePrice_WeightedAverage, Cache_PurchasePrice_WeightedAverage, Cache_ReferencePrice_Minimum, Cache_ReferencePrice_Maximum, Cache_ReferenceLeadTime_WeightedAverage
                 FROM productionPart
                 LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
                 LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
@@ -143,9 +144,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$bomLine['Value'] = $PartDataLine["Value"];
 		$bomLine['Stock'] = $PartDataLine["Stock"];
         $bomLine["Description"] = $PartDataLine["Description"];
-        $bomLine["ReferencePriceWeightedAverage"] = $PartDataLine["Cache_ReferencePrice_WeightedAverage"];
-        $bomLine["PurchasePriceWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
-		
+        $bomLine["ReferencePriceMinimum"] = $PartDataLine["Cache_ReferencePrice_Minimum"];
+        $bomLine["ReferencePriceWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
+        $bomLine["ReferencePriceMaximum"] = $PartDataLine["Cache_ReferencePrice_Maximum"];
+        $bomLine["PurchasePriceWeightedAverage"] = $PartDataLine["Cache_ReferenceLeadTime_WeightedAverage"];
+        $bomLine["ReferenceLeadTimeWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
 		$bom[] = $bomLine;
 	}
 	

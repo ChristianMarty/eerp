@@ -31,6 +31,7 @@
       />
     </p>
     <el-button
+      v-permission="['bom.print']"
       type="primary"
       plain
       icon="el-icon-printer"
@@ -62,19 +63,25 @@
       <el-table-column prop="Stock" label="Stock" width="100" />
       <el-table-column prop="Name" label="Manufacturer Parts" />
 
-      <el-table-column prop="ReferencePriceWeightedAverage" label="Reference Price" />
-      <el-table-column prop="PurchasePriceWeightedAverage" label="Purchase Price" />
-      <el-table-column prop="ReferenceLeadTimeWeightedAverage" label="Purchase Lead Time" />
+      <el-table-column prop="ReferencePriceMinimum" label="Ref. Price Min." width="130" />
+      <el-table-column prop="ReferencePriceWeightedAverage" label="Ref. Price Avg." width="130" />
+      <el-table-column prop="ReferencePriceMaximum" label="Ref. Price Max." width="130" />
+
+      <el-table-column prop="PurchasePriceWeightedAverage" label="Purch. Price Avg." width="150" />
+      <el-table-column prop="ReferenceLeadTimeWeightedAverage" label="Ref. Lead Time" width="130" />
+
     </el-table>
   </div>
 </template>
 
 <script>
 import requestBN from '@/utils/requestBN'
+import permission from '@/directive/permission/index.js'
 
 export default {
   name: 'BomView',
   components: {},
+  directives: { permission },
   data() {
     return {
       csv: null,

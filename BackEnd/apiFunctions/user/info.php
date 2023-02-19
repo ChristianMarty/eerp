@@ -45,7 +45,8 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 			"manufacturerPart":{"create": true,"edit": true},
 			"stock":{"create": true, "add": true, "remove":true, "count":true}, 
 			"location":{"transfer":true, "bulkTransfer":true, "print": true},
-			"finance":{"view":true}}';
+			"finance":{"view":true},
+			"bom":{"print":true}}';
 			
 	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2,"AssemblyReportPrinter": 2, "AssemblyReportTemplate": 3, "PartReceiptPrinter":2, "PurchasOrder": {"UoM": 29, "VAT": 1}}}';
 	
@@ -56,7 +57,7 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 	buildRoles($roles, $roles_array, "");
 	
 	$returnData['roles'] = $roles_array;
-	$returnData['introduction'] = "I am Dev Mode";
+	$returnData['introduction'] = "I am in Dev Mode";
 	$returnData['avatar'] ="";
 	$returnData['name'] = "DevMode";
 	
