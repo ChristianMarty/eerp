@@ -15,6 +15,7 @@ require_once __DIR__ . "/../../externalApi/digikey.php";
 
 global $mouserSupplierId;
 global $digikeySupplierId;
+global $texasInstrumentsSupplierId;
 	
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -37,9 +38,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		}
 		else
 		{
-			$data['Authenticated'] = false;
+			$data['Authenticated'] = true;
 			$data['AuthenticationUrl'] = digikey_auth();
 		}
+	}
+	else if($supplierId == $texasInstrumentsSupplierId)
+	{
+		$data['Authenticated'] = true;
+		$data['AuthenticationUrl'] = '';
 	}
 	else
 	{

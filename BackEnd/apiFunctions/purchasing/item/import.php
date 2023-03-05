@@ -12,9 +12,11 @@ require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../externalApi/mouser.php";
 require_once __DIR__ . "/../../externalApi/digikey.php";
+require_once __DIR__ . "/../../externalApi/texasInstruments.php";
 
 global $mouserSupplierId;
 global $digikeySupplierId;
+global $texasInstrumentsSupplierId;
 	
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -31,6 +33,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	else if($supplierId == $digikeySupplierId)
 	{
 		$data = digikey_getOrderInformation($orderNumber);
+	}
+	else if($supplierId == $texasInstrumentsSupplierId)
+	{
+		$data = texasInstruments_getOrderInformation($orderNumber);
 	}
 	else
 	{
@@ -75,8 +81,13 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	{
 		$supplierData = digikey_getOrderInformation($orderNumber);
 	}
+	else if($vendorId == $texasInstrumentsSupplierId)
+	{
+		$supplierData = texasInstruments_getOrderInformation($orderNumber);
+	}
 	
 	$poData = array();
+	$poData['OrderNumber'] = $orderNumber;
 	$poData['PurchaseDate'] = $supplierData['OrderDate'];
 	$poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$supplierData['CurrencyCode']."')";
 	
@@ -142,6 +153,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$sqlData['ManufacturerName'] = $line['ManufacturerName'];
 		$sqlData['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
 		$sqlData['OrderReference'] = $line['OrderReference'];
+		$sqlData['StockPart']['raw'] = "b'1'";
 		
 		$sqlData['PurchasOrderId'] = $id;
 		$query = dbBuildInsertQuery($dbLink,"purchasOrder_itemOrder", $sqlData);
