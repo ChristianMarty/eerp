@@ -1,9 +1,9 @@
 <?php
 //*************************************************************************************************
-// FileName : pdxpert.php
+// FileName : pdxpert_PickList.php
 // FilePath : apiFunctions/project/analyze
 // Author   : Christian Marty
-// Date		: 03.01.2022
+// Date		: 21.02.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
-$title = "PDXpert";
+$title = "PDXpert Pick List";
 $description = "";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -35,10 +35,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	fseek($bomCsvFile, 0);
 	
 	$firstLine = fgetcsv($bomCsvFile, 1000, ",",'"',"\\");
-	
-	$refDesIndex = array_search("RefDes",$firstLine);
-	$descriptionIndex = array_search("Description",$firstLine);
+
+	$descriptionIndex = array_search("Name",$firstLine);
 	$partNoIndex = array_search("Number",$firstLine);
+	$quantityIndex = array_search("Usage",$firstLine); 
+
 	
 	$i = 0;
 	while (($bomLine = fgetcsv($bomCsvFile, 1000, ",",'"',"\\")) !== FALSE) 
@@ -47,8 +48,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 		if($descriptionIndex === false) $BoMData[$i]["Value"] = "";
         else $BoMData[$i]["Value"] =  $bomLine[$descriptionIndex];
-        if($refDesIndex === false) $BoMData[$i]["RefDes"] = "";
-        $BoMData[$i]["RefDes"] = $bomLine[$refDesIndex];
+        if($quantityIndex === false) $BoMData[$i]["Quantity"] = 0;
+        $BoMData[$i]["Quantity"] = intval($bomLine[$quantityIndex]);
 		
 		$i++;
     }
@@ -70,11 +71,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			if(strlen($PartDataLine["PartNo"])>1)
 			{
 				$BoM[$PartDataLine["PartNo"]]["RefDes"] .= ", ".$PartDataLine["RefDes"];
-				$BoM[$PartDataLine["PartNo"]]["Quantity"] += 1;
+				$BoM[$PartDataLine["PartNo"]]["Quantity"] += $PartDataLine["Quantity"];
 			}
 			else
 			{
-				$BoMadd = array("RefDes"=>$PartDataLine["RefDes"],"Value"=>$PartDataLine["Value"],"PartNo"=>$index,"Quantity"=>1);
+				$BoMadd = array("Value"=>$PartDataLine["Value"],"PartNo"=>$index,"Quantity"=>$PartDataLine["Quantity"]);
 				$BoM[$index] = $BoMadd;
 				$index++;
 			}
@@ -111,10 +112,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
                 $BoMadd["Cache_ReferencePrice_WeightedAverage"] = $r["Cache_ReferencePrice_WeightedAverage"];
                 $BoMadd["Cache_PurchasePrice_WeightedAverage"] = $r["Cache_PurchasePrice_WeightedAverage"];
+				$BoMadd["Cache_ReferencePrice_Minimum"] = $r["Cache_ReferencePrice_Minimum"];
+				$BoMadd["Cache_ReferencePrice_Maximum"] = $r["Cache_ReferencePrice_Maximum"];
 
-                $BoMadd["RefDes"] = $PartDataLine["RefDes"];
+                $BoMadd["RefDes"] = "";
                 if ($PartDataLine["Value"] == "DNP") $BoMadd["Quantity"] = 0;
-                else  $BoMadd["Quantity"] = 1;
+                else  $BoMadd["Quantity"] = $PartDataLine["Quantity"];
 
                 $BoMadd["Value"] = $PartDataLine["Value"];
                 $BoMadd["Description"] = $r["Description"];
@@ -138,17 +141,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		//$PriceTotal += $PartDataLine["PaidPrice"]*$PartDataLine["Quantity"];
 
 		$bomLine['RefDes'] = $PartDataLine["RefDes"];
-		$bomLine['Quantity'] = count(explode(",", $PartDataLine["RefDes"]));//$PartDataLine["Quantity"];
-		$bomLine['PartNo'] = $PartDataLine["PartNo"];
+		$bomLine['Quantity'] = $PartDataLine["Quantity"];
+		$bomLine['PartNo'] = "GCT-".$PartDataLine["PartNo"];
 		$bomLine['Name'] = $PartDataLine["ManufacturerPartNumber"];
 		$bomLine['Value'] = $PartDataLine["Value"];
 		$bomLine['Stock'] = $PartDataLine["Stock"];
         $bomLine["Description"] = $PartDataLine["Description"];
         $bomLine["ReferencePriceMinimum"] = $PartDataLine["Cache_ReferencePrice_Minimum"];
-        $bomLine["ReferencePriceWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
+        $bomLine["ReferencePriceWeightedAverage"] = $PartDataLine["Cache_ReferencePrice_WeightedAverage"];
         $bomLine["ReferencePriceMaximum"] = $PartDataLine["Cache_ReferencePrice_Maximum"];
-        $bomLine["PurchasePriceWeightedAverage"] = $PartDataLine["Cache_ReferenceLeadTime_WeightedAverage"];
-        $bomLine["ReferenceLeadTimeWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
+        $bomLine["PurchasePriceWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
+        $bomLine["ReferenceLeadTimeWeightedAverage"] = $PartDataLine["Cache_ReferenceLeadTime_WeightedAverage"];  
 		$bom[] = $bomLine;
 	}
 	
