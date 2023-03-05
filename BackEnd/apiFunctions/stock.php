@@ -17,12 +17,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 //	$baseQuery = "SELECT ManufacturerName, ManufacturerPartNumber, Quantity, StockNo, Date, LocationId FROM partStock_view ";
-	
+/*	
 	$baseQuery  = "SELECT StockNo, ManufacturerPartNumber , vendor.Name AS ManufacturerName, Cache_Quantity AS Quantity, partStock.Date, LocationId FROM partStock ";
 	$baseQuery .= "LEFT JOIN (	SELECT SupplierPartId, purchasOrder_itemReceive.Id FROM purchasOrder_itemOrder  ";
 	$baseQuery .= "				LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId ";
 	$baseQuery .= "LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId) ";
 	$baseQuery .= "LEFT JOIN manufacturerPart ON (manufacturerPart.Id = partStock.ManufacturerPartId AND supplierPart.ManufacturerPartId IS NULL) OR manufacturerPart.Id = supplierPart.ManufacturerPartId ";
+	$baseQuery .= "LEFT JOIN  vendor ON vendor.Id = manufacturerPart.VendorId ";
+	*/
+	
+	$baseQuery  = "SELECT StockNo, ManufacturerPartNumber , vendor.Name AS ManufacturerName, Cache_Quantity AS Quantity, partStock.Date, LocationId FROM partStock ";
+	$baseQuery .= "LEFT JOIN manufacturerPart ON manufacturerPart.Id = partStock.ManufacturerPartId ";
 	$baseQuery .= "LEFT JOIN  vendor ON vendor.Id = manufacturerPart.VendorId ";
 
 	$queryParam = array();
