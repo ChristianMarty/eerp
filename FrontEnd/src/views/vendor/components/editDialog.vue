@@ -76,7 +76,7 @@ export default {
     async onOpen() {
       this.vendorData = await vendor.item(this.$props.VendorId)
 
-      vendor.search(true, true).then(response => {
+      vendor.search().then(response => {
         this.suppliers = response
         this.parentId = this.vendorData.ParentId
         if (this.parentId == null) this.hasParent = false

@@ -188,7 +188,7 @@
       :data="manufacturerartPartData"
       style="width: 100%; margin-top:10px"
     >
-      <el-table-column label="Part Number" sortable  width="250">
+      <el-table-column label="Part Number" sortable width="250">
         <template slot-scope="{ row }">
           <router-link :to="'/mfrParts/partView/' + row.ManufacturerPartNumber" class="link-type">
             <span>{{ row.ManufacturerPartNumber }}</span>

@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
-// FileName : digikey_callback.php
-// FilePath : apiFunctions/externalApi/
+// FileName : oAuthCallback.php
+// FilePath : pushHandler/Digikey/
 // Author   : Christian Marty
 // Date		: 06.04.2022
 // License  : MIT
