@@ -109,7 +109,6 @@
     <editDocumentsList v-if="orderData.Status != 'Closed'" attach="PurchaseOrderDocument" :barcode="orderData.PurchaseOrderBarcode" @change="getOrder()" />
     <documentsList :documents="documents" />
 
-
     <el-dialog title="Edit Order" :visible.sync="showDialog" width="50%" center>
       <el-form size="mini" label-width="220px">
         <el-form-item label="Titel:">
@@ -257,7 +256,7 @@ const vendor = new Vendor()
 
 export default {
   name: 'PurchaseOrder',
-  components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList},
+  components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList },
   directives: { permission },
   data() {
     return {
