@@ -11,7 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/location.php";
-require_once __DIR__ . "/../util/getDocuments.php";
+require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/getPurchaseInformation.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')

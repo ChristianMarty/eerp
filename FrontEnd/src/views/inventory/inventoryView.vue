@@ -230,7 +230,7 @@
 <script>
 import Cookies from 'js-cookie'
 import checkPermission from '@/utils/permission'
-import documentsList from '@/views/document/components/listDocuments'
+import documentsList from '@/views/document/components/documentsList'
 
 import historyEditDataDialog from './components/historyDialog'
 import accessoryEditDataDialog from './components/accessoryDialog'

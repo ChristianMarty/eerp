@@ -35,6 +35,48 @@ class Document {
     })
   }
 
+  attachment = {
+    attachSearchParameters: {
+      Table: '',
+      DocumentBarcodes: ''
+    },
+    search(attachSearchParameters = null) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/document/attachment',
+          methood: 'get',
+          params: attachSearchParameters
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject()
+          }
+        })
+      })
+    },
+    attachParameters: {
+      Table: '',
+      DocumentBarcodes: '',
+      AttachBarcode: ''
+    },
+    attach(attachParameters) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/document/attachment',
+          data: attachParameters
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
+
   ingest = {
     search() {
       return new Promise((resolve, reject) => {
@@ -144,6 +186,21 @@ class Document {
           eerpApi({
             method: 'post',
             url: '/document/ingest/template/purchaseOrderConfirmation',
+            data: purchaseOrderParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      purchaseOrderApproval(purchaseOrderParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/document/ingest/template/purchaseOrderApproval',
             data: purchaseOrderParameters
           }).then(response => {
             if (response.error == null) {

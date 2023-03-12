@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ orderData.Title }}, PO-{{ orderData.PoNo }}</h1>
+    <h1>{{ orderData.Title }}, {{ orderData.PurchaseOrderBarcode }}</h1>
     <el-steps :active="orderStatus" finish-status="success" align-center>
       <el-step title="Edit" />
       <el-step title="Place" />
@@ -106,8 +106,9 @@
 
     <el-divider />
     <h3>Documents</h3>
-    <documentsList v-if="orderData.Status != 'Closed'" :documents="documents" :edit="true" />
-    <documentsList v-if="orderData.Status == 'Closed'" :documents="documents" :edit="false" />
+    <editDocumentsList v-if="orderData.Status != 'Closed'" attach="PurchaseOrderDocument" :barcode="orderData.PurchaseOrderBarcode" @change="getOrder()" />
+    <documentsList :documents="documents" />
+
 
     <el-dialog title="Edit Order" :visible.sync="showDialog" width="50%" center>
       <el-form size="mini" label-width="220px">
@@ -248,14 +249,15 @@ import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
 import permission from '@/directive/permission/index.js'
-import documentsList from '@/views/document/components/listDocuments'
+import editDocumentsList from '@/views/document/components/editDocumentsList'
+import documentsList from '@/views/document/components/documentsList'
 
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
 
 export default {
   name: 'PurchaseOrder',
-  components: { editOrder, placedOrder, confirmedOrder, closedOrder, documentsList },
+  components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList},
   directives: { permission },
   data() {
     return {

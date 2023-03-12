@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/getDocuments.php";
+require_once __DIR__ . "/../util/_getDocuments.php";
 
 function getPurchaseOrderData($purchaseOrderNo)
 {
@@ -47,6 +47,7 @@ function getPurchaseOrderData($purchaseOrderNo)
 	{
 		$purchaseOrderNumber= $r['PoNo'];
 		$r['PurchaseOrderNumber'] = $r['PoNo'];
+        $r['PurchaseOrderBarcode'] = "PO-".$r['PoNo'];
 		$r['CurrencyId'] = intval($r['CurrencyId']);
 		$r['VendorContactId'] = intval($r['VendorContactId']);
 		$r['VendorAddressId'] = intval($r['VendorAddressId']);
