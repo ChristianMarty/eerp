@@ -12,6 +12,7 @@
         <el-table
           :data="documentOptions"
           style="width: 100%;  "
+          :row-key="DocumentNumber"
         >
           <el-table-column label="Add" width="60">
             <template slot-scope="{ row }">
@@ -43,9 +44,6 @@
               />
             </template>
           </el-table-column>
-
-          <el-table-column prop="selected" label="dddd No" width="100" />
-
           <el-table-column prop="Barcode" label="Doc No" width="100" />
           <el-table-column prop="FileName" label="Document" />
           <el-table-column prop="Description" label="Description" />
@@ -104,8 +102,7 @@ export default {
       if (!this.selectedDocuments.some(el => el.DocumentNumber === row.DocumentNumber)) {
         this.selectedDocuments.push({ DocumentNumber: row.DocumentNumber, FileName: row.FileName })
 
-        const docIndex = this.documentOptions.findIndex(el => el.DocumentNumber == row.DocumentNumber)
-
+        const docIndex = this.documentOptions.findIndex(el => el.DocumentNumber === row.DocumentNumber)
         this.documentOptions[docIndex].Selected = true
 
         console.log(this.documentOptions[docIndex])
@@ -116,7 +113,6 @@ export default {
     },
     save() {
       const DocumentNumberList = []
-
       this.selectedDocuments.forEach(element => {
         DocumentNumberList.push(element.DocumentNumber)
       })
@@ -126,7 +122,6 @@ export default {
         DocumentBarcodes: DocumentNumberList,
         AttachBarcode: this.$props.barcode
       }
-
       document.attachment.attach(attachParameters).then(response => {
         this.visible = false
         this.$emit('update:visible', this.visible)

@@ -65,6 +65,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $docIdStr = implode(",",$docIds);
 
+    $query = <<<STR
+    UPDATE purchasOrder SET  DocumentIds  =  '$docIdStr' WHERE  PoNo = $poNumber   
+    STR;
+
+    $dbLink = dbConnect();
+    $result = dbRunQuery($dbLink,$query);
+    dbClose($dbLink);
+
     sendResponse($docIdStr,null);
 
 }

@@ -315,7 +315,7 @@ export default {
       this.saveData(data)
     },
     openPoDoc() {
-      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer/purchaseOrder.php?PurchaseOrderNo=' + this.orderData.PoNo
+      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/purchaseOrder?PurchaseOrderNo=' + this.orderData.PoNo
       window.open(path, '_blank').focus()
     },
     saveStatus(status) {

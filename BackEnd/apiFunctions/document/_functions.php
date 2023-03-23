@@ -64,7 +64,7 @@ function ingest($data): int|array
 
     $dbLink = dbConnect();
 
-    $fileNameIllegalCharactersRegex = '/[ :"*?<>|\\/]+/';
+    $fileNameIllegalCharactersRegex = '/[ %:"*?<>|\\/]+/';
 
     if(!isset($data['Name']) OR $data['Name'] == "" OR $data['Name'] == null) return array('error' => "Name is not set.");
     if(!isset($data['Type']) OR $data['Type'] == "" OR $data['Type'] == null) return array('error' => "Type is not set.");

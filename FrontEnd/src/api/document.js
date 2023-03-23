@@ -210,6 +210,28 @@ class Document {
             }
           })
         })
+      },
+      inventoryHistoryCalibrationParameters: {
+        FileName: '',
+        InventoryNumber: '',
+        Description: '',
+        Date: '',
+        NextDate: ''
+      },
+      inventoryHistoryCalibration(inventoryHistoryCalibrationParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/document/ingest/template/inventoryHistoryCalibration',
+            data: inventoryHistoryCalibrationParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
       }
     },
 

@@ -47,9 +47,16 @@ $filePath = "renderer/";
 $apiRequest = explode('?',$apiRequestParts[1])[0];
 $filePath .= $apiRequest;
 $filePath = rtrim($filePath, "/");
-$filePath .= ".php";
 
-if(!file_exists($filePath)) sendResponse(null, "Invalid URL");
+if(str_ends_with($apiRequestParts[1], '.css')) 
+{
+	//$filePath .= ".css";
+}else{
+	$filePath .= ".php";
+}
+
+
+if(!file_exists($filePath)) echo"Invalid URL";
 
 if( $apiRequest == "user/login" || $apiRequest == "user/logout" || $apiRequest == "user/info")
 {
@@ -61,7 +68,7 @@ else if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMo
 }
 else
 {
-	sendResponse(null, "User Session Invalid. Please Log In.");
+	echo "User Session Invalid. Please Log In.";
 }
 
 ?>

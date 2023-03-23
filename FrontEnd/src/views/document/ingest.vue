@@ -94,6 +94,13 @@
             @success="ingestSuccess()"
           />
 
+          <invHistoryCalibration
+            v-if="selectedTemplate == 'invCalibration'"
+            ref="ingestForm"
+            :file-info="dialogData"
+            @success="ingestSuccess()"
+          />
+
         </el-col>
 
       </el-row>
@@ -123,13 +130,14 @@ import poReceiptIngest from './components/ingestTemplates/purchaseOrderReceipt'
 import poQuoteIngest from './components/ingestTemplates/purchaseOrderQuote'
 import poQuoteConfirmation from './components/ingestTemplates/purchaseOrderConfirmation'
 import poQuoteApproval from './components/ingestTemplates/purchaseOrderApproval'
+import invHistoryCalibration from './components/ingestTemplates/inventoryHistoryCalibration'
 
 import Document from '@/api/document'
 const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation, poQuoteApproval },
+  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation, poQuoteApproval, invHistoryCalibration },
   data() {
     return {
       documentList: [],
@@ -159,6 +167,9 @@ export default {
       }, {
         value: 'poApproval',
         label: 'Purchase Order Approval'
+      }, {
+        value: 'invCalibration',
+        label: 'Inventory History Calibration'
       }]
     }
   },

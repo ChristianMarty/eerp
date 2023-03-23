@@ -28,7 +28,7 @@ $buyer = getVendorContact($poData["MetaData"]["PurchaseContactId"]);
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>PO-<?php echo $_GET["PurchaseOrderNo"]." - ".$vendor['VendorName']; ?> </title>
 <link  media="print" />
- <link rel="stylesheet" href="documentTemplate_A4.css">
+ <link rel="stylesheet" href="../assets/documentTemplate_A4.css">
 </head>
 
 <?php 
@@ -598,7 +598,7 @@ foreach( $lines as $index => $line)
 		$firstPage = false;
 	}
 	
-	if(!$firstPage and $i >30)
+	if(!$firstPage and $i >20)
 	{
 		$pageIndex ++;
 		$content1 .= table_addContinuationLine($pageIndex+1);
@@ -642,7 +642,7 @@ foreach( $pages as $page)
 }
 
 
-$meta->page->current = 2;
+$meta->page->current = $i+1;
 require "purchaseOrder_attachment.php";
 
 
