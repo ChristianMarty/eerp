@@ -17,7 +17,8 @@
     </p>
 
     <el-card v-if="showItem">
-      <h3>Part Information</h3>
+      <h3 v-if="partData.Deleted" style="color:red">Part Information - This item has been marked to be deleted!</h3>
+      <h3 v-else>Part Information</h3>
       <el-divider />
       <p><b>Manufacturer: </b>
         <router-link :to="'/vendor/view/' + partData.ManufacturerId" class="link-type">
@@ -140,6 +141,26 @@
       </template>
     </el-card>
 
+    <el-card v-permission="['stock.delete']" v-if="showItem">
+      <h3>Delete Item</h3>
+      <el-button type="danger" @click="openDeleteDialog()">Delete</el-button>
+    </el-card>
+
+    <el-dialog
+      title="Delete Item ?"
+      :visible.sync="deleteDialogVisible"
+      >
+      <p><b>Note:</b></p>
+      <el-input type="textarea" v-model="deleteNote"></el-input>
+      <p></p>
+      <el-button type="danger" @click="deleteStockItem()">Confirm Deletion</el-button>
+    <el-button @click="deleteDialogVisible = false">Cancel</el-button>
+    
+
+    </el-dialog>
+
+
+
     <printDialog :visible.sync="printDialogVisible" :data="partData" @print="print" />
 
     <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
@@ -210,7 +231,9 @@ export default {
       countStockDialogVisible: false,
       editStockHistoryDialogVisible: false,
       stockHistoryKey: 0,
-      locationTransferDialogVisible: false
+      locationTransferDialogVisible: false,
+      deleteDialogVisible: false,
+      deleteNote: ''
     }
   },
   watch: {
@@ -396,6 +419,23 @@ export default {
         }
       }).then(response => {
 
+      })
+    },
+    openDeleteDialog() {
+      this.deleteDialogVisible = true
+    },
+    deleteStockItem() {
+      requestBN({
+        method: 'delete',
+        url: '/stock/item',
+        data: {
+          StockNumber: this.inputStockId,
+          Note: this.deleteNote
+        }
+      }).then(response => {
+        this.deleteDialogVisible = false
+        this.deleteNote = ''
+        this.loadItem()
       })
     }
   }

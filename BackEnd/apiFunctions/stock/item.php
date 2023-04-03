@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/location.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -25,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$baseQuery = "SELECT * FROM  partStock_view ";
 	
-	$baseQuery  = "SELECT partStock.Id AS PartStockId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturer.Id AS ManufacturerId, partStock.LotNumber, ";
+	$baseQuery  = "SELECT partStock.Id AS PartStockId, partStock.DeleteRequestUserId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturer.Id AS ManufacturerId, partStock.LotNumber, ";
 	$baseQuery .= "manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date, ";
 	$baseQuery .= "partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId,  ";
 	$baseQuery .= "hc.CreateQuantity,  partStock_getQuantity(partStock.StockNo) AS Quantity, r.ReservedQuantity AS ReservedQuantity, lc.LastCountDate AS LastCountDate, hc.CreateData ";
@@ -68,6 +69,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
 		$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
 		$r['OrderReference']  = $r['OrderReference'];
+
+		if($r['DeleteRequestUserId'] !== null)$r['Deleted'] = true;
+		else $r['Deleted'] = false;
+		unset($r['DeleteRequestUserId'] );
+
 		
 		$output[] = $r;
 		$stockNoValid = true;
@@ -195,6 +201,27 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	dbClose($dbLink);	
 	
 	sendResponse($stockPart, $error);
+}
+else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
+{
+
+	$data = json_decode(file_get_contents('php://input'),true);
+	$stockNumber = barcodeParser_StockNumber($data['StockNumber']);
+	if(!$stockNumber)sendResponse(null, "Stock number format incorrect");
+
+	$dbLink = dbConnect();
+
+	$sqlData['DeleteRequestUserId'] = $_SESSION["userid"];
+	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
+	$sqlData['DeleteRequestNote'] = $data["Note"];
+
+	$query = dbBuildUpdateQuery($dbLink,"partStock", $sqlData, 'StockNo = "'.$stockNumber.'"');
+
+	$result  = dbRunQuery($dbLink,$query);
+
+	dbClose($dbLink);
+
+	sendResponse(null);
 }
 
 ?>
