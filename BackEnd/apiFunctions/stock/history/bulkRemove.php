@@ -54,6 +54,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$temp = dbEscapeString($dbLink, $line["Barcode"]);
 		$temp = strtolower($temp);
 		$stockNo = str_replace("stk-","",$temp);
+
+		$query = 'SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'"';
+		$result = dbRunQuery($dbLink,$query);
+		$stockId = dbGetResult($result)['Id'];
 		
 		$removeQuantity = dbEscapeString($dbLink, $line["RemoveQuantity"]);
 		
@@ -61,7 +65,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 		$sqlData['Note'] = $note;
 		$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-		$sqlData['StockId']['raw'] = '(SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'")';
+		$sqlData['StockId'] = $stockId;
 		$sqlData['Quantity'] = abs($removeQuantity)*-1;
 		$sqlData['ChangeType']['raw'] = '"Relative"';
 		
