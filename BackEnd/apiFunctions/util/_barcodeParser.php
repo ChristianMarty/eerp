@@ -8,6 +8,28 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
+
+function barcodeParser_StockNumber(string|int $input): bool|string
+{
+    if(is_int($input)) $input = strval($input);
+
+    $stockNumber = trim($input);
+    $stockNumber = strtolower($stockNumber);
+
+    if( substr_count($stockNumber, '-') == 0) // if only number is given
+    {
+        if(strlen($stockNumber) != 4) return false;
+        return $stockNumber;
+    }
+
+    $stockNumberParts = explode('-',$stockNumber);
+
+    if($stockNumberParts[0] != "stk") return false;
+    if(strlen($stockNumberParts[1]) != 4) return false;
+
+    return $stockNumberParts[1];
+}
+
 function barcodeParser_InventoryNumber($input): bool|int
 {
 	$inventoryCode = trim($input);
