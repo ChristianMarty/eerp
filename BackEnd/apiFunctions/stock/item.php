@@ -136,7 +136,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= $quantity.",";
 		$query .= dbStringNull($date).", ";
 		$query .= dbStringNull($orderReference).", ";
-		$query .= dbStringNull($lotNumber)." ";
+		$query .= dbStringNull($lotNumber).", ";
+		$query .= dbStringNull($_SESSION["userid"])." ";
 		$query .= ") AS StockNo; ";
 		
 	}
@@ -157,7 +158,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= dbStringNull($orderReference).", ";
 		$query .= dbStringNull($supplierId).", ";
 		$query .= dbStringNull($supplierPartNumber).", ";
-		$query .= dbStringNull($lotNumber)." ";
+		$query .= dbStringNull($lotNumber).", ";
+		$query .= dbStringNull($_SESSION["userid"])." ";
 		$query .= ") AS StockNo; ";
 
 	}
