@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$baseQuery = <<<STR
 		SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor_name_recursive(vendor.Id) AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber, 
-		SUM(purchasOrder_itemOrder.Quantity) AS TotalQuantityOrdered, Received.TotalQuantityReceived AS TotalQuantityReceived
+		SUM(purchasOrder_itemOrder.Quantity) AS TotalQuantityOrdered, SUM(Received.TotalQuantityReceived) AS TotalQuantityReceived
 		FROM purchasOrder
 		LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId
 		LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId
