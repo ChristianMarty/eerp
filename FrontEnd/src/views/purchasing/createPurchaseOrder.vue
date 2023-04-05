@@ -50,24 +50,18 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
-
-const emptyData = {
-  SupplierId: '',
-  Title: '',
-  PurchaseDate: null,
-  Description: ''
-}
 
 export default {
   name: 'CreatePO',
   components: {},
   data() {
     return {
-      formData: Object.assign({}, emptyData),
+      formData: Object.assign({}, purchase.createParameters),
       suppliers: null
     }
   },
@@ -97,23 +91,15 @@ export default {
           type: 'error'
         })
       } else {
-        requestBN({
-          method: 'post',
-          url: '/purchasOrder',
-          data: { data: this.formData }
-        }).then(response => {
-          if (response.error == null) {
-            this.$router.push(
-              '/purchasing/edit/' + response.data.PurchaseOrderNo
-            )
-          } else {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 0,
-              type: 'error'
-            })
-          }
+        purchase.create(this.formData).then(response => {
+          this.$router.push('/purchasing/edit/' + response.PurchaseOrderNo)
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response,
+            duration: 0,
+            type: 'error'
+          })
         })
       }
     }

@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : purchasOrder.php
+// FileName : purchaseOrder.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
 // Date		: 01.08.2020
@@ -86,11 +86,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$data = json_decode(file_get_contents('php://input'),true);
 
 	$poCreate = array();
-	$poCreate['VendorId'] = intval($data['data']['SupplierId']);
-	$poCreate['PurchaseDate'] = $data['data']['PurchaseDate'];
+	$poCreate['VendorId'] = intval($data['SupplierId']);
+	$poCreate['PurchaseDate'] = $data['PurchaseDate'];
 	
-	if($data['data']['Title'] != "") $poCreate['Title'] = $data['data']['Title'];
-	if($data['data']['Description'] != "") $poCreate['Description'] = $data['data']['Description'];
+	if($data['Title'] != "") $poCreate['Title'] = $data['Title'];
+	if($data['Description'] != "") $poCreate['Description'] = $data['Description'];
 	
 	$poCreate['PoNo']['raw'] = "purchasOrder_generatePoNo()";
 	

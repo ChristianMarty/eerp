@@ -57,7 +57,8 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 export default {
   name: 'DocumentBrowser',
@@ -67,18 +68,10 @@ export default {
       orderRequests: null
     }
   },
-  mounted() {
-    this.getOrderRequests()
+  async mounted() {
+    this.orderRequests = await purchase.orderRequest.list()
   },
   methods: {
-    getOrderRequests() {
-      requestBN({
-        url: '/purchasing/orderRequest',
-        methood: 'get'
-      }).then(response => {
-        this.orderRequests = response.data
-      })
-    }
   }
 }
 </script>

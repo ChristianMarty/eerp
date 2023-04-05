@@ -1,9 +1,27 @@
 import eerpApi from '@/api/apiQuery'
 
 class Purchase {
-/* Search *************************************************
-  Returns list of Purchase Order Items
-**********************************************************/
+  createParameters = {
+    SupplierId: '',
+    Title: '',
+    PurchaseDate: null,
+    Description: ''
+  }
+  create(createParameters) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'post',
+        url: '/purchasOrder',
+        data: createParameters
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
 
   item = {
     search(PurchaseOrderNumber = null) {
@@ -14,6 +32,23 @@ class Purchase {
           params: {
             PurchaseOrderNo: PurchaseOrderNumber
           }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject()
+          }
+        })
+      })
+    }
+  }
+
+  orderRequest = {
+    list() {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/purchasing/orderRequest',
+          methood: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)

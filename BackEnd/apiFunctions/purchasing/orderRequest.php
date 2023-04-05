@@ -16,7 +16,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query   = "SELECT orderRequest.Id AS OrderRequestId, GROUP_CONCAT(PartNo) AS PartNoList, supplierPart.ManufacturerPartId, orderRequest.SupplierPartId, vendor.Id AS SupplierId, vendor.Name AS SupplierName, supplierPart.SupplierPartNumber, supplierPart.SupplierPartLink, Quantity, CreationDate, orderRequest.Description, ";
+	$query   = "SELECT orderRequest.Id AS OrderRequestId, GROUP_CONCAT(productionPart.Number) AS PartNoList, supplierPart.ManufacturerPartId, orderRequest.SupplierPartId, vendor.Id AS SupplierId, vendor.Name AS SupplierName, supplierPart.SupplierPartNumber, supplierPart.SupplierPartLink, Quantity, CreationDate, orderRequest.Description, ";
 	$query  .= "mfrPart.ManufacturerPartNumber, mfrPart.ManufacturerName ";
 	$query  .= "FROM orderRequest ";
 	$query  .= "LEFT JOIN supplierPart ON supplierPart.Id = orderRequest.SupplierPartId ";
