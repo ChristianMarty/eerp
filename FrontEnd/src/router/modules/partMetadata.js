@@ -26,12 +26,6 @@ const partsMetaRouter = {
       component: () => import('@/views/partMetadata/classBrowser'),
       name: 'classBrowser',
       meta: { title: 'Part Classes', icon: 'list' }
-    },
-    {
-      path: 'supplierBrowser',
-      component: () => import('@/views/partMetadata/supplierBrowser'),
-      name: 'supplierBrowser',
-      meta: { title: 'Suppliers', icon: 'list' }
     }
   ]
 }
