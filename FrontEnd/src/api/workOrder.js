@@ -1,7 +1,6 @@
 import eerpApi from '@/api/apiQuery'
 
 class WorkOrder {
-
   createParameters = {
     Title: '',
     ProjectId: '',
@@ -85,7 +84,6 @@ class WorkOrder {
       })
     })
   }
-  
 }
 
 export default WorkOrder

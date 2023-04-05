@@ -9,8 +9,8 @@
     <p><b>Status:</b> {{ workOrderData.Status }}</p>
 
     <el-select
-      v-permission="['workOrder.edit']"
       v-model="statusSelected"
+      v-permission="['workOrder.edit']"
       placeholder="Status"
       @change="updateStatus()"
     >

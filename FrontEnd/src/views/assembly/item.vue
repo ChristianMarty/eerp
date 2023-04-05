@@ -120,6 +120,7 @@ export default {
   async mounted() {
     this.assemblyData = await assembly.item(this.$route.params.AssemblyNumber)
     this.workOrders = await workOrder.search('InProgress')
+
     this.setTitle()
 
     this.$refs.serialNumberSearchInput.focus()

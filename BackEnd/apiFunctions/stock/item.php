@@ -161,7 +161,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= dbStringNull($lotNumber).", ";
 		$query .= dbStringNull($_SESSION["userid"])." ";
 		$query .= ") AS StockNo; ";
-
 	}
 
 	$result = dbRunQuery($dbLink,$query);

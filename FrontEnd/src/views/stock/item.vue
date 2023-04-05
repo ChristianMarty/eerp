@@ -141,7 +141,7 @@
       </template>
     </el-card>
 
-    <el-card v-permission="['stock.delete']" v-if="showItem">
+    <el-card v-if="showItem" v-permission="['stock.delete']">
       <h3>Delete Item</h3>
       <el-button type="danger" @click="openDeleteDialog()">Delete</el-button>
     </el-card>
@@ -149,17 +149,14 @@
     <el-dialog
       title="Delete Item ?"
       :visible.sync="deleteDialogVisible"
-      >
+    >
       <p><b>Note:</b></p>
-      <el-input type="textarea" v-model="deleteNote"></el-input>
-      <p></p>
+      <el-input v-model="deleteNote" type="textarea" />
+      <p />
       <el-button type="danger" @click="deleteStockItem()">Confirm Deletion</el-button>
-    <el-button @click="deleteDialogVisible = false">Cancel</el-button>
-    
+      <el-button @click="deleteDialogVisible = false">Cancel</el-button>
 
     </el-dialog>
-
-
 
     <printDialog :visible.sync="printDialogVisible" :data="partData" @print="print" />
 

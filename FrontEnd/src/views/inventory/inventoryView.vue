@@ -51,7 +51,7 @@
     <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
     <el-divider />
     <h2>Accessories</h2>
-    <template v-if="checkPermission(['inventory.accessory.add'])">
+    <template v-permission="['inventory.accessory.add']">
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -69,7 +69,7 @@
           {{ row.Labeled }}
         </template>
       </el-table-column>
-      <template v-if="checkPermission(['inventory.accessory.edit'])">
+      <template v-permission="['inventory.accessory.edit']">
         <el-table-column label="Edit" width="50">
           <template slot-scope="{ row }">
             <el-button
@@ -87,7 +87,7 @@
 
     <el-divider />
     <h2>Purchase Information</h2>
-    <template v-if="checkPermission(['inventory.purchase.edit'])">
+    <template v-permission="['inventory.purchase.edit']">
       <el-button
         type="primary"
         icon="el-icon-edit"
@@ -158,7 +158,7 @@
     <h2>Documents</h2>
     <documentsList :documents="inventoryData.Documents" />
     <h2>History</h2>
-    <template v-if="checkPermission(['inventory.history.add'])">
+    <template v-permission="['inventory.history.add']">
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -222,14 +222,14 @@
     />
 
     <el-divider />
-    <el-button v-if="checkPermission(['inventory.print'])" type="primary" @click="addPrint">Print</el-button>
-    <el-button v-if="checkPermission(['inventory.create'])" type="primary" @click="copy">Create Copy</el-button>
+    <el-button v-permission="['inventory.print']" type="primary" @click="addPrint">Print</el-button>
+    <el-button v-permission="['inventory.create']" type="primary" @click="copy">Create Copy</el-button>
   </div>
 </template>
 
 <script>
 import Cookies from 'js-cookie'
-import checkPermission from '@/utils/permission'
+import permission from '@/directive/permission/index.js'
 import documentsList from '@/views/document/components/documentsList'
 
 import historyEditDataDialog from './components/historyDialog'
@@ -244,6 +244,7 @@ const inventory = new Inventory()
 export default {
   name: 'InventoryView',
   components: { documentsList, historyEditDataDialog, accessoryEditDataDialog, purchaseEditDataDialog, locationTransferDialog },
+  directives: { permission },
   data() {
     return {
       inventoryData: Object.assign({}, inventory.itemReturn),
@@ -270,7 +271,6 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
-    checkPermission,
     setTitle() {
       const route = Object.assign({}, this.tempRoute, {
         title: `${this.inventoryData.InventoryBarcode}`
