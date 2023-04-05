@@ -31,52 +31,38 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import WorkOrder from '@/api/workOrder'
+const workOrder = new WorkOrder()
 
-const defaultForm = {
-  Title: '',
-  ProjectId: '',
-  Quantity: ''
-}
+import Project from '@/api/project'
+const project = new Project()
 
 export default {
   components: {},
   data() {
     return {
-      form: Object.assign({}, defaultForm),
+      form: Object.assign({}, workOrder.createParameters),
       projects: null
     }
   },
   mounted() {
-    this.getProjects()
+    project.search().then(response => {
+      this.projects = response
+    })
   },
   methods: {
-    getProjects() {
-      requestBN({
-        url: '/project',
-        methood: 'get'
-      }).then(response => {
-        this.projects = response.data
-      })
-    },
     save() {
-      requestBN({
-        method: 'post',
-        url: '/workOrder',
-        data: { data: this.form }
-      }).then(response => {
-        if (response.error !== null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.$router.push(
-            '/workOrder/workOrderView/' + response.data.WorkOrderNo
-          )
-        }
+      workOrder.create(this.form).then(response => {
+        this.$router.push(
+          '/workOrder/workOrderView/' + response.WorkOrderNo
+        )
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

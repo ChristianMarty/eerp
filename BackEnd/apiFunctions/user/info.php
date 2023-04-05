@@ -46,7 +46,8 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 			"stock":{"create": true, "add": true, "remove":true, "count":true, "delete":true}, 
 			"location":{"transfer":true, "bulkTransfer":true, "print": true},
 			"finance":{"view":true},
-			"bom":{"print":true}}';
+			"bom":{"print":true},
+            "workOrder":{"create": true, "edit": true}}';
 			
 	$settingsJson = '{	"Default": {"StockLabelPrinter": 1,"StockLabel": 1,"BomPrinter": 2,"AssemblyReportPrinter": 2, "AssemblyReportTemplate": 3, "PartReceiptPrinter":2, "PurchasOrder": {"UoM": 29, "VAT": 1}}}';
 	

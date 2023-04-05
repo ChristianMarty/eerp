@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -65,6 +66,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$workOrderData['PartsUsed'] = $partUsed;
 	dbClose($dbLink);	
 	sendResponse($workOrderData);
+}
+else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+{
+    $data = json_decode(file_get_contents('php://input'),true);
+
+    if(!isset($data["WorkOrderNumber"])) sendResponse(NULL, "Work Order Number Undefined");
+
+
+    $woNo = barcodeParser_WorkOrderNumber($data["WorkOrderNumber"]);
+
+    $dbLink = dbConnect();
+
+    $poData['Status'] = $data['Status'];
+
+    $query = dbBuildUpdateQuery($dbLink, "workOrder", $poData, "WorkOrderNo = ".$woNo);
+    $result = dbRunQuery($dbLink,$query);
+
+    dbClose($dbLink);
+    sendResponse(null);
+
+
 }
 
 ?>

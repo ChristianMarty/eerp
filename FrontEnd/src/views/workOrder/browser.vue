@@ -23,7 +23,8 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import WorkOrder from '@/api/workOrder'
+const workOrder = new WorkOrder()
 
 export default {
   name: 'WorkOrderBrowser',
@@ -35,18 +36,11 @@ export default {
     }
   },
   mounted() {
-    this.getWorkOrders()
+    workOrder.search(null, this.hideClosed).then(response => {
+      this.workOrders = response
+    })
   },
   methods: {
-    getWorkOrders() {
-      requestBN({
-        url: '/workOrder',
-        methood: 'get',
-        params: { HideClosed: this.hideClosed }
-      }).then(response => {
-        this.workOrders = response.data
-      })
-    }
   }
 }
 </script>

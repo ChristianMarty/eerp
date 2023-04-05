@@ -90,4 +90,25 @@ function barcodeParser_ProductionPart($input): bool|string
 
     return intval($poCodeParts[1]);
 }
+
+function barcodeParser_WorkOrderNumber(string|int $input): bool|int
+{
+    if(is_int($input)) $input = strval($input);
+
+    $woCode = trim($input);
+    $woCode = strtolower($woCode);
+
+    if( substr_count($woCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($woCode)) return false;
+        return intval($woCode);
+    }
+
+    $woCodeParts = explode('-',$woCode);
+
+    if($woCodeParts[0] != "wo") return false;
+    if(!is_numeric($woCodeParts[1])) return false;
+
+    return intval($woCodeParts[1]);
+}
 ?>

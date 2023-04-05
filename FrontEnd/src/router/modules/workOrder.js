@@ -18,7 +18,7 @@ const projectRouter = {
       path: 'create/',
       component: () => import('@/views/workOrder/create'),
       name: 'create',
-      meta: { title: 'Create', icon: 'edit' }
+      meta: { title: 'Create', icon: 'edit', roles: ['workOrder.create'] }
     },
     {
       path: 'workOrderView/:workOrderNo(.*)',

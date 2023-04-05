@@ -7,6 +7,21 @@
     <el-divider />
     <p><b>Build Quantity:</b> {{ workOrderData.Quantity }}</p>
     <p><b>Status:</b> {{ workOrderData.Status }}</p>
+
+    <el-select
+      v-permission="['workOrder.edit']"
+      v-model="statusSelected"
+      placeholder="Status"
+      @change="updateStatus()"
+    >
+      <el-option
+        v-for="item in statusOptions"
+        :key="item"
+        :label="item"
+        :value="item"
+      />
+    </el-select>
+
     <h2>Used Parts</h2>
 
     <el-table
@@ -66,18 +81,25 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import permission from '@/directive/permission/index.js'
+
+import WorkOrder from '@/api/workOrder'
+const workOrder = new WorkOrder()
 
 export default {
   name: 'WorkOrderView',
   components: {},
+  directives: { permission },
   data() {
     return {
-      workOrderData: null
+      workOrderData: [],
+      statusOptions: [],
+      statusSelected: null
     }
   },
-  mounted() {
+  async mounted() {
     this.getWorkOrderData()
+    this.statusOptions = await workOrder.status()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -87,14 +109,29 @@ export default {
   },
   methods: {
     getWorkOrderData() {
-      requestBN({
-        url: '/workOrder/item',
-        methood: 'get',
-        params: { WorkOrderNo: this.$route.params.workOrderNo }
-      }).then(response => {
-        this.workOrderData = response.data
+      workOrder.item(this.$route.params.workOrderNo).then(response => {
+        this.workOrderData = response
         this.setTagsViewTitle()
         this.setPageTitle()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    updateStatus() {
+      workOrder.updateStatus(this.$route.params.workOrderNo, this.statusSelected).then(response => {
+        this.getWorkOrderData()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     setTagsViewTitle() {
@@ -104,7 +141,7 @@ export default {
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
     setPageTitle() {
-      document.title = `${this.projectData.Title}`
+      document.title = `WO-${this.$route.params.workOrderNo}`
     },
     calcSum(param) {
       let total = 0
@@ -118,7 +155,7 @@ export default {
       const totalLine = []
       totalLine[0] = 'Total'
       totalLine[3] = totalQuantity * -1
-      totalLine[6] = Math.round(total * 100000) / 100000
+      totalLine[7] = Math.round(total * 100000) / 100000
       return totalLine
     }
   }
