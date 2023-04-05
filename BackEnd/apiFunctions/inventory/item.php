@@ -39,15 +39,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($InvNo)) $InvNo = dbEscapeString($dbLink, $InvNo );
 	if(isset($SerNo)) $SerNo = dbEscapeString($dbLink, $SerNo );
-	
-	$baseQuery = "SELECT ";
-	$baseQuery .="inventory.Id AS Id, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  ";
-	$baseQuery .="vendor.name AS SupplierName, HomeLocationId, location.LocNr, InventoryCategoryId, inventory.LocationId ";
-	$baseQuery .="FROM `inventory` ";
-	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";
-	$baseQuery .="LEFT JOIN `location` On location.Id = inventory.LocationId ";
-	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
-	
+
+	$baseQuery = <<<STR
+		SELECT inventory.Id AS Id, PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, PurchaseDate, PurchasePrice, Description, Note, DocumentIds, MacAddressWired, MacAddressWireless, Status,  
+		vendor.name AS SupplierName, HomeLocationId, location.LocNr, InventoryCategoryId, inventory.LocationId 
+		FROM `inventory`
+		LEFT JOIN `vendor` On vendor.Id = inventory.VendorId 
+		LEFT JOIN `location` On location.Id = inventory.LocationId 
+		LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId 
+	STR;
+
 	if(isset($InvNo)) $baseQuery .="WHERE `InvNo` = '".$InvNo."'";
 	if(isset($SerNo)) $baseQuery .="WHERE `SerialNumber` = '".$SerNo."'";
 	
@@ -79,17 +80,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
 	$output['HomeLocationName'] = buildLocation($locations, $r['HomeLocationId']);
 	$output['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
-	
-	
+
 	// Get Purchase Information
-	$query  = "SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, inventory_purchasOrderReference.Type AS CostType  ";
-	$query .= "FROM inventory_purchasOrderReference ";
-	$query .= "LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id ";
-	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id ";
-	$query .= "LEFT JOIN vendor ON purchasOrder.VendorId = vendor.Id ";
-	$query .= "LEFT JOIN finance_currency ON purchasOrder.CurrencyId = finance_currency.Id ";
-	$query .= "WHERE inventory_purchasOrderReference.InventoryId = ".$id;
+	$query = <<<STR
+		SELECT  PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, purchasOrder_itemOrder.Discount, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, inventory_purchasOrderReference.Type AS CostType
+		FROM inventory_purchasOrderReference
+		LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id
+		LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id
+		LEFT JOIN purchasOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id
+		LEFT JOIN vendor ON purchasOrder.VendorId = vendor.Id
+		LEFT JOIN finance_currency ON purchasOrder.CurrencyId = finance_currency.Id
+		WHERE inventory_purchasOrderReference.InventoryId = {$id}
+		ORDER BY PurchaseDate
+	STR;
 	
 	$purchase = array();
 	$result = dbRunQuery($dbLink,$query);
@@ -101,7 +104,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
 		$por['PoNo'] ="PO-".$por['PoNo']; 
 
-		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity'];
+		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']*((100 - intval($por['Quantity']))/100);
 		if($por['CostType'] == 'Purchase')  $totalPurchase += $price;
 		else $totalMaintenance += $price;
 
