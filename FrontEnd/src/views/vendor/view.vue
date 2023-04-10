@@ -190,7 +190,7 @@
     >
       <el-table-column label="Part Number" sortable width="250">
         <template slot-scope="{ row }">
-          <router-link :to="'/mfrParts/partView/' + row.ManufacturerPartNumber" class="link-type">
+          <router-link :to="'/mfrParts/partView/' + row.PartId" class="link-type">
             <span>{{ row.ManufacturerPartNumber }}</span>
           </router-link>
         </template>
