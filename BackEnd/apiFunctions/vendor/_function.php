@@ -17,8 +17,8 @@ function getVendorContact($vendorContactId): ?array
 	if($dbLink == null) return null;
 
 	$query = "SELECT *, vendor.Name AS VendorName, country.Name AS CountryName  FROM vendor ";
-	$query .= "LEFT JOIN vendor_address ON  vendor.Id = vendor_address.VendorId ";
-	$query .= "LEFT JOIN vendor_contact ON  vendor.Id = vendor_contact.VendorId ";
+	$query .= "LEFT JOIN vendor_address ON vendor.Id = vendor_address.VendorId ";
+	$query .= "LEFT JOIN vendor_contact ON vendor.Id = vendor_contact.VendorId ";
 	$query .= "LEFT JOIN country ON country.Id = vendor_address.CountryId ";
 	$query .= "WHERE  vendor_contact.Id = ".intval($vendorContactId);
 

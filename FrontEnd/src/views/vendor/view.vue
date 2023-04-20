@@ -139,6 +139,7 @@
       <el-table-column prop="Gender" label="Gender" sortable />
       <el-table-column prop="FirstName" label="First Name" sortable />
       <el-table-column prop="LastName" label="Last Name" sortable />
+      <el-table-column prop="JobTitle" label="Job Title" sortable />
       <el-table-column prop="Language" label="Language" sortable />
       <el-table-column prop="Phone" label="Phone" sortable />
       <el-table-column prop="EMail" label="E-Mail" sortable />

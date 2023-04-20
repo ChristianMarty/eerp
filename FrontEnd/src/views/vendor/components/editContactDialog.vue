@@ -25,6 +25,9 @@
         <el-form-item label="Last Name">
           <el-input v-model="contactData.LastName" />
         </el-form-item>
+        <el-form-item label="Job Title">
+          <el-input v-model="contactData.JobTitle" />
+        </el-form-item>
         <el-form-item label="Language">
           <el-select v-model="contactData.Language" placeholder="Gender" filterable>
             <el-option
@@ -115,6 +118,7 @@ export default {
         Gender: this.contactData.Gender,
         FirstName: this.contactData.FirstName,
         LastName: this.contactData.LastName,
+        JobTitle: this.contactData.JobTitle,
         Language: this.contactData.Language,
         Phone: this.contactData.Phone,
         EMail: this.contactData.EMail

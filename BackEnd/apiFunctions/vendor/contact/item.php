@@ -37,6 +37,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$output['VendorId'] = intval($data['VendorId']);
 		$output['AddressId'] = intval($data['VendorAddressId']);
 		$output['Gender'] = $data['Gender'];
+        $output['JobTitle'] = $data['JobTitle'];
 		$output['FirstName'] = $data['FirstName'];
 		$output['LastName'] = $data['LastName'];
 		$output['Language'] = $data['Language'];
@@ -61,6 +62,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$insertData['Gender'] = $data['Gender'];
 	$insertData['FirstName'] = $data['FirstName'];
 	$insertData['LastName'] = $data['LastName'];
+    $insertData['JobTitle'] = $data['JobTitle'];
 	$insertData['Language'] = $data['Language'];
 	$insertData['Phone'] = $data['Phone'];
 	$insertData['E-Mail'] = $data['EMail'];
@@ -93,6 +95,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$insertData['Gender'] = $data['Gender'];
 	$insertData['FirstName'] = $data['FirstName'];
 	$insertData['LastName'] = $data['LastName'];
+    $insertData['JobTitle'] = $data['JobTitle'];
 	$insertData['Language'] = $data['Language'];
 	$insertData['Phone'] = $data['Phone'];
 	$insertData['`E-Mail`'] = $data['EMail'];

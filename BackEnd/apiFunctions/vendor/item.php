@@ -92,7 +92,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['Address'] = $address;
 	
 	// Get Contacts
-	$query  = "SELECT Id, Gender, FirstName, LastName, Language, Phone, `E-Mail` AS EMail FROM vendor_contact ";
+	$query  = "SELECT Id, Gender, FirstName, LastName, JobTitle, Language, Phone, `E-Mail` AS EMail FROM vendor_contact ";
 	$query .= "WHERE VendorId = {$vendorId} ";
 	
 	$result = dbRunQuery($dbLink,$query);
