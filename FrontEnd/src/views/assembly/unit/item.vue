@@ -1,6 +1,11 @@
 <template>
   <div class="app-container">
     <h1>{{ assemblyUnitData.AssemblyUnitBarcode }}</h1>
+    <p><b>Assembly: </b>
+      <router-link :to="'/assembly/item/' + assemblyUnitData.AssemblyBarcode" class="link-type">
+        {{ assemblyUnitData.AssemblyBarcode }}
+      </router-link>
+    </p>
     <p><b>Serial Number: </b>{{ assemblyUnitData.SerialNumber }}</p>
     <p><b>Location: </b>{{ assemblyUnitData.LocationName }}</p>
     <p><b>Shipping Prohibited: </b>{{ assemblyUnitData.ShippingProhibited }}</p>

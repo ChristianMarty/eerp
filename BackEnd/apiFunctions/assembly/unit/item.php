@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($shippingProhibited) $shippingClearance = false;
 
 	$query  = "SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit ";
-	//$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
+	$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
 	
 	$queryParam = array();
 	$queryParam[] = " AssemblyUnitNumber = '" . $assemblyUnitNumber . "'";
@@ -59,6 +59,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = array();
 
 	$output = mysqli_fetch_assoc($result);
+    $output['AssemblyBarcode'] =  "ASM-".$output['AssemblyNumber'];
     $output['AssemblyUnitBarcode'] =  "ASU-".$output['AssemblyUnitNumber'];
 	$output['ShippingClearance'] =  $shippingClearance;
 	$output['ShippingProhibited'] = $shippingProhibited;

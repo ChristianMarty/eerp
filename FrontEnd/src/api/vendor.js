@@ -282,6 +282,7 @@ class Vendor {
       Gender: '',
       FirstName: '',
       LastName: '',
+      JobTitle: '',
       Language: '',
       Phone: '',
       EMail: ''
