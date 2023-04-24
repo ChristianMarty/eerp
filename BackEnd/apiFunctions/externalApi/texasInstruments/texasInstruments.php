@@ -8,7 +8,17 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../../config.php";
+
+function texasInstruments_apiInfo()
+{
+	$data = array();
+
+	$data['Authenticated'] = true;
+	$data['AuthenticationUrl'] = '';
+		
+	return $data ;
+}
 
 function texasInstruments_auth()
 {

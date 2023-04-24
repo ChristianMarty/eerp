@@ -8,7 +8,17 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../../config.php";
+
+function mouser_apiInfo(): array
+{
+	$data = array();
+
+	$data['Authenticated'] = true;
+	$data['AuthenticationUrl'] = '';
+		
+	return $data ;
+}
 
 function mouser_getPartData($mouserPartNumber)
 {
@@ -83,11 +93,16 @@ function mouser_getOrderInformation($mouserOrderNumber ): array
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
     $result = curl_exec($curl);
+    if($result === false)
+    {
+        echo 'Curl error: ' . curl_error($curl);
+        exit;
+    }
 
     curl_close($curl);
 
 	$mouserData = json_decode($result,true);
-	
+
 	$data = Array();
 	
 	$data['VatPrice'] = $mouserData["TaxAmount"];

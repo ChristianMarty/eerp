@@ -10,39 +10,30 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../externalApi/mouser.php";
-require_once __DIR__ . "/../../externalApi/digikey.php";
-require_once __DIR__ . "/../../externalApi/texasInstruments.php";
-
-global $mouserSupplierId;
-global $digikeySupplierId;
-global $texasInstrumentsSupplierId;
 	
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["SupplierId"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "SupplierId or OrderNumber missing!");
-	
-	$supplierId = $_GET["SupplierId"];
+
+    $dbLink = dbConnect();
+    $supplierId = dbEscapeString($dbLink, $_GET["SupplierId"]);
+
+    $query = "SELECT * FROM vendor WHERE Id = ".$supplierId.";";
+    $result = dbRunQuery($dbLink,$query);
+    $supplierData = mysqli_fetch_assoc($result);
+    dbClose($dbLink);
+
 	$orderNumber = $_GET["OrderNumber"];
 
-    $data = null;
-	if($supplierId == $mouserSupplierId)
-	{
-		$data = mouser_getOrderInformation($orderNumber);
-	}
-	else if($supplierId == $digikeySupplierId)
-	{
-		$data = digikey_getOrderInformation($orderNumber);
-	}
-	else if($supplierId == $texasInstrumentsSupplierId)
-	{
-		$data = texasInstruments_getOrderInformation($orderNumber);
-	}
-	else
-	{
-		sendResponse(null, "Supplier not supported!");
-	}
-		
+    $name = $supplierData['API'];
+    if($name === null) sendResponse(null, "Supplier not supported!");
+
+    require_once __DIR__ . "/../../externalApi/".$name."/".$name.".php";
+
+    $data = call_user_func($name."_getOrderInformation", $orderNumber);
+
+    $data = mouser_getOrderInformation($orderNumber);
+
 	sendResponse($data);
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')

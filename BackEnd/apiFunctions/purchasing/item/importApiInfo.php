@@ -10,47 +10,28 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../externalApi/mouser.php";
-require_once __DIR__ . "/../../externalApi/digikey.php";
 
-global $mouserSupplierId;
-global $digikeySupplierId;
-global $texasInstrumentsSupplierId;
-	
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["SupplierId"])) sendResponse(null, "SupplierId missing!");
-	
-	$supplierId = $_GET["SupplierId"];
-	$data = array();
-	
-	if($supplierId == $mouserSupplierId)
-	{
-		$data['Authenticated'] = true;
-		$data['AuthenticationUrl'] = '';
-	}
-	else if($supplierId == $digikeySupplierId)
-	{
-		if(digikey_isAuthenticated())
-		{
-			$data['Authenticated'] = true;
-			$data['AuthenticationUrl'] = '';
-		}
-		else
-		{
-			$data['Authenticated'] = true;
-			$data['AuthenticationUrl'] = digikey_auth();
-		}
-	}
-	else if($supplierId == $texasInstrumentsSupplierId)
-	{
-		$data['Authenticated'] = true;
-		$data['AuthenticationUrl'] = '';
-	}
-	else
-	{
-		sendResponse(null, "Supplier not supported!");
-	}
+
+    $dbLink = dbConnect();
+    $supplierId = dbEscapeString($dbLink, $_GET["SupplierId"]);
+
+    $query = "SELECT * FROM vendor WHERE Id = ".$supplierId.";";
+    $result = dbRunQuery($dbLink,$query);
+    $supplierData = mysqli_fetch_assoc($result);
+    dbClose($dbLink);
+
+    $name = $supplierData['API'];
+    if($name === null) sendResponse(null, "Supplier not supported!");
+
+    $path = __DIR__ . "/../../externalApi/".$name."/".$name.".php";
+    require $path;
+
+
+
+    $data = call_user_func($name."_apiInfo");
 		
 	sendResponse($data);
 }

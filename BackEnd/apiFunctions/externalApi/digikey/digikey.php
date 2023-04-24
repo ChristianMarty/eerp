@@ -8,7 +8,23 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../../config.php";
+
+function digikey_apiInfo()
+{
+	$data = array();
+	if(digikey_isAuthenticated())
+	{
+		$data['Authenticated'] = true;
+		$data['AuthenticationUrl'] = '';
+	}
+	else
+	{
+		$data['Authenticated'] = true;
+		$data['AuthenticationUrl'] = digikey_auth();
+	}
+	return $data ;
+}
 
 function digikey_auth()
 {
