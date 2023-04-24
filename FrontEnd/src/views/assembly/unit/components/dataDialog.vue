@@ -1,7 +1,7 @@
 <template>
   <div class="assembly-history-data-dialog">
     <el-dialog
-      title="Assembly History"
+      :title="data.AssemblyUnitHistoryBarcode + ' - Assembly History'"
       :visible.sync="visible"
       :before-close="closeDialog"
       center
@@ -9,6 +9,7 @@
     >
 
       <p><b>{{ data.Title }}</b></p>
+      <p>{{ data.AssemblyUnitHistoryBarcode }}</p>
       <p>{{ data.Type }}, {{ data.Date }}</p>
       <p>{{ data.Description }}</p>
 
@@ -53,7 +54,7 @@ const assembly = new Assembly()
 
 export default {
   name: 'AssemblyItemHistoryData',
-  props: { id: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
+  props: { assemblyUnitHistoryNumber: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
   data() {
     return {
       data: {},
@@ -73,7 +74,7 @@ export default {
       this.getHistoryData()
     },
     getHistoryData() {
-      assembly.unit.history.item(this.$props.id).then(response => {
+      assembly.unit.history.item(this.$props.assemblyUnitHistoryNumber).then(response => {
         this.data = response
         this.tableData = []
         if (this.data.Data === null) return
@@ -108,7 +109,7 @@ export default {
       })
     },
     print() {
-      assembly.unit.history.item(this.$props.id).then(response => {
+      assembly.unit.history.item(this.$props.assemblyUnitHistoryNumber).then(response => {
         requestBN({
           method: 'post',
           url: '/print/assemblyBonPrint',

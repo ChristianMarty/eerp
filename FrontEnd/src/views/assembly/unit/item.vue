@@ -30,21 +30,21 @@
         v-for="(line, index) in assemblyUnitData.History"
         :key="index"
         :color="line.color"
-        :timestamp="line.Date+' - '+line.Type"
+        :timestamp="line.Date+' - '+ line.AssemblyUnitHistoryBarcode+' - '+line.Type"
         placement="top"
       >
         <el-card>
           <b>{{ line.Title }}</b>
           <p>{{ line.Description }}</p>
-          <el-button @click.native="showHistoryDialog(line.Id)">Show Data</el-button>
-          <el-button v-if="line.EditToken" v-permission="['assembly.unit.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.Id)">Edit</el-button>
+          <el-button @click.native="showHistoryDialog(line.AssemblyUnitHistoryBarcode)">Show Data</el-button>
+          <el-button v-if="line.EditToken" v-permission="['assembly.unit.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.AssemblyUnitHistoryBarcode)">Edit</el-button>
           <p v-if="line.ShippingClearance" class="shippingClearance">Ready for shipment</p>
           <p v-if="line.ShippingProhibited" class="shippingProhibitedWarning">Shipping Prohibited</p>
         </el-card>
       </el-timeline-item>
     </el-timeline>
 
-    <el-dialog title="Edit History Item" :visible.sync="editHistoryVisible">
+    <el-dialog :title="'Edit History Item'" :visible.sync="editHistoryVisible">
       <el-form label-width="170px">
         <el-form-item label="Title">
           <el-input v-model="editHistoryData.Title" />
@@ -78,7 +78,7 @@
       </span>
     </el-dialog>
 
-    <assemblyDataDialog :id="historyId" :visible.sync="assemblyDataDialogVisible" />
+    <assemblyDataDialog :assembly-unit-history-number="assemblyUnitHistoryNumber" :visible.sync="assemblyDataDialogVisible" />
     <locationTransferDialog :barcode="assemblyUnitData.AssemblyUnitBarcode" :visible.sync="locationTransferDialogVisible" @change="getAssemblyItem()" />
 
   </div>
@@ -104,7 +104,7 @@ export default {
       editHistoryData: {},
       historyItemData: {},
       editHistoryVisible: false,
-      historyId: 0,
+      assemblyUnitHistoryNumber: 0,
       historyTypeOptions: [],
 
       locationTransferDialogVisible: false
@@ -142,7 +142,7 @@ export default {
       this.editHistoryVisible = true
     },
     showHistoryDialog(id) {
-      this.historyId = id
+      this.assemblyUnitHistoryNumber = id
       this.assemblyDataDialogVisible = true
     },
     editHistoryItem() {
@@ -198,8 +198,8 @@ export default {
         })
       })
     },
-    getHistoryData(id) {
-      assembly.unit.history.item(id).then(response => {
+    getHistoryData(AssemblyUnitHistoryNumber) {
+      assembly.unit.history.item(AssemblyUnitHistoryNumber).then(response => {
         this.editHistoryData = response
         var data = this.editHistoryData.Data
         if (data === null) this.editHistoryData.Data = ''

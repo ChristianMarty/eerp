@@ -11,20 +11,21 @@
 require_once __DIR__ . "/../../../databaseConnector.php";
 require __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../../../util/_json.php";
+require_once __DIR__ . "/../../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["AssemblyHistoryId"])) sendResponse(Null,"AssemblyHistoryId not set");
+	if(!isset($_GET["AssemblyUnitHistoryNumber"])) sendResponse(Null,"Assembly Unit History Number not set");
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$assemblyHistoryId = dbEscapeString($dbLink, $_GET["AssemblyHistoryId"]);
+	$assemblyHistoryNumber= barcodeParser_AssemblyUnitHistoryNumber($_GET["AssemblyUnitHistoryNumber"]);
 
     $query  = <<< STR
         SELECT * FROM assembly_unit_history
         LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId
-        WHERE assembly_unit_history.Id = $assemblyHistoryId
+        WHERE assembly_unit_history.AssemblyUnitHistoryNumber = '$assemblyHistoryNumber'
     STR;
 
 	$result = dbRunQuery($dbLink,$query);
@@ -48,6 +49,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
 		else $temp['Data'] = NULL;
 		$temp['Date'] = $r['Date'];
+
+        $temp['AssemblyUnitHistoryBarcode'] = "ASH-".$r['AssemblyUnitHistoryNumber'];
 
 		$history = $temp;
 	}
@@ -115,6 +118,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$assemblyNo = str_replace("asm-","",$assemblyNo);
 	
 	$sqlData = array();
+    $sqlData['AssemblyUnitHistoryNumber']['raw'] = "(SELECT generateItemNumber())";
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);

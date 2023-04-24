@@ -99,13 +99,13 @@ class Assembly {
     },
 
     history: {
-      item(AssemblyHistoryId) {
+      item(AssemblyUnitHistoryNumber) {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/assembly/unit/history/item',
             methood: 'get',
             params: {
-              AssemblyHistoryId: AssemblyHistoryId
+              AssemblyUnitHistoryNumber: AssemblyUnitHistoryNumber
             }
           }).then(response => {
             if (response.error == null) {

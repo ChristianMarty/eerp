@@ -42,6 +42,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> setTextSize(2, 2);
 	$printer -> text($companyName."\n");
 	$printer -> feed(1);
+
+    $printer -> selectPrintMode(Printer::MODE_FONT_A);
+    $printer -> text($printData['AssemblyUnitHistoryBarcode']."\n");
+    $printer -> feed(1);
 	
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> setTextSize(1, 1);

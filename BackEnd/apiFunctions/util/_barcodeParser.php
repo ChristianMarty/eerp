@@ -111,4 +111,25 @@ function barcodeParser_WorkOrderNumber(string|int $input): bool|int
 
     return intval($woCodeParts[1]);
 }
+
+function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): bool|string
+{
+    if(is_int($input)) $input = strval($input);
+
+    $ashCode = trim($input);
+    $ashCode = strtolower($ashCode);
+
+    if( substr_count($ashCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($ashCode)) return false;
+        return intval($ashCode);
+    }
+
+    $ashCodeParts = explode('-',$ashCode);
+
+    if($ashCodeParts[0] != "ash") return false;
+    if(!is_numeric($ashCodeParts[1])) return false;
+
+    return intval($ashCodeParts[1]);
+}
 ?>

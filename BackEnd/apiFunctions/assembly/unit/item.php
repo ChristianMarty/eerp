@@ -43,6 +43,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['ShippingClearance']) $shippingClearance = true;
 		if($r['ShippingProhibited']) $shippingProhibited = true;
 
+        $r['AssemblyUnitHistoryBarcode'] = "ASH-".$r['AssemblyUnitHistoryNumber'];
+
 		$history[] = $r;
 	}
 	
