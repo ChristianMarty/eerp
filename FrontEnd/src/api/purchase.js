@@ -40,6 +40,44 @@ class Purchase {
           }
         })
       })
+    },
+    import: {
+      load(SupplierId, OrderNumber) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            url: '/purchasing/item/import',
+            methood: 'get',
+            params: {
+              SupplierId: SupplierId,
+              OrderNumber: OrderNumber
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject()
+            }
+          })
+        })
+      },
+      save(PurchaseOrderNo, OrderNumber) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/purchasing/item/import',
+            params: {
+              PurchaseOrderNo: PurchaseOrderNo,
+              OrderNumber: OrderNumber
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject()
+            }
+          })
+        })
+      }
     }
   }
 

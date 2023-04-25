@@ -10,14 +10,23 @@
 
 require_once __DIR__ . "/../../../config.php";
 
-function texasInstruments_apiInfo()
+function texasInstruments_apiInfo() : array
 {
-	$data = array();
+    $authentication = array();
 
-	$data['Authenticated'] = true;
-	$data['AuthenticationUrl'] = '';
-		
-	return $data ;
+    $authentication['Authenticated'] = true;
+    $authentication['AuthenticationUrl'] = '';
+
+    $data = array();
+    $data['Authentication'] = $authentication;
+
+    $capability = array();
+    $capability['OrderImportSupported'] = true;
+    $capability['SkuSearchSupported'] = false;
+
+    $data['Capability'] = $capability;
+
+    return $data ;
 }
 
 function texasInstruments_auth()

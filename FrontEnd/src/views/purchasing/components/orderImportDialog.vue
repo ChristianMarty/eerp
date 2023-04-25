@@ -64,7 +64,11 @@
 
 <script>
 
-import requestBN from '@/utils/requestBN'
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 export default {
   name: 'AddToStock',
@@ -83,49 +87,40 @@ export default {
     authenticate() {
       window.open(this.ApiInfo.AuthenticationUrl, '_blank').focus()
     },
-    loadData() {
-      requestBN({
-        url: '/purchasing/item/import',
-        methood: 'get',
-        params: { SupplierId: this.meat.SupplierId, OrderNumber: this.OrderNumber }
-      }).then(response => {
-        this.importData = response.data
+    getImportApiInfo() {
+      vendor.api.information(this.meat.SupplierId).then(response => {
+        this.ApiInfo = response.Authentication
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
-    getImportApiInfo() {
-      requestBN({
-        url: '/purchasing/item/importApiInfo',
-        methood: 'get',
-        params: { SupplierId: this.meat.SupplierId }
-      }).then(response => {
-        if (response.error == null) {
-          this.ApiInfo = response.data
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+    loadData() {
+      purchase.item.import.load(this.meat.SupplierId, this.OrderNumber).then(response => {
+        this.importData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     importOrder() {
-      requestBN({
-        method: 'post',
-        url: '/purchasing/item/import',
-        params: { PurchaseOrderNo: this.meat.PoNo, OrderNumber: this.OrderNumber }
-      }).then(response => {
-        if (response.error == null) {
-          this.closeDialog()
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      purchase.item.import.save(this.meat.PoNo, this.OrderNumber).then(response => {
+        this.closeDialog()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     closeDialog() {

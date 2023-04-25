@@ -11,6 +11,26 @@
 
 require_once __DIR__ . "/../../../config.php";
 
+
+function distrelec_apiInfo() : array
+{
+    $authentication = array();
+
+    $authentication['Authenticated'] = false;
+    $authentication['AuthenticationUrl'] = '';
+
+    $data = array();
+    $data['Authentication'] = $authentication;
+
+    $capability = array();
+    $capability['OrderImportSupported'] = false;
+    $capability['SkuSearchSupported'] = true;
+
+    $data['Capability'] = $capability;
+
+    return $data ;
+}
+
 function distrelec_skuSearch($sku)
 {
 	$url = "https://aws-ccv2-p-lb00.distrelec.com/FACT-Finder/Suggest.ff?query=".$sku."&filtercategoryCodePathROOT=&channel=distrelec_7310_ch_en&queryFromSuggest=true&userInput=".$sku."&format=json";

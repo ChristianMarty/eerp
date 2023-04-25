@@ -12,17 +12,27 @@ require_once __DIR__ . "/../../../config.php";
 
 function digikey_apiInfo()
 {
-	$data = array();
+	$authentication = array();
 	if(digikey_isAuthenticated())
 	{
-		$data['Authenticated'] = true;
-		$data['AuthenticationUrl'] = '';
+        $authentication['Authenticated'] = true;
+        $authentication['AuthenticationUrl'] = '';
 	}
 	else
 	{
-		$data['Authenticated'] = true;
-		$data['AuthenticationUrl'] = digikey_auth();
+        $authentication['Authenticated'] = true;
+        $authentication['AuthenticationUrl'] = digikey_auth();
 	}
+
+    $data = array();
+    $data['Authentication'] = $authentication;
+
+    $capability = array();
+    $capability['OrderImportSupported'] = true;
+    $capability['SkuSearchSupported'] = true;
+
+    $data['Capability'] = $capability;
+
 	return $data ;
 }
 

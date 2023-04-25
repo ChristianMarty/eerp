@@ -218,6 +218,7 @@ class Vendor {
       })
     }
   }
+
   contact = {
     language() {
       return new Promise((resolve, reject) => {
@@ -308,7 +309,36 @@ class Vendor {
         })
       })
     }
+  }
 
+  api = {
+    informationReturn: {
+      Authentication: {
+        Authenticated: false,
+        AuthenticationUrl: ''
+      },
+      Capability: {
+        OrderImportSupported: false,
+        SkuSearchSupported: false
+      }
+    },
+    information(SupplierId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/vendor/api/information',
+          params: {
+            SupplierId: SupplierId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
   }
 }
 

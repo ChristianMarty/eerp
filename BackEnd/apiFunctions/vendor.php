@@ -19,8 +19,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$query = "SELECT * FROM vendor ";	
 	
 	$queryParam = array();
-	
-	if(isset($_GET["OrderImportSupported"])) $queryParam[] = "OrderImportSupported = true";
+
 	if(isset($_GET["Supplier"]) AND filter_var($_GET["Supplier"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsSupplier = b'1'";
 	if(isset($_GET["Manufacturer"]) AND filter_var($_GET["Manufacturer"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsManufacturer = b'1'";
 
@@ -45,8 +44,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		else $temp['IsSupplier'] = false;
 		if($r['IsManufacturer'] != 0) $temp['IsManufacturer'] = true;
 		else $temp['IsManufacturer'] = false;
-		if($r['OrderImportSupported'] != 0) $temp['OrderImportSupported'] = true;
-		else $temp['OrderImportSupported'] = false;
 		
 		$suppliers[] = $temp;
 	}

@@ -11,7 +11,7 @@
           style="margin-top: 20px"
           @click="addItemLine()"
         />
-        <el-button v-if="poData.MetaData.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
+        <el-button v-if="apiInfo.Capability.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
         <el-button @click="setVatVisible = true">Set VAT</el-button>
         <el-button @click="setExpectedDateVisible = true">Set Expected Date</el-button>
@@ -94,7 +94,7 @@
       <editLineItemDialog :visible.sync="orderLineEditDialogVisible" :line="orderLineEditData" :supplier-id="Number(orderData.SupplierId)" :po="orderData" @closed="getOrderLines()" @refresh="refreshPage()" />
       <editAdditionalChargesDialog :visible.sync="additionalChargesDialogVisible" :line="additionalChargesLine" :po-no="orderData.PoNo" @closed="getOrderLines()" @refresh="refreshPage()" />
 
-      <orderImportDialog v-if="poData.MetaData.OrderImportSupported == true" :visible.sync="importDialogVisible" :meat="poData.MetaData" @closed="getOrderLines()" />
+      <orderImportDialog v-if="apiInfo.Capability.OrderImportSupported == true" :visible.sync="importDialogVisible" :meat="poData.MetaData" @closed="getOrderLines()" />
     </template>
 
     <el-dialog width="85%" title="Pending Order Request" :visible.sync="orderReqestDialogVisible" @open="getOrderRequests()">
@@ -162,6 +162,12 @@ import orderImportDialog from './orderImportDialog'
 import editLineItemDialog from './editLineItemDialog'
 import editAdditionalChargesDialog from './editAdditionalChargesDialog'
 
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
 const emptyOrderLine = {
   OrderLineId: 0,
   LineNo: 0,
@@ -200,6 +206,7 @@ export default {
   data() {
     return {
       poData: {},
+      apiInfo: Object.assign({}, vendor.api.informationReturn),
 
       itemLineIndex: 0,
       additionalChargesLineIndex: 0,
@@ -369,18 +376,20 @@ export default {
       this.getOrderLines()
     },
     getOrderLines() {
-      requestBN({
-        url: '/purchasing/item',
-        methood: 'get',
-        params: {
-          PurchaseOrderNo: this.$props.orderData.PoNo
-        }
-      }).then(response => {
-        this.poData = response.data
+      purchase.item.search(this.$props.orderData.PoNo).then(response => {
+        this.poData = response
         this.itemLineIndex = this.poData.Lines.length
         this.additionalChargesLineIndex = this.poData.AdditionalCharges.length
         this.itemLineIndex++
         this.additionalChargesLineIndex++
+        this.getImportApiInfo()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getOrderRequests() {
@@ -390,6 +399,18 @@ export default {
         params: { SupplierId: this.$props.orderData.SupplierId }
       }).then(response => {
         this.orderRequests = response.data
+      })
+    },
+    getImportApiInfo() {
+      vendor.api.information(this.$props.orderData.SupplierId).then(response => {
+        this.apiInfo = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

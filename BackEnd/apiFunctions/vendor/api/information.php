@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
-// FileName : importApiInfo.php
-// FilePath : apiFunctions/purchasing/item/
+// FileName : information.php
+// FilePath : apiFunctions/vendor/api/
 // Author   : Christian Marty
 // Date		: 05.01.2022
 // License  : MIT
@@ -26,10 +26,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $name = $supplierData['API'];
     if($name === null) sendResponse(null, "Supplier not supported!");
 
-    $path = __DIR__ . "/../../externalApi/".$name."/".$name.".php";
+    $path =  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
     require $path;
-
-
 
     $data = call_user_func($name."_apiInfo");
 		
