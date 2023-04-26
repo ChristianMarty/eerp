@@ -16,8 +16,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["SupplierId"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "SupplierId or OrderNumber missing!");
 
     $dbLink = dbConnect();
+	
     $supplierId = dbEscapeString($dbLink, $_GET["SupplierId"]);
-
     $query = "SELECT * FROM vendor WHERE Id = ".$supplierId.";";
     $result = dbRunQuery($dbLink,$query);
     $supplierData = mysqli_fetch_assoc($result);
@@ -32,7 +32,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $data = call_user_func($name."_getOrderInformation", $orderNumber);
 
-    $data = mouser_getOrderInformation($orderNumber);
 
 	sendResponse($data);
 }
@@ -64,18 +63,17 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$id = $r['Id'];
 	}
 	
-	if($vendorId == $mouserSupplierId)
-	{
-		$supplierData = mouser_getOrderInformation($orderNumber);
-	}
-	else if($vendorId == $digikeySupplierId)
-	{
-		$supplierData = digikey_getOrderInformation($orderNumber);
-	}
-	else if($vendorId == $texasInstrumentsSupplierId)
-	{
-		$supplierData = texasInstruments_getOrderInformation($orderNumber);
-	}
+	$query = "SELECT * FROM vendor WHERE Id = ".$vendorId.";";
+    $result = dbRunQuery($dbLink,$query);
+    $vendorMetaData = mysqli_fetch_assoc($result);
+	
+	$name = $vendorMetaData['API'];
+    if($name === null) sendResponse(null, "Supplier not supported!");
+
+    require_once __DIR__ . "/../../externalApi/".$name."/".$name.".php";
+
+    $supplierData = call_user_func($name."_getOrderInformation", $orderNumber);
+	
 	
 	$poData = array();
 	$poData['OrderNumber'] = $orderNumber;

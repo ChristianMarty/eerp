@@ -10,7 +10,6 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../externalApi/mouser.php";
 
 function loadDatabaseData($purchaseOrderNo)
 {
