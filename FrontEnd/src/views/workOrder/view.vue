@@ -154,7 +154,7 @@ export default {
 
       const totalLine = []
       totalLine[0] = 'Total'
-      totalLine[3] = totalQuantity * -1
+      totalLine[4] = totalQuantity * -1
       totalLine[7] = Math.round(total * 100000) / 100000
       return totalLine
     }
