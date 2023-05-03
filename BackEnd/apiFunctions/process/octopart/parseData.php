@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : phraseData.php
+// FileName : parseData.php
 // FilePath : apiFunctions/process/octopart
 // Author   : Christian Marty
 // Date		: 01.08.2020
@@ -11,8 +11,8 @@
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../databaseConnector.php";
 
-$title = "Octopart Phrase Data";
-$description = "Phrases Octopart Data and converts it to BlueNova Part Attributes.";
+$title = "Octopart Parse Data";
+$description = "Parse Octopart Data and converts it to BlueNova Part Attributes.";
 
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -20,8 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT Id, OctopartPartData ";
-	$query .= "FROM `manufacturerPart` ";
+	$query = "SELECT Id, OctopartPartData FROM `manufacturerPart` WHERE OctopartPartData IS NOT NULL AND PartData IS NULL";
 
 	$queryResult = dbRunQuery($dbLink,$query);
 	
@@ -36,6 +35,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$Lifecycle = null;
 		$Package = null;
+		
+		if(!isset($OctopartPartData->specs)) continue;
 		
 		for($i = 0; $i < count($OctopartPartData->specs); $i++)
 		{
@@ -205,7 +206,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($dbLink == null) return null;
 		
 		$query = "UPDATE manufacturerPart SET PartData = '".json_encode($PartData)."' ";
-		$query .= ",Status = '".$Lifecycle."' ";
+		if(!is_null($Lifecycle)) $query .= ",Status = '".$Lifecycle."' ";
 		if(!is_null($Package)) $query .= ",PackageId = (SELECT id FROM partPackage where Name = '".$Package."' OR Alias = '".$Package."')";
 		$query .= " WHERE Id = ".$partQueryData['Id'];
 		

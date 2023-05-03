@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : phraseClass.php
+// FileName : parsePartClass.php
 // FilePath : apiFunctions/process/octopart
 // Author   : Christian Marty
 // Date		: 01.08.2020
@@ -11,8 +11,8 @@
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../databaseConnector.php";
 
-$title = "Octopart Phrase Part Class";
-$description = "Phrases Octopart Class and converts it to BlueNova Part Class.";
+$title = "Octopart Parse Part Class";
+$description = "Parse Octopart Class and converts it to BlueNova Part Class.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -30,8 +30,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($partQueryData = mysqli_fetch_assoc($queryResult))
 	{
-	
-	
 		$partData = json_decode($partQueryData['OctopartPartData']);
 	
 		$dbLink = dbConnect();

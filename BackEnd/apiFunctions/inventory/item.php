@@ -104,7 +104,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
 		$por['PoNo'] ="PO-".$por['PoNo']; 
 
-		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']*((100 - intval($por['Quantity']))/100);
+		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']*((100 - intval($por['Discount']))/100);
+		$por["Price"] = $price;
 		if($por['CostType'] == 'Purchase')  $totalPurchase += $price;
 		else $totalMaintenance += $price;
 

@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	echo dbRunQuery($dbLink,$query);
 	
 	
-	$query = "SELECT * FROM `partLookup` ";
+	$query = "SELECT * FROM `partLookup` WHERE VendorId IS NOT NULL";
 	$queryResult = dbRunQuery($dbLink,$query);
 	
 	
@@ -34,7 +34,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$mfrId = $part['VendorId'];
 		
-		if(!is_array($partLookup[$mfrId])) $partLookup[$mfrId] = array();
+		if( !isset($partLookup[$mfrId]) || !is_array($partLookup[$mfrId]))
+		{
+			$partLookup[$mfrId] = array();
+		}
 		$partLookup[$mfrId][] = $part;
 	}
 	
@@ -48,7 +51,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$mfrId = $part['VendorId'];
 		
-		if(!is_array($mfrParts[$mfrId])) $mfrParts[$mfrId] = array();
+		if( !isset($mfrParts[$mfrId]) || !is_array($mfrParts[$mfrId]))
+		{
+			$mfrParts[$mfrId] = array();
+		}
+		
 		$mfrParts[$mfrId][] = $part;
 	}
 	
@@ -110,6 +117,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 function findMatch($lookup, $part)
 {
+	set_time_limit(20);
+	
 	$mfrId = $part['VendorId'];
 	$mfrPartNr = trim($part['ManufacturerPartNumber']);
 	$mfrPartId = $part['Id'];
@@ -207,7 +216,7 @@ function like_match($pattern, $subject): bool
 
 function addProdPart($partNo, $mfrPartId, $matchCertainty)
 {
-	$query = "INSERT IGNORE INTO productionPartMapping(ProductionPartId, ManufacturerPartId, MatchCertainty) VALUES( (SELECT Id FROM productionPart WHERE PartNo = '".$partNo."'), ".$mfrPartId.", '".$matchCertainty."')";
+	$query = "INSERT IGNORE INTO productionPartMapping(ProductionPartId, ManufacturerPartId, MatchCertainty) VALUES( (SELECT Id FROM productionPart WHERE Number = '".$partNo."'), ".$mfrPartId.", '".$matchCertainty."')";
 		
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
