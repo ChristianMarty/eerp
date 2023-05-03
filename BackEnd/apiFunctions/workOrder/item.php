@@ -42,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 
     $query = <<<STR
-    SELECT  prodPart.ProductionPartNumber, partStock.StockNo AS StockNumber, ManufacturerPartNumber, vendor.Name as ManufacturerName, partStock_history.Quantity, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price
+    SELECT  prodPart.ProductionPartNumber, partStock.StockNo AS StockNumber, ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, vendor.Name as ManufacturerName, partStock_history.Quantity, partStock_history.Date AS RemovalDate, partStock_getPrice(partStock_history.StockId) AS Price
     FROM partStock_history
     LEFT JOIN partStock On partStock.Id = partStock_history.StockId
     LEFT JOIN manufacturerPart On manufacturerPart.Id = partStock.ManufacturerPartId
