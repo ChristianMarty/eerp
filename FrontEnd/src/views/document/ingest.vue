@@ -5,6 +5,9 @@
     <template v-if="checkPermission(['document.upload'])">
       <el-button type="primary" icon="el-icon-upload" @click="uploadFile()">Upload</el-button>
     </template>
+    <template v-if="checkPermission(['document.upload'])">
+      <el-button type="primary" icon="el-icon-download" @click="downloadFile()">Download</el-button>
+    </template>
     <el-button type="primary" icon="el-icon-refresh-right" @click="getFileList()">Reload</el-button>
     <el-table
       :data="documentList"
@@ -116,11 +119,17 @@
       @change="getFileList()"
     />
 
+    <downloadDialog
+      :visible.sync="downloadDialogVisible"
+      @change="getFileList()"
+    />
+
   </div>
 </template>
 
 <script>
 import uploadDialog from './components/uploadDialog'
+import downloadDialog from './components/downloadDialog'
 import checkPermission from '@/utils/permission'
 
 import genericIngest from './components/ingestTemplates/generic'
@@ -137,7 +146,7 @@ const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { uploadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation, poQuoteApproval, invHistoryCalibration },
+  components: { uploadDialog, downloadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation, poQuoteApproval, invHistoryCalibration },
   data() {
     return {
       documentList: [],
@@ -145,6 +154,7 @@ export default {
       dialogData: Object.assign({}, document.ingestParameters),
       filePreviewPath: '',
       uploadDialogVisible: false,
+      downloadDialogVisible: false,
       selectedTemplate: null,
       templateOptions: [{
         value: 'genereic',
@@ -236,6 +246,9 @@ export default {
     },
     uploadFile() {
       this.uploadDialogVisible = true
+    },
+    downloadFile() {
+      this.downloadDialogVisible = true
     },
     openInTab(path) {
       window.open(path, '_blank').focus()
