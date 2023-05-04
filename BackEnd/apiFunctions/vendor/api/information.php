@@ -24,13 +24,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     dbClose($dbLink);
 
     $name = $supplierData['API'];
-    if($name === null) sendResponse(null, "Supplier not supported!");
+    if($name === null) sendResponse(null);
 
     $path =  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
     require $path;
 
     $data = call_user_func($name."_apiInfo");
-		
+
 	sendResponse($data);
 }
 ?>

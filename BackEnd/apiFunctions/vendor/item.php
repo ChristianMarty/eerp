@@ -39,9 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	else $output['IsSupplier'] = false;
 	if($data['IsManufacturer'] != 0) $output['IsManufacturer'] = true;
 	else $output['IsManufacturer'] = false;
-	if($data['OrderImportSupported'] != 0) $output['OrderImportSupported'] = true;
-	else $output['OrderImportSupported'] = false;
-	
+    
 	// Get Aliases
 	$query = "SELECT * FROM vendor_alias WHERE VendorId = {$vendorId} ";
 	
