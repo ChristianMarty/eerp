@@ -5,7 +5,6 @@
     <p>{{ labelData.Description }}</p>
     <el-table :data="variables" border style="width: 100%">
       <el-table-column prop="Name" label="Variable" width="220" />
-
       <el-table-column prop="Value" label="Value">
         <template slot-scope="{ row }">
           <el-input v-model="row.Value" placeholder="Please input" @input="updateCode" />
@@ -34,7 +33,7 @@
         <template slot="title">
           <h3>Code</h3>
         </template>
-        <p><pre>{{ code }}</pre></p>
+        <pre>{{ code }}</pre>
       </el-collapse-item>
     </el-collapse>
 
@@ -48,7 +47,6 @@
 
 <script>
 import requestBN from '@/utils/requestBN'
-import * as print from '@/utils/printLabel'
 
 export default {
   name: 'LabelItem',
@@ -72,8 +70,6 @@ export default {
       this.labelId = this.$route.params.Id
       this.getLabel()
     }
-
-    print.loadPrinter()
     this.getPrinter()
   },
   methods: {
@@ -124,7 +120,7 @@ export default {
       this.updateImage()
     },
     updateImage() {
-      if (this.labelData.Language != 'ZPL') return
+      if (this.labelData.Language !== 'ZPL') return
 
       this.previewPath = 'https://api.labelary.com/v1/printers/'
       this.previewPath += this.labelData.Resolution
@@ -136,7 +132,7 @@ export default {
       this.previewPath += this.code
 
       this.previewStyle = 'border: 1px solid; '
-      if (this.rotation == 90) {
+      if (this.rotation === 90) {
         this.previewStyle += 'transform: rotate(' + this.rotation + 'deg) '
         this.previewStyle += 'translateX(-100%) translateY(-33%);'
       }
