@@ -20,7 +20,7 @@ function digikey_apiInfo()
 	}
 	else
 	{
-        $authentication['Authenticated'] = true;
+        $authentication['Authenticated'] = false;
         $authentication['AuthenticationUrl'] = digikey_auth();
 	}
 

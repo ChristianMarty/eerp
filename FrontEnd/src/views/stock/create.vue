@@ -96,7 +96,6 @@ import * as labelTemplate from '@/utils/labelTemplate'
 import * as defaultSetting from '@/utils/defaultSetting'
 
 import requestBN from '@/utils/requestBN'
-import * as print from '@/utils/printLabel'
 import printDialog from './components/printDialog'
 
 import Vendor from '@/api/vendor'
