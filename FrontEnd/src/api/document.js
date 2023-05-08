@@ -114,7 +114,21 @@ class Document {
         })
       })
     },
-
+    download(url) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/document/ingest/download',
+          data: { url: url }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
     template: {
       purchaseOrderParameters: {
         FileName: '',
