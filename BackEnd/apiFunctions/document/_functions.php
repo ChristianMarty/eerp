@@ -131,5 +131,4 @@ function ingest($data): int|array
     if($output != null) return $output;
     return array('error' => $error);
 }
-
 ?>

@@ -6,7 +6,16 @@
     <el-form label-width="150px">
 
       <el-form-item label="Vendor Name:">
-        <el-input v-model="vendorName" />
+        <el-input v-model="vendorData.Name" />
+      </el-form-item>
+      <el-form-item label="Is Supplier:">
+        <el-checkbox v-model="vendorData.IsSupplier" />
+      </el-form-item>
+      <el-form-item label="Is Manufacturer:">
+        <el-checkbox v-model="vendorData.IsManufacturer" />
+      </el-form-item>
+      <el-form-item label="Is Contractor:">
+        <el-checkbox v-model="vendorData.IsContractor" />
       </el-form-item>
 
       <el-form-item>
@@ -23,14 +32,14 @@ export default {
   components: {},
   data() {
     return {
-      vendorName: ''
+      vendorData: Object.assign({}, vendor.createParameters)
     }
   },
   mounted() {
   },
   methods: {
     save() {
-      vendor.create(this.vendorName).then(response => {
+      vendor.create(this.vendorData).then(response => {
         this.$router.push('/vendor/view/' + response.VendorId)
       }).catch(response => {
         this.$message({

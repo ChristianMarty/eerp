@@ -1,35 +1,15 @@
 import eerpApi from '@/api/apiQuery'
 
 class Vendor {
-  /* Vendor *************************************************
- Create Vendor
-  **********************************************************/
-  create(VendorName) {
-    return new Promise((resolve, reject) => {
-      eerpApi({
-        method: 'post',
-        url: '/vendor',
-        data: {
-          Name: VendorName
-        }
-      }).then(response => {
-        if (response.error == null) {
-          resolve(response.data)
-        } else {
-          reject(response.error)
-        }
-      })
-    })
-  }
-
-  search(Supplier = null, Manufacturer = null) {
+  search(Supplier = null, Manufacturer = null, Contractor = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/vendor',
         methood: 'get',
         params: {
           Supplier: Supplier,
-          Manufacturer: Manufacturer
+          Manufacturer: Manufacturer,
+          Contractor: Contractor
         }
       }).then(response => {
         if (response.error == null) {
@@ -68,8 +48,9 @@ class Vendor {
     Name: '',
     ShortName: '',
     CustomerNumber: '',
-    IsSupplier: '',
-    IsManufacturer: ''
+    IsSupplier: false,
+    IsManufacturer: false,
+    IsContractor: false
   }
   save(saveParameters) {
     return new Promise((resolve, reject) => {
@@ -77,6 +58,31 @@ class Vendor {
         method: 'patch',
         url: '/vendor/item',
         data: saveParameters
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
+  /* Vendor *************************************************
+  Create Vendor
+  **********************************************************/
+  createParameters = {
+    Name: '',
+    IsSupplier: false,
+    IsManufacturer: false,
+    IsContractor: false
+  }
+  create(createParameters) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'post',
+        url: '/vendor/item',
+        data: createParameters
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

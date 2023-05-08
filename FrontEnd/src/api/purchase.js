@@ -23,6 +23,22 @@ class Purchase {
     })
   }
 
+  get(VendorId = null) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'get',
+        url: '/purchasOrder',
+        params: { VendorId: VendorId }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
   item = {
     search(PurchaseOrderNumber = null) {
       return new Promise((resolve, reject) => {

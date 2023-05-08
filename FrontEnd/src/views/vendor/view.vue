@@ -8,6 +8,7 @@
     <p><b>Customer Number:</b> {{ vendorData.CustomerNumber }}</p>
     <p><b>Is Supplier:</b> {{ vendorData.IsSupplier }}</p>
     <p><b>Is Manufacturer:</b> {{ vendorData.IsManufacturer }}</p>
+    <p><b>Is Contractor:</b> {{ vendorData.IsContractor }}</p>
 
     <template v-if="checkPermission(['vendor.edit'])">
       <el-button
@@ -248,8 +249,6 @@
 <script>
 import checkPermission from '@/utils/permission'
 
-import requestBN from '@/utils/requestBN'
-
 import editDialog from './components/editDialog'
 import aliasDialog from './components/editAliasDialog'
 import addressDialog from './components/editAddressDialog'
@@ -257,6 +256,12 @@ import contactDialog from './components/editContactDialog'
 
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
+import Part from '@/api/part'
+const part = new Part()
 
 export default {
   name: 'PartDetail',
@@ -271,7 +276,7 @@ export default {
     return {
       vendorData: {},
       editDialogVisible: false,
-      supplierData: null,
+
       supplierPartData: null,
       purchasOrders: [],
       manufacturerartPartData: null,
@@ -287,11 +292,8 @@ export default {
 
     }
   },
-  async mounted() {
+  mounted() {
     this.update()
-    this.getSupplier()
-    this.getSupplierPart()
-    this.getManufacturerartPart()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -301,8 +303,53 @@ export default {
   },
   methods: {
     checkPermission,
-    async update() {
-      this.vendorData = await vendor.item(this.$route.params.vendorNo)
+    update() {
+      const vendorId = this.$route.params.vendorNo
+
+      vendor.item(vendorId).then(response => {
+        this.vendorData = response
+        this.setTitle()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+
+      purchase.get(vendorId).then(response => {
+        this.purchasOrders = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+
+      part.search(vendorId).then(response => {
+        this.manufacturerartPartData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+
+      part.searchSupplierPart(vendorId).then(response => {
+        this.supplierPartData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
     },
     showEditDialog() {
       this.editDialogVisible = true
@@ -319,51 +366,12 @@ export default {
       this.editContactId = ContactId
       this.editContactVisible = true
     },
-    getSupplier() {
-      requestBN({
-        url: '/supplier/item',
-        methood: 'get',
-        params: { SupplierId: this.$route.params.vendorNo }
-      }).then(response => {
-        this.supplierData = response.data
-
-        this.setTitle()
-        this.getPurchasOrder()
-      })
-    },
-    getSupplierPart() {
-      requestBN({
-        url: '/supplier/supplierPart',
-        methood: 'get',
-        params: { SupplierId: this.$route.params.vendorNo }
-      }).then(response => {
-        this.supplierPartData = response.data
-      })
-    },
-    getManufacturerartPart() {
-      requestBN({
-        url: '/part',
-        methood: 'get',
-        params: { ManufacturerId: this.$route.params.vendorNo }
-      }).then(response => {
-        this.manufacturerartPartData = response.data
-      })
-    },
-    getPurchasOrder() {
-      requestBN({
-        url: '/purchasOrder',
-        methood: 'get',
-        params: { VendorId: this.$route.params.vendorNo }
-      }).then(response => {
-        this.purchasOrders = response.data
-      })
-    },
     setTitle() {
       const title = 'Part View'
-      document.title = `${title} - ${this.supplierData.Name}`
+      document.title = `${title} - ${this.vendorData.Name}`
 
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.supplierData.Name}`
+        title: `${this.vendorData.Name}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     }

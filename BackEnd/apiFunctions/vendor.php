@@ -22,6 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	if(isset($_GET["Supplier"]) AND filter_var($_GET["Supplier"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsSupplier = b'1'";
 	if(isset($_GET["Manufacturer"]) AND filter_var($_GET["Manufacturer"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsManufacturer = b'1'";
+    if(isset($_GET["Contractor"]) AND filter_var($_GET["Contractor"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "IsContractor = b'1'";
 
 	$query = dbBuildQuery($dbLink, $query, $queryParam);
 	
@@ -44,6 +45,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		else $temp['IsSupplier'] = false;
 		if($r['IsManufacturer'] != 0) $temp['IsManufacturer'] = true;
 		else $temp['IsManufacturer'] = false;
+        if($r['IsContractor'] != 0) $temp['IsContractor'] = true;
+        else $temp['IsContractor'] = false;
 		
 		$suppliers[] = $temp;
 	}
@@ -54,45 +57,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	dbClose($dbLink);	
 	sendResponse($locationsTree);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$vendorName = dbEscapeString($dbLink,$data['Name']);
-	$insertData['IsSupplier']['raw']  = "b'1'";
-	$insertData['Name']  = $vendorName;
-	
-	$query = dbBuildInsertQuery($dbLink, "vendor", $insertData);
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	$data = array();
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	$query = "SELECT Id FROM vendor WHERE Id = LAST_INSERT_ID();";
-	$result = dbRunQuery($dbLink,$query);
-	
-	$result = dbGetResult($result);
-	
-	if(isset($result['Id']))
-	{
-		$data['VendorId'] = $result['Id'];
-	}
-	else
-	{
-		$error = "Vendor creation failed! Maybe it already exists? ";
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($data, $error);
 }
 
 function hasChild($rows,$id): bool

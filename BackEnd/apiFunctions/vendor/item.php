@@ -39,7 +39,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	else $output['IsSupplier'] = false;
 	if($data['IsManufacturer'] != 0) $output['IsManufacturer'] = true;
 	else $output['IsManufacturer'] = false;
-    
+    if($data['IsContractor'] != 0) $output['IsContractor'] = true;
+    else $output['IsContractor'] = false;
+
 	// Get Aliases
 	$query = "SELECT * FROM vendor_alias WHERE VendorId = {$vendorId} ";
 	
@@ -110,24 +112,25 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$vendorId = dbEscapeString($dbLink,$data['VendorId']);
 	
-	$inserData = array();
-	$inserData['Name']  = dbEscapeString($dbLink,trim($data['Name']));
-	$inserData['ShortName']  = dbEscapeString($dbLink,trim($data['ShortName']));
-	$inserData['CustomerNumber']  = dbEscapeString($dbLink,trim($data['CustomerNumber']));
+	$insertData = array();
+    $insertData['Name']  = dbEscapeString($dbLink,trim($data['Name']));
+    $insertData['ShortName']  = dbEscapeString($dbLink,trim($data['ShortName']));
+    $insertData['CustomerNumber']  = dbEscapeString($dbLink,trim($data['CustomerNumber']));
 	
-	if($data['IsSupplier']) $inserData['IsSupplier']['raw']  = "b'1'";
-	else $inserData['IsSupplier']['raw']  = "b'0'";
-	if($data['IsManufacturer']) $inserData['IsManufacturer']['raw']  = "b'1'";
-	else $inserData['IsManufacturer']['raw']  = "b'0'";
+	if($data['IsSupplier']) $insertData['IsSupplier']['raw']  = "b'1'";
+	else $insertData['IsSupplier']['raw']  = "b'0'";
+	if($data['IsManufacturer']) $insertData['IsManufacturer']['raw']  = "b'1'";
+	else $insertData['IsManufacturer']['raw']  = "b'0'";
+    if($data['IsContractor']) $insertData['IsContractor']['raw']  = "b'1'";
+    else $insertData['IsContractor']['raw']  = "b'0'";
+
+    $insertData['ParentId']['raw'] = dbIntegerNull($data['ParentId']);
 	
-	$inserData['ParentId']['raw'] = dbIntegerNull($data['ParentId']);
 	
-	
-	$query = dbBuildUpdateQuery($dbLink, "vendor", $inserData, "Id = {$vendorId}");
+	$query = dbBuildUpdateQuery($dbLink, "vendor", $insertData, "Id = {$vendorId}");
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -140,6 +143,49 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	dbClose($dbLink);	
 	sendResponse(null, $error);
 }
+else if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+    $data = json_decode(file_get_contents('php://input'),true);
 
+    $dbLink = dbConnect();
+
+    $vendorName = dbEscapeString($dbLink,$data['Name']);
+    $insertData['Name']  = trim($vendorName);
+
+    if($data['IsSupplier']) $insertData['IsSupplier']['raw']  = "b'1'";
+    else $insertData['IsSupplier']['raw']  = "b'0'";
+    if($data['IsManufacturer']) $insertData['IsManufacturer']['raw']  = "b'1'";
+    else $insertData['IsManufacturer']['raw']  = "b'0'";
+    if($data['IsContractor']) $insertData['IsContractor']['raw']  = "b'1'";
+    else $insertData['IsContractor']['raw']  = "b'0'";
+
+    $query = dbBuildInsertQuery($dbLink, "vendor", $insertData);
+
+    $result = dbRunQuery($dbLink,$query);
+
+    $error = null;
+    $data = array();
+    if(!$result)
+    {
+        $error = "Error description: " . dbGetErrorString($dbLink);
+    }
+
+    $query = "SELECT Id FROM vendor WHERE Id = LAST_INSERT_ID();";
+    $result = dbRunQuery($dbLink,$query);
+
+    $result = dbGetResult($result);
+
+    if(isset($result['Id']))
+    {
+        $data['VendorId'] = $result['Id'];
+    }
+    else
+    {
+        $error = "Vendor creation failed! Maybe it already exists? ";
+    }
+
+    dbClose($dbLink);
+    sendResponse($data, $error);
+}
 	
 ?>

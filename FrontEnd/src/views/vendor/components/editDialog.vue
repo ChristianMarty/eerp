@@ -24,6 +24,9 @@
         <el-form-item label="Is Manufacturer">
           <el-checkbox v-model="vendorData.IsManufacturer" />
         </el-form-item>
+        <el-form-item label="Is Contractor">
+          <el-checkbox v-model="vendorData.IsContractor" />
+        </el-form-item>
         <el-form-item label="Has Parent">
           <el-checkbox v-model="hasParent" />
           <br>
@@ -101,7 +104,8 @@ export default {
         ShortName: this.vendorData.ShortName,
         CustomerNumber: this.vendorData.CustomerNumber,
         IsSupplier: this.vendorData.IsSupplier,
-        IsManufacturer: this.vendorData.IsManufacturer
+        IsManufacturer: this.vendorData.IsManufacturer,
+        IsContractor: this.vendorData.IsContractor
       }
 
       vendor.save(saveParameters).then(response => {

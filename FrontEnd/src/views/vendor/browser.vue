@@ -3,6 +3,7 @@
     <template>
       <el-checkbox v-model="supplier" @change="update()">Must be Supplier</el-checkbox>
       <el-checkbox v-model="manufacturer" @change="update()">Must be Manufacturer</el-checkbox>
+      <el-checkbox v-model="contractor" @change="update()">Must be Contractor</el-checkbox>
       <el-table :data="vendors" style="width: 100%">
         <el-table-column prop="Name" label="Name" width="250" sortable>
           <template slot-scope="{ row }">
@@ -28,7 +29,8 @@ export default {
     return {
       vendors: [],
       supplier: false,
-      manufacturer: false
+      manufacturer: false,
+      contractor: false
     }
   },
   async mounted() {
@@ -36,7 +38,7 @@ export default {
   },
   methods: {
     async update() {
-      this.vendors = await vendor.search(this.supplier, this.manufacturer)
+      this.vendors = await vendor.search(this.supplier, this.manufacturer, this.contractor)
     }
   }
 }
