@@ -24,7 +24,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     dbClose($dbLink);
 
     $name = $supplierData['API'];
-    if($name === null) sendResponse(null);
+    if($name === null)
+	{
+		$output = array();
+		$output['Authentication']= array();
+		$output['Authentication']['Authenticated'] = false;
+		$output['Authentication']['AuthenticationUrl'] = '';
+		
+		$output['Capability']= array();
+		$output['Capability']['OrderImportSupported'] = false;
+		$output['Capability']['SkuSearchSupported'] = false;
+		
+		sendResponse($output);
+	}
 
     $path =  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
     require $path;
