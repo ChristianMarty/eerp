@@ -18,13 +18,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["WorkOrderNo"])) sendResponse(NULL, "Work Order Number Undefined");
 
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$workOrderData = array();
 	
-	$workOrderNo = dbEscapeString($dbLink, $_GET["WorkOrderNo"]);
-	$workOrderNo = strtolower($workOrderNo);
-	$workOrderNo = str_replace("wo-","",$workOrderNo);
+	$workOrderNo = barcodeParser_WorkOrderNumber($_GET["WorkOrderNo"]);
 	
 	$query = "SELECT workOrder.Id AS WorkOrderId, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNo, Status FROM workOrder ";
 	$query .= "LEFT JOIN project On project.Id = workOrder.ProjectId ";

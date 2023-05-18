@@ -15,6 +15,8 @@ require_once __DIR__ . "/_functions.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
+	$query = "";
+
 	if(isset($_GET["DocId"]))
 	{
 		$docId = intval($_GET["DocId"]);
@@ -31,12 +33,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 
 	$dbLink = dbConnect();
-
 	$output = array();
 
 	$result = dbRunQuery($dbLink,$query);
 	$r = mysqli_fetch_assoc($result);
-
 
 	$id = $r['Id'];
 	unset($r['Id']);
@@ -48,7 +48,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	dbClose($dbLink);	
 	sendResponse($output);
-	
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {

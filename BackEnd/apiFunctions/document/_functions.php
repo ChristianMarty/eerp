@@ -60,7 +60,7 @@ function getCitations($dbLink, $documentId): array
             inventory.Type,
             inventory.Manufacturer
         FROM inventory 
-        WHERE DocumentIds LIKE '%$documentId%'
+        WHERE replace(json_array(DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
     $result = dbRunQuery($dbLink,$query);
@@ -85,7 +85,7 @@ function getCitations($dbLink, $documentId): array
             inventory_history.Type AS HistoryType
         FROM inventory_history 
         LEFT JOIN inventory ON inventory.Id = inventory_history.InventoryId
-        WHERE inventory_history.DocumentIds LIKE '%$documentId%'
+        WHERE replace(json_array(inventory_history.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
     $result = dbRunQuery($dbLink,$query);
@@ -106,7 +106,7 @@ function getCitations($dbLink, $documentId): array
             vendor.Name AS VendorName
         FROM manufacturerPart_series 
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId
-        WHERE manufacturerPart_series.DocumentIds LIKE '%$documentId%'
+        WHERE replace(json_array(manufacturerPart_series.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
     $result = dbRunQuery($dbLink,$query);
@@ -127,7 +127,7 @@ function getCitations($dbLink, $documentId): array
             vendor.Name AS VendorName
         FROM purchasOrder 
         LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId
-        WHERE purchasOrder.DocumentIds LIKE '%$documentId%'
+        WHERE replace(json_array(purchasOrder.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
     $result = dbRunQuery($dbLink,$query);
@@ -148,7 +148,7 @@ function getCitations($dbLink, $documentId): array
             shipment.Direction,
             shipment.Description
         FROM shipment 
-        WHERE DocumentIds LIKE '%$documentId%'
+        WHERE replace(json_array(DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
     $result = dbRunQuery($dbLink,$query);
