@@ -35,6 +35,22 @@ class Document {
     })
   }
 
+  item(DocumentNumber) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        url: '/document/item',
+        methood: 'get',
+        params: { DocumentNumber: DocumentNumber }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
   attachment = {
     attachSearchParameters: {
       Table: '',

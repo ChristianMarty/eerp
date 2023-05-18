@@ -11,8 +11,6 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-
-
 function checkFileNotDuplicate($path): ?array
 {
 	$dbLink = dbConnect();
@@ -49,6 +47,127 @@ function checkFileNotDuplicate($path): ?array
 	
 	return $retuning;
 }
+
+function getCitations($dbLink, $documentId): array
+{
+    $output = array();
+
+// Get documents from inventory
+    $query = <<< STR
+        SELECT 
+            inventory.InvNo,
+            inventory.Title,
+            inventory.Type,
+            inventory.Manufacturer
+        FROM inventory 
+        WHERE DocumentIds LIKE '%$documentId%'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Category']= 'Inventory';
+        $temp['Barcode']= 'Inv-'.$r['InvNo'];
+        $temp['Description']= $r['Title']." - ".$r['Manufacturer']." ".$r['Type'];
+        $output[] = $temp;
+    }
+
+
+// Get documents from inventory_history
+    $query = <<< STR
+        SELECT 
+            inventory.InvNo,
+            inventory.Title,
+            inventory.Type,
+            inventory.Manufacturer,
+            inventory_history.Description,
+            inventory_history.Type AS HistoryType
+        FROM inventory_history 
+        LEFT JOIN inventory ON inventory.Id = inventory_history.InventoryId
+        WHERE inventory_history.DocumentIds LIKE '%$documentId%'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Category']= 'Inventory History';
+        $temp['Barcode']= 'Inv-'.$r['InvNo'];
+        $temp['Description']= $r['HistoryType']." - ".$r['Description']." - ".$r['Manufacturer']." ".$r['Type'];
+        $output[] = $temp;
+    }
+
+// Get documents from manufacturerPart_series
+    $query = <<< STR
+        SELECT 
+            manufacturerPart_series.Title,
+            manufacturerPart_series.Description,
+            vendor.Name AS VendorName
+        FROM manufacturerPart_series 
+        LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId
+        WHERE manufacturerPart_series.DocumentIds LIKE '%$documentId%'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Category']= 'Manufacturer Part Series';
+        $temp['Barcode']= 'TBD';
+        $temp['Description']= $r['VendorName']." ".$r['Title']." - ".$r['Description'];
+        $output[] = $temp;
+    }
+
+// Get documents from purchasOrder
+    $query = <<< STR
+        SELECT 
+            purchasOrder.PoNo,
+            purchasOrder.Description,
+            vendor.Name AS VendorName
+        FROM purchasOrder 
+        LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId
+        WHERE purchasOrder.DocumentIds LIKE '%$documentId%'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Category'] = 'Purchase Order';
+        $temp['Barcode'] = 'PO-'.$r['PoNo'];
+        $temp['Description'] = $r['VendorName']." - ".$r['Description'];
+        $output[] = $temp;
+    }
+
+
+// Get documents from shipment
+    $query = <<< STR
+        SELECT 
+            shipment.ShipmentNumber,
+            shipment.Direction,
+            shipment.Description
+        FROM shipment 
+        WHERE DocumentIds LIKE '%$documentId%'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Category'] = 'Shipment';
+        $temp['Barcode'] = 'Shp-'.$r['ShipmentNumber'];
+        $temp['Description'] = $r['Direction']." - ".$r['Description'];
+        $output[] = $temp;
+    }
+
+
+
+
+    return $output;
+}
+
+
 
 
 /* Parameter

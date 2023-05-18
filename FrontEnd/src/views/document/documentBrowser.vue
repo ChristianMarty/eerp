@@ -3,6 +3,19 @@
     <template>
       <el-table :data="documents" style="width: 100%">
         <el-table-column
+          prop="Barcode"
+          label="Barcode"
+          width="120"
+          sortable
+        >
+          <template slot-scope="{ row }">
+            <router-link :to="'/document/' + row.DocumentNumber" class="link-type">
+              <span> {{ row.Barcode }}</span>
+            </router-link>
+          </template>
+        </el-table-column>
+
+        <el-table-column
           prop="Description"
           label="Description"
           width="400"

@@ -10,28 +10,41 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/_functions.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["DocId"])) sendResponse(null,"No Document Item Specified");
-
-    $docId = $_GET["DocId"];
+	if(isset($_GET["DocId"]))
+	{
+		$docId = intval($_GET["DocId"]);
+		$query = "SELECT * FROM `document` WHERE `Id` = '".$docId."' ";
+	}
+	else if(isset($_GET["DocumentNumber"]))
+	{
+		$documentNumber = barcodeParser_DocumentNumber($_GET["DocumentNumber"]);
+		$query = "SELECT * FROM `document` WHERE `DocumentNumber` = '".$documentNumber."' ";
+	}
+	else
+	{
+		sendResponse(null,"Document Id or Document Number not Specified");
+	}
 
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$DocId = dbEscapeString($dbLink, $docId );
-	
-	$query = "SELECT * FROM `document` WHERE `Id` = '".$docId."' ";
-	
+
 	$output = array();
 
 	$result = dbRunQuery($dbLink,$query);
 	$r = mysqli_fetch_assoc($result);
-	
+
+
 	$id = $r['Id'];
 	unset($r['Id']);
 	$output = $r;
+	global $documentRootPath;
+	$output['Path'] = $documentRootPath."/".$r['Type']."/".$r['Path'];
+	$output['Barcode']  = "Doc-".$r['DocumentNumber'];
+	$output['Citations'] = getCitations($dbLink, $id);
 	
 	dbClose($dbLink);	
 	sendResponse($output);

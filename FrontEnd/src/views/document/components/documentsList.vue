@@ -3,9 +3,14 @@
     <el-table
       :data="documents"
       style="width: 100%"
-      @row-click="(row)=>open(row.Path)"
     >
-      <el-table-column prop="Barcode" label="Doc No" width="100" />
+      <el-table-column prop="Barcode" label="Doc No" width="100">
+        <template slot-scope="{ row }">
+          <router-link :to="'/document/' + row.DocumentNumber" class="link-type">
+            <span> {{ row.Barcode }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="Description" label="Description">
         <template slot-scope="{ row }">
           {{ row.Description }}

@@ -16,6 +16,13 @@ const documentRouter = {
       meta: { title: 'Document Browser', icon: 'list' }
     },
     {
+      path: ':DocumentNumber(.*)',
+      component: () => import('@/views/document/view'),
+      name: 'documentBrowser',
+      meta: { title: 'Document View', icon: 'list' },
+      hidden: true
+    },
+    {
       path: 'ingestDocument',
       component: () => import('@/views/document/ingest'),
       name: 'ingestDocument',
