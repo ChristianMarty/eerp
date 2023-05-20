@@ -9,7 +9,7 @@
           sortable
         >
           <template slot-scope="{ row }">
-            <router-link :to="'/document/' + row.DocumentNumber" class="link-type">
+            <router-link :to="'/document/view/' + row.DocumentNumber" class="link-type">
               <span> {{ row.Barcode }}</span>
             </router-link>
           </template>

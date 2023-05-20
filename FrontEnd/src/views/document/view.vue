@@ -51,9 +51,10 @@
 
         <el-table-column prop="Barcode" label="Barcode" width="120" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/document/' + row.Barcode" class="link-type">
+            <router-link :to="getLinkToPage(row)" class="link-type">
               <span> {{ row.Barcode }}</span>
             </router-link>
+
           </template>
         </el-table-column>
 
@@ -114,7 +115,24 @@ export default {
         title: `${this.documentData.Barcode}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
+    },
+    getLinkToPage(data) {
+      let path = ''
+      switch (data.Category) {
+        case 'Inventory' : path = '/inventory/inventoryView/'; break
+
+        case 'Inventory History' : path = '/inventory/inventoryView/'; break
+
+        case 'Manufacturer Part Series' : path = '/manufacturerPart/series/item/'; break
+
+        case 'Purchase Order' : path = '/purchasing/edit/'; break
+
+        case 'Shipment' : path = '404'; break
+      }
+
+      return path + data.Barcode
     }
+
   }
 }
 </script>
