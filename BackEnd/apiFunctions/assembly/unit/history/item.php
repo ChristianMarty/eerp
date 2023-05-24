@@ -133,7 +133,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
 	$query = dbBuildInsertQuery($dbLink,"assembly_unit_history", $sqlData);
 	
-	$query .= " SELECT EditToken FROM assembly_unit_history WHERE Id = LAST_INSERT_ID();";
+	$query .= " SELECT EditToken, AssemblyUnitHistoryNumber FROM assembly_unit_history WHERE Id = LAST_INSERT_ID();";
 	
 	$error = null;
 	$output = array();
@@ -143,6 +143,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 			if ($result = mysqli_store_result($dbLink)) {
 				while ($row = mysqli_fetch_row($result)) {
 					$output['EditToken'] = $row[0];
+                    $output['Barcode'] = "ASH-".$row[1];
 				}
 				mysqli_free_result($result);
 			}
