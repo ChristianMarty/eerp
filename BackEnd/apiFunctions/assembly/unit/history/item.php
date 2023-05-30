@@ -26,6 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         SELECT * FROM assembly_unit_history
         LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId
         WHERE assembly_unit_history.AssemblyUnitHistoryNumber = '$assemblyHistoryNumber'
+        ORDER BY Date
     STR;
 
 	$result = dbRunQuery($dbLink,$query);
@@ -80,7 +81,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
-	
+    if(isset($data['Date'])) $sqlData['Date'] = dbEscapeString($dbLink,$data['Date']);
+
 	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";
 	else $sqlData['ShippingClearance']['raw']  = "b'0'";
 	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited']) $sqlData['ShippingProhibited']['raw']  = "b'1'";
@@ -122,6 +124,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
 	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
 	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
+    if(isset($data['Date'])) $sqlData['Date'] = dbEscapeString($dbLink,$data['Date']);
 	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
 	
 	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";

@@ -62,6 +62,9 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="Date:">
+          <el-date-picker v-model="editHistoryData.Date" type="datetime" format="yyyy-MM-dd HH:mm:ss" style="width: 100%;" />
+        </el-form-item>
         <el-form-item label="Shipping Clearance">
           <el-checkbox v-model="editHistoryData.ShippingClearance" :disabled="assemblyUnitData.ShippingProhibited" />
         </el-form-item>
@@ -92,6 +95,8 @@ import locationTransferDialog from '@/components/Location/locationTransferDialog
 import Assembly from '@/api/assembly'
 const assembly = new Assembly()
 
+import dateFormat from 'date-format'
+
 export default {
   name: 'AssemblyView',
   components: { assemblyDataDialog, locationTransferDialog },
@@ -101,7 +106,7 @@ export default {
       assemblyUnitData: {},
       assemblyDataDialogVisible: false,
 
-      editHistoryData: {},
+      editHistoryData: Object.assign({}, assembly.unit.history.historyCreateParameters),
       historyItemData: {},
       editHistoryVisible: false,
       assemblyUnitHistoryNumber: 0,
@@ -134,7 +139,8 @@ export default {
     },
     showEditHistoryDialog(id) {
       if (id === null) {
-        this.editHistoryData = {}
+        this.editHistoryData = Object.assign({}, assembly.unit.history.historyCreateParameters)
+        this.editHistoryData.Date = dateFormat('yyyy-MM-dd hh:mm:ss', new Date())
       } else {
         this.getHistoryData(id)
       }
@@ -157,6 +163,7 @@ export default {
       historyCreateParameters.AssemblyUnitNumber = this.assemblyUnitData.AssemblyUnitNumber
       historyCreateParameters.Title = this.editHistoryData.Title
       historyCreateParameters.Description = this.editHistoryData.Description
+      historyCreateParameters.Date = this.editHistoryData.Date
       historyCreateParameters.Type = this.editHistoryData.Type
       historyCreateParameters.ShippingClearance = this.editHistoryData.ShippingClearance
       historyCreateParameters.ShippingProhibited = this.editHistoryData.ShippingProhibited
@@ -180,6 +187,7 @@ export default {
       historyUpdateParameters.EditToken = this.editHistoryData.EditToken
       historyUpdateParameters.Title = this.editHistoryData.Title
       historyUpdateParameters.Description = this.editHistoryData.Description
+      historyUpdateParameters.Date = dateFormat('yyyy-MM-dd hh:mm:ss', new Date(this.editHistoryData.Date))
       historyUpdateParameters.Type = this.editHistoryData.Type
       historyUpdateParameters.ShippingClearance = this.editHistoryData.ShippingClearance
       historyUpdateParameters.ShippingProhibited = this.editHistoryData.ShippingProhibited
