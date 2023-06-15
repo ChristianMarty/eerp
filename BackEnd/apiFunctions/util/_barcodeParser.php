@@ -153,4 +153,23 @@ function barcodeParser_DocumentNumber(string|int $input): bool|int
 
     return intval($woCodeParts[1]);
 }
+
+function barcodeParser_CostCenter(string|int $input): bool|string
+{
+    $inventoryCode = trim($input);
+    $inventoryCode = strtolower($inventoryCode);
+
+    if( substr_count($inventoryCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($inventoryCode)) return false;
+        return intval($inventoryCode);
+    }
+
+    $inventoryNumberParts = explode('-',$inventoryCode);
+
+    if($inventoryNumberParts[0] != "cc") return false;
+    if(!is_numeric($inventoryNumberParts[1])) return false;
+
+    return intval($inventoryNumberParts[1]);
+}
 ?>

@@ -12,6 +12,7 @@ require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/location.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/getPurchaseInformation.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -101,8 +102,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($por = mysqli_fetch_assoc($result))
 	{
 		$por["PurchaseOrderNumber"] = $por['PoNo'];
-		$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
-		$por['PoNo'] ="PO-".$por['PoNo']; 
+		$por["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($por['PoNo'], $por['LineNumber']);
+		$por['PoNo'] = barcodeFormatter_PurchaseOrderNumber($por['PoNo']);
 
 		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']*((100 - intval($por['Discount']))/100);
 		$por["Price"] = $price;
