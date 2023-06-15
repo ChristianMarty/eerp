@@ -34,7 +34,7 @@ export default {
     }
   },
   async mounted() {
-    this.vendors = await vendor.search(this.supplier, this.manufacturer)
+    this.vendors = await vendor.search(this.supplier, this.manufacturer, this.contractor)
   },
   methods: {
     async update() {

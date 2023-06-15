@@ -40,7 +40,7 @@ import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
 const printPath =
-  process.env.VUE_APP_BLUENOVA_BASE + '/renderer/inventoryLabelPage.php'
+  process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/inventoryLabelPage'
 
 export default {
   name: 'InventoryView',
