@@ -45,7 +45,7 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 			"manufacturerPart":{"create": true,"edit": true},
 			"stock":{"create": true, "add": true, "remove":true, "count":true, "delete":true}, 
 			"location":{"transfer":true, "bulkTransfer":true, "print": true},
-			"finance":{"view":true},
+			"finance":{"view":true, "costCenter":true},
 			"bom":{"print":true},
             "workOrder":{"create": true, "edit": true}}';
 			
