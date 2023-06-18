@@ -254,6 +254,12 @@ import documentsList from '@/views/document/components/documentsList'
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
 
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
+import Finance from '@/api/finance'
+const finance = new Finance()
+
 export default {
   name: 'PurchaseOrder',
   components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList },
@@ -369,54 +375,52 @@ export default {
       })
     },
     getExchangeRate() {
-      requestBN({
-        url: '/finance/exchangeRate',
-        methood: 'get',
-        params: {
-          CurrencyId: this.dialogData.CurrencyId
-        }
-      }).then(response => {
-        if (response.error == null) {
-          this.exchangeRateData = response.data
-          this.dialogData.ExchangeRate = this.exchangeRateData.ExchangeRate
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      finance.currency.exchangeRate(this.dialogData.CurrencyId).then(response => {
+        this.exchangeRateData = response
+        this.dialogData.ExchangeRate = this.exchangeRateData.ExchangeRate
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getSupplierAddress() {
-      requestBN({
-        url: '/vendor/address',
-        methood: 'get',
-        params: {
-          VendorId: this.orderData.SupplierId
-        }
-      }).then(response => {
-        this.supplierAddress = response.data
+      vendor.address.search(this.orderData.SupplierId).then(response => {
+        this.supplierAddress = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getSupplierContact() {
-      requestBN({
-        url: '/vendor/contact',
-        methood: 'get',
-        params: {
-          VendorId: this.orderData.SupplierId
-        }
-      }).then(response => {
-        this.supplierContact = response.data
+      vendor.contact.search(this.orderData.SupplierId).then(response => {
+        this.supplierContact = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getCurrency() {
-      requestBN({
-        url: '/finance/currency',
-        methood: 'get'
-      }).then(response => {
-        this.currencies = response.data
+      finance.currency.list().then(response => {
+        this.currencies = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     setTagsViewTitle() {
@@ -426,25 +430,26 @@ export default {
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
     getOrder() {
-      requestBN({
-        url: '/purchasing/item',
-        methood: 'get',
-        params: {
-          PurchaseOrderNo: this.PoNo
-        }
-      }).then(response => {
-        this.orderData = response.data.MetaData
+      purchase.item.search(this.$route.params.PoNo).then(response => {
+        this.orderData = response.MetaData
         this.dialogData = this.orderData
         if (this.orderData.Status === 'Editing') this.orderStatus = 0
         else if (this.orderData.Status === 'Placed') this.orderStatus = 1
         else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
         else if (this.orderData.Status === 'Closed') this.orderStatus = 4
-        this.documents = response.data.Documents
-        this.lines = response.data.Lines
+        this.documents = response.Documents
+        this.lines = response.Lines
         this.line = this.lines.length
 
         this.getSupplierAddress()
         this.getSupplierContact()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

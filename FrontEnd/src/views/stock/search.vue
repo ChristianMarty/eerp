@@ -49,7 +49,7 @@
         <el-button type="primary" @click="onFilterChange">Filter</el-button>
         <el-button type="info" plain @click="onFilterReset">Reset</el-button>
       </el-form-item>
-      
+
     </el-form>
     <el-checkbox v-model="fliterEmpty" @change="getStockItems()">Hide empty (Quantity 0)</el-checkbox>
     <el-table
@@ -65,7 +65,13 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="ManufacturerName" label="Manufacturer" />
+      <el-table-column prop="ManufacturerName" label="Manufacturer">
+        <template slot-scope="{ row }">
+          <router-link :to="'/vendor/view/' + row.ManufacturerId" class="link-type">
+            <span>{{ row.ManufacturerName }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="ManufacturerPartNumber"
         label="Part Number"
@@ -81,7 +87,14 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Location from '@/api/location'
+const location = new Location()
+
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
+import Stock from '@/api/stock'
+const stock = new Stock()
 
 const FilterSettings = {
   StockNo: null,
@@ -153,29 +166,40 @@ export default {
       this.stockItemsFilterd = this.stockItems
     },
     getStockItems() {
-      requestBN({
-        url: '/stock',
-        methood: 'get',
-        params: {HideEmpty: this.fliterEmpty}
-      }).then(response => {
-        this.stockItems = response.data
+      stock.search(this.fliterEmpty).then(response => {
+        this.stockItems = response
         this.stockItemsFilterd = this.stockItems
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getManufacturers() {
-      requestBN({
-        url: '/part/manufacturer',
-        methood: 'get'
-      }).then(response => {
-        this.manufacturers = response.data
+      vendor.search(false, true, false).then(response => {
+        this.manufacturers = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
+      location.search().then(response => {
+        this.locations = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

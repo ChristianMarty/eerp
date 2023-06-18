@@ -2,7 +2,12 @@
   <div class="app-container">
     <template>
       <el-checkbox v-model="hideClosed" @change="getPurchasOrders()">Hide closed orders</el-checkbox>
-      <el-table :data="purchasOrders" style="width: 100%">
+      <el-table
+        v-loading="loading"
+        element-loading-text="Loading Purchase Orders "
+        :data="purchasOrders"
+        style="width: 100%"
+      >
         <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
           <template slot-scope="{ row }">
             <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
@@ -33,7 +38,6 @@
           sortable
           width="240"
         />
-
         <el-table-column
           prop="PurchaseDate"
           label="Purchase Date"
@@ -52,7 +56,9 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 export default {
   name: 'DocumentBrowser',
@@ -60,6 +66,7 @@ export default {
   data() {
     return {
       hideClosed: true,
+      loading: true,
       purchasOrders: []
     }
   },
@@ -68,12 +75,17 @@ export default {
   },
   methods: {
     getPurchasOrders() {
-      requestBN({
-        url: '/purchasOrder',
-        methood: 'get',
-        params: { HideClosed: this.hideClosed }
-      }).then(response => {
-        this.purchasOrders = response.data
+      this.loading = true
+      purchase.list(this.hideClosed).then(response => {
+        this.purchasOrders = response
+        this.loading = false
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

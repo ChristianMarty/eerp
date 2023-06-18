@@ -10,6 +10,8 @@
 
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/util/location.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -34,10 +36,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["StockNo"]))
 	{
-		$stockNo = dbEscapeString($dbLink, trim($_GET["StockNo"]));
-		$stockNo = strtolower($stockNo);
-		$stockNo = str_replace("stk-","",$stockNo);	
-		$queryParam[] = "StockNo = '" . $stockNo . "'";
+		$stockNo = barcodeParser_StockNumber($_GET["StockNo"]);
+		if($stockNo)
+		{
+			$queryParam[] = "StockNo = '" . $stockNo . "'";
+		}
 	}
 	 
 	if(isset($_GET["ManufacturerPartId"]))
@@ -62,14 +65,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = dbGetResult($result)) 
 	{
-		$r['Barcode'] = "STK-".$r['StockNo'];
-		if($r['Date']) {
-			$date = new DateTime($r['Date']);
-			$r['DateCode'] = $date->format("yW");
-		}
-		else{
-			$r['DateCode'] = null;
-		}
+		$r['Barcode'] = barcodeFormatter_StockNumber($r['StockNo']);
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
 
 		$output[] = $r;

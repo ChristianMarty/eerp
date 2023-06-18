@@ -156,8 +156,20 @@
 </template>
 
 <script>
+import Finance from '@/api/finance'
+const finance = new Finance()
 
-import requestBN from '@/utils/requestBN'
+import Vendor from '@/api/vendor'
+const vendor = new Vendor()
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
+import SupplierPart from '@/api/supplierPart'
+const supplierPart = new SupplierPart()
+
+import UnitOfMeasurement from '@/api/unitOfMeasurement'
+const unitOfMeasurement = new UnitOfMeasurement()
 
 export default {
   name: 'EditLineItemDialog',
@@ -196,13 +208,15 @@ export default {
     },
     getPartData(row) {
       if (row.PartNo === null) return
-      requestBN({
-        url: '/supplier/supplierPart',
-        methood: 'get',
-        params: { ProductionPartNo: row.PartNo, SupplierId: this.$props.supplierId }
-      }).then(response => {
-        this.partOptions =
-          response.data
+      supplierPart.search(row.PartNo, this.$props.supplierId).then(response => {
+        this.partOptions = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     supplierPartSelect(data, row, column, event) {
@@ -214,12 +228,8 @@ export default {
       data.ManufacturerPartNumber = row.ManufacturerPartNumber
     },
     searchSku(sku) {
-      requestBN({
-        url: '/purchasing/item/skuSearch',
-        methood: 'get',
-        params: { SupplierId: this.$props.supplierId, SKU: sku }
-      }).then(response => {
-        const skuData = response.data
+      purchase.item.skuSearch(this.$props.supplierId, sku).then(response => {
+        const skuData = response
 
         this.line.Description = skuData.Description
         this.line.ManufacturerPartNumber = skuData.ManufacturerPartNumber
@@ -230,36 +240,49 @@ export default {
             this.line.Price = price.Price
           }
         })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getManufacturers() {
-      requestBN({
-        url: '/part/manufacturer',
-        methood: 'get'
-      }).then(response => {
-        this.partManufacturer = response.data
+      vendor.search(false, true, false).then(response => {
+        this.partManufacturer = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getVAT() {
-      requestBN({
-        url: '/finance/tax',
-        methood: 'get',
-        params: {
-          Type: 'VAT'
-        }
-      }).then(response => {
-        this.vat = response.data
+      finance.tax.list('VAT').then(response => {
+        this.vat = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getUOM() {
-      requestBN({
-        url: '/unitOfMeasurement',
-        methood: 'get',
-        params: {
-          Countable: true
-        }
-      }).then(response => {
-        this.uom = response.data
+      unitOfMeasurement.list(true).then(response => {
+        this.uom = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     refresh() {
@@ -270,26 +293,22 @@ export default {
       this.$emit('update:visible', this.visible)
     },
     saveLine() {
-      requestBN({
-        method: 'post',
-        url: '/purchasing/item/edit',
-        data: { data: { Action: 'save', Lines: [this.$props.line], PoNo: this.$props.po.PoNo }}
-      }).then(response => {
-        if (response.error == null) {
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      purchase.line.edit([this.$props.line], this.$props.po.PoNo).then(response => {
+        this.$message({
+          showClose: true,
+          message: 'Changes saved successfully',
+          duration: 1500,
+          type: 'success'
+        })
+        this.refresh()
+        this.closeDialog()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
         this.refresh()
         this.closeDialog()
       })
@@ -300,19 +319,22 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        requestBN({
-          method: 'post',
-          url: '/purchasing/item/edit',
-          data: { data: { Action: 'delete', OrderLineId: this.line.OrderLineId, PoNo: this.$props.po.PoNo }}
-        }).then(response => {
-          if (response.error != null) {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 0,
-              type: 'error'
-            })
-          }
+        purchase.line.delete(this.line.OrderLineId, this.$props.po.PoNo).then(response => {
+          this.$message({
+            showClose: true,
+            message: 'Changes saved successfully',
+            duration: 1500,
+            type: 'success'
+          })
+          this.refresh()
+          this.closeDialog()
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response,
+            duration: 0,
+            type: 'error'
+          })
           this.refresh()
           this.closeDialog()
         })

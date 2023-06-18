@@ -12,13 +12,15 @@ require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
 
-function getPurchaseOrderData($purchaseOrderNo)
+
+function getPurchaseOrderData($purchaseOrderNo): ?array
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$vat = array();
-	$query = "SELECT * FROM finance_tax";
+    $query = <<<STR
+        SELECT * FROM finance_tax
+    STR;
 	$result = dbRunQuery($dbLink,$query);
 	
 	while($r = mysqli_fetch_assoc($result)) 
@@ -26,16 +28,22 @@ function getPurchaseOrderData($purchaseOrderNo)
 		$vat[$r['Id']] = $r;
 	}
 
-	$query = "SELECT Carrier, PaymentTerms, InternationalCommercialTerms, HeadNote, FootNote, VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder ";
-	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
-	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
-	
+    $query = <<<STR
+        SELECT Carrier, PaymentTerms, InternationalCommercialTerms, HeadNote, FootNote, 
+            VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, 
+            purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, 
+            purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, 
+            purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, 
+            vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, 
+            finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, 
+            ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder
+        LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId 
+        LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId
+    STR;
+
 	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
 	{
-		$purchaseOrderNo = dbEscapeString($dbLink, $purchaseOrderNo);
-		$purchaseOrderNo = strtolower($purchaseOrderNo);
-		$purchaseOrderNo = str_replace("po-","",$purchaseOrderNo);
-		$query.= "WHERE PoNo = ".$purchaseOrderNo;		
+		$query.= " WHERE PoNo = ".$purchaseOrderNo;		
 	}
 
 	$result = dbRunQuery($dbLink,$query);
@@ -170,12 +178,20 @@ function getPurchaseOrderData($purchaseOrderNo)
 	
 	
 	$additionalCharges = Array();
-	$query  = "SELECT purchasOrder_additionalCharges.Id AS AdditionalChargesLineId, purchasOrder_additionalCharges.LineNo, purchasOrder_additionalCharges.Type, purchasOrder_additionalCharges.Price, purchasOrder_additionalCharges.Quantity, purchasOrder_additionalCharges.Description, finance_tax.Value AS VatValue, finance_tax.Id AS VatTaxId ";
-	$query .= "FROM purchasOrder_additionalCharges ";
-	$query .= "LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_additionalCharges.VatTaxId ";
-	$query .= "WHERE PurchasOrderId = ".$PoId." ";
-	$query .= "ORDER BY LineNo";
-	
+    $query = <<<STR
+	SELECT purchasOrder_additionalCharges.Id AS AdditionalChargesLineId, 
+	       purchasOrder_additionalCharges.LineNo, 
+	       purchasOrder_additionalCharges.Type, 
+	       purchasOrder_additionalCharges.Price, 
+	       purchasOrder_additionalCharges.Quantity, 
+	       purchasOrder_additionalCharges.Description, 
+	       finance_tax.Value AS VatValue, 
+	       finance_tax.Id AS VatTaxId
+	FROM purchasOrder_additionalCharges
+	LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_additionalCharges.VatTaxId
+	WHERE PurchasOrderId = $PoId 
+	ORDER BY LineNo
+	STR;
 	$result = dbRunQuery($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
 	{

@@ -19,6 +19,7 @@
     <el-card v-if="showItem">
       <h3 v-if="partData.Deleted" style="color:red">Part Information - This item has been marked to be deleted!</h3>
       <h3 v-else>Part Information</h3>
+      <p>{{ partData.Description }}</p>
       <el-divider />
       <p><b>Manufacturer: </b>
         <router-link :to="'/vendor/view/' + partData.ManufacturerId" class="link-type">
@@ -173,7 +174,6 @@ import permission from '@/directive/permission/index.js'
 
 import * as labelTemplate from '@/utils/labelTemplate'
 import * as defaultSetting from '@/utils/defaultSetting'
-import requestBN from '@/utils/requestBN'
 
 import printDialog from './components/printDialog'
 import addStockDialog from './components/addStockDialog'
@@ -182,6 +182,15 @@ import countStockDialog from './components/countStockDialog'
 import stockHistory from './components/stockHistory'
 
 import locationTransferDialog from '@/components/Location/locationTransferDialog'
+
+import Stock from '@/api/stock'
+const stock = new Stock()
+
+import Print from '@/api/print'
+const print = new Print()
+
+import ProductionPart from '@/api/productionPart'
+const productionPart = new ProductionPart()
 
 const partDataEmpty = {
   StockId: '',
@@ -284,85 +293,75 @@ export default {
       this.stockHistoryKey++
     },
     getStockItem() {
-      requestBN({
-        url: '/stock/item',
-        methood: 'get',
-        params: { StockNo: this.inputStockId }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else if (response.data.length === 0) {
+      stock.item(this.inputStockId).then(response => {
+        if (response.length === 0) {
           this.$message({
             showClose: true,
             message: 'Item dose not exist!',
             type: 'warning'
           })
         } else {
-          this.partData = response.data[0]
+          this.partData = response
           this.getProductionPartData()
           this.setTitle(this.partData.Barcode)
         }
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getStockAccuracy() {
-      requestBN({
-        url: '/stock/accuracy',
-        methood: 'get',
-        params: { StockNo: this.inputStockId }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.stockAccuracy = response.data
-        }
+      stock.accuracy(this.inputStockId).then(response => {
+        this.stockAccuracy = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getReservation() {
-      requestBN({
-        url: '/stock/reservation',
-        methood: 'get',
-        params: { StockNo: this.inputStockId }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.reservation = response.data
-        }
+      stock.reservation(this.inputStockId).then(response => {
+        this.reservation = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getPurchaseInformation() {
-      requestBN({
-        url: '/stock/purchaseInformation',
-        methood: 'get',
-        params: { StockNo: this.inputStockId }
-      }).then(response => {
-        this.purchaseInformation = response.data
+      stock.purchaseInformation(this.inputStockId).then(response => {
+        this.purchaseInformation = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getProductionPartData() {
       if (this.partData.ManufacturerPartId === null) return
 
-      requestBN({
-        url: '/productionPart',
-        methood: 'get',
-        params: { ManufacturerPartId: this.partData.ManufacturerPartId }
-      }).then(response => {
-        this.productionPartData = response.data
+      productionPart.item(this.partData.ManufacturerPartId).then(response => {
+        this.productionPartData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     reset() {
@@ -372,23 +371,29 @@ export default {
       this.setTitle('Stock Item')
     },
     getLabel() {
-      requestBN({
-        url: '/label',
-        methood: 'get',
-        params: { Tag: 'Stock' }
-      }).then(response => {
-        this.label = response.data
+      print.label.search('Stock').then(response => {
+        this.label = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getPrinter() {
-      requestBN({
-        url: '/printer',
-        methood: 'get'
-      }).then(response => {
+      print.printer.search().then(response => {
         this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
         this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
-
-        this.printer = response.data
+        this.printer = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     print(printData) {
@@ -402,37 +407,36 @@ export default {
       }
 
       var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
-
       var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
 
-      requestBN({
-        method: 'post',
-        url: '/print/print',
-        data: {
-          Driver: 'raw',
-          Language: labelTemplateObject.Language,
-          PrinterId: this.selectedPrinterId,
-          Data: labelCode
-        }
-      }).then(response => {
-
+      print.print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {
+        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
+        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+        this.printer = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     openDeleteDialog() {
       this.deleteDialogVisible = true
     },
     deleteStockItem() {
-      requestBN({
-        method: 'delete',
-        url: '/stock/item',
-        data: {
-          StockNumber: this.inputStockId,
-          Note: this.deleteNote
-        }
-      }).then(response => {
+      stock.delete(this.inputStockId, this.deleteNote).then(response => {
         this.deleteDialogVisible = false
         this.deleteNote = ''
         this.loadItem()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

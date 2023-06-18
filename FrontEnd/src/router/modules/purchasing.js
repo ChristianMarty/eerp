@@ -1,6 +1,6 @@
 import Layout from '@/layout'
 
-const documentsRouter = {
+const purchasingRouter = {
   path: '/purchasing',
   component: Layout,
   meta: {
@@ -9,16 +9,16 @@ const documentsRouter = {
   },
   children: [
     {
-      path: 'create/',
-      component: () => import('@/views/purchasing/createPurchaseOrder'),
-      name: 'createPurchaseOrder',
-      meta: { title: 'Create PO', icon: 'el-icon-sold-out', roles: ['purchasing.create'] }
+      path: '',
+      component: () => import('@/views/purchasing/browser'),
+      name: 'purchaseBrowser',
+      meta: { title: 'PO Search', icon: 'search' }
     },
     {
-      path: 'browser/',
-      component: () => import('@/views/purchasing/poBrowser'),
-      name: 'purchaseBrowser',
-      meta: { title: 'PO Browser', icon: 'list' }
+      path: 'create/',
+      component: () => import('@/views/purchasing/create'),
+      name: 'createPurchaseOrder',
+      meta: { title: 'Create', icon: 'edit', roles: ['purchasing.create'] }
     },
     {
       path: 'orderRequest/',
@@ -28,11 +28,11 @@ const documentsRouter = {
     },
     {
       path: 'edit/:PoNo(.*)',
-      component: () => import('@/views/purchasing/editPurchaseOrder'),
+      component: () => import('@/views/purchasing/edit'),
       name: 'editPurchaseOrder',
       meta: { title: 'Edit PO', icon: 'el-icon-sold-out' },
       hidden: true
     }
   ]
 }
-export default documentsRouter
+export default purchasingRouter

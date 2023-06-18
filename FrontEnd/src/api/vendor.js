@@ -226,6 +226,23 @@ class Vendor {
   }
 
   contact = {
+    search(VendorId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/vendor/contact',
+          params: {
+            VendorId: VendorId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
     language() {
       return new Promise((resolve, reject) => {
         eerpApi({

@@ -11,17 +11,17 @@ const vendorRouter = {
   },
   children: [
     {
-      path: 'vendor',
+      path: '',
       component: () => import('@/views/vendor/browser'),
       name: 'vendor',
-      meta: { title: 'Vendor Browser', icon: 'list' }
+      meta: { title: 'Vendor Search', icon: 'search' }
     },
     {
       path: 'create',
       component: () => import('@/views/vendor/create'),
       name: 'vendorCreate',
       meta: {
-        title: 'Create Vendor', icon: 'edit', roles: ['vendor.create']
+        title: 'Create', icon: 'edit', roles: ['vendor.create']
       }
     },
     {

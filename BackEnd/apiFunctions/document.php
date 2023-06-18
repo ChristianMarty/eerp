@@ -14,9 +14,8 @@ require_once __DIR__ . "/../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT * FROM document ";
+
+	$query = "SELECT * FROM document ORDER BY Id DESC";
 	
 	$output = array();
 	

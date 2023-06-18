@@ -11,6 +11,8 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/location.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_user.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -137,7 +139,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= dbStringNull($date).", ";
 		$query .= dbStringNull($orderReference).", ";
 		$query .= dbStringNull($lotNumber).", ";
-		$query .= dbStringNull($_SESSION["userid"])." ";
+		$query .= user_getId()." ";
 		$query .= ") AS StockNo; ";
 		
 	}
@@ -159,7 +161,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= dbStringNull($supplierId).", ";
 		$query .= dbStringNull($supplierPartNumber).", ";
 		$query .= dbStringNull($lotNumber).", ";
-		$query .= dbStringNull($_SESSION["userid"])." ";
+		$query .= user_getId()." ";
 		$query .= ") AS StockNo; ";
 	}
 
@@ -212,7 +214,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
 
 	$dbLink = dbConnect();
 
-	$sqlData['DeleteRequestUserId'] = $_SESSION["userid"];
+	$sqlData['DeleteRequestUserId'] = user_getId();
 	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
 	$sqlData['DeleteRequestNote'] = $data["Note"];
 

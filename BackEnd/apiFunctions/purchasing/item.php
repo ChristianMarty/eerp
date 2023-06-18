@@ -10,12 +10,13 @@
 
 require_once __DIR__ . "/_function.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$purchaseOrderNo = null;
-	if(isset($_GET["PurchaseOrderNo"])) $purchaseOrderNo = $_GET["PurchaseOrderNo"];
-		
+	if(isset($_GET["PurchaseOrderNo"])) $purchaseOrderNo = barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNo"]);
+
 	$output = getPurchaseOrderData($purchaseOrderNo);
 	
 	// Get Documents
