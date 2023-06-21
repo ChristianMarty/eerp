@@ -15,14 +15,23 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
 	
-	$query = "SELECT * FROM finance_costCenter ";
+	$query = <<<STR
+        SELECT 
+            finance_costCenter.Name AS Name, 
+            finance_costCenter.CostCenterNumber, 
+            finance_costCenter.Description, 
+            finance_costCenter.ProjectId, 
+            finance_costCenter.Color,
+            project.Title AS ProjectName
+        FROM finance_costCenter
+        LEFT JOIN project ON project.Id = finance_costCenter.ProjectId = project.Id
+    STR;
 	
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
 	while($r = mysqli_fetch_assoc($result))
 	{
         $r['Barcode'] = barcodeFormatter_CostCenter($r['CostCenterNumber']);
-		$r['Id'] = intval($r['Id']);
 		$output[] = $r;
 	}
 

@@ -27,7 +27,7 @@ class Purchase {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/purchasOrder',
+        url: '/purchasOrder/item',
         data: createParameters
       }).then(response => {
         if (response.error == null) {
@@ -55,53 +55,55 @@ class Purchase {
     })
   }
 
-  line = {
-    edit(Lines, PurchaseOrderNumber) {
+  item = {
+    save(data) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          method: 'post',
-          url: '/purchasing/item/edit',
-          data: { data: { Action: 'save', Lines: Lines, PoNo: PurchaseOrderNumber }}
+          method: 'patch',
+          url: '/purchasing/item',
+          data: data
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
           } else {
-            reject()
+            reject(response.error)
           }
         })
       })
     },
-    delete(LineId, PurchaseOrderNumber) {
+    updateState(PurchaseOrderNumber, NewState) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          method: 'post',
-          url: '/purchasing/item/edit',
-          data: { data: { Action: 'delete', OrderLineId: LineId, PoNo: PurchaseOrderNumber }}
+          method: 'patch',
+          url: '/purchasing/item/state',
+          params: {
+            PurchaseOrderNumber: PurchaseOrderNumber
+          },
+          data: {
+            NewState: NewState
+          }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
           } else {
-            reject()
+            reject(response.error)
           }
         })
       })
-    }
-  }
-
-  item = {
+    },
     search(PurchaseOrderNumber = null) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          url: '/purchasing/item',
           methood: 'get',
+          url: '/purchasing/item',
           params: {
-            PurchaseOrderNo: PurchaseOrderNumber
+            PurchaseOrderNumber: PurchaseOrderNumber
           }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
           } else {
-            reject()
+            reject(response.error)
           }
         })
       })
@@ -111,17 +113,130 @@ class Purchase {
         eerpApi({
           url: '/purchasing/item/skuSearch',
           methood: 'get',
-          params: { 
+          params: {
             SupplierId: SupplierId, SKU: sku
           }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
           } else {
-            reject()
+            reject(response.error)
           }
         })
       })
+    },
+    meta: {
+      get(PurchaseOrderNumber) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            methood: 'get',
+            url: '/purchasing/item/meta',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      save(PurchaseOrderNumber, Data) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'patch',
+            url: '/purchasing/item/meta',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber
+            },
+            data: Data
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
+    },
+    line: {
+      emptyLine: {
+        OrderLineId: 0,
+        LineNo: 0,
+        LineType: 'Part',
+        QuantityOrdered: 1,
+        UnitOfMeasurementId: null,
+        Price: 0,
+        VatTaxId: null,
+        Discount: 0,
+        ExpectedReceiptDate: null,
+        PartNo: null,
+        OrderReference: null,
+        SupplierSku: null,
+        ManufacturerName: null,
+        ManufacturerPartNumber: '',
+        StockPart: true,
+        Description: '',
+        Note: null
+      },
+      get(LineId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'get',
+            url: '/purchasing/item/line',
+            params: {
+              LineId: LineId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      save(PurchaseOrderNumber, LineData) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'patch',
+            url: '/purchasing/item/line',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber
+            },
+            data: {
+              Lines: LineData
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      delete(PurchaseOrderNumber, LineId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'delete',
+            url: '/purchasing/item/line',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber,
+              LineId: LineId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
     },
     import: {
       load(SupplierId, OrderNumber) {
@@ -137,7 +252,7 @@ class Purchase {
             if (response.error == null) {
               resolve(response.data)
             } else {
-              reject()
+              reject(response.error)
             }
           })
         })
@@ -155,7 +270,7 @@ class Purchase {
             if (response.error == null) {
               resolve(response.data)
             } else {
-              reject()
+              reject(response.error)
             }
           })
         })
@@ -173,7 +288,7 @@ class Purchase {
           if (response.error == null) {
             resolve(response.data)
           } else {
-            reject()
+            reject(response.error)
           }
         })
       })

@@ -34,7 +34,6 @@
     <el-divider />
     <p>
       <b>
-
         <router-link :to="'/vendor/view/' + orderData.SupplierId" class="link-type">
           <span>{{ orderData.SupplierName }}</span>
         </router-link> -
@@ -91,7 +90,7 @@
       v-permission="['purchasing.edit']"
       style="margin-top: 20px"
       type="primary"
-      @click="editMeta"
+      @click="openEditOrderMetaDialog()"
     >Edit</el-button>
 
     <el-divider />
@@ -106,178 +105,48 @@
 
     <el-divider />
     <h3>Documents</h3>
-    <editDocumentsList v-if="orderData.Status != 'Closed'" attach="PurchaseOrderDocument" :barcode="orderData.PurchaseOrderBarcode" @change="getOrder()" />
-    <documentsList :documents="documents" />
+    <editDocumentsList
+      v-if="orderData.Status != 'Closed'"
+      attach="PurchaseOrderDocument"
+      :barcode="orderData.PurchaseOrderBarcode"
+      @change="getOrder()"
+    />
+    <!--<documentsList :documents="documents" />-->
 
-    <el-dialog title="Edit Order" :visible.sync="showDialog" width="50%" center>
-      <el-form size="mini" label-width="220px">
-        <el-form-item label="Titel:">
-          <el-input v-model="dialogData.Title" style="width: 350px" placeholder="Titel" />
-        </el-form-item>
-
-        <el-form-item label="Supplier:">
-          <el-cascader
-            v-model="dialogData.SupplierId"
-            :options="suppliers"
-            filterable
-            placeholder="Supplier"
-            :props="{
-              emitPath: false,
-              value: 'Id',
-              label: 'Name',
-              children: 'Children',
-              checkStrictly: true
-            }"
-          />
-        </el-form-item>
-
-        <el-form-item label="Supplier Address:">
-          <el-select v-model="dialogData.VendorAddressId" placeholder="Currency" filterable>
-            <el-option v-for="item in supplierAddress" :key="item.Id" :label="item.Street+', '+item.PostalCode+' '+item.City+', '+item.CountryName" :value="item.Id" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="Supplier Contact:">
-          <el-select v-model="dialogData.VendorContactId" placeholder="Currency" filterable>
-            <el-option v-for="item in supplierContact" :key="item.Id" :label="item.FirstName+' '+item.LastName" :value="item.Id" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="Order Number:">
-          <el-input
-            v-model="dialogData.OrderNumber"
-            style="width: 350px"
-            placeholder="Supplier Order Number"
-          />
-        </el-form-item>
-
-        <el-form-item label="Acknowledgement Number:">
-          <el-input
-            v-model="dialogData.AcknowledgementNumber"
-            style="width: 350px"
-            placeholder="Supplier Order Number"
-          />
-        </el-form-item>
-
-        <el-form-item label="Quotation Number:">
-          <el-input
-            v-model="dialogData.QuotationNumber"
-            style="width: 350px"
-            placeholder="Supplier Quotation Number"
-          />
-        </el-form-item>
-
-        <el-form-item label="Order Date:">
-          <el-date-picker
-            v-model="dialogData.PurchaseDate"
-            type="date"
-            placeholder="Pick a day"
-            value-format="yyyy-MM-dd"
-          />
-        </el-form-item>
-
-        <el-form-item label="Currency">
-          <el-select v-model="dialogData.CurrencyId" placeholder="Currency" filterable>
-            <el-option v-for="item in currencies" :key="item.Id" :label="item.CurrencyCode+' - '+item.Name" :value="item.Id" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="Exchange Rate">
-          <el-input-number
-            v-model="dialogData.ExchangeRate"
-            :controls="false"
-            :precision="4"
-            :min="0.0000"
-            :max="999999"
-            style="width: 70pt"
-            filterable
-          />
-          <span :style="{margin: '10px'}"><el-button type="primary" @click="getExchangeRate()">Get Rate</el-button><br> Data provided by the European Central Bank</span>
-        </el-form-item>
-
-        <el-form-item label="Description:">
-          <el-input v-model="dialogData.Description" type="textarea" placeholder="Description" />
-        </el-form-item>
-
-        <el-form-item label="Payment Terms:">
-          <el-input
-            v-model="dialogData.PaymentTerms"
-            style="width: 350px"
-            placeholder="Payment Terms"
-          />
-        </el-form-item>
-
-        <el-form-item label="Incoterms:">
-          <el-input
-            v-model="dialogData.InternationalCommercialTerms"
-            style="width: 350px"
-            placeholder="International Commercial Terms"
-          />
-        </el-form-item>
-
-        <el-form-item label="Carrier:">
-          <el-input
-            v-model="dialogData.Carrier"
-            style="width: 350px"
-            placeholder="Carrier"
-          />
-        </el-form-item>
-
-        <el-form-item label="Head Note:">
-          <el-input v-model="dialogData.HeadNote" type="textarea" placeholder="Head Note" />
-        </el-form-item>
-
-        <el-form-item label="Foot Note:">
-          <el-input v-model="dialogData.FootNote" type="textarea" placeholder="Foot Note" />
-        </el-form-item>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="saveEditMeta()">Save</el-button>
-        <el-button @click="showDialog = false">Cancel</el-button>
-      </span>
-    </el-dialog>
+    <editOrderMetaDialog
+      :visible.sync="showOrderMetaEditDialog"
+      :purchase-order-number="orderData.PurchaseOrderNumber"
+      @refresh="refreshPage()"
+    />
   </div>
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import permission from '@/directive/permission/index.js'
+
 import editOrder from './components/edit'
 import placedOrder from './components/placed'
 import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
-import permission from '@/directive/permission/index.js'
+import editOrderMetaDialog from './components/editOrderMetaDialog'
+
 import editDocumentsList from '@/views/document/components/editDocumentsList'
 import documentsList from '@/views/document/components/documentsList'
-
-import Vendor from '@/api/vendor'
-const vendor = new Vendor()
 
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
-import Finance from '@/api/finance'
-const finance = new Finance()
-
 export default {
   name: 'PurchaseOrder',
-  components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList },
+  components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList, editOrderMetaDialog },
   directives: { permission },
   data() {
     return {
-      PoNo: this.$route.params.PoNo,
       orderData: null,
-      exchangeRateData: null,
       orderStatus: 0,
-      suppliers: {},
-      currencies: {},
       documents: {},
-      supplierAddress: {},
-      supplierContact: {},
-
-      showDialog: false,
-      dialogData: { type: Object, default: this.orderData }
+      showOrderMetaEditDialog: false
     }
   },
   created() {
@@ -288,168 +157,77 @@ export default {
   },
   mounted() {
     this.getOrder()
-    this.setTagsViewTitle()
-    this.getCurrency()
   },
   methods: {
     edit() {
-      this.orderData.Status = 'Editing'
-      this.saveStatus(this.orderData.Status)
+      this.saveState('Editing')
     },
     place() {
-      this.orderData.Status = 'Placed'
-      this.saveStatus(this.orderData.Status)
+      this.saveState('Placed')
     },
     confirm() {
-      this.orderData.Status = 'Confirmed'
-      this.saveStatus(this.orderData.Status)
+      this.saveState('Confirmed')
     },
     close() {
-      this.orderData.Status = 'Closed'
-      this.saveStatus(this.orderData.Status)
+      this.saveState('Closed')
     },
-    async editMeta() {
-      this.suppliers = await vendor.search(true, false)
-      this.dialogData = Object.assign({}, this.orderData)
-      this.showDialog = true
-    },
-    saveEditMeta() {
-      this.showDialog = false
-      this.saveData(this.dialogData)
-    },
-    saveState(data) {
-      this.saveData(data)
+    openEditOrderMetaDialog() {
+      this.showOrderMetaEditDialog = true
     },
     openPoDoc() {
-      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/purchaseOrder?PurchaseOrderNo=' + this.orderData.PoNo
+      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/purchaseOrder?PurchaseOrderNo=' + this.orderData.PurchaseOrderNumber
       window.open(path, '_blank').focus()
-    },
-    saveStatus(status) {
-      requestBN({
-        method: 'PATCH',
-        url: '/purchasing/item/status',
-        params: { PurchaseOrderNo: this.PoNo },
-        data: { Status: status }
-      }).then(response => {
-        if (response.error == null) {
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-          this.getOrder()
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
-      })
-    },
-    saveData(data) {
-      requestBN({
-        method: 'PATCH',
-        url: '/purchasOrder',
-        params: { PurchaseOrderNo: this.PoNo },
-        data: { data: data }
-      }).then(response => {
-        if (response.error == null) {
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-          this.getOrder()
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
-      })
-    },
-    getExchangeRate() {
-      finance.currency.exchangeRate(this.dialogData.CurrencyId).then(response => {
-        this.exchangeRateData = response
-        this.dialogData.ExchangeRate = this.exchangeRateData.ExchangeRate
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    getSupplierAddress() {
-      vendor.address.search(this.orderData.SupplierId).then(response => {
-        this.supplierAddress = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    getSupplierContact() {
-      vendor.contact.search(this.orderData.SupplierId).then(response => {
-        this.supplierContact = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    getCurrency() {
-      finance.currency.list().then(response => {
-        this.currencies = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
     },
     setTagsViewTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: 'PO-' + `${this.$route.params.PoNo}`
+        title: 'PO-' + `${this.orderData.PurchaseOrderNumber}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
+    showSuccessMessage() {
+      this.$message({
+        showClose: true,
+        message: 'Changes saved successfully',
+        duration: 1500,
+        type: 'success'
+      })
+    },
+    showErrorMessage(message) {
+      this.$message({
+        showClose: true,
+        message: message,
+        duration: 0,
+        type: 'error'
+      })
+    },
+    saveLine() {
+      purchase.line.save(this.orderData.PurchaseOrderNumber, [this.line]).then(response => {
+        this.showSuccessMessage()
+      }).catch(response => {
+        this.showErrorMessage(response)
+      })
+    },
+    saveState(newState) {
+      purchase.item.updateState(this.orderData.PurchaseOrderNumber, newState).then(response => {
+        this.showSuccessMessage()
+        this.getOrder()
+      }).catch(response => {
+        this.showErrorMessage(response)
+      })
+    },
+    refreshPage() {
+      this.getOrder()
+    },
     getOrder() {
-      purchase.item.search(this.$route.params.PoNo).then(response => {
+      purchase.item.search(this.$route.params.PurchaseOrderNumber).then(response => {
         this.orderData = response.MetaData
-        this.dialogData = this.orderData
         if (this.orderData.Status === 'Editing') this.orderStatus = 0
         else if (this.orderData.Status === 'Placed') this.orderStatus = 1
         else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
         else if (this.orderData.Status === 'Closed') this.orderStatus = 4
         this.documents = response.Documents
-        this.lines = response.Lines
-        this.line = this.lines.length
-
-        this.getSupplierAddress()
-        this.getSupplierContact()
       }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
+        this.showErrorMessage(response)
       })
     }
   }

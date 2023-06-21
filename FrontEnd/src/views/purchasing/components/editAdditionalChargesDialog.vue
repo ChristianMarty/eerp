@@ -72,7 +72,7 @@ export default {
   props: {
     line: { type: Object, default: null },
     visible: { type: Boolean, default: false },
-    poNo: { type: String, default: '' }
+    purchaseOrder: { type: Object, default: null }
   },
   data() {
     return {
@@ -115,7 +115,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: [this.$props.line], PoNo: this.$props.poNo }}
+        data: { data: { Action: 'save', Lines: [this.$props.line], PoNo: this.$props.purchaseOrder.PurchaseOrderNumber }}
       }).then(response => {
         if (response.error == null) {
           this.$message({
@@ -145,7 +145,7 @@ export default {
         requestBN({
           method: 'post',
           url: '/purchasing/additionalCharge/edit',
-          data: { data: { Action: 'delete', AdditionalChargeLineId: this.line.AdditionalChargesLineId, PoNo: this.$props.poNo }}
+          data: { data: { Action: 'delete', AdditionalChargeLineId: this.line.AdditionalChargesLineId, PoNo: this.$props.purchaseOrder.PurchaseOrderNumber }}
         }).then(response => {
           if (response.error != null) {
             this.$message({

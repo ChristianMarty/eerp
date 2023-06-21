@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
+require_once __DIR__ . "/item/_line.php";
 
 
 function getPurchaseOrderData($purchaseOrderNo): ?array
@@ -47,113 +48,43 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	}
 
 	$result = dbRunQuery($dbLink,$query);
-	$output = array();
-	$PoId = 0;
-	$status = null;
-	
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$purchaseOrderNumber= $r['PoNo'];
-		$r['PurchaseOrderNumber'] = $r['PoNo'];
-        $r['PurchaseOrderBarcode'] = "PO-".$r['PoNo'];
-		$r['CurrencyId'] = intval($r['CurrencyId']);
-		$r['VendorContactId'] = intval($r['VendorContactId']);
-		$r['VendorAddressId'] = intval($r['VendorAddressId']);
-		$r['ShippingContactId'] = intval($r['ShippingContactId']);
-		$r['BillingContactId'] = intval($r['BillingContactId']);
-		$r['PurchaseContactId'] = intval($r['PurchaseContactId']);
-		$PoId = $r['PoId'];
-		$status = $r['Status'];
-		
-		unset($r['PoId']);
-		$output['MetaData'] = $r;
-	}
+
+	$r = mysqli_fetch_assoc($result);
+
+    $purchaseOrderNumber= $r['PoNo'];
+    $r['PurchaseOrderNumber'] = $r['PoNo'];
+    $r['PurchaseOrderBarcode'] = "PO-".$r['PoNo'];
+    $r['CurrencyId'] = intval($r['CurrencyId']);
+    $r['VendorContactId'] = intval($r['VendorContactId']);
+    $r['VendorAddressId'] = intval($r['VendorAddressId']);
+    $r['ShippingContactId'] = intval($r['ShippingContactId']);
+    $r['BillingContactId'] = intval($r['BillingContactId']);
+    $r['PurchaseContactId'] = intval($r['PurchaseContactId']);
+    $purchaseOrderId = $r['PoId'];
+    $status = $r['Status'];
+
+    unset($r['PoId']);
+    $output['MetaData'] = $r;
+
 	
 	$output['Lines'] = Array();
 	
-	$query = <<<STR
-	SELECT 
-	purchasOrder_itemOrder.LineNo,
-	purchasOrder_itemOrder.Price,
-	purchasOrder_itemOrder.Sku,
-	purchasOrder_itemOrder.Type AS LineType,
-	purchasOrder_itemOrder.Quantity,
-	purchasOrder_itemOrder.Id AS OrderLineId, 
-	unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, 
-	unitOfMeasurement.Id AS UnitOfMeasurementId,
-	purchasOrder_itemOrder.PurchasOrderId,
-	purchasOrder_itemOrder.PartNo,
-	purchasOrder_itemOrder.ManufacturerName,
-	purchasOrder_itemOrder.ManufacturerPartNumber,
-	purchasOrder_itemOrder.SupplierPartId,
-	purchasOrder_itemOrder.Description,
-	purchasOrder_itemOrder.OrderReference,
-	purchasOrder_itemOrder.Note,
-	purchasOrder_itemOrder.ExpectedReceiptDate,
-	purchasOrder_itemOrder.VatTaxId,
-	finance_tax.Value AS VatValue, 
-	purchasOrder_itemOrder.Discount,
-	purchasOrder_itemOrder.StockPart,
+	$query = purchaseOrderItem_getLineQuery($purchaseOrderId);
 
-	purchasOrder_itemOrder.ManufacturerPartNumber AS  ManufacturerPartNumber,  
-	manufacturerPart.Id AS  ManufacturerPartId, 
-	purchasOrder_itemReceive.Id AS ReceiveId,
-	purchasOrder_itemReceive.QuantityReceived,
-	purchasOrder_itemReceive.ReceivalDate
+	$orderLimeResult = dbRunQuery($dbLink,$query);
 
-	FROM purchasOrder_itemOrder 
-	LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id 
-	LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchasOrder_itemOrder.UnitOfMeasurementId 
-	LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_itemOrder.VatTaxId 
-	LEFT JOIN supplierPart ON purchasOrder_itemOrder.SupplierPartId = supplierPart.Id
-	LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId
-	WHERE PurchasOrderId = $PoId 
-	ORDER BY LineNo
-	STR;
-	
-	
-	$result = dbRunQuery($dbLink,$query);
-	
 	$lines = array();
-
-	while($r = mysqli_fetch_assoc($result)) 
+	while($r = mysqli_fetch_assoc($orderLimeResult))
 	{
-		$orderLineId = intval( $r['OrderLineId'], 10);
-		$receivalLineId = intval( $r['ReceiveId'], 10);
+		$orderLineId = purchaseOrderItem_getLineIdFromQueryResult($r);
 			
 		if(!array_key_exists($orderLineId,$lines))
 		{
-			$lineNumber = intval($r['LineNo']);
+            $lines[$r['OrderLineId']] = purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $r);
 
-			$lines[$r['OrderLineId']]["PurchaseOrderBarcode"] = "PO-".$purchaseOrderNumber."#".$lineNumber;
-			$lines[$r['OrderLineId']]['LineNo'] = $lineNumber;
-			$lines[$r['OrderLineId']]['LineNumber'] = $lineNumber;
-			$lines[$r['OrderLineId']]['Price'] = $r['Price'];
-			$lines[$r['OrderLineId']]['SupplierSku'] = $r['Sku'];
-			$lines[$r['OrderLineId']]['LineType'] = $r['LineType'];
-			$lines[$r['OrderLineId']]['QuantityOrderd'] = intval($r['Quantity']);
-			$lines[$r['OrderLineId']]['OrderLineId'] = intval($r['OrderLineId']);
-			$lines[$r['OrderLineId']]['UnitOfMeasurement'] = $r['UnitOfMeasurementSymbol'];
-			$lines[$r['OrderLineId']]['UnitOfMeasurementId'] =  intval($r['UnitOfMeasurementId']);
-			$lines[$r['OrderLineId']]['PurchasOrderId'] = intval($r['PurchasOrderId']);
-			$lines[$r['OrderLineId']]['PartNo'] = $r['PartNo'];
-			$lines[$r['OrderLineId']]['ManufacturerName'] = $r['ManufacturerName'];
-			$lines[$r['OrderLineId']]['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
-			$lines[$r['OrderLineId']]['ManufacturerPartId'] = $r['ManufacturerPartId'];
-			if($r['SupplierPartId'] != null)$lines[$r['OrderLineId']]['SupplierPartId'] = intval($r['SupplierPartId']);
-			else $lines[$r['OrderLineId']]['SupplierPartId'] = null;
-			$lines[$r['OrderLineId']]['Description'] = $r['Description'];
-			$lines[$r['OrderLineId']]['OrderReference'] = $r['OrderReference'];
-			$lines[$r['OrderLineId']]['Note'] = $r['Note'];
-			$lines[$r['OrderLineId']]['ExpectedReceiptDate'] = $r['ExpectedReceiptDate'];
-			$lines[$r['OrderLineId']]['VatTaxId'] = intval($r['VatTaxId']);
-			$lines[$r['OrderLineId']]['VatValue'] = $r['VatValue'];
-			$lines[$r['OrderLineId']]['Discount'] = $r['Discount'];
-			$lines[$r['OrderLineId']]['StockPart'] = filter_var($r['StockPart'], FILTER_VALIDATE_BOOLEAN);
-			$lines[$r['OrderLineId']]['LinePrice'] = $r['Price']*((100-$r['Discount'])/100);
-			$lines[$r['OrderLineId']]['Total'] = $lines[$r['OrderLineId']]['LinePrice'] * intval($r['Quantity']);
-			$lines[$r['OrderLineId']]['FullTotal'] = round($lines[$r['OrderLineId']]['Total'] *(1+($r['VatValue']/100)), 2, PHP_ROUND_HALF_UP);
-			
+            $query = purchaseOrderItem_getCostCenterQuery($r['OrderLineId']);
+            $lines[$r['OrderLineId']]['CostCenter'] = purchaseOrderItem_getCostCenterData(dbRunQuery($dbLink,$query));
+
 			if($status == "Confirmed" or $status == "Closed")
 			{
 				$lines[$r['OrderLineId']]['QuantityReceived'] = 0;
@@ -176,7 +107,6 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 
 	$output['Lines'] = array_values($lines);
 	
-	
 	$additionalCharges = Array();
     $query = <<<STR
 	SELECT purchasOrder_additionalCharges.Id AS AdditionalChargesLineId, 
@@ -189,7 +119,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	       finance_tax.Id AS VatTaxId
 	FROM purchasOrder_additionalCharges
 	LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_additionalCharges.VatTaxId
-	WHERE PurchasOrderId = $PoId 
+	WHERE PurchasOrderId = $purchaseOrderId 
 	ORDER BY LineNo
 	STR;
 	$result = dbRunQuery($dbLink,$query);
@@ -213,7 +143,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	
 	foreach( $lines as $line)
 	{
-		$net = $line['QuantityOrderd']*$line['Price'];
+		$net = $line['QuantityOrdered']*$line['Price'];
 		$discount = $net*($line['Discount']/100);
 		$vat = ($net-$discount)*($line['VatValue']/100);
 		

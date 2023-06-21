@@ -1,7 +1,21 @@
 <template>
   <div class="edit-line-item-dialog">
-    <el-dialog title="Order Line" :visible.sync="visible" :close-on-click-modal="false" :before-close="closeDialog">
-      <el-form label-width="150px">
+    <el-dialog
+      title="Order Line"
+      :visible.sync="isVisible"
+      :close-on-click-modal="false"
+      :before-close="closeDialog"
+    >
+      <p
+        v-if="loading === true"
+        v-loading="loading"
+        element-loading-text="Loading Line"
+      > Loading Line ... </p>
+
+      <el-form
+        v-if="loading === false"
+        label-width="150px"
+      >
         <el-form-item label="Line:">{{ line.LineNo }}</el-form-item>
 
         <el-form-item label="Type:">
@@ -16,9 +30,9 @@
         </el-form-item>
 
         <el-form-item label="Quantity:">
-          <template slot-scope="{ row }">
+          <template>
             <el-input-number
-              v-model="line.QuantityOrderd"
+              v-model="line.QuantityOrdered"
               :controls="false"
               :min="1"
               :max="999999"
@@ -48,7 +62,7 @@
             style="width: 70pt"
           />
           <b>   Amount:</b> {{ calculatePrice(line).price }}
-          <span :style="{margin: '10px'}"><el-button type="primary" @click="line.Price = line.Price/line.QuantityOrderd">Divide by Quantity</el-button></span>
+          <span :style="{margin: '10px'}"><el-button type="primary" @click="clac(line.Price = line.Price/line.QuantityOrdered)">Divide by Quantity</el-button></span>
         </el-form-item>
 
         <el-form-item label="VAT :">
@@ -61,7 +75,7 @@
             <el-option v-for="item in vat" :key="item.Id" :label="item.Value +'% - '+item.Description" :value="item.Id" />
           </el-select>
           <b>   Amount:</b> {{ calculatePrice(line).vat }}
-          <span :style="{margin: '10px'}"><el-button type="primary" @click="line.Price = line.Price/(1+vat.find(x => x.Id === line.VatTaxId).Value/100)">Remove VAT from Price</el-button></span>
+          <span :style="{margin: '10px'}"><el-button type="primary" @click="clac(line.Price = line.Price/(1+vat.find(x => x.Id === line.VatTaxId).Value/100))">Remove VAT from Price</el-button></span>
         </el-form-item>
 
         <el-form-item label="Discount:">
@@ -79,6 +93,31 @@
         </el-form-item>
         <el-form-item label="Total:">
           <span>{{ calculatePrice(line).total }}</span>
+        </el-form-item>
+        <el-form-item label="Cost Center:">
+          <el-popover
+            title="Select Cost Center"
+            placement="left"
+            width="400"
+            trigger="click"
+          >
+            <el-table :data="costCenter" @row-click="(row) =>costCenterSelect(row.Barcode)">
+              <el-table-column property="Barcode" label="Barcode" />
+              <el-table-column width="120" property="Name" label="Name" />
+              <el-table-column property="ProjectName" label="Project" />
+            </el-table>
+
+            <el-button slot="reference" icon="el-icon-plus" type="primary" circle size="mini" :style="{ margin: '5px'}" />
+          </el-popover>
+          <el-tag
+            v-for="item in line.CostCenter"
+            :key="item.Barcode"
+            :color="getCostCenterColor(item.Barcode)"
+            closable
+            @close="handleRemoveCostCenter(item.Barcode)"
+          >
+            {{ item.Barcode }}
+          </el-tag>
         </el-form-item>
         <el-form-item label="Expected Receipt:">
           <el-date-picker
@@ -120,7 +159,7 @@
 
         <el-form-item label="Sku:">
           <el-input v-model="line.SupplierSku" @keyup.enter.native="searchSku(line.SupplierSku)">
-            <el-button v-if="po.SkuSearchSupported == true" slot="append" icon="el-icon-search" @click="searchSku(line.SupplierSku)">Import</el-button>
+            <el-button v-if="purchaseOrder.SkuSearchSupported == true" slot="append" icon="el-icon-search" @click="searchSku(line.SupplierSku)">Import</el-button>
           </el-input>
         </el-form-item>
 
@@ -158,43 +197,55 @@
 <script>
 import Finance from '@/api/finance'
 const finance = new Finance()
-
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
-
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
-
 import SupplierPart from '@/api/supplierPart'
 const supplierPart = new SupplierPart()
-
 import UnitOfMeasurement from '@/api/unitOfMeasurement'
 const unitOfMeasurement = new UnitOfMeasurement()
+
+import * as defaultSetting from '@/utils/defaultSetting'
 
 export default {
   name: 'EditLineItemDialog',
   props: {
-    line: { type: Object, default: null },
-    supplierId: { type: Number, default: 0 },
     visible: { type: Boolean, default: false },
-    po: { type: String, default: '' }
+    lineId: { type: Number, default: 0 },
+    purchaseOrder: { type: Object, default: null }
   },
   data() {
     return {
+      isVisible: false,
+      loading: true,
       partOptions: [],
       uom: [],
       vat: [],
-      partManufacturer: []
+      costCenter: [],
+      partManufacturer: [],
+      line: Object.assign({}, purchase.item.line.emptyLine)
     }
   },
-  mounted() {
-    this.getVAT()
-    this.getUOM()
-    this.getManufacturers()
+  watch: {
+    '$props.visible': {
+      handler(newVal) {
+        if (newVal === true) {
+          this.isVisible = true
+          this.loadLine()
+        }
+      }
+    }
+  },
+  async mounted() {
+    this.vat = await finance.tax.list('VAT')
+    this.uom = await unitOfMeasurement.list(true)
+    this.partManufacturer = await vendor.search(false, true, false)
+    this.costCenter = await finance.costCenter.list()
   },
   methods: {
     calculatePrice(line) {
-      const price = line.Price * line.QuantityOrderd
+      const price = line.Price * line.QuantityOrdered
       const discount = price / 100 * line.Discount
       const vat = Math.round((price - discount) * (this.vat.find(x => x.Id === line.VatTaxId).Value / 100) * 1000000) / 1000000
 
@@ -208,7 +259,7 @@ export default {
     },
     getPartData(row) {
       if (row.PartNo === null) return
-      supplierPart.search(row.PartNo, this.$props.supplierId).then(response => {
+      supplierPart.search(row.PartNo, this.$props.purchaseOrder.SupplierId).then(response => {
         this.partOptions = response
       }).catch(response => {
         this.$message({
@@ -228,7 +279,7 @@ export default {
       data.ManufacturerPartNumber = row.ManufacturerPartNumber
     },
     searchSku(sku) {
-      purchase.item.skuSearch(this.$props.supplierId, sku).then(response => {
+      purchase.item.skuSearch(this.$props.purchaseOrder.SupplierId, sku).then(response => {
         const skuData = response
 
         this.line.Description = skuData.Description
@@ -236,7 +287,7 @@ export default {
         this.line.ManufacturerName = skuData.ManufacturerName
 
         skuData.Pricing.forEach(price => {
-          if (this.line.QuantityOrderd >= price.MinimumQuantity) {
+          if (this.line.QuantityOrdered >= price.MinimumQuantity) {
             this.line.Price = price.Price
           }
         })
@@ -249,9 +300,38 @@ export default {
         })
       })
     },
-    getManufacturers() {
-      vendor.search(false, true, false).then(response => {
-        this.partManufacturer = response
+    getCostCenterColor(CostCenterBarcode) {
+      const result = this.costCenter.filter(obj => {
+        return obj.Barcode === CostCenterBarcode
+      })
+      if (result.length === 0) return '#FFFFFF'
+      return result[0].Color
+    },
+    handleRemoveCostCenter(CostCenterBarcode) {
+      this.line.CostCenter = this.line.CostCenter.filter(obj => {
+        return obj.Barcode !== CostCenterBarcode
+      })
+    },
+    costCenterSelect(CostCenterBarcode) {
+      const addData = {
+        Barcode: CostCenterBarcode,
+        Quota: 1
+      }
+      this.line.CostCenter.push(addData)
+    },
+    loadLine() {
+      this.loading = true
+      this.line = {}
+      if (this.$props.lineId === 0) { // in case of new Line
+        this.line = Object.assign({}, purchase.item.line.emptyLine)
+        this.line.UnitOfMeasurementId = Number(defaultSetting.defaultSetting().PurchasOrder.UoM)
+        this.line.VatTaxId = Number(defaultSetting.defaultSetting().PurchasOrder.VAT)
+        this.loading = false
+        return
+      }
+      purchase.item.line.get(this.$props.lineId).then(response => {
+        this.line = response
+        this.loading = false
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -259,48 +339,17 @@ export default {
           duration: 0,
           type: 'error'
         })
+        this.closeDialog()
       })
-    },
-    getVAT() {
-      finance.tax.list('VAT').then(response => {
-        this.vat = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    getUOM() {
-      unitOfMeasurement.list(true).then(response => {
-        this.uom = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    refresh() {
-      this.$emit('refresh')
-    },
-    closeDialog() {
-      this.visible = false
-      this.$emit('update:visible', this.visible)
     },
     saveLine() {
-      purchase.line.edit([this.$props.line], this.$props.po.PoNo).then(response => {
+      purchase.item.line.save(this.$props.purchaseOrder.PurchaseOrderNumber, [this.line]).then(response => {
         this.$message({
           showClose: true,
           message: 'Changes saved successfully',
           duration: 1500,
           type: 'success'
         })
-        this.refresh()
         this.closeDialog()
       }).catch(response => {
         this.$message({
@@ -309,8 +358,6 @@ export default {
           duration: 0,
           type: 'error'
         })
-        this.refresh()
-        this.closeDialog()
       })
     },
     deleteLine() {
@@ -319,14 +366,13 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        purchase.line.delete(this.line.OrderLineId, this.$props.po.PoNo).then(response => {
+        purchase.item.line.delete(this.$props.purchaseOrder.PurchaseOrderNumber, this.line.OrderLineId).then(response => {
           this.$message({
             showClose: true,
             message: 'Changes saved successfully',
             duration: 1500,
             type: 'success'
           })
-          this.refresh()
           this.closeDialog()
         }).catch(response => {
           this.$message({
@@ -335,8 +381,6 @@ export default {
             duration: 0,
             type: 'error'
           })
-          this.refresh()
-          this.closeDialog()
         })
       }).catch(() => {
         this.$message({
@@ -344,6 +388,11 @@ export default {
           message: 'Delete canceled'
         })
       })
+    },
+    closeDialog() {
+      this.isVisible = false
+      this.$emit('refresh')
+      this.$emit('update:visible', false)
     }
   }
 }

@@ -66,7 +66,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = dbGetResult($result))
 	{
 		$temp = array();
-		$temp['Id'] = $r['Id'];
+		$temp['Id'] = intval($r['Id']);
 		$temp['Name'] = $r['Name'];
 		$temp['CustomerNumber'] = $r['CustomerNumber'];
 		$children[] = $temp;

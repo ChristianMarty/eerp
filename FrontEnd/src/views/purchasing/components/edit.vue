@@ -32,7 +32,7 @@
         @row-click="(row, column, event) =>openItemLineEdit(row)"
       >
         <el-table-column prop="LineNo" label="Line" width="70" />
-        <el-table-column prop="QuantityOrderd" label="Quantity" width="80" />
+        <el-table-column prop="QuantityOrdered" label="Quantity" width="80" />
         <el-table-column prop="UnitOfMeasurement" label="Unit" width="50" />
         <el-table-column label="SKU" prop="SupplierSku" width="220" />
         <el-table-column label="Item">
@@ -91,10 +91,28 @@
     <orderTotal :total="poData.Total" />
 
     <template v-permission="['purchasing.edit']">
-      <editLineItemDialog :visible.sync="orderLineEditDialogVisible" :line="orderLineEditData" :supplier-id="Number(orderData.SupplierId)" :po="orderData" @closed="getOrderLines()" @refresh="refreshPage()" />
-      <editAdditionalChargesDialog :visible.sync="additionalChargesDialogVisible" :line="additionalChargesLine" :po-no="orderData.PoNo" @closed="getOrderLines()" @refresh="refreshPage()" />
+      <editLineItemDialog
+        :visible.sync="orderLineEditDialogVisible"
+        :line-id="editOrderLineId"
+        :purchase-order="orderData"
+        @closed="getOrderLines()"
+        @refresh="refreshPage()"
+      />
+      <editAdditionalChargesDialog
+        :visible.sync="additionalChargesDialogVisible"
+        :line="additionalChargesLine"
+        :purchase-order="orderData"
+        @closed="getOrderLines()"
+        @refresh="refreshPage()"
+      />
 
-      <orderImportDialog v-if="apiInfo.Capability.OrderImportSupported == true" :visible.sync="importDialogVisible" :meat="poData.MetaData" @closed="getOrderLines()" />
+      <orderImportDialog
+        v-if="apiInfo.Capability.OrderImportSupported == true"
+        :visible.sync="importDialogVisible"
+        :meat="poData.MetaData"
+        @closed="getOrderLines()"
+        @refresh="refreshPage()"
+      />
     </template>
 
     <el-dialog width="85%" title="Pending Order Request" :visible.sync="orderReqestDialogVisible" @open="getOrderRequests()">
@@ -155,7 +173,6 @@ import requestBN from '@/utils/requestBN'
 
 import permission from '@/directive/permission/index.js'
 import ElTableDraggable from 'el-table-draggable'
-import * as defaultSetting from '@/utils/defaultSetting'
 
 import orderTotal from './orderTotal'
 import orderImportDialog from './orderImportDialog'
@@ -168,26 +185,10 @@ const purchase = new Purchase()
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
 
-const emptyOrderLine = {
-  OrderLineId: 0,
-  LineNo: 0,
-  LineType: 'Part',
-  QuantityOrderd: 1,
-  UnitOfMeasurementId: Number(defaultSetting.defaultSetting().PurchasOrder.UoM),
-  Price: 0,
-  VatTaxId: Number(defaultSetting.defaultSetting().PurchasOrder.VAT),
-  Discount: 0,
-  ExpectedReceiptDate: null,
-  PartNo: null,
-  OrderReference: null,
-  SupplierSku: null,
-  ManufacturerName: null,
-  ManufacturerPartNumber: '',
-  StockPart: true,
-  Description: '',
-  Note: null
-}
+import Finance from '@/api/finance'
+const finance = new Finance()
 
+import * as defaultSetting from '@/utils/defaultSetting'
 const emptyAdditionalChargesLine = {
   AdditionalChargesLineId: 0,
   LineNo: 0,
@@ -213,10 +214,10 @@ export default {
       orderStatus: 0,
       orderRequests: null,
 
-      orderLineEditData: {},
+      editOrderLineId: 0,
       allExpectedDate: null,
       allVatId: 0,
-      additionalChargesLine: [],
+      additionalChargesLine: {},
 
       additionalChargesDialogVisible: false,
       orderLineEditDialogVisible: false,
@@ -225,26 +226,26 @@ export default {
       orderReqestDialogVisible: false,
       setExpectedDateVisible: false,
 
-      vat: {}
+      vat: []
     }
   },
-  mounted() {
+  async mounted() {
     this.getOrderLines()
-    this.getVAT()
+    this.vat = await finance.tax.list('VAT')
   },
   methods: {
     onItemLineDrag() {
       this.reorderItemLines()
-      this.saveItems()
+      this.saveLines()
     },
     openItemLineEdit(row) {
       this.reorderItemLines()
-      this.orderLineEditData = JSON.parse(JSON.stringify(row))
+      this.editOrderLineId = row.OrderLineId
       this.orderLineEditDialogVisible = true
     },
     addItemLine() {
-      this.orderLineEditData = Object.assign({}, emptyOrderLine)
-      this.orderLineEditData.LineNo = this.itemLineIndex
+      this.reorderItemLines()
+      this.editOrderLineId = 0
       this.orderLineEditDialogVisible = true
     },
     onAdditionalChargesLineDrag() {
@@ -278,18 +279,30 @@ export default {
       this.poData.Lines.forEach(element => { element.VatTaxId = vatId })
       this.saveItems()
     },
-    getVAT() {
-      requestBN({
-        url: '/finance/tax',
-        methood: 'get',
-        params: {
-          Type: 'VAT'
-        }
-      }).then(response => {
-        this.vat = response.data
+    showSuccessMessage(message) {
+      this.$message({
+        showClose: true,
+        message: message,
+        duration: 1500,
+        type: 'success'
       })
     },
-    saveItems() {
+    showErrorMessage(message) {
+      this.$message({
+        showClose: true,
+        message: message,
+        duration: 0,
+        type: 'error'
+      })
+    },
+    saveLines() {
+      purchase.item.line.save(this.$props.orderData.PoNo, this.poData.Lines).then(response => {
+        this.showSuccessMessage()
+      }).catch(response => {
+        this.showErrorMessage(response)
+      })
+    },
+    /*saveItems() {
       requestBN({
         method: 'post',
         url: '/purchasing/item/edit',
@@ -319,7 +332,7 @@ export default {
           })
         }
       })
-    },
+    },*/
     saveAdditionalCharges() {
       requestBN({
         method: 'post',
@@ -360,7 +373,7 @@ export default {
         this.additionalChargesLineIndex++
       })
     },
-    addRequestToOrder(orderRequestData) {
+    /*addRequestToOrder(orderRequestData) {
       this.itemLineIndex++
       const newLine = Object.assign({}, emptyOrderLine)
       newLine.QuantityOrderd = orderRequestData.Quantity
@@ -371,7 +384,7 @@ export default {
 
       this.poData.Lines.push(newLine)
       this.save([newLine])
-    },
+    },*/
     refreshPage() {
       this.getOrderLines()
     },
