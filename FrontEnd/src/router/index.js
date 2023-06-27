@@ -20,10 +20,16 @@ import labelRouter from './modules/label'
 import processRouter from './modules/process'
 import reportRouter from './modules/report'
 import projectRouter from './modules/project'
+import billOfMaterial from './modules/billOfMaterial'
 import workOrderRouter from './modules/workOrder'
 import assemblyRouter from './modules/assembly'
 import metrologyRouter from './modules/metrology'
 import financeRouter from './modules/finance'
+import specificationPartRouter from './modules/specificationPart'
+
+import manufacturerPart_newRouter from './modules/manufacturerPart_new'
+
+
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -140,9 +146,12 @@ export const asyncRoutes = [
   vendorRouter,
   financeRouter,
   projectRouter,
+  billOfMaterial,
   workOrderRouter,
   prodPartsRouter,
   mfrPartsRouter,
+  manufacturerPart_newRouter,
+  specificationPartRouter,
   partMetadataRouter,
   stockRouter,
   assemblyRouter,

@@ -15,29 +15,35 @@ function getPurchaseInformation($receivalId)
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$query  = "SELECT PoNo, Price, finance_currency.CurrencyCode AS Currency, PurchaseDate, Sku AS SupplierPartNumber, vendor.Name AS SupplierName, OrderReference, vendor.Id AS VendorId FROM purchasOrder_itemOrder ";
-	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId ";
-	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
-	$query .= "WHERE purchasOrder_itemReceive.Id = ".$receivalId;
+
+    $query = <<<STR
+        SELECT 
+            PoNo, 
+            Price, 
+            finance_currency.CurrencyCode AS Currency, 
+            PurchaseDate, 
+            Sku AS SupplierPartNumber, 
+            vendor.Name AS SupplierName, 
+            OrderReference, 
+            vendor.Id AS VendorId 
+        FROM purchaseOrder_itemOrder
+        LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
+        LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
+        LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
+        LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
+        WHERE purchaseOrder_itemReceive.Id = $receivalId
+    STR;
 
 	$result = dbRunQuery($dbLink,$query);
-	$gctNr = null;
 	$output = array();
-	$quantity = 0;
-	
+
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r["VendorId"] = intval($r["VendorId"]);
 		$output[] = $r;
 	}
-	
-	
-	
-	dbClose($dbLink);
 
+	dbClose($dbLink);
 	return $output;
 }
 

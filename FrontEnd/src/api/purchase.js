@@ -238,6 +238,43 @@ class Purchase {
         })
       }
     },
+    match: {
+      get(PurchaseOrderNumber) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'get',
+            url: '/purchasing/item/match',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      create(PurchaseOrderNumber, LineIds) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/purchasing/item/match',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber
+            },
+            data: LineIds
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
+    },
     import: {
       load(SupplierId, OrderNumber) {
         return new Promise((resolve, reject) => {

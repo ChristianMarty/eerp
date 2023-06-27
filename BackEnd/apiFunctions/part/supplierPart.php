@@ -13,7 +13,6 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
@@ -22,19 +21,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["ProductionPartNo"])) $productionPartNo =  dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
 	
 	$supplierData = array();
-	
-	$query = "SELECT *, mfrPart.ManufacturerName AS ManufacturerName, vendor.Name AS SupplierName, supplierPart.Id AS SupplierPartId FROM supplierPart ";
-	$query.="LEFT JOIN vendor On vendor.Id = supplierPart.VendorId ";
-	$query.="LEFT JOIN manufacturerPart On manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-	$query.="LEFT JOIN (SELECT ManufacturerPartNumber, manufacturerPart.Id AS Id, vendor.Name AS ManufacturerName FROM manufacturerPart LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId)mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId ";
-	$query.="LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = mfrPart.Id ";
-	$query.="LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-	
-	
+    $query = <<<STR
+        SELECT *, 
+               manufacturerPart_partNumber.Number AS ManufacturerPartNumbe, 
+               vendor.Name AS SupplierName, 
+               supplierPart.Id AS SupplierPartId 
+        FROM supplierPart 
+        LEFT JOIN vendor On vendor.Id = supplierPart.VendorId 
+        LEFT JOIN manufacturerPart_partNumber On manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId 
+        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id 
+        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId 
+    STR;
+
 	$parameters = array();
-	if(isset($manufacturerPartId)) $parameters[] = 'supplierPart.ManufacturerPartId = ' . $manufacturerPartId;
-	if(isset($supplierId)) $parameters[] = 'supplierPart.VendorId = ' . $supplierId;
-	if(isset($productionPartNo)) $parameters[] = "productionPart.PartNo = '" . $productionPartNo . "'";
+	if(isset($manufacturerPartId)) $parameters[] = " supplierPart.ManufacturerPartId = " . $manufacturerPartId;
+	if(isset($supplierId)) $parameters[] = " supplierPart.VendorId = " . $supplierId;
+	if(isset($productionPartNo)) $parameters[] = " productionPart.PartNo = '" . $productionPartNo . "'";
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
 	
@@ -56,13 +58,12 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$data = json_decode(file_get_contents('php://input'),true);
 
 	$supplierPartCreate = array();
-	$supplierPartCreate['ManufacturerPartId'] = intval($data['data']['ManufacturerPartId']);
+	$supplierPartCreate['ManufacturerPartNumberId'] = intval($data['data']['ManufacturerPartNumberId']);
 	$supplierPartCreate['VendorId'] = intval($data['data']['SupplierId']);
 	$supplierPartCreate['SupplierPartNumber'] = $data['data']['SupplierPartNumber'];
 	$supplierPartCreate['SupplierPartLink'] = $data['data']['SupplierPartLink'];
 	$supplierPartCreate['Note'] = $data['data']['Note'];
-	
-	
+
 	$query = dbBuildInsertQuery($dbLink, "supplierPart", $supplierPartCreate);
 	
 	$query .= "SELECT Id FROM supplierPart WHERE Id = LAST_INSERT_ID();";
@@ -86,7 +87,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	{
 		$error = "Error description: " . mysqli_error($dbLink);
 	}
-	
 
 	dbClose($dbLink);	
 	sendResponse($output,$error);

@@ -37,9 +37,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	// Query attributes
 	$attributes  = array();
-	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, unitOfMeasurement.Symbol, unitOfMeasurement.Unit, partAttribute.Type, Scale ";
-	$query .= "FROM `partAttribute` ";
-	$query .= "LEFT JOIN `unitOfMeasurement` ON unitOfMeasurement.Id = partAttribute.UnitOfMeasurementId ";
+	$query = "SELECT manufacturerPart_attribute.Id, manufacturerPart_attribute.ParentId, manufacturerPart_attribute.Name, unitOfMeasurement.Symbol, unitOfMeasurement.Unit, manufacturerPart_attribute.Type, Scale ";
+	$query .= "FROM `manufacturerPart_attribute` ";
+	$query .= "LEFT JOIN `unitOfMeasurement` ON unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId ";
 	
 	$result = dbRunQuery($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
@@ -57,7 +57,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		// Query Classes
 		$classes  = array();
-		$query = "SELECT * FROM partClass";
+		$query = "SELECT * FROM manufacturerPart_class";
 		$result = mysqli_query($dbLink,$query);
 		while($r = mysqli_fetch_assoc($result))
 		{

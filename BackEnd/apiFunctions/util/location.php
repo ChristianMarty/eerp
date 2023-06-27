@@ -74,7 +74,7 @@ function buildLocationTree($rows, $parentId): array
 				$temp['Children'] = array();
 				$temp['Children'] =  buildLocationTree($rows,$row['Id']);
 			}
-			array_push($treeItem, $temp);
+			$treeItem[] = $temp;
 		}
 	}
 	
@@ -83,7 +83,8 @@ function buildLocationTree($rows, $parentId): array
 
 function buildLocation($rows, $id)
 {
-	if($id == NULL) return "";
+	if($id == null) return "";
+    if($id == 0) return "";
 	
 	$lines = array();
 	foreach($rows as $row)
@@ -115,6 +116,7 @@ function buildLocation($rows, $id)
 function buildLocationPath($rows, $id, $depth): string
 {
 	if($id == NULL) return "";
+    if($id == 0) return "";
 	
 	$lines = array();
 	foreach($rows as $row)

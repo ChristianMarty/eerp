@@ -14,24 +14,18 @@ require_once __DIR__ . "/../../util/_getDocuments.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
+	if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(null, "Purchase Order Number not defined!");
+	$purchaseOrderNumber =  barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$error = null;
-	
-	if(!isset($_GET["PurchaseOrderBarcode"])) $error = "PO Barcode not defined!";
 
-	$poBarcode =  barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderBarcode"]);
-
-	$query = "SELECT DocumentIds FROM purchasOrder WHERE PoNo = '".$poBarcode."'";
+	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '".$purchaseOrderNumber."'";
 	$result = dbRunQuery($dbLink,$query);
-	if(!$result) sendResponse(null, "Error in doc list");
+	if(!$result) sendResponse(null, "Error in document list");
 	$docIdList = mysqli_fetch_assoc($result)['DocumentIds'];
-
-	$output = getDocuments($docIdList);
-
+	$output = getDocumentsFromIds($dbLink, $docIdList);
 
 	dbClose($dbLink);	
-	sendResponse($output,$error);
+	sendResponse($output);
 }
 ?>

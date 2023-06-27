@@ -29,12 +29,12 @@
       <el-form label-width="150px">
         <el-form-item label="Work Order:">
 
-          <el-select v-model="workOrderId" filterable>
+          <el-select v-model="selectedWorkOrderNumber" filterable>
             <el-option
               v-for="wo in workOrders"
-              :key="wo.Id"
-              :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
-              :value="wo.Id"
+              :key="wo.WorkOrderNumber"
+              :label="wo.WorkOrderBarcode + ' - ' + wo.Title"
+              :value="wo.WorkOrderNumber"
             />
           </el-select>
           <el-button type="primary" @click="workOrderId = null">Clear</el-button>
@@ -44,7 +44,7 @@
     </template>
 
     <template v-if="step == 3">
-      <p><b>Work Order:</b> WO-{{ selectedWorkOrderData.WorkOrderNo }}  {{ selectedWorkOrderData.Title }}</p>
+      <p><b>Work Order:</b> {{ selectedWorkOrderData.WorkOrderBarcode }}  {{ selectedWorkOrderData.Title }}</p>
     </template>
 
     <h2>Items</h2>
@@ -111,11 +111,16 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
 import * as defaultSetting from '@/utils/defaultSetting'
 
 import WorkOrder from '@/api/workOrder'
 const workOrder = new WorkOrder()
+
+import Stock from '@/api/stock'
+const stock = new Stock()
+
+import Print from '@/api/print'
+const print = new Print()
 
 export default {
   name: 'BulkRemove',
@@ -128,13 +133,13 @@ export default {
       quantity: 1,
       selectedPrinterId: 0,
 
-      workOrderId: null,
       stockNoInput: '',
       itemList: [],
 
       workOrders: [],
       note: '',
 
+      selectedWorkOrderNumber: null,
       selectedWorkOrderData: null
     }
   },
@@ -146,57 +151,43 @@ export default {
     //
   },
   methods: {
+    findWorkOrder(WorkOrderNumber) {
+      if (WorkOrderNumber == null) return { WorkOrderBarcode: null, WorkOrderNumber: null, Title: null }
+      return this.workOrders.find(element => element.WorkOrderNumber === WorkOrderNumber)
+    },
     printReceipt() {
-      const printData = {
-        WorkOrderNo: this.findWorkOrder(this.workOrderId).WorkOrderNo,
-        Items: this.itemList
-      }
-      requestBN({
-        method: 'post',
-        url: '/print/partReceipt',
-        data: { Data: printData, PrinterId: this.selectedPrinterId }
-      }).then(response => {
-        if (response.error !== null) {
-          this.$message({
-            showClose: true,
-            duration: 0,
-            message: response.error,
-            type: 'error'
-          })
-        }
+      print.template.partReceipt(this.selectedPrinterId, this.itemList, this.selectedWorkOrderNumber).then(response => {
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
-    findWorkOrder(workOrderId) {
-      if (workOrderId == null) return { WorkOrderNo: null, Title: null }
-      return this.workOrders.find(element => element.Id === this.workOrderId)
-    },
     printAllNotes() {
-      const printData = {
-        WorkOrderNo: this.findWorkOrder(this.workOrderId).WorkOrderNo,
-        Items: this.itemList
-      }
-      requestBN({
-        method: 'post',
-        url: '/print/partNote',
-        data: { Data: printData, PrinterId: this.selectedPrinterId }
-      }).then(response => {
-        if (response.error !== null) {
-          this.$message({
-            showClose: true,
-            duration: 0,
-            message: response.error,
-            type: 'error'
-          })
-        }
+      print.template.partNote(this.selectedPrinterId, this.itemList, this.selectedWorkOrderNumber).then(response => {
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getPrinter() {
-      requestBN({
-        url: '/printer',
-        methood: 'get'
-      }).then(response => {
+      print.printer.search().then(response => {
+        this.printer = response
         this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
-        this.printer = response.data
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     clear() {
@@ -206,29 +197,24 @@ export default {
       this.itemList = []
     },
     searchInput() {
-      requestBN({
-        url: '/stock',
-        methood: 'get',
-        params: { StockNo: this.stockNoInput }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else if (response.data.length === 0) {
+      stock.search(true, this.stockNoInput).then(response => {
+        if (response.length === 0) {
           this.$message({
             showClose: true,
             message: 'Item dose not exist!',
             type: 'warning'
           })
         } else {
-          this.addToItemList(response.data[0])
+          this.addToItemList(response[0])
         }
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
-
       this.stockNoInput = ''
       this.$refs.stockNoInput.focus()
     },
@@ -259,33 +245,20 @@ export default {
       this.step = 1
     },
     loadCompletePage() {
-      const data = {
-        WorkOrderNo: this.findWorkOrder(this.workOrderId).WorkOrderNo,
-        Items: this.itemList
-      }
-      requestBN({
-        method: 'post',
-        url: '/stock/history/bulkRemove',
-        data: {
-          Data: data
-        }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.$message({
-            message: 'Quantity updated successfully',
-            type: 'success'
-          })
-          this.step = 3
-
-          this.selectedWorkOrderData = this.findWorkOrder(this.workOrderId)
-        }
+      stock.bulkRemove(this.itemList, this.selectedWorkOrderNumber).then(response => {
+        this.$message({
+          message: 'Quantity updated successfully',
+          type: 'success'
+        })
+        this.step = 3
+        this.selectedWorkOrderData = this.findWorkOrder(this.selectedWorkOrderNumber)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     addToItemList(data) {

@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		{
 			if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php")
 			{
-				array_push($output, getInfo("",$file));
+				$output[] = getInfo("", $file);
 			}				
 			
 		}
@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			{
 				if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php")
 				{
-					array_push($output, getInfo($file, $file2));
+					$output[] = getInfo($file, $file2);
 				}
 			}
 		}
@@ -46,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	sendResponse($output);
 }
 
-function getInfo($path, $file)
+function getInfo($path, $file): array
 {
 	global $apiRootPath;
 	
@@ -58,7 +58,7 @@ function getInfo($path, $file)
 	
 	$output["Title"] = extractVariable($filePath,"title");
 	$output["Description"] = extractVariable($filePath,"description");
-	$output["Path"] =  "/project/analyze/".$path."/".$filename;
+	$output["Path"] =  "/billOfMaterial/analyze/".$path."/".$filename;
 	
 	return $output;
 }

@@ -63,7 +63,7 @@
       <el-table-column prop="Date" label="Date" />
       <el-table-column prop="Quantity" label="Quantity" />
       <el-table-column prop="LocationName" label="Location" />
-    </el-table>
+    </el-table> 
 
     <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
 
@@ -148,7 +148,7 @@
       />
     </el-table>
     <p />
-    <table>
+  <!--  <table>
       <tr>
         <td><b>Minimum:</b></td>
         <td>{{ leadTime.Statistics.Minimum }}</td>
@@ -165,11 +165,11 @@
         <td><b>Weighted Average:</b></td>
         <td>{{ leadTime.Statistics.WeightedAverage }}</td>
       </tr>
-    </table>
+    </table> -->
 
     <h1>Question: Should price and lead time be combined? -> Rename to Quotation?</h1>
 
-    <h2>Price Reference</h2>
+   <h2>Price Reference</h2>
     <el-table
       :data="price.Data"
       style="width: 100%; margin-top:10px"
@@ -247,7 +247,7 @@
       />
     </el-table>
     <p />
-    <table>
+   <!--<table>
       <tr>
         <td><b>Minimum:</b></td>
         <td>{{ price.Statistics.Minimum }}</td>
@@ -264,7 +264,7 @@
         <td><b>Weighted Average:</b></td>
         <td>{{ price.Statistics.WeightedAverage }}</td>
       </tr>
-    </table>
+    </table>--> 
 
     <h2>Purchase Orders</h2>
 
@@ -339,6 +339,9 @@
 <script>
 import requestBN from '@/utils/requestBN'
 
+import ProductionPart from '@/api/productionPart'
+const productionPart = new ProductionPart()
+
 export default {
   name: 'ProdPartBrowser',
   data() {
@@ -363,43 +366,49 @@ export default {
   },
   methods: {
     getPartData() {
-      requestBN({
-        url: '/productionPart/item',
-        methood: 'get',
-        params: { ProductionPartNumber: this.$route.params.partNo }
-      }).then(response => {
-        this.partData = response.data
+      productionPart.item(this.$route.params.partNo).then(response => {
+        this.partData = response
         this.getPurchasOrder()
         this.getLeadTime()
         this.getPrice()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     getPartLookup() {
-      requestBN({
+      this.partLookup = []
+     /* requestBN({
         url: '/productionPart/partLookup',
         methood: 'get',
         params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.partLookup = response.data
-      })
+      })*/
     },
     getLeadTime() {
-      requestBN({
+      this.leadTime = []
+     /* requestBN({
         url: '/productionPart/leadTime',
         methood: 'get',
         params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.leadTime = response.data
-      })
+      })*/
     },
     getPrice() {
-      requestBN({
+      this.price = []
+      /*requestBN({
         url: '/productionPart/price',
         methood: 'get',
         params: { ProductionPartNumber: this.$route.params.partNo }
       }).then(response => {
         this.price = response.data
-      })
+      })*/
     },
     getPurchasOrder() {
       requestBN({

@@ -11,6 +11,8 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/escpos/autoload.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\Printer;
@@ -20,22 +22,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	global $companyName;
-	
-	$printData = $data['Data'];
-	$printerId = intval($data['PrinterId']);
-	$workOrderNo = intval($printData['WorkOrderNo']);
+
+    $items = $data['Items'];
+    $printerId = intval($data['PrinterId']);
+    $workOrderNumber =  barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
 
 	$query = "SELECT * FROM printer WHERE Id =".$printerId;
 	$result = dbRunQuery($dbLink,$query);	
 	$printer = mysqli_fetch_assoc($result);
 	
 	$workOrder = null;
-	if($workOrderNo != 0)
+	if($workOrderNumber != 0)
 	{
-		$query = "SELECT * FROM workOrder WHERE WorkOrderNo =".$workOrderNo;
+		$query = "SELECT * FROM workOrder WHERE WorkOrderNumber =".$workOrderNumber;
 		$result = dbRunQuery($dbLink,$query);	
 		$workOrder = mysqli_fetch_assoc($result);
 	}
@@ -56,15 +57,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$printer -> setTextSize(1, 1);
 		$printer -> text("Work Order: ");
 		$printer -> selectPrintMode(Printer::MODE_FONT_A);
-		$printer -> text("WO-".$workOrder['WorkOrderNo']." - ".$workOrder['Title']."\n");
+		$printer -> text(barcodeFormatter_WorkOrderNumber($workOrder['WorkOrderNumber'])." - ".$workOrder['Title']."\n");
 		$printer -> feed(1);
 	}
 	
 	$lineLength = 42;
 	
-	if($printData['Items'] != null)
+	if($items != null)
 	{
-		foreach($printData['Items'] as $key => $line)
+		foreach($items as $key => $line)
 		{
 			$str1 = $line['Barcode']." ";
 			$len1 = strlen($str1);

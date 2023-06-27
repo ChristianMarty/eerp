@@ -2,14 +2,19 @@
   <div class="app-container">
     <template>
       <el-checkbox v-model="hideClosed" @change="getWorkOrders()">Hide complete orders</el-checkbox>
-      <el-table :data="workOrders" style="width: 100%">
-        <el-table-column label="Work Order No" width="150" sortable>
+      <el-table
+        v-loading="loading"
+        :data="workOrders"
+        style="width: 100%"
+        element-loading-text="Loading Work Orders"
+      >
+        <el-table-column label="Work Order No" prop="WorkOrderNumber" width="150" sortable>
           <template slot-scope="{ row }">
             <router-link
-              :to="'/workOrder/workOrderView/' + row.WorkOrderNo"
+              :to="'/workOrder/workOrderView/' + row.WorkOrderNumber"
               class="link-type"
             >
-              <span> {{ row.WorkOrderNo }}</span>
+              <span> {{ row.WorkOrderBarcode }}</span>
             </router-link>
           </template>
         </el-table-column>
@@ -31,13 +36,16 @@ export default {
   components: {},
   data() {
     return {
+      loading: true,
       hideClosed: true,
       workOrders: null
     }
   },
   mounted() {
+    this.loading = true
     workOrder.search(null, this.hideClosed).then(response => {
       this.workOrders = response
+      this.loading = false
     })
   },
   methods: {

@@ -23,15 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<<STR
         SELECT Carrier, PaymentTerms, InternationalCommercialTerms, HeadNote, FootNote, 
             VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, 
-            purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, 
-            purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, 
-            purchasOrder.Status ,vendor.Name AS SupplierName, 
+            purchaseOrder.DocumentIds, purchaseOrder.PoNo, purchaseOrder.CreationDate, 
+            purchaseOrder.PurchaseDate, purchaseOrder.Title, purchaseOrder.Description, 
+            purchaseOrder.Status ,vendor.Name AS SupplierName, 
             vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, 
             finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, 
-            ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder
-        LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId 
-        LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId
-        WHERE purchasOrder.PoNo = '$purchaseOrderNumber'
+            ExchangeRate, purchaseOrder.QuotationNumber FROM purchaseOrder
+        LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId 
+        LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
+        WHERE purchaseOrder.PoNo = '$purchaseOrderNumber'
     STR;
 
     $dbLink = dbConnect();
@@ -91,7 +91,7 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
     $poData['VendorContactId'] = intval($data['VendorContactId']);
 
     $poData['Status'] = $data['Status'];
-    $query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$purchaseOrderNumber);
+    $query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNumber);
 
     $result = dbRunQuery($dbLink,$query);
 

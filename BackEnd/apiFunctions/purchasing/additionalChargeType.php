@@ -13,10 +13,10 @@ require_once __DIR__ . "/../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     $dbLink = dbConnect();
-    $output = dbGetEnumOptions($dbLink, 'purchasOrder_additionalCharges','Type');
+    $output = dbGetEnumOptions($dbLink, 'purchaseOrder_additionalCharges','Type');
     dbClose($dbLink);
 
-    if(!$output) sendResponse(null, "Database error for purchasOrder_additionalCharges Type");
+    if(!$output) sendResponse(null, "Database error for purchaseOrder_additionalCharges Type");
 
     sendResponse($output);
 }

@@ -79,7 +79,9 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
 import orderTotal from './orderTotal'
 
 import viewLineItemDialog from './viewLineItemDialog'
@@ -108,26 +110,27 @@ export default {
       this.viewLine = row
     },
     getOrderLines() {
-      requestBN({
-        url: '/purchasing/item',
-        methood: 'get',
-        params: {
-          PurchaseOrderNo: this.$props.orderData.PoNo
-        }
-      }).then(response => {
-        this.lines = response.data.Lines
-        this.total = response.data.Total
-        this.additionalCharges = response.data.AdditionalCharges
+      purchase.item.search(this.$props.orderData.PoNo).then(response => {
+        this.lines = response.Lines
+        this.total = response.Total
+        this.additionalCharges = response.AdditionalCharges
         this.prepairLines(this.lines)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     prepairLines(data) {
       data.forEach(line => {
         line.lineKey = line.LineNo
-        line.Total = Math.round(line.QuantityOrderd * line.Price * 100000) / 100000
+        line.Total = Math.round(line.QuantityOrdered * line.Price * 100000) / 100000
 
         if ('Received' in line) {
-          if (line.Received.length == 1) {
+          if (line.Received.length === 1) {
             line.ReceivalDate = line.Received[0].ReceivalDate
             line.ReceivalId = line.Received[0].ReceivalId
             delete line.Received

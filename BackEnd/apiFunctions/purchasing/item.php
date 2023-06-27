@@ -40,11 +40,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
     if($data['Title'] != "") $poCreate['Title'] = $data['Title'];
     if($data['Description'] != "") $poCreate['Description'] = $data['Description'];
 
-    $poCreate['PoNo']['raw'] = "purchasOrder_generatePoNo()";
+    $poCreate['PoNo']['raw'] = "purchaseOrder_generatePoNo()";
 
-    $query = dbBuildInsertQuery($dbLink, "purchasOrder", $poCreate);
+    $query = dbBuildInsertQuery($dbLink, "purchaseOrder", $poCreate);
 
-    $query .= "SELECT PoNo FROM purchasOrder WHERE Id = LAST_INSERT_ID();";
+    $query .= "SELECT PoNo FROM purchaseOrder WHERE Id = LAST_INSERT_ID();";
 
     $output = array();
     $error = null;
@@ -79,19 +79,6 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 
     $data = json_decode(file_get_contents('php://input'),true);
 
-    $dbLink = dbConnect();
-    if($dbLink == null) return null;
-
-    $error = null;
-
-    if(!isset($_GET["PurchaseOrderNo"])) $error = "PO Number not defined!";
-
-    $poNo = dbEscapeString($dbLink, $_GET['PurchaseOrderNo']);
-
-    $poNo = strtolower($poNo);
-    $poNo = str_replace("po","",$poNo);
-    $poNo = str_replace("-","",$poNo);
-
     $poData = array();
     $poData['VendorId'] = intval($data['data']['SupplierId']);
     $poData['Title'] = $data['data']['Title'];
@@ -109,16 +96,14 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
     $poData['ExchangeRate'] = $data['data']['ExchangeRate'];
     $poData['VendorAddressId'] = intval($data['data']['VendorAddressId']);
     $poData['VendorContactId'] = intval($data['data']['VendorContactId']);
-
     $poData['Status'] = $data['data']['Status'];
-    $query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$poNo);
 
+    $dbLink = dbConnect();
+    $query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNumber);
     $result = dbRunQuery($dbLink,$query);
 
-    $output = array();
-
     dbClose($dbLink);
-    sendResponse($output,$error);
+    sendResponse(null);
 }
 
 ?>

@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/location.php";
-
+require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
@@ -18,22 +18,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$workOrderNo = null;
-	if(isset($data['WorkOrderNo']) and $data['WorkOrderNo'] !== null)
-	{
-		$workOrderNo = dbEscapeString($dbLink,$data['WorkOrderNo']);
-	}
+
+	$workOrderNumber = null;
+	if(isset($data['WorkOrderNumber'])) $workOrderNumber= barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
 	
 	$workOrder = null;
-	if($workOrderNo != 0)
+	if($workOrderNumber != null)
 	{
-		$query = "SELECT * FROM workOrder WHERE WorkOrderNo =".$workOrderNo;
+		$query = "SELECT * FROM workOrder WHERE WorkOrderNumber = '".$workOrderNumber."'";
 		$result = dbRunQuery($dbLink,$query);	
 		$workOrder = mysqli_fetch_assoc($result);
 	}
 
-	$partList = $data['Data']['Items'];
+	$partList = $data['Items'];
 	
 	dbClose($dbLink);
 	
@@ -44,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$dbLink = dbConnect();
 		
 		$note = null;
-		if(isset($line['Note']) and $line['Note'] !== null)
+		if(isset($line['Note']))
 		{
 			$note = dbEscapeString($dbLink,$line['Note']);
 			$note = trim($note);

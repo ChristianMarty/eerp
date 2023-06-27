@@ -16,15 +16,31 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 
 	$baseQuery = <<<STR
-		SELECT  purchasOrder.PoNo, purchasOrder.CreationDate, purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, purchasOrder.Status, purchasOrder.Id AS PoId ,vendor_name_recursive(vendor.Id) AS SupplierName, vendor.Id AS SupplierId, purchasOrder.AcknowledgementNumber, purchasOrder.OrderNumber, finance_currency.CurrencyCode, finance_currency.Id AS CurrencyId, purchasOrder.ExchangeRate, purchasOrder.QuotationNumber, 
-		SUM(purchasOrder_itemOrder.Quantity) AS TotalQuantityOrdered, SUM(Received.TotalQuantityReceived) AS TotalQuantityReceived
-		FROM purchasOrder
-		LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId
-		LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId
-		LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id
+		SELECT 
+		    purchaseOrder.PoNo, 
+		    purchaseOrder.CreationDate, 
+		    purchaseOrder.PurchaseDate, 
+		    purchaseOrder.Title, 
+		    purchaseOrder.Description, 
+		    purchaseOrder.Status, 
+		    purchaseOrder.Id AS PoId,
+		    vendor_name_recursive(vendor.Id) AS SupplierName, 
+		    vendor.Id AS SupplierId, 
+		    purchaseOrder.AcknowledgementNumber, 
+		    purchaseOrder.OrderNumber, 
+		    finance_currency.CurrencyCode, 
+		    finance_currency.Id AS CurrencyId, 
+		    purchaseOrder.ExchangeRate, 
+		    purchaseOrder.QuotationNumber, 
+			SUM(purchaseOrder_itemOrder.Quantity) AS TotalQuantityOrdered, 
+			SUM(Received.TotalQuantityReceived) AS TotalQuantityReceived
+		FROM purchaseOrder
+		LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
+		LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
+		LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
 		LEFT JOIN (
-			SELECT ItemOrderId, SUM(QuantityReceived) AS TotalQuantityReceived FROM purchasOrder_itemReceive GROUP BY purchasOrder_itemReceive.ItemOrderId
-		)Received  ON Received.ItemOrderId = purchasOrder_itemOrder.Id
+			SELECT ItemOrderId, SUM(QuantityReceived) AS TotalQuantityReceived FROM purchaseOrder_itemReceive GROUP BY purchaseOrder_itemReceive.ItemOrderId
+		)Received  ON Received.ItemOrderId = purchaseOrder_itemOrder.Id
 	STR;
 
 	$queryParam = array();
@@ -52,7 +68,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	$query.= " GROUP BY purchasOrder.Id ORDER BY purchasOrder.PoNo DESC";
+	$query.= " GROUP BY purchaseOrder.Id ORDER BY purchaseOrder.PoNo DESC";
 
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
@@ -92,11 +108,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($data['Title'] != "") $poCreate['Title'] = $data['Title'];
 	if($data['Description'] != "") $poCreate['Description'] = $data['Description'];
 	
-	$poCreate['PoNo']['raw'] = "purchasOrder_generatePoNo()";
+	$poCreate['PoNo']['raw'] = "purchaseOrder_generatePoNo()";
 	
-	$query = dbBuildInsertQuery($dbLink, "purchasOrder", $poCreate);
+	$query = dbBuildInsertQuery($dbLink, "purchaseOrder", $poCreate);
 	
-	$query .= "SELECT PoNo FROM purchasOrder WHERE Id = LAST_INSERT_ID();";
+	$query .= "SELECT PoNo FROM purchaseOrder WHERE Id = LAST_INSERT_ID();";
 	
 	$output = array();
 	$error = null;
@@ -159,7 +175,7 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData['VendorContactId'] = intval($data['data']['VendorContactId']);
 	
 	$poData['Status'] = $data['data']['Status'];
-	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$poNo);
+	$query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$poNo);
 	
 	$result = dbRunQuery($dbLink,$query);
 	

@@ -14,44 +14,42 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
 {
     $query = <<<STR
     SELECT 
-        purchasOrder_itemOrder.LineNo,
-        purchasOrder_itemOrder.Price,
-        purchasOrder_itemOrder.Sku,
-        purchasOrder_itemOrder.Type AS LineType,
-        purchasOrder_itemOrder.Quantity,
-        purchasOrder_itemOrder.Id AS OrderLineId, 
+        purchaseOrder_itemOrder.LineNo,
+        purchaseOrder_itemOrder.Price,
+        purchaseOrder_itemOrder.Sku,
+        purchaseOrder_itemOrder.Type AS LineType,
+        purchaseOrder_itemOrder.Quantity,
+        purchaseOrder_itemOrder.Id AS OrderLineId, 
         unitOfMeasurement.Symbol AS UnitOfMeasurementSymbol, 
         unitOfMeasurement.Id AS UnitOfMeasurementId,
-        purchasOrder_itemOrder.PurchasOrderId,
-        purchasOrder_itemOrder.PartNo,
-        purchasOrder_itemOrder.ManufacturerName,
-        purchasOrder_itemOrder.ManufacturerPartNumber,
-        purchasOrder_itemOrder.SupplierPartId,
-        purchasOrder_itemOrder.Description,
-        purchasOrder_itemOrder.OrderReference,
-        purchasOrder_itemOrder.Note,
-        purchasOrder_itemOrder.ExpectedReceiptDate,
-        purchasOrder_itemOrder.VatTaxId,
+        purchaseOrder_itemOrder.PurchaseOrderId,
+        purchaseOrder_itemOrder.PartNo,
+        purchaseOrder_itemOrder.ManufacturerName,
+        purchaseOrder_itemOrder.ManufacturerPartNumber,
+        purchaseOrder_itemOrder.SupplierPartId,
+        purchaseOrder_itemOrder.Description,
+        purchaseOrder_itemOrder.OrderReference,
+        purchaseOrder_itemOrder.Note,
+        purchaseOrder_itemOrder.ExpectedReceiptDate,
+        purchaseOrder_itemOrder.VatTaxId,
         finance_tax.Value AS VatValue, 
-        purchasOrder_itemOrder.Discount,
-        purchasOrder_itemOrder.StockPart,
-    
-        purchasOrder_itemOrder.ManufacturerPartNumber AS  ManufacturerPartNumber,  
+        purchaseOrder_itemOrder.Discount,
+        purchaseOrder_itemOrder.StockPart,
+        purchaseOrder_itemOrder.ManufacturerPartNumber AS  ManufacturerPartNumber,  
         manufacturerPart_partNumber.Id AS  ManufacturerPartNumberId, 
-        purchasOrder_itemReceive.Id AS ReceiveId,
-        purchasOrder_itemReceive.QuantityReceived,
-        purchasOrder_itemReceive.ReceivalDate
-    
-    FROM purchasOrder_itemOrder 
-    LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id 
-    LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchasOrder_itemOrder.UnitOfMeasurementId 
-    LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_itemOrder.VatTaxId 
-    LEFT JOIN supplierPart ON purchasOrder_itemOrder.SupplierPartId = supplierPart.Id
+        purchaseOrder_itemReceive.Id AS ReceiveId,
+        purchaseOrder_itemReceive.QuantityReceived,
+        purchaseOrder_itemReceive.ReceivalDate
+    FROM purchaseOrder_itemOrder 
+    LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
+    LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchaseOrder_itemOrder.UnitOfMeasurementId 
+    LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_itemOrder.VatTaxId 
+    LEFT JOIN supplierPart ON purchaseOrder_itemOrder.SupplierPartId = supplierPart.Id
     LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
     STR;
 
-    if($lineId == null) $query .= " WHERE PurchasOrderId = $purchaseOrderId ";
-    else $query .= " WHERE purchasOrder_itemOrder.Id = $lineId ";
+    if($lineId == null) $query .= " WHERE PurchaseOrderId = $purchaseOrderId ";
+    else $query .= " WHERE purchaseOrder_itemOrder.Id = $lineId ";
     $query .=" ORDER BY LineNo";
 
     return $query;
@@ -61,8 +59,8 @@ function purchaseOrderItem_getCostCenterQuery($lineId):string
 {
     $query = <<<STR
         SELECT * 
-        FROM purchasOrder_itemOrder_costCenter_mapping 
-        LEFT JOIN finance_costCenter on purchasOrder_itemOrder_costCenter_mapping.CostCenterId = finance_costCenter.Id
+        FROM purchaseOrder_itemOrder_costCenter_mapping 
+        LEFT JOIN finance_costCenter on purchaseOrder_itemOrder_costCenter_mapping.CostCenterId = finance_costCenter.Id
         WHERE ItemOrderId = $lineId
     STR;
     return $query;
@@ -97,14 +95,14 @@ function purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $data):?
     $output["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber, $lineNumber);
     $output['LineNo'] = $lineNumber;
     $output['LineNumber'] = $lineNumber;
-    $output['Price'] = $data['Price'];
+    $output['Price'] = floatval($data['Price']);
     $output['SupplierSku'] = $data['Sku'];
     $output['LineType'] = $data['LineType'];
     $output['QuantityOrdered'] = intval($data['Quantity']);
     $output['OrderLineId'] = intval($data['OrderLineId']);
     $output['UnitOfMeasurement'] = $data['UnitOfMeasurementSymbol'];
     $output['UnitOfMeasurementId'] =  intval($data['UnitOfMeasurementId']);
-    $output['PurchaseOrderId'] = intval($data['PurchasOrderId']);
+    $output['PurchaseOrderId'] = intval($data['PurchaseOrderId']);
     $output['PartNo'] = $data['PartNo'];
     $output['ManufacturerName'] = $data['ManufacturerName'];
     $output['ManufacturerPartNumber'] = $data['ManufacturerPartNumber'];

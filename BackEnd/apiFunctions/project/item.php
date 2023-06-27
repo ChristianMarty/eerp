@@ -10,45 +10,31 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	
-	if(!isset($_GET["ProjectNo"])) sendResponse(NULL, "Project Number Undefined");
+	if(!isset($_GET["ProjectNumber"])) sendResponse(NULL, "Project Number Undefined");
+    $projectNumber = barcodeParser_Project($_GET["ProjectNumber"]);
 
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$projectData = array();
-	
-	$projectNo = dbEscapeString($dbLink, $_GET["ProjectNo"]);
-	
-	$query = "SELECT *,productionPart_getQuantity(ProductionPartNo) AS Stock, project.Id as ProjectId FROM project ";
-	$query .= "LEFT JOIN project_bom ON project.Id = project_bom.ProjectId ";
-	$query .= "WHERE project.ProjectNo = ".$projectNo;
 
-	$bom = array();
+    $query = <<< STR
+        SELECT * FROM project 
+        WHERE project.ProjectNumber = $projectNumber
+    STR;
 	
 	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$projectData['Title'] = $r['Title'];
-		$projectData['Description'] = $r['Description'];
-		$projectData['Id'] = $r['ProjectId'];
-		$bomLine = array();
-		$bomLine["PartNo"] = $r['ProductionPartNo'];
-		$bomLine["ReferenceDesignator"] = $r['ReferenceDesignator'];
-		$bomLine["Quantity"] = count(explode(",", $r["ReferenceDesignator"]));
-		$bomLine["StockQuantity"] = $r["Stock"];
-		
-		array_push($bom, $bomLine);
-	}
+	$r = mysqli_fetch_assoc($result);
+
+    $r["ProjectBarcode"] = barcodeFormatter_Project($r['ProjectNumber']);
+
 	
 	dbClose($dbLink);
-	
-	$projectData['bom'] = $bom;
-	
-	sendResponse($projectData);
+
+	sendResponse($r);
 }
 
 ?>

@@ -9,20 +9,20 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
-		
+	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
+	if(!$stockNumber) sendResponse(null, "StockNo invalid");
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$temp = dbEscapeString($dbLink, $_GET["StockNo"]);
-	$temp = strtolower($temp);
-	$stockNo = str_replace("stk-","",$temp);
-	
-	$query  = "SELECT * FROM partStock_history_sinceLastCount ";
-	$query .= "WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '".$stockNo."') ";
+
+	$query = <<<STR
+		SELECT * FROM partStock_history_sinceLastCount
+		WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '$stockNumber')
+	STR;
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -60,6 +60,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$output = array();
 	$output['CertaintyFactor'] = round($certaintyFactor,4);
+	$output['CertaintyFactorRating'] = round($output['CertaintyFactor']*5);
 	$output['DaysSinceStocktaking'] = $daysSinceStocktaking;
 	$output['LastStocktakingDate'] = $lastStocktakingDate;
 	

@@ -14,100 +14,71 @@ require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_user.php";
 
+function _stockPartQuery(string $stockNo): string
+{
+	return <<<STR
+	SELECT 	partStock.Id AS PartStockId, partStock.DeleteRequestUserId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, 
+	       	partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturer.Id AS ManufacturerId, partStock.LotNumber, 
+			manufacturer.Id AS ManufacturerId, manufacturerPart_partNumber.Number AS ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date, manufacturerPart_partNumber.Description,
+			manufacturerPart_item.Id AS ManufacturerPartItemId,
+			partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, 
+			hc.CreateQuantity,  partStock_getQuantity(partStock.StockNo) AS Quantity, r.ReservedQuantity AS ReservedQuantity, lc.LastCountDate AS LastCountDate, hc.CreateData 
+	FROM partStock 
+	    
+	LEFT JOIN (
+		SELECT SupplierPartId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
+		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
+		)poLine ON poLine.Id = partStock.ReceivalId
+	LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)   
+	LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
+	LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+	LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+	LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
+	LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
+	LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
+
+	LEFT JOIN (
+		SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '$stockNo')
+		)hc ON  hc.StockId = partStock.Id
+	LEFT JOIN (
+		SELECT StockId, Date AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '$stockNo') ORDER BY Date DESC LIMIT 1
+		)lc ON  lc.StockId = partStock.Id
+
+	WHERE partStock.StockNo = '$stockNo'
+	STR;
+}
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
-	if(!isset($_GET["StockNo"])) sendResponse(Null,"StockNo not set");
-	
+	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
+	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
+	if(!$stockNumber) sendResponse(null, "StockNo invalid");
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$stockNo = dbEscapeString($dbLink, $_GET["StockNo"]);
-	$stockNo = strtolower($stockNo);
-	$stockNo = str_replace("stk-","",$stockNo);
-	
-	$baseQuery = "SELECT * FROM  partStock_view ";
-	
-	$baseQuery  = "SELECT partStock.Id AS PartStockId, partStock.DeleteRequestUserId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturer.Id AS ManufacturerId, partStock.LotNumber, ";
-	$baseQuery .= "manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date, ";
-	$baseQuery .= "partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId,  ";
-	$baseQuery .= "hc.CreateQuantity,  partStock_getQuantity(partStock.StockNo) AS Quantity, r.ReservedQuantity AS ReservedQuantity, lc.LastCountDate AS LastCountDate, hc.CreateData ";
-
-	$baseQuery .= "FROM partStock ";
-
-	$baseQuery .= "LEFT JOIN (SELECT SupplierPartId, purchasOrder_itemReceive.Id FROM purchasOrder_itemOrder  ";
-	$baseQuery .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId ";
-	$baseQuery .= "LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId) ";
-	$baseQuery .= "LEFT JOIN manufacturerPart ON (manufacturerPart.Id = partStock.ManufacturerPartId AND supplierPart.ManufacturerPartId IS NULL) OR manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-
-	$baseQuery .= "LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart.VendorId ";
-	$baseQuery .= "LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId ";
-	$baseQuery .= "LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id ";
-
-	$baseQuery .= "LEFT JOIN (SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '".$stockNo."'))hc ON  hc.StockId = partStock.Id ";
-	$baseQuery .= "LEFT JOIN (SELECT StockId, Date AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '".$stockNo."') ORDER BY Date DESC LIMIT 1)lc ON  lc.StockId = partStock.Id ";
-
-	$baseQuery .= "WHERE partStock.StockNo = '".$stockNo."' ";
-		
-		
-	$result = dbRunQuery($dbLink,$baseQuery);
+	$result = dbRunQuery($dbLink,_stockPartQuery($stockNumber));
 	dbClose($dbLink);	
 	
 	$locations = getLocations();
 
-	$output = array();
-	$gctNr = null;
-	$stockNoValid = false;
-	while($r = dbGetResult($result)) 
-	{
-		$gctNr  = $r['OrderReference'];
-		$r['Barcode'] = "STK-".$r['StockNo'];
-		if($r['Date']) {
-			$date = new DateTime($r['Date']);
-			$r['DateCode'] = $date->format("yW");
-		}else{
-			$r['DateCode'] = "";
-		}
-		$r['Location'] = buildLocation($locations, $r['LocationId']);
-		$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
-		$r['OrderReference']  = $r['OrderReference'];
+	$r = dbGetResult($result);
 
-		if($r['DeleteRequestUserId'] !== null)$r['Deleted'] = true;
-		else $r['Deleted'] = false;
-		unset($r['DeleteRequestUserId'] );
+	$r['Barcode'] = barcodeFormatter_StockNumber($r['StockNo']);
+	if($r['Date']) {
+		$date = new DateTime($r['Date']);
+		$r['DateCode'] = $date->format("yW");
+	}else{
+		$r['DateCode'] = "";
+	}
+	$r['Location'] = buildLocation($locations, $r['LocationId']);
+	$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
+	$r['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
+	$r['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
 
-		
-		$output[] = $r;
-		$stockNoValid = true;
-	}
-	
-	if(isset($_GET["StockNo"]) AND $stockNoValid == true)
-	{
-		$output[0]['LocationPath'] = buildLocationPath($locations, $output[0]['LocationId'], 100);
-		$output[0]['HomeLocationPath'] = buildLocationPath($locations, $output[0]['HomeLocationId'], 100);
-	}
-	
-	// Get Description	-> This is a hack
-	if(!empty($gctNr) and isset($_GET["StockNo"]) AND $stockNoValid)
-	{
-		$dbLink = dbConnect();
-		if($dbLink == null) return null;
-		
-		$descriptionQuery = "SELECT Description FROM `partLookup` WHERE PartNo = ".$gctNr." LIMIT 1";
-		
-		$descriptionResult = dbRunQuery($dbLink,$descriptionQuery);
-		if(!is_bool($descriptionResult))
-		{
-			$r = dbGetResult($descriptionResult);
-			if(!is_bool($r)) $output[0]['Description'] = $r['Description'];
-			else $output[0]['Description'] = "Invalide Production Part Nr!";
-		}
-		else $output[0]['Description'] = "Invalide Production Part Nr!";
-		dbClose($dbLink);	
+	if($r['DeleteRequestUserId'] !== null)$r['Deleted'] = true;
+	else $r['Deleted'] = false;
+	unset($r['DeleteRequestUserId'] );
 
-	}
-	
-	sendResponse($output);
+	sendResponse($r);
 }
 else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 {
@@ -169,7 +140,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 	$stockNo = dbGetResult($result)['StockNo'];
 
-	$query = "SELECT * FROM partStock_view WHERE StockNo = '".$stockNo."';";
+	$query = _stockPartQuery($stockNo);
 	
 	$result = dbRunQuery($dbLink,$query);
 	$stockPart = dbGetResult($result);
@@ -178,21 +149,18 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($stockPart)
 	{
 		$orderReference = $stockPart['OrderReference'];
-		$stockPart['Barcode'] = "STK-".$stockPart['StockNo'];
-		$stockPart['OrderReference']  = "GCT-".$stockPart['OrderReference'];
-
+		$stockPart['Barcode'] = barcodeFormatter_StockNumber($stockPart['StockNo']);
 		$stockPart['Description'] = "";
-		
-		
-		if(!empty($orderReference) )
+
+		if(!empty($orderReference) )  //TODO: Fix
 		{
 			// Get Description -> Still a hack
-			$descriptionQuery = "SELECT Description FROM `partLookup` WHERE PartNo = ".$orderReference." LIMIT 1";
-			
+			$descriptionQuery = "SELECT Description FROM `partLookup` WHERE PartNo = '".$orderReference."' LIMIT 1";
 			$descriptionResult = dbRunQuery($dbLink,$descriptionQuery);
 			if(!is_bool($descriptionResult))
 			{
-				$stockPart['Description'] = mysqli_fetch_assoc($descriptionResult)['Description'];
+				$temp = mysqli_fetch_assoc($descriptionResult);
+				if($temp) $stockPart['Description'] = $temp['Description'];
 			}
 		}
 	}
@@ -207,7 +175,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 }
 else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
 {
-
 	$data = json_decode(file_get_contents('php://input'),true);
 	$stockNumber = barcodeParser_StockNumber($data['StockNumber']);
 	if(!$stockNumber)sendResponse(null, "Stock number format incorrect");
@@ -220,8 +187,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
 
 	$query = dbBuildUpdateQuery($dbLink,"partStock", $sqlData, 'StockNo = "'.$stockNumber.'"');
 
-	$result  = dbRunQuery($dbLink,$query);
-
+	dbRunQuery($dbLink,$query);
 	dbClose($dbLink);
 
 	sendResponse(null);

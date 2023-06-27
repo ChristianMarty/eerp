@@ -9,6 +9,7 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/databaseConnector.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -22,6 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+		$r["ProjectBarcode"] = barcodeFormatter_Project($r['ProjectNumber']);
 		$output[] = $r;
 	}
 

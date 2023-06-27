@@ -26,7 +26,7 @@ const vendorRouter = {
     },
     {
       path: 'view/:vendorNo(.*)',
-      component: () => import('@/views/vendor/view/'),
+      component: () => import('@/views/vendor/item/'),
       name: 'vendorView',
       meta: { title: 'Vendor View', icon: 'el-icon-sold-out' },
       hidden: true

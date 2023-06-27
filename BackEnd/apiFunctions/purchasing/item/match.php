@@ -10,6 +10,8 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../vendor/_vendor.php";
 
 function loadDatabaseData($purchaseOrderNo)
 {
@@ -17,35 +19,42 @@ function loadDatabaseData($purchaseOrderNo)
 	if($dbLink == null) return null;
 
     $purchaseOrderNo = dbEscapeString($dbLink, $purchaseOrderNo);
-
     $query = <<<STR
-        SELECT purchasOrder_itemOrder.Id AS OrderLineId, supplier.Name AS SupplierName, LineNo, purchasOrder_itemOrder.Type, purchasOrder_itemOrder.ManufacturerPartNumber, manufacturerPart.Id AS ManufacturerPartId, purchasOrder_itemOrder.ManufacturerName, manufacturer.Name AS ManufacturerNameDatabase, manufacturer.Id AS PartVendorId, purchasOrder_itemOrder.Sku, supplierPart.Id AS SupplierPartId
-        FROM purchasOrder_itemOrder
-        LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId
-        
-        LEFT JOIN (
-            SELECT  Id, ShortName AS Name FROM vendor WHERE ShortName IS NOT NULL
-            UNION
-            SELECT  Id, Name FROM vendor
-            UNION
-            SELECT VendorId AS Id, NAME FROM vendor_alias
-        )manufacturer ON manufacturer.Name = purchasOrder_itemOrder.ManufacturerName
-        
-        LEFT JOIN manufacturerPart ON manufacturerPart.VendorId = manufacturer.Id AND manufacturerPart.ManufacturerPartNumber = purchasOrder_itemOrder.ManufacturerPartNumber
-        LEFT JOIN supplierPart ON supplierPart.VendorId = purchasOrder.VendorId AND supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku
+        SELECT 
+            purchaseOrder_itemOrder.Id AS OrderLineId, 
+            LineNo, 
+            purchaseOrder_itemOrder.Type, 
+            supplier.Name AS SupplierName,
+            purchaseOrder_itemOrder.Sku AS SupplierPartNumber, 
+            purchaseOrder_itemOrder.SupplierPartId AS SupplierPartId,
+            purchaseOrder_itemOrder.ManufacturerName, 
+            vendor_displayName(vendor_names.Id) AS ManufacturerNameDatabase, 
+            vendor_names.Id AS ManufacturerId, 
+            purchaseOrder_itemOrder.ManufacturerPartNumber, 
+            manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
+            purchaseOrder_itemOrder.Description
+        FROM purchaseOrder_itemOrder
+        LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
+        LEFT JOIN vendor_names ON vendor_names.Name = purchaseOrder_itemOrder.ManufacturerName
+        LEFT JOIN supplierPart ON supplierPart.VendorId = purchaseOrder.VendorId AND supplierPart.SupplierPartNumber =  purchaseOrder_itemOrder.Sku
+        LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
         LEFT JOIN (SELECT Id, Name FROM vendor)supplier on supplier.Id = supplierPart.VendorId
-        WHERE purchasOrder.PoNo = $purchaseOrderNo
+        WHERE purchaseOrder.PoNo = $purchaseOrderNo
         ORDER BY LineNo
     STR;
 	
 	$result = dbRunQuery($dbLink,$query);
-
 	$lines = array();
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		if($r['PartVendorId'] != null) $r['ManufacturerName'] = $r['ManufacturerNameDatabase'];
+		if($r['ManufacturerId'] != null) $r['ManufacturerName'] = $r['ManufacturerNameDatabase'];
 		unset($r['ManufacturerNameDatabase']);
+
+        if($r['OrderLineId'] != null) $r['OrderLineId'] = intval($r['OrderLineId']);
+        if($r['SupplierPartId'] != null) $r['SupplierPartId'] = intval($r['SupplierPartId']);
+        if($r['ManufacturerPartNumberId'] != null)$r['ManufacturerPartNumberId'] = intval($r['ManufacturerPartNumberId']);
+        if($r['ManufacturerId'] != null)$r['ManufacturerId'] = intval($r['ManufacturerId']);
 		
 		$lines[] = $r;
 	}
@@ -54,19 +63,76 @@ function loadDatabaseData($purchaseOrderNo)
 	return $lines;
 }
 
+function manufacturerPartNumberId($manufacturerId, $manufacturerPartNumber ): Null|int
+{
+    $dbLink = dbConnect();
+    $query = <<<STR
+        SELECT manufacturerPart_partNumber.Id FROM manufacturerPart_partNumber 
+        LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+        LEFT JOIN manufacturerPart_series ON manufacturerPart_item.SeriesId = manufacturerPart_series.Id
+        WHERE manufacturerPart_partNumber.Number = '$manufacturerPartNumber' AND (
+            manufacturerPart_partNumber.VendorId = $manufacturerId OR 
+            manufacturerPart_item.VendorId = $manufacturerId OR 
+            manufacturerPart_series.VendorId = $manufacturerId)
+        LIMIT 1
+    STR;
+    $result = dbRunQuery($dbLink,$query);
+    dbClose($dbLink);
+    if(!$result) return Null;
+    $r = mysqli_fetch_assoc($result);
+    if($r == null) return null;
+    return intval($r['Id']);
+}
+
+function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, $manufacturerPartNumber ): void
+{
+    $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
+
+    if($partNumberId == NULL)
+    {
+        $dbLink = dbConnect();
+        $query = <<<STR
+            INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number)  
+            VALUES ('$manufacturerId', '$manufacturerPartNumber')
+        STR;
+        dbRunQuery($dbLink,$query);
+        dbClose($dbLink);
+
+        $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
+    }
+
+    $dbLink = dbConnect();
+    $query = <<<STR
+        INSERT IGNORE INTO supplierPart (VendorId, SupplierPartNumber, ManufacturerPartNumberId)  
+        VALUES ( '$supplierId', '$supplierPartNumber', '$partNumberId')
+    STR;
+    dbRunQuery($dbLink,$query);
+    dbClose($dbLink);
+
+    $dbLink = dbConnect();
+    $query = <<<STR
+        UPDATE supplierPart SET ManufacturerPartNumberId = $partNumberId 
+        WHERE ManufacturerPartNumberId IS NULL AND
+              VendorId = $supplierId AND 
+              SupplierPartNumber = '$supplierPartNumber'
+    STR;
+    dbRunQuery($dbLink,$query);
+    dbClose($dbLink);
+}
+
+if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(null, "Purchase Order Number missing!");
+$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
+if(!$purchaseOrderNumber) sendResponse(NULL, "Purchase Order Number Parser Error");
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	if(!isset($_GET["PurchaseOrderNo"])) sendResponse(null, "PurchaseOrderNo missing!");
-	
-	$purchaseOrderNo = intval($_GET["PurchaseOrderNo"]);
-	
 	$output["Lines"] = array();
 	
-	$lines = loadDatabaseData($purchaseOrderNo);
+	$lines = loadDatabaseData($purchaseOrderNumber);
 	
 	foreach($lines as $line)
 	{
-		if($line['Type'] ==  "Part")
+		if($line['Type'] ==  "Part") // TODO: Add Generic -> make ui better
 		{
 			$output["Lines"][] = $line;
 		}
@@ -76,85 +142,48 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["PurchaseOrderNo"]) || !isset($data["Command"])) sendResponse(null, "PurchaseOrderNo or Command missing!");
-	
-	$purchaseOrderNo = intval($data["PurchaseOrderNo"]);
-	$command = $data["Command"];
-	
-	if($command == "Save")
-	{
-		$dbLink = dbConnect();
-		if($dbLink == null) return null;
-		
-		$query  = "UPDATE purchasOrder_itemOrder ";
-		$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-		$query .= "SET SupplierPartId = ";
-		$query .= "(SELECT supplierPart.Id FROM supplierPart "; 
-		$query .= "WHERE supplierPart.SupplierPartNumber =  purchasOrder_itemOrder.Sku AND supplierPart.VendorId = purchasOrder.VendorId ";
-		$query .= ") ";
-		$query .= "WHERE purchasOrder_itemOrder.Type = 'Part' AND purchasOrder.PoNo = ".$purchaseOrderNo;
-		
-		dbRunQuery($dbLink,$query);
-		dbClose($dbLink);
-	}
-	else if($command == "Create")
-	{
-		$lines = loadDatabaseData($purchaseOrderNo);
-		
-		foreach($lines as $line)
-		{
-			if($line['Type'] == "Generic") continue;
-			
-			if($line['PartVendorId'] == null)
-			{
-				$data = array();
-				$data['Name'] = $line['ManufacturerName'];
-				$data['IsManufacturer'] = '1';
-				
-				$dbLink = dbConnect();
-				$query  = dbBuildInsertQuery($dbLink,'vendor', $data);
-				
-				dbRunQuery($dbLink, $query);
-				dbClose($dbLink);
-			}
-			
-			if($line['ManufacturerPartId'] == null)
-			{
-				$data = array();
-				
-				if($line['PartVendorId'] == null)  $data['VendorId']['raw'] = "(SELECT Id FROM vendor WHERE Name = '".$line['ManufacturerName']."')";
-				else $data['VendorId'] = $line['PartVendorId'];
-			
-				$data['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
-				$dbLink = dbConnect();
-				$query = dbBuildInsertQuery($dbLink,'manufacturerPart', $data);
+    $data = json_decode(file_get_contents('php://input'),true);
 
-				dbRunQuery($dbLink, $query);
-				dbClose($dbLink);
-			}
-		}
-		
-		
-		$lines = loadDatabaseData($purchaseOrderNo);
-		foreach($lines as $line)
-		{
-			if($line['SupplierPartId'] == null)
-			{
-				$data = array();
-				
-				$data['ManufacturerPartId'] = $line['ManufacturerPartId'];
-				$data['VendorId']['raw'] = "(SELECT VendorId FROM purchasOrder WHERE PoNo = '".$purchaseOrderNo."')";
-				$data['SupplierPartNumber'] = $line['Sku']; 
-				$dbLink = dbConnect();
-				$query = dbBuildInsertQuery($dbLink,'supplierPart', $data);
-				dbRunQuery($dbLink, $query);
-				dbClose($dbLink);
-			}
-		}
-	}
+    $dbLink = dbConnect();
+    $query = <<<STR
+        SELECT VendorId FROM purchaseOrder WHERE PoNo = $purchaseOrderNumber
+    STR;
+    $supplierId = intval( mysqli_fetch_assoc(dbRunQuery($dbLink,$query))['VendorId'] );
+    dbClose($dbLink);
 
+    foreach($data as $itemOrderId)
+    {
+        $itemOrderId = intval($itemOrderId);
+
+        $dbLink = dbConnect();
+        $query = <<<STR
+            SELECT * FROM purchaseOrder_itemOrder WHERE Id = $itemOrderId
+        STR;
+        $result = dbRunQuery($dbLink,$query);
+
+        if($result == null) continue;
+        $orderLine = mysqli_fetch_assoc($result);
+
+        $manufacturerId = vendor_getIdFromName($dbLink, $orderLine['ManufacturerName']);
+        $manufacturerPartNumber = dbEscapeString($dbLink, $orderLine['ManufacturerPartNumber']);
+        $supplierPartNumber = dbEscapeString($dbLink, $orderLine['Sku']);
+        dbClose($dbLink);
+
+        supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, $manufacturerPartNumber);
+
+        $dbLink = dbConnect();
+        $query = <<<STR
+            UPDATE purchaseOrder_itemOrder 
+            LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId 
+            SET SupplierPartId = (
+                SELECT supplierPart.Id FROM supplierPart 
+                WHERE supplierPart.SupplierPartNumber = purchaseOrder_itemOrder.Sku AND supplierPart.VendorId = purchaseOrder.VendorId  
+            )
+            WHERE purchaseOrder_itemOrder.Type = 'Part' AND purchaseOrder.PoNo = $purchaseOrderNumber;
+        STR;
+        dbRunQuery($dbLink,$query);
+        dbClose($dbLink);
+    }
+    sendResponse(null);
 }
-
 ?>

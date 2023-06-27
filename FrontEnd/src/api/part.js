@@ -21,7 +21,7 @@ class Part {
     return new Promise((resolve, reject) => {
       eerpApi({
         methood: 'get',
-        url: '/supplier/supplierPart',
+        url: '/part/supplierPart',
         params: { SupplierId: SupplierId }
       }).then(response => {
         if (response.error == null) {

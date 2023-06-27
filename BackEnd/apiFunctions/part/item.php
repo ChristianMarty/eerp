@@ -26,9 +26,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$attributes  = array();
 
-	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, partAttribute.Type, partAttribute.Scale, unitOfMeasurement.Name AS UnitName, unitOfMeasurement.Unit, unitOfMeasurement.Symbol ";
-	$query .= "FROM partAttribute ";
-	$query .= "LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = partAttribute.UnitOfMeasurementId";
+	$query = "SELECT manufacturerPart_attribute.Id, manufacturerPart_attribute.ParentId, manufacturerPart_attribute.Name, manufacturerPart_attribute.Type, manufacturerPart_attribute.Scale, unitOfMeasurement.Name AS UnitName, unitOfMeasurement.Unit, unitOfMeasurement.Symbol ";
+	$query .= "FROM manufacturerPart_attribute ";
+	$query .= "LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId";
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))
@@ -38,11 +38,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$attributes[$id] = $r;
 	}
 
-	$baseQuery = "SELECT manufacturerPart.Id AS PartId, vendor.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Description, PartData, partPackage.name AS Package, Status, sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity, partClass_getName(partClass.Id) AS PartClassName FROM manufacturerPart ";
+	$baseQuery = "SELECT manufacturerPart.Id AS PartId, vendor.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Description, PartData, manufacturerPart_partPackage.name AS Package, Status, sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity, manufacturerPart_class_getName(manufacturerPart_class.Id) AS PartClassName FROM manufacturerPart ";
 	$baseQuery .= "LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId ";
-	$baseQuery .= "LEFT JOIN partPackage On partPackage.Id = manufacturerPart.PackageId ";
+	$baseQuery .= "LEFT JOIN manufacturerPart_partPackage On manufacturerPart_partPackage.Id = manufacturerPart.PackageId ";
 	$baseQuery .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";
-	$baseQuery .= "LEFT JOIN partClass On partClass.Id = manufacturerPart.PartClassId ";
+	$baseQuery .= "LEFT JOIN manufacturerPart_class On manufacturerPart_class.Id = manufacturerPart.PartClassId ";
 	
 	$queryParam = array();
 

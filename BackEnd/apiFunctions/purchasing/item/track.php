@@ -36,10 +36,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $temp['CreateQuantity'] = $r['CreateQuantity'];;
 		$output[] = $temp;
 	}
-	
-	$query = "SELECT InvNo, Title FROM inventory ";
-	$query .= "LEFT JOIN inventory_purchasOrderReference ON inventory_purchasOrderReference.InventoryId = inventory.Id ";
-	$query .= "WHERE ReceivalId = ".$receivalId;
+
+    $query = <<< STR
+        SELECT InvNo, Title FROM inventory
+        LEFT JOIN inventory_purchaseOrderReference ON inventory_purchaseOrderReference.InventoryId = inventory.Id
+        WHERE ReceivalId = $receivalId
+    STR;
+
 	$result = dbRunQuery($dbLink,$query);
 
 	while($r = mysqli_fetch_assoc($result)) 

@@ -21,16 +21,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	$output = array();
-	
-	$query = "SELECT purchasOrder_itemReceive.Id as ReceivalId, manufacturer.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber,supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, purchasOrder_itemReceive.QuantityReceived, purchasOrder_itemOrder.OrderReference, purchasOrder_itemOrder.SupplierPartId ";
-	$query .= "FROM purchasOrder_itemReceive ";
-	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN supplierPart ON supplierPart.Id = purchasOrder_itemOrder.SupplierPartId ";
-	$query .= "LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId ";
-	$query .= "LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-	$query .= "LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer  ON manufacturer.Id = manufacturerPart.VendorId ";
-	$query .= "WHERE purchasOrder_itemReceive.Id = ".$receivalId;
+
+    $query = <<<STR
+        SELECT 
+            purchaseOrder_itemReceive.Id as ReceivalId, 
+            manufacturer.Name AS ManufacturerName, 
+            manufacturerPart.ManufacturerPartNumber,
+            supplier.Name AS SupplierName, 
+            supplierPart.SupplierPartNumber, 
+            purchaseOrder_itemReceive.QuantityReceived, 
+            purchaseOrder_itemOrder.OrderReference, 
+            purchaseOrder_itemOrder.SupplierPartId
+        FROM purchaseOrder_itemReceive
+        LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
+        LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
+        LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
+        LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
+        LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId
+        LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer  ON manufacturer.Id = manufacturerPart.VendorId
+        WHERE purchaseOrder_itemReceive.Id = $receivalId
+    STR;
 
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -54,7 +64,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$lineId = $data['data']['LineId'];
 	$lineNo = $data['data']['LineNo'];
-	$purchasOrderId = $data['data']['PurchasOrderId'];
+	$purchaseOrderId = $data['data']['PurchaseOrderId'];
 	$receivedQuantity = $data['data']['ReceivedQuantity'];
 	$receivedDate = $data['data']['ReceivedDate'];
 	
@@ -65,7 +75,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if(isset($_SESSION["userid"]))$row['UserId'] = $_SESSION["userid"];
 	else $row['UserId'] = null;
 	
-	$query = dbBuildInsertQuery($dbLink, "purchasOrder_itemReceive", $row);
+	$query = dbBuildInsertQuery($dbLink, "purchaseOrder_itemReceive", $row);
 
 	$query = $query ."SELECT LAST_INSERT_ID();";
 

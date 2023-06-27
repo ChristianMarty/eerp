@@ -203,7 +203,9 @@ export default {
   name: 'PurchaseOrderEdit',
   directives: { permission },
   components: { ElTableDraggable, orderTotal, orderImportDialog, editLineItemDialog, editAdditionalChargesDialog },
-  props: { orderData: { type: Object, default: null }},
+  props: {
+    orderData: { type: Object, default: null }
+  },
   data() {
     return {
       poData: {},
@@ -302,37 +304,6 @@ export default {
         this.showErrorMessage(response)
       })
     },
-    /*saveItems() {
-      requestBN({
-        method: 'post',
-        url: '/purchasing/item/edit',
-        data: { data: { Action: 'save', Lines: this.poData.Lines, PoNo: this.$props.orderData.PoNo }}
-      }).then(response => {
-        if (response.error == null) {
-          this.poData = response.data
-
-          this.itemLineIndex = this.poData.Lines.length
-          this.itemLineIndex++
-
-          this.additionalChargesLineIndex = this.poData.AdditionalCharges.length
-          this.additionalChargesLineIndex++
-
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
-      })
-    },*/
     saveAdditionalCharges() {
       requestBN({
         method: 'post',
@@ -373,7 +344,7 @@ export default {
         this.additionalChargesLineIndex++
       })
     },
-    /*addRequestToOrder(orderRequestData) {
+    /* addRequestToOrder(orderRequestData) {
       this.itemLineIndex++
       const newLine = Object.assign({}, emptyOrderLine)
       newLine.QuantityOrderd = orderRequestData.Quantity

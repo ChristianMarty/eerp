@@ -43,7 +43,7 @@ class WorkOrder {
       eerpApi({
         method: 'get',
         url: '/workOrder/item',
-        params: { WorkOrderNo: WorkOrderNumber }
+        params: { WorkOrderNumber: WorkOrderNumber }
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

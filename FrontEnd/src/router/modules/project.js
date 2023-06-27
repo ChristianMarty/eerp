@@ -9,16 +9,16 @@ const projectRouter = {
   },
   children: [
     {
-      path: 'browser/',
-      component: () => import('@/views/project/projectBrowser'),
-      name: 'projectBrowser',
-      meta: { title: 'Project Browser', icon: 'el-icon-sold-out' }
+      path: '/project',
+      component: () => import('@/views/project/search'),
+      name: 'projectSearch',
+      meta: { title: 'Projects' }
     },
     {
-      path: 'projectView/:projectNo(.*)',
-      component: () => import('@/views/project/projectView/'),
-      name: 'projectView',
-      meta: { title: 'Project View', icon: 'el-icon-sold-out' },
+      path: 'item/:ProjectNumber(.*)',
+      component: () => import('@/views/project/item/'),
+      name: 'item',
+      meta: { title: 'Project', icon: 'el-icon-sold-out' },
       hidden: true
     }
   ]

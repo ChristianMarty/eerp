@@ -3,7 +3,7 @@
     <h1>{{ orderData.Title }}, {{ orderData.PurchaseOrderBarcode }}</h1>
     <el-steps :active="orderStatus" finish-status="success" align-center>
       <el-step title="Edit" />
-      <el-step title="Place" />
+      <el-step title="Review" />
       <el-step title="Confirme" />
       <el-step title="Closed" />
     </el-steps>
@@ -97,7 +97,7 @@
 
     <editOrder v-if="orderData.Status == 'Editing'" :order-data="orderData" />
 
-    <placedOrder v-if="orderData.Status == 'Placed'" :order-data="orderData" />
+    <reviewOrder v-if="orderData.Status == 'Placed'" :order-data="orderData" />
 
     <confirmedOrder v-if="orderData.Status == 'Confirmed'" :order-data="orderData" />
 
@@ -125,7 +125,7 @@
 import permission from '@/directive/permission/index.js'
 
 import editOrder from './components/edit'
-import placedOrder from './components/placed'
+import reviewOrder from './components/review'
 import confirmedOrder from './components/confirmed'
 import closedOrder from './components/closed'
 
@@ -139,7 +139,7 @@ const purchase = new Purchase()
 
 export default {
   name: 'PurchaseOrder',
-  components: { editOrder, placedOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList, editOrderMetaDialog },
+  components: { editOrder, reviewOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList, editOrderMetaDialog },
   directives: { permission },
   data() {
     return {
@@ -226,6 +226,7 @@ export default {
         else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
         else if (this.orderData.Status === 'Closed') this.orderStatus = 4
         this.documents = response.Documents
+        this.setTagsViewTitle()
       }).catch(response => {
         this.showErrorMessage(response)
       })

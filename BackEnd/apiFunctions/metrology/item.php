@@ -40,18 +40,30 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['TestSystemBarcode'] = "TSY-".$testSystem['TestSystemNumber'];
 	$output['Name'] = $testSystem['Name'];
 	$output['Description'] = $testSystem['Description'];
+    $output['Item'] = array();
 
-	$query  = "SELECT inventory.InvNo, inventory.Title, inventory.Manufacturer, inventory.SerialNumber, inventory.Type, testSystem_item.Usage, testSystem_item.CalibrationRequired, inventory_history.Date, inventory_history.NextDate  FROM testSystem_item ";
-	$query .= "LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId ";
-	$query .= "LEFT JOIN inventory_history ON inventory_history.Id = (SELECT Id FROM inventory_history WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id AND Date <= '".$testDate."' ORDER BY Date DESC LIMIT 1) ";
-	$query .= "WHERE testSystem_item.TestSystemId = ".$testSystem['Id'];
-	
-	$queryParam = array();
-
+    $testSystemId = $testSystem['Id'];
+    $query = <<<STR
+        SELECT 
+            inventory.InvNo, 
+            inventory.Title, 
+            inventory.Manufacturer, 
+            inventory.SerialNumber, 
+            inventory.Type, 
+            testSystem_item.Usage, 
+            testSystem_item.CalibrationRequired, 
+            inventory_history.Date, 
+            inventory_history.NextDate  
+        FROM testSystem_item
+        LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId
+        LEFT JOIN inventory_history ON inventory_history.Id = (
+            SELECT Id FROM inventory_history 
+            WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id AND Date <= '".$testDate."' ORDER BY Date DESC LIMIT 1
+        ) 
+        WHERE testSystem_item.TestSystemId = $testSystemId
+    STR;
 	$result = dbRunQuery($dbLink,$query);
-	
-	$output['Item'] = array();
-	
+
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$invNo = $r['InvNo'];

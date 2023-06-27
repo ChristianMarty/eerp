@@ -24,14 +24,32 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	// Get Purchase Information
-	$query  = "SELECT PoNo, purchasOrder_itemOrder.LineNo AS LineNumber , purchasOrder_itemOrder.Description, vendor.Name AS SupplierName, purchasOrder.VendorId AS SupplierId, Price, PurchaseDate, inventory_purchasOrderReference.Quantity,  finance_currency.CurrencyCode AS Currency, ExchangeRate, purchasOrder_itemOrder.Sku AS SupplierPartNumber, purchasOrder_itemReceive.Id AS ReceivalId, inventory_purchasOrderReference.Type AS CostType ";
-	$query .= "FROM inventory_purchasOrderReference ";
-	$query .= "LEFT JOIN purchasOrder_itemReceive ON inventory_purchasOrderReference.ReceivalId = purchasOrder_itemReceive.Id ";
-	$query .= "LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id ";
-	$query .= "LEFT JOIN vendor ON purchasOrder.VendorId = vendor.Id ";
-	$query .= "LEFT JOIN finance_currency ON purchasOrder.CurrencyId = finance_currency.Id ";
-	$query .= "WHERE inventory_purchasOrderReference.InventoryId = (SELECT Id from inventory WHERE InvNo = {$inventoryNumber})";
+    $query = <<< STR
+        SELECT 
+            PoNo, 
+            purchaseOrder_itemOrder.LineNo AS LineNumber , 
+            purchaseOrder_itemOrder.Description, 
+            vendor.Name AS SupplierName, 
+            purchaseOrder.VendorId AS SupplierId, 
+            Price, 
+            PurchaseDate, 
+            inventory_purchaseOrderReference.Quantity,  
+            finance_currency.CurrencyCode AS Currency, 
+            ExchangeRate, 
+            purchaseOrder_itemOrder.Sku AS SupplierPartNumber, 
+            purchaseOrder_itemReceive.Id AS ReceivalId, 
+            inventory_purchaseOrderReference.Type AS CostType
+        FROM inventory_purchaseOrderReference
+        LEFT JOIN purchaseOrder_itemReceive ON inventory_purchaseOrderReference.ReceivalId = purchaseOrder_itemReceive.Id
+        LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
+        LEFT JOIN purchaseOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
+        LEFT JOIN vendor ON purchaseOrder.VendorId = vendor.Id
+        LEFT JOIN finance_currency ON purchaseOrder.CurrencyId = finance_currency.Id
+        WHERE inventory_purchaseOrderReference.InventoryId = (SELECT Id from inventory WHERE InvNo = $inventoryNumber)
+    
+    STR;
+
+
 
 	$purchase = array();
 	$result = dbRunQuery($dbLink,$query);
@@ -92,7 +110,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 		$receivalId = dbEscapeString($dbLink,$item['ReceivalId']);
 		$receivalIdList[] = $receivalId;
 		
-		$query  = "INSERT IGNORE INTO inventory_purchasOrderReference SET ";
+		$query  = "INSERT IGNORE INTO inventory_purchaseOrderReference SET ";
 		$query .= "InventoryId = {$id}, Quantity = {$quantity}, ReceivalId = {$receivalId}, Type = '{$costType}';";
 
 		$result = dbRunQuery($dbLink,$query);
@@ -105,7 +123,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 
 	}
 
-    $query  = "DELETE FROM inventory_purchasOrderReference WHERE InventoryId = {$id} ";
+    $query  = "DELETE FROM inventory_purchaseOrderReference WHERE InventoryId = {$id} ";
     if(!empty($receivalIdList))
     {
         $temp = implode(", ", $receivalIdList);

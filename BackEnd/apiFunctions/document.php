@@ -16,13 +16,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
 	$query = "SELECT * FROM document ORDER BY Id DESC";
-	
-	$output = array();
-	
+
+    $result = dbRunQuery($dbLink,$query);
+
 	global $dataRootPath;
 	global $documentPath;
 
-	$result = dbRunQuery($dbLink,$query);
+    $output = array();
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$id = $r['Id'];
@@ -36,6 +36,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	dbClose($dbLink);	
 	sendResponse($output);
-
 }
 ?>

@@ -13,7 +13,7 @@ require_once __DIR__ . "/../../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     $dbLink = dbConnect();
-    $output = dbGetEnumOptions($dbLink, 'inventory_purchasOrderReference','Type');
+    $output = dbGetEnumOptions($dbLink, 'inventory_purchaseOrderReference','Type');
     dbClose($dbLink);
 
     if(!$output) sendResponse(null, "Database error for document Type");

@@ -13,15 +13,14 @@
       <el-menu-item index="availability">Availability</el-menu-item>
       <el-menu-item index="placement">Placement</el-menu-item>
       <el-menu-item index="cost">Cost Analysis</el-menu-item>
-      
     </el-menu>
 
-    <availability v-if="activeIndex == 'availability'" :project-id="projectData.Id" />
-    <placement v-if="activeIndex == 'placement'" :project-id="projectData.Id" />
-    <cost v-if="activeIndex == 'cost'" :project-id="projectData.Id" />
+    <availability v-if="activeIndex == 'availability'" :revision-id="projectData.Revisions[0].Id" />
+    <placement v-if="activeIndex == 'placement'" :revision-id="projectData.Revisions[0].Id" />
+    <cost v-if="activeIndex == 'cost'" :revision-id="projectData.Revisions[0].Id" />
 
     <el-dialog title="Bom Upload" :visible.sync="showUploadDialog">
-      <bomUpload :project-id="projectData.Id" />
+      <bomUpload :revision-id="projectData.Revisions[0].Id" />
     </el-dialog>
   </div>
 </template>
@@ -48,7 +47,7 @@ export default {
   },
   mounted() {
     this.getProjectData()
-    this.setTagsViewTitle()
+    this.setTitle()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -57,13 +56,11 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
-    setTagsViewTitle() {
+    setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.$route.params.projectNo}`
+        title: `${this.$route.params.BillOfMaterialNumber}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-    },
-    setPageTitle() {
       document.title = `${this.projectData.Title}`
     },
     handleSelect(key, keyPath) {
@@ -71,9 +68,9 @@ export default {
     },
     getProjectData() {
       requestBN({
-        url: '/project/item',
+        url: '/billOfMaterial/item',
         methood: 'get',
-        params: { ProjectNo: this.$route.params.projectNo }
+        params: { BillOfMaterialNumber: this.$route.params.BillOfMaterialNumber }
       }).then(response => {
         this.projectData = response.data
         this.setPageTitle()

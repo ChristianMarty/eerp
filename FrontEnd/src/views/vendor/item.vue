@@ -184,16 +184,47 @@
     </el-table>
 
     <el-divider />
-    <h2>Manufacturerart Parts</h2>
-    <p><b>Number of Manufacturerart Parts:</b> {{ manufacturerartPartData.length }}</p>
+    <h2>Manufacturerart Part Numbers</h2>
+    <p><b>Number of Manufacturerart Part Numbers:</b> {{ manufacturerartPartData.length }}</p>
     <el-table
       :data="manufacturerartPartData"
       style="width: 100%; margin-top:10px"
     >
       <el-table-column label="Part Number" sortable width="250">
         <template slot-scope="{ row }">
-          <router-link :to="'/mfrParts/partView/' + row.PartId" class="link-type">
-            <span>{{ row.ManufacturerPartNumber }}</span>
+          <router-link :to="'/manufacturerPart/partNumber/item/' + row.PartNumberId" class="link-type">
+            <span>{{ row.PartNumber }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="ManufacturerPartNumberTemplate"
+        label="Part"
+        sortable
+        width="220"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/manufacturerPart/item/' + row.PartId"
+            class="link-type"
+          >
+            <span>{{ row.ManufacturerPartNumberTemplate }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        prop="SeriesTitle"
+        label="Series"
+        sortable
+        width="220"
+      >
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/manufacturerPart/series/item/' + row.SeriesId"
+            class="link-type"
+          >
+            <span>{{ row.SeriesTitle }}</span>
           </router-link>
         </template>
       </el-table-column>
@@ -263,6 +294,9 @@ const purchase = new Purchase()
 import Part from '@/api/part'
 const part = new Part()
 
+import ManufacturerPart from '@/api/manufacturerPart'
+const manufacturerPart = new ManufacturerPart()
+
 export default {
   name: 'PartDetail',
   components: { editDialog, aliasDialog, addressDialog, contactDialog },
@@ -329,7 +363,9 @@ export default {
         })
       })
 
-      part.search(vendorId).then(response => {
+      const searchParameters = Object.assign({}, manufacturerPart.PartNumber.searchParameters)
+      searchParameters.VendorId = vendorId
+      manufacturerPart.PartNumber.search(searchParameters).then(response => {
         this.manufacturerartPartData = response
       }).catch(response => {
         this.$message({

@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         $poBarcode =  barcodeParser_PurchaseOrderNumber($attachToBarcode);
         if(!$poBarcode)sendResponse(null, "PurchaseOrderDocument Barcode error");
 
-        $query = "SELECT DocumentIds FROM purchasOrder WHERE PoNo = '".$poBarcode."'";
+        $query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '".$poBarcode."'";
         $result = dbRunQuery($dbLink,$query);
         if(!$result) sendResponse(null, "Error in doc list");
         $docIdList = mysqli_fetch_assoc($result)['DocumentIds'];
@@ -71,7 +71,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
         $poCode =  barcodeParser_PurchaseOrderNumber($attachToBarcode);
         if(!$poCode)sendResponse(null, "PurchaseOrderDocument Barcode error");
 
-        $query = "UPDATE purchasOrder SET  DocumentIds = '".$docIdList."' WHERE PoNo = '".$poCode."'";
+        $query = "UPDATE purchaseOrder SET  DocumentIds = '".$docIdList."' WHERE PoNo = '".$poCode."'";
         $result = dbRunQuery($dbLink,$query);
         if(!$result) sendResponse(null, "Document List Update Failed");
 

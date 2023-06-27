@@ -22,20 +22,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 
     $query = <<<STR
-        SELECT  MONTH(PurchaseDate) AS Month, SUM(purchasOrder_itemOrder.Quantity*purchasOrder_itemOrder.Price) AS Merchandise,
-        SUM(purchasOrder_itemOrder.Quantity*purchasOrder_itemOrder.Price*(finance_tax.Value/100)) + shipping.VAT AS VAT,
+        SELECT  MONTH(PurchaseDate) AS Month, SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price) AS Merchandise,
+        SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price*(finance_tax.Value/100)) + shipping.VAT AS VAT,
         shipping.Shipping
         
-        FROM purchasOrder
-        LEFT JOIN purchasOrder_itemOrder ON purchasOrder_itemOrder.PurchasOrderId = purchasOrder.Id
-        LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_itemOrder.VatTaxId
+        FROM purchaseOrder
+        LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
+        LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_itemOrder.VatTaxId
         
-        LEFT JOIN  (SELECT  MONTH(PurchaseDate) AS Month, SUM(purchasOrder_additionalCharges.Quantity* purchasOrder_additionalCharges.Price) AS Shipping, SUM(purchasOrder_additionalCharges.Quantity*purchasOrder_additionalCharges.Price*(finance_tax.Value/100)) AS VAT FROM purchasOrder
-                        LEFT JOIN purchasOrder_additionalCharges ON purchasOrder_additionalCharges.PurchasOrderId  = purchasOrder.Id
-                        LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_additionalCharges.VatTaxId
-                        WHERE purchasOrder_additionalCharges.Type = 'Shipping' AND YEAR(PurchaseDate) = $year
-                        GROUP BY MONTH(PurchaseDate))shipping ON shipping.Month = MONTH(PurchaseDate)
-        
+        LEFT JOIN  (
+            SELECT  
+                MONTH(PurchaseDate) AS Month, 
+                SUM(purchaseOrder_additionalCharges.Quantity* purchaseOrder_additionalCharges.Price) AS Shipping, 
+                SUM(purchaseOrder_additionalCharges.Quantity*purchaseOrder_additionalCharges.Price*(finance_tax.Value/100)) AS VAT 
+            FROM purchaseOrder
+            LEFT JOIN purchaseOrder_additionalCharges ON purchaseOrder_additionalCharges.PurchaseOrderId  = purchaseOrder.Id
+            LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_additionalCharges.VatTaxId
+            WHERE purchaseOrder_additionalCharges.Type = 'Shipping' AND YEAR(PurchaseDate) = $year
+            GROUP BY MONTH(PurchaseDate)
+        )shipping ON shipping.Month = MONTH(PurchaseDate)
         WHERE  YEAR(PurchaseDate) = $year
         GROUP BY MONTH(PurchaseDate)
     STR;

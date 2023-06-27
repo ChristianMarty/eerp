@@ -27,13 +27,21 @@ if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode)
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	
-	$query  = "SELECT PartNo, Empty, GROUP_CONCAT(StockNo) AS StockNoList, GROUP_CONCAT(partStock_getQuantity(StockNo)) AS Quantity, GROUP_CONCAT(LocationId) AS LocationIdList ";
-	$query .= "FROM partStock LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = partStock.ManufacturerPartId ";
-	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-	$query .= "WHERE PartNo IS NOT NULL AND partStock.Empty = 0 ";
-	$query .= "GROUP BY productionPartMapping.ProductionPartId ";
-	
+
+	$query = <<<STR
+		SELECT 
+			PartNo,
+			'Empty', 
+			GROUP_CONCAT(StockNo) AS StockNoList, 
+			GROUP_CONCAT(partStock_getQuantity(StockNo)) AS Quantity, 
+			GROUP_CONCAT(LocationId) AS LocationIdList
+		FROM partStock LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = partStock.ManufacturerPartId
+		LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+		WHERE PartNo IS NOT NULL AND partStock.Empty = 0
+		GROUP BY productionPartMapping.ProductionPartId
+	STR;
+
+
 	$stockResult = dbRunQuery($dbLink,$query);
 
 	dbClose($dbLink);

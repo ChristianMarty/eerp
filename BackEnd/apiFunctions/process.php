@@ -60,7 +60,8 @@ function getInfo($path, $file)
 	$output["Title"] = extractVariable($filePath,"title");
 	$output["Description"] = extractVariable($filePath,"description");
 	$output["Parameter"] =  json_decode(extractVariable($filePath,"parameter"),true);
-	$output["Path"] =  $apiRootPath."/process/".$path."/".$filename;
+	if($path != "") $output["Path"] =  $apiRootPath."/process/".$path."/".$filename;
+	else $output["Path"] =  $apiRootPath."/process/".$filename;
 	
 	return $output;
 }

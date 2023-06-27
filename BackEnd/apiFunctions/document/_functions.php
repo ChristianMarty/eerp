@@ -119,15 +119,15 @@ function getCitations($dbLink, $documentId): array
         $output[] = $temp;
     }
 
-// Get documents from purchasOrder
+// Get documents from purchaseOrder
     $query = <<< STR
         SELECT 
-            purchasOrder.PoNo,
-            purchasOrder.Description,
+            purchaseOrder.PoNo,
+            purchaseOrder.Description,
             vendor.Name AS VendorName
-        FROM purchasOrder 
-        LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId
-        WHERE replace(json_array(purchasOrder.DocumentIds), ',', '","') LIKE '%"$documentId"%'
+        FROM purchaseOrder 
+        LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
+        WHERE replace(json_array(purchaseOrder.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
     $result = dbRunQuery($dbLink,$query);

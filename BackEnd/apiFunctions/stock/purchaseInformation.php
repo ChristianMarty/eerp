@@ -13,20 +13,22 @@ require_once __DIR__ . "/../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
+	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
+	if(!$stockNumber) sendResponse(null, "StockNo invalid");
 		
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$temp = dbEscapeString($dbLink, $_GET["StockNo"]);
-	$temp = strtolower($temp);
-	$stockNo = str_replace("stk-","",$temp);
-
-	$query  = "SELECT PoNo, Price, finance_currency.CurrencyCode AS Currency, PurchaseDate FROM purchasOrder_itemOrder ";
-	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId ";
-	$query .= "WHERE purchasOrder_itemReceive.Id = (SELECT partStock.ReceivalId FROM partStock WHERE StockNo = '".$stockNo."') ";
-
+	$query = <<<STR
+		SELECT 
+		    PoNo, 
+		    Price, 
+		    finance_currency.CurrencyCode AS Currency, 
+		    PurchaseDate 
+		FROM purchaseOrder_itemOrder
+		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
+		LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId 
+		LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId 
+		WHERE purchaseOrder_itemReceive.Id = (SELECT partStock.ReceivalId FROM partStock WHERE StockNo = '$stockNumber')
+	STR;
 
 	$result = dbRunQuery($dbLink,$query);
 	$gctNr = null;

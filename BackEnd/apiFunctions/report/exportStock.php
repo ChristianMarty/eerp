@@ -28,16 +28,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$query  = "SELECT partStock_view.*, GROUP_CONCAT(PartNo) AS PartNoList FROM  partStock_view ";
-	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = partStock_view.ManufacturerPartId ";
-	$query .= "LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId ";
-	$query .= "GROUP BY StockNo";
-	
+
+	$query  = <<<STR
+		SELECT partStock_view.*, GROUP_CONCAT(PartNo) AS PartNoList FROM  partStock_view
+		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = partStock_view.ManufacturerPartId
+		LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId
+		GROUP BY StockNo
+	STR;
+
 	$stockResult = dbRunQuery($dbLink,$query);
 
 	dbClose($dbLink);
-	
 	
 	$locations = getLocations();
 	
@@ -47,7 +48,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$csvHandlee = fopen($csvFile, "w");
 	
 
-	
 	$header = "Order Reference;Stock No;Manufacturer;Manufacturer Part Number;Date;Quantity;Create Quantity;Stocktaking Date;Create Data;Location;Supplier;Supplier Part Number;PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
 	fwrite($csvHandlee, $header.PHP_EOL);
 	

@@ -76,7 +76,13 @@
         prop="ManufacturerPartNumber"
         label="Part Number"
         sortable
-      />
+      >
+        <template slot-scope="{ row }">
+          <router-link :to="'/manufacturerPart/item/' + row.ManufacturerPartItemId" class="link-type">
+            <span>{{ row.ManufacturerPartNumber }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="Date" label="Date" sortable />
       <el-table-column prop="Quantity" label="Quantity" />
       <el-table-column prop="Location" label="Location" sortable />

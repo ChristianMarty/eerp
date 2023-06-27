@@ -43,25 +43,25 @@ function save_line($dbLink, $purchaseOrderNumber, $line): int
     {
         $condition = "Id = ".$lineId;
         $sqlData['LineNo'] = $line['LineNo'];
-        $query = dbBuildUpdateQuery($dbLink,"purchasOrder_itemOrder", $sqlData, $condition);
+        $query = dbBuildUpdateQuery($dbLink,"purchaseOrder_itemOrder", $sqlData, $condition);
         dbRunQuery($dbLink,$query);
     }
     else // Insert new row
     {
-        $sqlData['PurchasOrderId']['raw'] = "(SELECT Id FROM purchasOrder WHERE PoNo = '".$purchaseOrderNumber."' )";
+        $sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PoNo = '".$purchaseOrderNumber."' )";
         $sqlData['LineNo'] = 0;
-        $query = dbBuildInsertQuery($dbLink,"purchasOrder_itemOrder", $sqlData);
+        $query = dbBuildInsertQuery($dbLink,"purchaseOrder_itemOrder", $sqlData);
         dbRunQuery($dbLink,$query);
 
         $query = <<<STR
-            UPDATE purchasOrder_itemOrder SET 
-            LineNo = (SELECT MAX(LineNo)+1 FROM purchasOrder_itemOrder WHERE PurchasOrderId = (SELECT Id FROM purchasOrder WHERE PoNo = '$purchaseOrderNumber' )) 
-            WHERE LineNo = 0 AND PurchasOrderId = (SELECT Id FROM purchasOrder WHERE PoNo = '$purchaseOrderNumber' )
+            UPDATE purchaseOrder_itemOrder SET 
+            LineNo = (SELECT MAX(LineNo)+1 FROM purchaseOrder_itemOrder WHERE PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' )) 
+            WHERE LineNo = 0 AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' )
         STR;
         dbRunQuery($dbLink,$query);
 
         $query = <<<STR
-            SELECT Id FROM purchasOrder_itemOrder WHERE Id = LAST_INSERT_ID()
+            SELECT Id FROM purchaseOrder_itemOrder WHERE Id = LAST_INSERT_ID()
         STR;
 
         $result = dbRunQuery($dbLink,$query);
@@ -75,7 +75,7 @@ function update_costCenter($dbLink, $lineId, $costCenterList): void
 {
     // TODO: Find better way to update this
     $query = <<<STR
-            DELETE FROM purchasOrder_itemOrder_costCenter_mapping WHERE ItemOrderId = $lineId
+            DELETE FROM purchaseOrder_itemOrder_costCenter_mapping WHERE ItemOrderId = $lineId
     STR;
     dbRunQuery($dbLink,$query);
 
@@ -85,7 +85,7 @@ function update_costCenter($dbLink, $lineId, $costCenterList): void
         $quota = floatval($cc['Quota']);
 
         $query = <<<STR
-            INSERT INTO purchasOrder_itemOrder_costCenter_mapping (CostCenterId, ItemOrderId, Quota) 
+            INSERT INTO purchaseOrder_itemOrder_costCenter_mapping (CostCenterId, ItemOrderId, Quota) 
             VALUES ((SELECT Id FROM finance_costCenter WHERE CostCenterNumber = $costCenterNumber),$lineId,$quota)
         STR;
         dbRunQuery($dbLink,$query);
@@ -144,8 +144,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
     if($lineId == 0)  sendResponse(null,"Line Id Invalid");
 
     $query = <<<STR
-        DELETE FROM purchasOrder_itemOrder 
-               WHERE Id = $lineId AND PurchasOrderId = (SELECT Id FROM purchasOrder WHERE PoNo = '$purchaseOrderNumber' );
+        DELETE FROM purchaseOrder_itemOrder 
+               WHERE Id = $lineId AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' );
     STR;
     $dbLink = dbConnect();
     dbRunQuery($dbLink,$query);

@@ -19,10 +19,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	// Query attributes
 
 	$attributes  = array();
-	
-	$query = "SELECT partAttribute.Id, partAttribute.ParentId, partAttribute.Name, partAttribute.Type, partAttribute.Scale, unitOfMeasurement.Name AS UnitName, unitOfMeasurement.Unit, unitOfMeasurement.Symbol ";
-	$query .= "FROM partAttribute ";
-	$query .= "LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = partAttribute.UnitOfMeasurementId";
+
+    $query = <<<STR
+	SELECT manufacturerPart_attribute.Id, 
+	       manufacturerPart_attribute.ParentId, 
+	       manufacturerPart_attribute.Name, 
+	       manufacturerPart_attribute.Type, 
+	       manufacturerPart_attribute.Scale, 
+	       unitOfMeasurement.Name AS UnitName, 
+	       unitOfMeasurement.Unit, 
+	       unitOfMeasurement.Symbol 
+	FROM manufacturerPart_attribute 
+	LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
+	STR;
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result))
@@ -32,11 +41,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$attributes[$id] = $r;
 	}
 
-	$baseQuery = "SELECT manufacturerPart.Id AS PartId, vendor.name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Description, PartData, partPackage.name AS Package, Status,sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity FROM manufacturerPart ";
-	$baseQuery .= "LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId ";
-	$baseQuery .= "LEFT JOIN partPackage On partPackage.Id = manufacturerPart.PackageId ";
-	$baseQuery .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";
-	
+    $baseQuery = <<<STR
+	SELECT manufacturerPart.Id AS PartId, 
+	       vendor.name AS ManufacturerName, 
+	       manufacturerPart.ManufacturerPartNumber, 
+	       manufacturerPart.Description,
+	       PartData, 
+	       manufacturerPart_partPackage.name AS Package, 
+	       Status,
+	       sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity 
+	FROM manufacturerPart
+	LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId
+	LEFT JOIN manufacturerPart_partPackage On manufacturerPart_partPackage.Id = manufacturerPart.PackageId 
+	LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id 
+	STR;
+
+
 	$queryParam = array();
 	
 	if(isset($_GET["ManufacturerName"]))
@@ -62,7 +82,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$dbLink2 = dbConnect();
 		$temp = dbEscapeString($dbLink2, $_GET["classId"]);
 		$classIdList = "";
-		$query = "CALL getPartClassRecursiveChildren('".$temp."')";
+		$query = "CALL manufacturerPart_class_getChildrenRecursive('".$temp."')";
 		$result = mysqli_query($dbLink2, $query);
 		dbClose($dbLink2);
 

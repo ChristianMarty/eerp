@@ -16,7 +16,7 @@
       :cell-class-name="tableAnalyzer"
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="100" />
+      <el-table-column prop="QuantityOrdered" label="Orderd Qty" width="100" />
       <el-table-column prop="QuantityReceived" label="Received Qty" width="120" />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="120" />
       <el-table-column prop="ExpectedReceiptDate" label="Expected" width="120" />
@@ -107,7 +107,7 @@
         <el-form-item label="Order Reference:">{{ receiveDialog.OrderReference }}</el-form-item>
         <el-form-item label="Note:">{{ receiveDialog.Note }}</el-form-item>
 
-        <el-form-item label="Orderd Quantity:">{{ receiveDialog.QuantityOrderd }}</el-form-item>
+        <el-form-item label="Ordered Quantity:">{{ receiveDialog.QuantityOrdered }}</el-form-item>
         <el-form-item label="Received Quantity:">
           <el-input-number
             v-model="dialogQuantityReceived"
@@ -133,6 +133,9 @@
 </template>
 
 <script>
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
 import requestBN from '@/utils/requestBN'
 import addToStock from './addToStockDialog'
 import trackDialog from './trackDialog'
@@ -212,15 +215,16 @@ export default {
       this.trackDialogVisible = true
     },
     getOrderLines() {
-      requestBN({
-        url: '/purchasing/item',
-        methood: 'get',
-        params: {
-          PurchaseOrderNo: this.$props.orderData.PoNo
-        }
-      }).then(response => {
-        this.lines = response.data.Lines
+      purchase.item.search(this.$props.orderData.PoNo).then(response => {
+        this.lines = response.Lines
         this.prepairLines(this.lines)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     prepairLines(data) {

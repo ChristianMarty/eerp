@@ -10,17 +10,17 @@
       style="width: 100%"
       :row-class-name="tableAnalyzer"
     >
-      <el-table-column prop="ProductionPartNo" label="Part No" sortable>
+      <el-table-column prop="ProductionPartNumber" label="Part No" width="100" sortable>
         <template slot-scope="{ row }">
           <router-link
-            :to="'/prodParts/prodPartView/' + row.ProductionPartNo"
+            :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
             class="link-type"
           >
-            <span>{{ row.ProductionPartNo }}</span>
+            <span>{{ row.ProductionPartNumber }}</span>
           </router-link>
         </template>
       </el-table-column>¨
-      <el-table-column prop="Description" label="Description" width="150" sortable />
+      <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="Quantity" label="Quantity" width="150" sortable />
       <el-table-column prop="StockQuantity" label="On Stock" width="150" sortable />
       <el-table-column prop="Availability" label="Availability" width="300" sortable>
@@ -28,7 +28,7 @@
           <el-progress :percentage="row.Availability" />
         </template>
       </el-table-column>
-      <el-table-column prop="StockCertainty" label="Stock Certainty" width="300" sortable>
+      <el-table-column prop="StockCertainty" label="Stock Certainty" width="150" sortable>
         <template slot-scope="{ row }">
           <el-rate
             v-model="row.StockCertaintyFactor*5"
@@ -44,7 +44,7 @@
 import requestBN from '@/utils/requestBN'
 
 export default {
-  props: { projectId: { type: Number, default: 0 }},
+  props: { revisionId: { type: Number, default: 0 }},
   data() {
     return {
       stockBom: null
@@ -56,10 +56,10 @@ export default {
   methods: {
     getBomStock() {
       requestBN({
-        url: '/project/availability',
+        url: '/billOfMaterial/availability',
         methood: 'get',
         params: {
-          ProjectId: this.$props.projectId
+          RevisionId: this.$props.revisionId
         }
       }).then(response => {
         this.stockBom = response.data

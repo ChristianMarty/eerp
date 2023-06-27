@@ -9,33 +9,32 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
-		
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$temp = dbEscapeString($dbLink, $_GET["StockNo"]);
-	$temp = strtolower($temp);
-	$stockNo = str_replace("stk-","",$temp);
-	
-	$query  = "SELECT workOrder.Title AS Title, WorkOrderNo, partStock_reservation.Quantity FROM partStock_reservation ";
-	$query .= "LEFT JOIN  workOrder ON workOrder.Id = partStock_reservation.WorkOrderId ";
-	$query .= "WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '".$stockNo."') ";
-	
+	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
+	if(!$stockNumber) sendResponse(null, "StockNo invalid");
 
-	
+	$query = <<<STR
+		SELECT 
+		    workOrder.Title AS Title, 
+		    WorkOrderNumber, 
+		    partStock_reservation.Quantity 
+		FROM partStock_reservation 
+		LEFT JOIN  workOrder ON workOrder.Id = partStock_reservation.WorkOrderId 
+		WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '$stockNumber') 
+	STR;
+
+	$dbLink = dbConnect();
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
-	$gctNr = null;
-	
-	$quantity = 0;
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		array_push($output, $r);
+		$output[] = $r;
 	}
 	
 	dbClose($dbLink);	

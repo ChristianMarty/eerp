@@ -17,15 +17,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["ManufacturerPartId"]) && !isset($_GET["ProductionPartNumber"])) sendResponse(NULL,"ManufacturerPartId or ProductionPartNumber Required!");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query  = "SELECT *, SUM(QuantityReceived) AS TotalQuantityReceived FROM purchasOrder_itemOrder ";
-	$query .= "LEFT JOIN supplierPart ON supplierPart.Id = purchasOrder_itemOrder.SupplierPartId  ";
-	$query .= "LEFT JOIN purchasOrder ON purchasOrder.Id = purchasOrder_itemOrder.PurchasOrderId ";
-	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = supplierPart.ManufacturerPartId ";
-	$query .= "LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemReceive.ItemOrderId = purchasOrder_itemOrder.Id ";
-	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
+
+    $query = <<<STR
+        SELECT
+            *, 
+            SUM(QuantityReceived) AS TotalQuantityReceived 
+        FROM purchaseOrder_itemOrder
+        LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
+        LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
+        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = supplierPart.ManufacturerPartId
+        LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
+        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+    STR;
+
 	
 	$parameters = array();
 	
@@ -43,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $parameters);
-	$query .= " GROUP BY purchasOrder_itemOrder.Id";
+	$query .= " GROUP BY purchaseOrder_itemOrder.Id";
 
 	$result = dbRunQuery($dbLink,$query);
 

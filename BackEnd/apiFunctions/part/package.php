@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "SELECT * FROM partPackage ORDER BY `Name` ASC";	
+	$query = "SELECT * FROM manufacturerPart_partPackage ORDER BY `Name` ASC";	
 	
 	$classId = 0;
 	

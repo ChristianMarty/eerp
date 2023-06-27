@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $poNumber = barcodeParser_PurchaseOrderNumber($poNumber);
 
     $query = <<<STR
-    SELECT Id, PoNo, PurchaseDate, DocumentIds FROM purchasOrder WHERE  PoNo = $poNumber   
+    SELECT Id, PoNo, PurchaseDate, DocumentIds FROM purchaseOrder WHERE  PoNo = $poNumber   
     STR;
 
     $result = dbRunQuery($dbLink,$query);
@@ -66,7 +66,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $docIdStr = implode(",",$docIds);
 
     $query = <<<STR
-    UPDATE purchasOrder SET  DocumentIds  =  '$docIdStr' WHERE  PoNo = $poNumber   
+    UPDATE purchaseOrder SET  DocumentIds  =  '$docIdStr' WHERE  PoNo = $poNumber   
     STR;
 
     $dbLink = dbConnect();

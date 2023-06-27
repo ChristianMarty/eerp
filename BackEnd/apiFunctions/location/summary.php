@@ -9,47 +9,59 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["LocationNumber"])) sendResponse(null,"LocationNumber not specified");
 	$locationNr = strtolower($_GET["LocationNumber"]);
 	
-	if(substr($locationNr,0,4) != "loc-")  sendResponse(null,"Invalid Location Number");
+	if(!str_starts_with($locationNr, "loc-"))  sendResponse(null,"Invalid Location Number");
 	$locationNr = str_replace("loc-","",$locationNr);
 	
 	$dbLink = dbConnect();
 	$locationNr = dbEscapeString($dbLink,$locationNr);
 	
 	$response = array();
-	
-	$query  = "SELECT StockNo, partManufacturer.name AS ManufacturerName, ManufacturerPartNumber, Quantity, Date ";
-	$query .= "FROM partStock ";
-	$query .= "LEFT JOIN partManufacturer ON partStock.ManufacturerId = partManufacturer.id ";
-	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
-	
-	$query  = "SELECT * FROM partStock_view WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
+
+	$query = <<<STR
+		SELECT 
+		    StockNo,
+			manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
+			vendor_displayName(manufacturerPart_partNumber.VendorId) AS ManufacturerName,
+			Date, 
+			Cache_Quantity 
+		FROM partStock
+		LEFT JOIN manufacturerPart_partNumber on partStock.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+	STR;
 
 	$result = dbRunQuery($dbLink,$query);
-		
 	while($itemData = mysqli_fetch_assoc($result))
 	{
 		$descriptor = $itemData["ManufacturerName"]." ".$itemData["ManufacturerPartNumber"];
-		$descriptor .= ", ".$itemData["Date"].", Qty: ".$itemData["Quantity"];
+		$descriptor .= ", ".$itemData["Date"].", Qty: ".$itemData["Cache_Quantity"];
 		
 		$data = array();
-		$data["Item"] =  "Stk-".$itemData["StockNo"];
+		$data["Item"] =  barcodeFormatter_StockNumber($itemData["StockNo"]);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor; 
 		
-		array_push($response, $data);
+		$response[] = $data;
 	}
-	
-	
-	
-	$query  = "SELECT InvNo, Title, Manufacturer, Type, LocationId FROM inventory ";
-	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
-	
+
+	$query = <<<STR
+		SELECT 
+		    InvNo, 
+		    Title, 
+		    Manufacturer, 
+		    Type, 
+		    LocationId 
+		FROM inventory
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+	STR;
+
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
@@ -62,14 +74,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor; 
 		
-		array_push($response, $data);
+		$response[] = $data;
 	}
-	
-	
-	$query  = "SELECT AssemblyUnitNumber, SerialNumber, Name, Description,  LocationId FROM assembly_unit ";
-	$query .= "LEFT JOIN assembly on assembly.Id =  assembly_unit.AssemblyId ";
-	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
-	
+
+	$query = <<<STR
+		SELECT 
+		    AssemblyUnitNumber, 
+		    SerialNumber, 
+		    Name, 
+		    Description,  
+		    LocationId 
+		FROM assembly_unit
+		LEFT JOIN assembly on assembly.Id =  assembly_unit.AssemblyId
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+	STR;
+
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
@@ -82,13 +101,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$data["Category"] = "Assembly Unit";
 		$data["Description"] = $descriptor; 
 		
-		array_push($response, $data);
+		$response[] = $data;
 	}
-	
-	
-	$query  = "SELECT LocNr, location_getName(Id) AS Name FROM location ";
-	$query .= "WHERE LocationId = (SELECT Id FROM location where LocNr = '".$locationNr."')";
-	
+
+	$query = <<<STR
+		SELECT 
+			LocNr, 
+			location_getName(Id) AS Name 
+		FROM location
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+	STR;
+
 	$result = dbRunQuery($dbLink,$query);
 		
 	while($itemData = mysqli_fetch_assoc($result))
@@ -100,7 +123,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$data["Category"] = "Location";
 		$data["Description"] = $descriptor; 
 		
-		array_push($response, $data);
+		$response[] = $data;
 	}
 	
 	dbClose($dbLink);	

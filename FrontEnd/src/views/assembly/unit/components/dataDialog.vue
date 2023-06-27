@@ -32,10 +32,6 @@
         <el-table-column prop="value" label="Value" sortable />
       </el-table>
 
-      <el-select v-model="selectedTemplateId">
-        <el-option v-for="item in printTemplate" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
-      </el-select>
-
       <el-select v-model="selectedPrinterId">
         <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
       </el-select>
@@ -46,11 +42,13 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
 import * as defaultSetting from '@/utils/defaultSetting'
 
 import Assembly from '@/api/assembly'
 const assembly = new Assembly()
+
+import Print from '@/api/print'
+const print = new Print()
 
 export default {
   name: 'AssemblyItemHistoryData',
@@ -60,8 +58,6 @@ export default {
       data: {},
       tableData: [],
       selectedPrinterId: 0,
-      selectedTemplateId: 0,
-      printTemplate: {},
       printer: {}
     }
   },
@@ -100,41 +96,41 @@ export default {
       })
     },
     getPrintTemplate() {
-      requestBN({
-        url: '/label',
-        methood: 'get',
-        params: { Tag: 'Assembly' }
-      }).then(response => {
-        this.printTemplate = response.data
+      print.label.search('Assembly').then(response => {
+        this.printTemplate = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     print() {
       assembly.unit.history.item(this.$props.assemblyUnitHistoryNumber).then(response => {
-        requestBN({
-          method: 'post',
-          url: '/print/assemblyBonPrint',
-          data: { data: response, PrinterId: this.selectedPrinterId }
-        }).then(response => {
-          if (response.error !== null) {
-            this.$message({
-              showClose: true,
-              duration: 0,
-              message: response.error,
-              type: 'error'
-            })
-          }
+        print.template.assemblyHistoryItem(this.selectedPrinterId, response).then(response => {
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response,
+            duration: 0,
+            type: 'error'
+          })
         })
       })
     },
     getPrinter() {
-      requestBN({
-        url: '/printer',
-        methood: 'get'
-      }).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().AssemblyReportPrinter
-        this.selectedTemplateId = defaultSetting.defaultSetting().AssemblyReportTemplate
-
-        this.printer = response.data
+      print.printer.search().then(response => {
+        this.printer = response
+        this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     closeDialog() {

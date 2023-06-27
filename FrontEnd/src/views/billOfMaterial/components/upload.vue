@@ -16,20 +16,19 @@
       :cell-style="{ padding: '0', height: '15px' }"
       style="width: 100%"
       :row-class-name="tableAnalyzer"
-    ><el-table-column prop="PartNo" label="Part No" width="150" sortable>
+    ><el-table-column prop="ProductionPartNumber" label="Part No" width="150" sortable>
        <template slot-scope="{ row }">
          <router-link
-           :to="'/prodParts/prodPartView/' + row.PartNo"
+           :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
            class="link-type"
          >
-           <span>{{ row.PartNo }}</span>
+           <span>{{ row.ProductionPartNumber }}</span>
          </router-link>
        </template>
      </el-table-column>
-      <el-table-column prop="RefDes" label="RefDes" />
+      <el-table-column prop="ReferenceDesignator" label="RefDes" />
       <el-table-column prop="Quantity" label="Quantity" width="100" />
-      <el-table-column prop="Value" label="Description from CSV" />
-      <el-table-column prop="Stock" label="Stock" width="100" />
+      <el-table-column prop="Description" label="Description from CSV" />
     </el-table>
     <el-button type="primary" @click="save">Save</el-button>
   </div>
@@ -39,7 +38,7 @@
 import requestBN from '@/utils/requestBN'
 
 export default {
-  props: { projectId: { type: Number, default: 0 }},
+  props: { revisionId: { type: Number, default: 0 }},
   data() {
     return {
       bom: null,
@@ -55,8 +54,8 @@ export default {
     save() {
       requestBN({
         method: 'post',
-        url: '/project/save',
-        data: { Bom: this.bom, ProjectId: this.$props.projectId }
+        url: '/billOfMaterial/bom',
+        data: { Bom: this.bom, RevisionId: this.$props.revisionId }
       }).then(response => {
 
       })
@@ -64,7 +63,7 @@ export default {
     getAnalyzeOptions() {
       requestBN({
         method: 'get',
-        url: '/project/analyze'
+        url: '/billOfMaterial/analyze'
       }).then(response => {
         this.analyzeOptions = response.data
       })
@@ -75,7 +74,7 @@ export default {
         url: this.analyzePath,
         data: { csv: this.bomData }
       }).then(response => {
-        this.bom = response.data.bom
+        this.bom = response.data
       })
     }
   }

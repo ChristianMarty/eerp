@@ -32,14 +32,14 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
     $query = <<<STR
         SELECT Carrier, PaymentTerms, InternationalCommercialTerms, HeadNote, FootNote, 
             VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, 
-            purchasOrder.DocumentIds, purchasOrder.PoNo, purchasOrder.CreationDate, 
-            purchasOrder.PurchaseDate, purchasOrder.Title, purchasOrder.Description, 
-            purchasOrder.Status, purchasOrder.Id AS PoId ,vendor.Name AS SupplierName, 
+            purchaseOrder.DocumentIds, purchaseOrder.PoNo, purchaseOrder.CreationDate, 
+            purchaseOrder.PurchaseDate, purchaseOrder.Title, purchaseOrder.Description, 
+            purchaseOrder.Status, purchaseOrder.Id AS PoId ,vendor.Name AS SupplierName, 
             vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, 
             finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, 
-            ExchangeRate, purchasOrder.QuotationNumber FROM purchasOrder
-        LEFT JOIN vendor ON vendor.Id = purchasOrder.VendorId 
-        LEFT JOIN finance_currency ON finance_currency.Id = purchasOrder.CurrencyId
+            ExchangeRate, purchaseOrder.QuotationNumber FROM purchaseOrder
+        LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId 
+        LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
     STR;
 
 	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
@@ -86,9 +86,10 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
             $lines[$r['OrderLineId']]['CostCenter'] = purchaseOrderItem_getCostCenterData(dbRunQuery($dbLink,$query));
 
 			if($status == "Confirmed" or $status == "Closed")
-			{
+            {
 				$lines[$r['OrderLineId']]['QuantityReceived'] = 0;
 			}
+            $r['Price'] = floatval($r['Price']);
 		}
 		
 		if( $r['ReceiveId'] != null and ($status == "Confirmed" or $status == "Closed"))
@@ -109,17 +110,17 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	
 	$additionalCharges = Array();
     $query = <<<STR
-	SELECT purchasOrder_additionalCharges.Id AS AdditionalChargesLineId, 
-	       purchasOrder_additionalCharges.LineNo, 
-	       purchasOrder_additionalCharges.Type, 
-	       purchasOrder_additionalCharges.Price, 
-	       purchasOrder_additionalCharges.Quantity, 
-	       purchasOrder_additionalCharges.Description, 
+	SELECT purchaseOrder_additionalCharges.Id AS AdditionalChargesLineId, 
+	       purchaseOrder_additionalCharges.LineNo, 
+	       purchaseOrder_additionalCharges.Type, 
+	       purchaseOrder_additionalCharges.Price, 
+	       purchaseOrder_additionalCharges.Quantity, 
+	       purchaseOrder_additionalCharges.Description, 
 	       finance_tax.Value AS VatValue, 
 	       finance_tax.Id AS VatTaxId
-	FROM purchasOrder_additionalCharges
-	LEFT JOIN finance_tax ON finance_tax.Id = purchasOrder_additionalCharges.VatTaxId
-	WHERE PurchasOrderId = $purchaseOrderId 
+	FROM purchaseOrder_additionalCharges
+	LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_additionalCharges.VatTaxId
+	WHERE PurchaseOrderId = $purchaseOrderId 
 	ORDER BY LineNo
 	STR;
 	$result = dbRunQuery($dbLink,$query);
@@ -127,7 +128,8 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	{
 		$r['AdditionalChargesLineId'] = intval( $r['AdditionalChargesLineId']);
 		$r['LineNo'] = intval( $r['LineNo']);
-		$r['Total'] = $r['Price'] * intval($r['Quantity']);
+        $r['Price'] = floatval($r['Price']);
+		$r['Total'] = floatval($r['Price'] * intval($r['Quantity']));
 		$r['VatTaxId'] = intval($r['VatTaxId']);
 		
 		$additionalCharges[] = $r;

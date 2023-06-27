@@ -96,7 +96,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$sqlData = array();
 	$sqlData['SerialNumber'] = $serialNumber;
-	if($workOrderNumber !== null)$sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNo = ".$workOrderNumber.")";
+	if($workOrderNumber !== null)$sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = ".$workOrderNumber.")";
 	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNumber = ".$assemblyNumber.")";
 	$sqlData['AssemblyUnitNumber']['raw'] = "(SELECT generateItemNumber())";
 	

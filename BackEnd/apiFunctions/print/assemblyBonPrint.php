@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	global $companyName;
 	
-	$printData = $data['data'];
+	$printData = $data['Data'];
 	$printerId = intval($data['PrinterId']);
 	
 	$query = "SELECT * FROM printer WHERE Id =".$printerId;

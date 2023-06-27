@@ -33,8 +33,10 @@ function barcodeFormatter_ProductionPart(string|int $input): string
     return $input; // TODO: Fix this
 }
 
-function barcodeFormatter_WorkOrderNumber(string|int $input): string
+function barcodeFormatter_WorkOrderNumber(string|int|null $input): string|null
 {
+    if($input == null) return null;
+
     return "WO-".$input;
 }
 
@@ -51,5 +53,10 @@ function barcodeFormatter_DocumentNumber(string|int $input): string
 function barcodeFormatter_CostCenter(string|int $input): string
 {
     return "CC-".$input;
+}
+
+function barcodeFormatter_Project(string|int $input): string
+{
+    return "Pjct-".$input;
 }
 ?>

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$poData = array();
 
 	$poData['Status'] = $data['NewState'];
-	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$purchaseOrderNumber);
+	$query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNumber);
 	
 	dbRunQuery($dbLink,$query);
 	

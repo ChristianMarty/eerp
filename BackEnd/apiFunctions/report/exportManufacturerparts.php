@@ -27,15 +27,16 @@ if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode)
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query  = 	"SELECT vendor.Name, ManufacturerPartNumber, Status, GROUP_CONCAT(PartNo) AS PartNoList ";
-	$query .=	"FROM manufacturerPart ";
-	$query .=	"LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId ";
-	$query .=	"LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
-	$query .=	"LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId ";
-	$query .=	"GROUP BY manufacturerPart.Id";
-	
+
+	$query = <<<STR
+		SELECT vendor.Name, ManufacturerPartNumber, Status, GROUP_CONCAT(PartNo) AS PartNoList
+		FROM manufacturerPart
+		LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId
+		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id
+		LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId
+		GROUP BY manufacturerPart.Id
+	STR;
+
 	$stockResult = dbRunQuery($dbLink,$query);
 
 	dbClose($dbLink);

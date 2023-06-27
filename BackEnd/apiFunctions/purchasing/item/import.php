@@ -50,7 +50,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$orderNumber = $_GET["OrderNumber"];
 	
-	$query = "SELECT Id, VendorId FROM purchasOrder WHERE PoNo = ".$purchaseOrderNo.";";
+	$query = "SELECT Id, VendorId FROM purchaseOrder WHERE PoNo = ".$purchaseOrderNo.";";
 	
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -80,7 +80,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$poData['PurchaseDate'] = $supplierData['OrderDate'];
 	$poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$supplierData['CurrencyCode']."')";
 	
-	$query = dbBuildUpdateQuery($dbLink, "purchasOrder", $poData, "PoNo = ".$purchaseOrderNo);
+	$query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNo);
 	
 	dbRunQuery($dbLink,$query);
 	
@@ -94,11 +94,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($data['Title'] != "") $poCreate['Title'] = $data['Title'];
 	if($data['Description'] != "") $poCreate['Description'] = $data['Description'];
 	
-	$poCreate['PoNo']['raw'] = "purchasOrder_generatePoNo()";
+	$poCreate['PoNo']['raw'] = "purchaseOrder_generatePoNo()";
 	
-	$query = dbBuildInsertQuery($dbLink, "purchasOrder", $poCreate);
+	$query = dbBuildInsertQuery($dbLink, "purchaseOrder", $poCreate);
 	
-	$query .= "SELECT Id, PoNo FROM purchasOrder WHERE Id = LAST_INSERT_ID();";
+	$query .= "SELECT Id, PoNo FROM purchaseOrder WHERE Id = LAST_INSERT_ID();";
 	
 	$id = 0;
 	$poNo = '';
@@ -144,8 +144,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$sqlData['OrderReference'] = $line['OrderReference'];
 		$sqlData['StockPart']['raw'] = "b'1'";
 		
-		$sqlData['PurchasOrderId'] = $id;
-		$query = dbBuildInsertQuery($dbLink,"purchasOrder_itemOrder", $sqlData);
+		$sqlData['PurchaseOrderId'] = $id;
+		$query = dbBuildInsertQuery($dbLink,"purchaseOrder_itemOrder", $sqlData);
 		
 		
 		dbRunQuery($dbLink,$query);

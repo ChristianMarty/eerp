@@ -28,7 +28,7 @@
       </p>
 
       <p><b>Part Number: </b>
-        <router-link :to="'/mfrParts/partView/' + partData.ManufacturerPartId" class="link-type">
+        <router-link :to="'/manufacturerPart/item/' + partData.ManufacturerPartItemId" class="link-type">
           {{ partData.ManufacturerPartNumber }}
         </router-link>
       </p>
@@ -61,7 +61,7 @@
       <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
       <span>
         <p><b>Stock Certainty Factor: </b>{{ stockAccuracy.CertaintyFactor }}</p>
-        <el-rate v-model="stockAccuracy.CertaintyFactor * 5" disabled />
+        <el-rate v-model="stockAccuracy.CertaintyFactorRating" disabled />
       </span>
       <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">Location Transfer</el-button>
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
@@ -293,7 +293,7 @@ export default {
       this.stockHistoryKey++
     },
     getStockItem() {
-      stock.item(this.inputStockId).then(response => {
+      stock.item.get(this.inputStockId).then(response => {
         if (response.length === 0) {
           this.$message({
             showClose: true,
@@ -315,7 +315,7 @@ export default {
       })
     },
     getStockAccuracy() {
-      stock.accuracy(this.inputStockId).then(response => {
+      stock.item.accuracy(this.inputStockId).then(response => {
         this.stockAccuracy = response
       }).catch(response => {
         this.$message({
@@ -327,7 +327,7 @@ export default {
       })
     },
     getReservation() {
-      stock.reservation(this.inputStockId).then(response => {
+      stock.item.reservation(this.inputStockId).then(response => {
         this.reservation = response
       }).catch(response => {
         this.$message({
@@ -339,7 +339,7 @@ export default {
       })
     },
     getPurchaseInformation() {
-      stock.purchaseInformation(this.inputStockId).then(response => {
+      stock.item.purchaseInformation(this.inputStockId).then(response => {
         this.purchaseInformation = response
       }).catch(response => {
         this.$message({
@@ -426,7 +426,7 @@ export default {
       this.deleteDialogVisible = true
     },
     deleteStockItem() {
-      stock.delete(this.inputStockId, this.deleteNote).then(response => {
+      stock.item.delete(this.inputStockId, this.deleteNote).then(response => {
         this.deleteDialogVisible = false
         this.deleteNote = ''
         this.loadItem()

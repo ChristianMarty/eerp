@@ -9,6 +9,7 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../databaseConnector.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 {
@@ -21,10 +22,10 @@ if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	$token = dbEscapeString($dbLink,$data["EditToken"]);
 	
-	$workOrderNo = null;
-	if(isset($data['WorkOrderNo']) and $data['WorkOrderNo'] !== null)
+	$workOrderNumber = null;
+	if(isset($data['WorkOrderNumber']) and $data['WorkOrderNumber'] !== null)
 	{
-		$workOrderNo = dbEscapeString($dbLink,$data['WorkOrderNo']);
+		$workOrderNumber = barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
 	}
 	
 	$note = null;
@@ -48,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$sqlData['Quantity'] = $quantity;
 	
 	$sqlData['Note'] = $note;
-	if($workOrderNo != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNo = ".$workOrderNo.")";
+	if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = ".$workOrderNumber.")";
 	$query = dbBuildUpdateQuery($dbLink,"partStock_history", $sqlData, 'EditToken = "'.$token.'"');
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -68,10 +69,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$output = array();
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$stockNo = dbEscapeString($dbLink, $data["StockNo"]);
-	$stockNo = strtolower($stockNo);
-	$stockNo = str_replace("stk-","",$stockNo);
+
+	$stockNo = barcodeParser_StockNumber($data["StockNo"]);
 
 	$query = 'SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'"';
 	$result = dbRunQuery($dbLink,$query);

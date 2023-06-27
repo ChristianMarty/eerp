@@ -48,12 +48,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			if($id != 0)
 			{	
 				$condition = "Id = ".$id;
-				$query = dbBuildUpdateQuery($dbLink,"purchasOrder_additionalCharges", $sqlData, $condition);
+				$query = dbBuildUpdateQuery($dbLink,"purchaseOrder_additionalCharges", $sqlData, $condition);
 			}
 			else
 			{
-				$sqlData['PurchasOrderId']['raw'] = "(SELECT Id FROM purchasOrder WHERE PoNo = '".$poNo."' )";
-				$query = dbBuildInsertQuery($dbLink,"purchasOrder_additionalCharges", $sqlData);
+				$sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PoNo = '".$poNo."' )";
+				$query = dbBuildInsertQuery($dbLink,"purchaseOrder_additionalCharges", $sqlData);
 			}
 			
 			
@@ -73,7 +73,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		if($lineId != 0)
 		{
-			$query = "DELETE FROM purchasOrder_additionalCharges WHERE Id = ".$lineId." AND PurchasOrderId = (SELECT Id FROM purchasOrder WHERE PoNo = '".$poNo."' );";
+			$query = "DELETE FROM purchaseOrder_additionalCharges WHERE Id = ".$lineId." AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '".$poNo."' );";
 			dbRunQuery($dbLink,$query);
 			dbClose($dbLink);
 		}

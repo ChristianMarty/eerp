@@ -9,24 +9,32 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
+	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
+	if(!$stockNumber) sendResponse(null, "StockNo invalid");
 		
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$temp = dbEscapeString($dbLink, $_GET["StockNo"]);
-	$temp = strtolower($temp);
-	$stockNo = str_replace("stk-","",$temp);
-	
-	$query = "SELECT partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, workOrder.Title AS WorkOrderTitle, workOrder.WorkOrderNo, partStock_history.Note, partStock_history.EditToken FROM partStock_history ";
-	$query .= "LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId ";
-	$query .= "WHERE StockId = (SELECT Id FROM partStock WHERE StockNo = '".$stockNo."') ";
-	$query .="ORDER BY partStock_history.Id ASC";
 	
 
+	$query = <<<STR
+		SELECT 
+			partStock_history.ChangeType, 
+			partStock_history.Quantity, 
+			partStock_history.Date, 
+			workOrder.Title AS WorkOrderTitle, 
+			workOrder.WorkOrderNumber, 
+			partStock_history.Note, 
+			partStock_history.EditToken 
+		FROM partStock_history 
+		LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId 
+		WHERE StockId = (SELECT Id FROM partStock WHERE StockNo = '$stockNumber') 
+		ORDER BY partStock_history.Id ASC
+	STR;
 
 	$result = dbRunQuery($dbLink,$query);
 	$output = array();
@@ -72,6 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$r['Type'] = $type;
 		$r['Description'] = trim($description);
+		$r['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($r['WorkOrderNumber']);
 		$output[] = $r;
 	}
 	

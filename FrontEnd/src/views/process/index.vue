@@ -17,6 +17,21 @@
       <el-table-column prop="Description" label="Description" sortable />
     </el-table>
 
+    <el-dialog title="Process Parameter" :visible.sync="showDialog" width="50%" center>
+      <el-form size="mini" label-width="220px">
+        <template v-for="item in selectedProcess.Parameter">
+          <el-form-item :label="item.Name">
+            <el-input v-model="formData.Data" type="textarea" />
+          </el-form-item>
+        </template>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="upload()">Confirm</el-button>
+        <el-button @click="showDialog = false">Cancel</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -39,6 +54,15 @@ export default {
     this.getData()
   },
   methods: {
+    upload() {
+      requestBN({
+        method: 'post',
+        url: this.selectedProcess.Path,
+        data: this.formData
+      }).then(response => {
+
+      })
+    },
     run(process) {
       if (process.Parameter !== null) {
         this.selectedProcess = process

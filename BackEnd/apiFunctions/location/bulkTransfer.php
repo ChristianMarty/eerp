@@ -19,10 +19,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$oldLocationNr = dbEscapeString($dbLink,strtolower($data['SourceLocationNumber']));
 	$newLocationNr = dbEscapeString($dbLink,strtolower($data['DestinationLocationNumber']));
 	
-	if(substr($oldLocationNr,0,4) != "loc-")  sendResponse(null,"Invalid sourse location");
+	if(!str_starts_with($oldLocationNr, "loc-"))  sendResponse(null,"Invalid source location");
 	$oldLocationNr = str_replace("loc-","",$oldLocationNr);
 	
-	if(substr($newLocationNr,0,4) != "loc-")  sendResponse(null,"Invalid destination location");
+	if(!str_starts_with($newLocationNr, "loc-"))  sendResponse(null,"Invalid destination location");
 	$newLocationNr = str_replace("loc-","",$newLocationNr);
 	
 	$invQuery = "UPDATE inventory SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
