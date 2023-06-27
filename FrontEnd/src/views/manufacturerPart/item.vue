@@ -6,7 +6,7 @@
       <router-link :to="'/manufacturerPart/series/item/' + partData.SeriesId" class="link-type">
         <span> {{ partData.SeriesTitle }}</span> - {{ partData.SeriesDescription }}
       </router-link>
-   </p>
+    </p>
     <p><b>Package: </b>{{ partData.Package }}</p>
     <el-divider />
 

@@ -9,6 +9,8 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {

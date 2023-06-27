@@ -1,13 +1,14 @@
 import eerpApi from '@/api/apiQuery'
 
 class ProductionPart {
-  item(ProductionPartNumber) {
+  item(ProductionPartNumber, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/part/productionPart',
         methood: 'get',
         params: {
-          ProductionPartNumber: ProductionPartNumber
+          ProductionPartNumber: ProductionPartNumber,
+          ManufacturerPartNumberId: ManufacturerPartNumberId
         }
       }).then(response => {
         if (response.error == null) {

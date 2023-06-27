@@ -34,7 +34,7 @@ export default {
   },
   watch: {
     '$props.data': {
-     // if(this.$props.data !== null)
+      // if(this.$props.data !== null)
       handler(newVal) {
         if (newVal !== null) this.loading = false
       }

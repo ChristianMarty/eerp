@@ -18,17 +18,23 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$hideNoManufacturerPart = false;
 	if(isset($_GET["HideNoManufacturerPart"])) $hideNoManufacturerPart = filter_var($_GET["HideNoManufacturerPart"], FILTER_VALIDATE_BOOLEAN);
-	
-	$query  = "SELECT numbering.Prefix, productionPart.Number, Description FROM productionPart ";
-	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id ";
-    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
+
+    $query = <<<STR
+        SELECT 
+            numbering.Prefix, 
+            productionPart.Number, 
+            Description 
+        FROM productionPart
+        LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+    STR;
 
 	$queryParam = array();
 	
-	if(isset($_GET["ManufacturerPartId"]))
+	if(isset($_GET["ManufacturerPartNumberId"]))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		$queryParam[] = "productionPartMapping.ManufacturerPartId = '" . $temp . "'";
+		$temp = intval( $_GET["ManufacturerPartNumberId"]);
+		$queryParam[] = "productionPartMapping.ManufacturerPartNumberId = '" . $temp . "'";
 	}
 	else if(isset($_GET["ProductionPartNumber"]))
 	{
@@ -38,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if($hideNoManufacturerPart)
 	{
-		$queryParam[] = "ManufacturerPartId IS NOT NULL";
+		$queryParam[] = "ManufacturerPartNumberId IS NOT NULL";
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);

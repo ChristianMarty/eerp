@@ -308,7 +308,7 @@ export default {
       })
     },
     skuSearch() {
-      const line = this.lines.find(element => element.SupplierSku.trim() == this.searchInput.trim())
+      const line = this.lines.find(element => element.SupplierSku.trim() === this.searchInput.trim())
 
       if (line === undefined) {
         this.$message({

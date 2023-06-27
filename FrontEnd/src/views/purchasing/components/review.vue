@@ -6,13 +6,13 @@
       <el-button v-permission="['purchasing.edit']" type="primary" @click="createMatch()">Match</el-button>
       <el-button v-permission="['purchasing.edit']" type="info" @click="getOrderLines()">Reload</el-button>
     </span>
-    <p> </p>
+    <p />
 
     <el-table
-      v-loading="loading"
-      element-loading-text="Loading Order Lines"
       ref="itemTable"
       :key="tableKey"
+      v-loading="loading"
+      element-loading-text="Loading Order Lines"
       :data="matchedData.Lines"
       border
       :cell-style="{ padding: '0', height: '20px' }"

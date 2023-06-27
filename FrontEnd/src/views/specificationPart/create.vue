@@ -1,13 +1,10 @@
 <template>
-  <div class="app-container">
-
-  </div>
+  <div class="app-container" />
 </template>
 
 <script>
 import WorkOrder from '@/api/workOrder'
 const workOrder = new WorkOrder()
-
 
 export default {
   components: {},

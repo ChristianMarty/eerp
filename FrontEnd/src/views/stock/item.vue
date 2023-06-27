@@ -35,7 +35,7 @@
       <el-divider />
       <h4>Production Parts:</h4>
       <el-table :data="productionPartData" style="width: 100%">
-        <el-table-column prop="ProductionPartNumber" label="Part No" sortable width="100">
+        <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
           <template slot-scope="{ row }">
             <router-link :to="'/prodParts/prodPartView/' + row.ProductionPartNumber" class="link-type">
               <span>{{ row.ProductionPartNumber }}</span>
@@ -230,7 +230,7 @@ export default {
       printer: {},
       selectedPrinterId: 0,
       selectedLabelId: 0,
-      productionPartData: null,
+      productionPartData: [],
       printDialogVisible: false,
       addStockDialogVisible: false,
       removeStockDialogVisible: false,
@@ -351,9 +351,9 @@ export default {
       })
     },
     getProductionPartData() {
-      if (this.partData.ManufacturerPartId === null) return
+      if (this.partData.ManufacturerPartNumberId === null) return
 
-      productionPart.item(this.partData.ManufacturerPartId).then(response => {
+      productionPart.item(null, this.partData.ManufacturerPartNumberId).then(response => {
         this.productionPartData = response
       }).catch(response => {
         this.$message({

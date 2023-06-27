@@ -1,7 +1,5 @@
 <template>
-  <div class="app-container">
-
-  </div>
+  <div class="app-container" />
 </template>
 
 <script>
@@ -34,7 +32,7 @@ export default {
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
     }
-   
+
   }
 }
 </script>

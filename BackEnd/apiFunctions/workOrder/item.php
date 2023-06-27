@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -32,7 +33,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$workOrderData = $r;
 	}
-	
+
+    $workOrderData['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($workOrderNumber);
 	$workOrderId = $workOrderData['WorkOrderId'];
 	
 	$partUsed = array();

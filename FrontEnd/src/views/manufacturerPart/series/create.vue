@@ -60,7 +60,6 @@ export default {
     getManufactures() {
       vendor.search(false, true).then(response => {
         this.manufacturers = response
-
       }).catch(response => {
         this.$message({
           showClose: true,

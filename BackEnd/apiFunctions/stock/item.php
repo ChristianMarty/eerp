@@ -17,12 +17,29 @@ require_once __DIR__ . "/../util/_user.php";
 function _stockPartQuery(string $stockNo): string
 {
 	return <<<STR
-	SELECT 	partStock.Id AS PartStockId, partStock.DeleteRequestUserId, supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, 
-	       	partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturer.Id AS ManufacturerId, partStock.LotNumber, 
-			manufacturer.Id AS ManufacturerId, manufacturerPart_partNumber.Number AS ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date, manufacturerPart_partNumber.Description,
+	SELECT 	partStock.Id AS PartStockId, 
+	        partStock.DeleteRequestUserId, 
+	        supplier.Name AS SupplierName, 
+	        supplierPart.SupplierPartNumber, 
+	       	partStock.OrderReference, 
+	       	partStock.StockNo, 
+	       	manufacturer.Name AS ManufacturerName, 
+	       	manufacturer.Id AS ManufacturerId, 
+	       	partStock.LotNumber, 
+			manufacturer.Id AS ManufacturerId, 
+			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+			manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
+			partStock.ManufacturerPartId, 
+			partStock.Date, 
+			manufacturerPart_partNumber.Description,
 			manufacturerPart_item.Id AS ManufacturerPartItemId,
-			partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, 
-			hc.CreateQuantity,  partStock_getQuantity(partStock.StockNo) AS Quantity, r.ReservedQuantity AS ReservedQuantity, lc.LastCountDate AS LastCountDate, hc.CreateData 
+			partStock.LocationId, 
+			location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, 
+			hc.CreateQuantity,  
+			partStock_getQuantity(partStock.StockNo) AS Quantity, 
+			r.ReservedQuantity AS ReservedQuantity, 
+			lc.LastCountDate AS LastCountDate, 
+			hc.CreateData 
 	FROM partStock 
 	    
 	LEFT JOIN (

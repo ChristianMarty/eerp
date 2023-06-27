@@ -63,7 +63,7 @@
       <el-table-column prop="Date" label="Date" />
       <el-table-column prop="Quantity" label="Quantity" />
       <el-table-column prop="LocationName" label="Location" />
-    </el-table> 
+    </el-table>
 
     <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
 
@@ -148,7 +148,7 @@
       />
     </el-table>
     <p />
-  <!--  <table>
+    <!--  <table>
       <tr>
         <td><b>Minimum:</b></td>
         <td>{{ leadTime.Statistics.Minimum }}</td>
@@ -169,7 +169,7 @@
 
     <h1>Question: Should price and lead time be combined? -> Rename to Quotation?</h1>
 
-   <h2>Price Reference</h2>
+    <h2>Price Reference</h2>
     <el-table
       :data="price.Data"
       style="width: 100%; margin-top:10px"
@@ -247,7 +247,7 @@
       />
     </el-table>
     <p />
-   <!--<table>
+    <!--<table>
       <tr>
         <td><b>Minimum:</b></td>
         <td>{{ price.Statistics.Minimum }}</td>
@@ -264,7 +264,7 @@
         <td><b>Weighted Average:</b></td>
         <td>{{ price.Statistics.WeightedAverage }}</td>
       </tr>
-    </table>--> 
+    </table>-->
 
     <h2>Purchase Orders</h2>
 
@@ -382,7 +382,7 @@ export default {
     },
     getPartLookup() {
       this.partLookup = []
-     /* requestBN({
+      /* requestBN({
         url: '/productionPart/partLookup',
         methood: 'get',
         params: { ProductionPartNumber: this.$route.params.partNo }
@@ -392,7 +392,7 @@ export default {
     },
     getLeadTime() {
       this.leadTime = []
-     /* requestBN({
+      /* requestBN({
         url: '/productionPart/leadTime',
         methood: 'get',
         params: { ProductionPartNumber: this.$route.params.partNo }
@@ -402,7 +402,7 @@ export default {
     },
     getPrice() {
       this.price = []
-      /*requestBN({
+      /* requestBN({
         url: '/productionPart/price',
         methood: 'get',
         params: { ProductionPartNumber: this.$route.params.partNo }
