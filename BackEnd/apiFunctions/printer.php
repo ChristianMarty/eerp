@@ -14,7 +14,6 @@ require_once __DIR__ . "/../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$param = array();
 	if(isset($_GET["Type"])) $param['Type'] =  dbEscapeString($dbLink, $_GET["Type"]);
@@ -44,5 +43,4 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($labels);
 }
-
 ?>

@@ -16,7 +16,7 @@ function filterInv($var): int
 	else return 0;
 }
 
-function filteStk($var): int
+function filterStk($var): int
 {
 	if(explode("-",strtolower($var))[0] == "stk") return 1;
 	else return 0;
@@ -67,7 +67,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	// Split into different categories
 	$invList = array_filter($itemList, "filterInv");
-	$stkList = array_filter($itemList, "filteStk");
+	$stkList = array_filter($itemList, "filterStk");
 	$locList = array_filter($itemList, "filterLoc");
 	$asuList = array_filter($itemList, "filterAsu");
 	

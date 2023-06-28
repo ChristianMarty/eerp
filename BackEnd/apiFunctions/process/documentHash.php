@@ -17,7 +17,6 @@ $description = "Calculate missing document hash.";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$query = "SELECT  `Id`, `Path`, `Type`, `Hash` FROM `document` WHERE `Hash` IS NULL";
 	$queryResult = dbRunQuery($dbLink,$query);

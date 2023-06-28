@@ -13,6 +13,7 @@ require_once __DIR__ . "/../../../../config.php";
 
 require_once __DIR__ . "/../../_functions.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
+require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -29,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $invNumber = barcodeParser_InventoryNumber($invNumber);
     
-    if(!$invNumber) sendResponse(null,"Inventory number invalide");
+    if(!$invNumber) sendResponse(null,"Inventory number invalid");
 
     $query = <<<STR
         SELECT Id, InvNo, Manufacturer, Type, SerialNumber FROM inventory WHERE  InvNo = $invNumber   

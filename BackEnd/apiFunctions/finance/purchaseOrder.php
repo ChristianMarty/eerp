@@ -18,9 +18,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $year = dbEscapeString($dbLink,$_GET["Year"]);
 
-
-
-
     $query = <<<STR
         SELECT  MONTH(PurchaseDate) AS Month, SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price) AS Merchandise,
         SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price*(finance_tax.Value/100)) + shipping.VAT AS VAT,

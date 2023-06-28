@@ -14,19 +14,38 @@ require_once __DIR__ . "/../../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query   = "SELECT orderRequest.Id AS OrderRequestId, GROUP_CONCAT(productionPart.Number) AS PartNoList, supplierPart.ManufacturerPartId, orderRequest.SupplierPartId, vendor.Id AS SupplierId, vendor.Name AS SupplierName, supplierPart.SupplierPartNumber, supplierPart.SupplierPartLink, Quantity, CreationDate, orderRequest.Description, ";
-	$query  .= "mfrPart.ManufacturerPartNumber, mfrPart.ManufacturerName ";
-	$query  .= "FROM orderRequest ";
-	$query  .= "LEFT JOIN supplierPart ON supplierPart.Id = orderRequest.SupplierPartId ";
-	$query  .= "LEFT JOIN vendor ON vendor.Id = supplierPart.VendorId ";
-	$query  .= "LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId ";
-	$query  .= "LEFT JOIN (SELECT ManufacturerPartNumber, manufacturerPart.Id AS Id, vendor.Name AS ManufacturerName FROM manufacturerPart LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId)mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId ";
-	
-	$query  .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = mfrPart.Id ";
-	$query  .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-	
+
+    $query = <<< STR
+        SELECT 
+            orderRequest.Id AS OrderRequestId, 
+            GROUP_CONCAT(productionPart.Number) AS PartNoList, 
+            supplierPart.ManufacturerPartId, 
+            orderRequest.SupplierPartId, 
+            vendor.Id AS SupplierId, 
+            vendor.Name AS SupplierName, 
+            supplierPart.SupplierPartNumber, 
+            supplierPart.SupplierPartLink, 
+            Quantity, 
+            CreationDate, 
+            orderRequest.Description,
+            mfrPart.ManufacturerPartNumber, 
+            mfrPart.ManufacturerName
+        FROM orderRequest
+        LEFT JOIN supplierPart ON supplierPart.Id = orderRequest.SupplierPartId
+        LEFT JOIN vendor ON vendor.Id = supplierPart.VendorId
+        LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId
+        LEFT JOIN (
+            SELECT 
+                ManufacturerPartNumber, 
+                manufacturerPart.Id AS Id, 
+                vendor.Name AS ManufacturerName 
+            FROM manufacturerPart 
+                LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId
+            )mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId 
+        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = mfrPart.Id
+        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+    STR;
+
 	if(isset($_GET["ManufacturerPartId"])) $manufacturerPartId =  dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
 	if(isset($_GET["SupplierId"])) $supplierId =  dbEscapeString($dbLink, $_GET["SupplierId"]);
 	
@@ -56,7 +75,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$supplierPartId = $data['data']['SupplierPartId'];
 	$quantity = $data['data']['Quantity'];
@@ -71,8 +89,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$result = dbRunQuery($dbLink,$query);
 	
-	dbClose($dbLink);	
-	
+	dbClose($dbLink);
 	
 	sendResponse(null,null);
 }

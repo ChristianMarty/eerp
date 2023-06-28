@@ -13,7 +13,6 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-
 	$children = true;
 	if(isset($_GET["children"]))
 	{
@@ -37,9 +36,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	// Query attributes
 	$attributes  = array();
-	$query = "SELECT manufacturerPart_attribute.Id, manufacturerPart_attribute.ParentId, manufacturerPart_attribute.Name, unitOfMeasurement.Symbol, unitOfMeasurement.Unit, manufacturerPart_attribute.Type, Scale ";
-	$query .= "FROM `manufacturerPart_attribute` ";
-	$query .= "LEFT JOIN `unitOfMeasurement` ON unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId ";
+    $query = <<<STR
+        SELECT 
+            manufacturerPart_attribute.Id,
+            manufacturerPart_attribute.ParentId, 
+            manufacturerPart_attribute.Name, 
+            unitOfMeasurement.Symbol, 
+            unitOfMeasurement.Unit, 
+            manufacturerPart_attribute.Type, 
+            Scale
+        FROM `manufacturerPart_attribute` 
+        LEFT JOIN `unitOfMeasurement` ON unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
+    STR;
 	
 	$result = dbRunQuery($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 

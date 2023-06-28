@@ -14,9 +14,7 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$query = "SELECT * FROM manufacturerPart_class ORDER BY `Name` ASC";
 	

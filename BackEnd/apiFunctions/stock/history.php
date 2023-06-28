@@ -19,7 +19,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!$stockNumber) sendResponse(null, "StockNo invalid");
 		
 	$dbLink = dbConnect();
-	
 
 	$query = <<<STR
 		SELECT 

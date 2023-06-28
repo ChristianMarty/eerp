@@ -17,17 +17,15 @@ $description = "Import Production Parts based on Order Reference.";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query  = "INSERT INTO productionPart(PartNo) SELECT OrderReference FROM partStock WHERE NOT EXISTS (SELECT PartNo FROM productionPart ";
-	$query .= "WHERE productionPart.PartNo =  partStock.OrderReference ) AND OrderReference IS NOT NULL AND OrderReference != '' GROUP BY OrderReference;";
+
+    $query = <<<STR
+        INSERT INTO productionPart(PartNo) SELECT OrderReference FROM partStock WHERE NOT EXISTS (SELECT PartNo FROM productionPart
+        WHERE productionPart.PartNo =  partStock.OrderReference ) AND OrderReference IS NOT NULL AND OrderReference != '' GROUP BY OrderReference;
+    STR;
+
 	$queryResult = dbRunQuery($dbLink,$query);
 	
 	dbClose($dbLink);
-	
-	
 	sendResponse(null);
 }
-
-
 ?>

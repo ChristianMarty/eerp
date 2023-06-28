@@ -17,10 +17,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["CurrencyCode"]) AND !isset($_GET["CurrencyId"]))sendResponse(null, "CurrencyCode or CurrencyId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	global $accountingCurrencyId;
-	
 
 	$error = null;
 	

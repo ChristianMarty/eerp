@@ -9,11 +9,13 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/databaseConnector.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
+
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$baseQuery = <<<STR
 		SELECT 
@@ -142,19 +144,10 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
-	
+	if(!isset($_GET["PurchaseOrderNo"])) sendResponse(null,"PO Number not defined!");
+	$poNo = barcodeParser_PurchaseOrderNumber($_GET['PurchaseOrderNo']);
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$error = null;
-	
-	if(!isset($_GET["PurchaseOrderNo"])) $error = "PO Number not defined!";
-		
-	$poNo = dbEscapeString($dbLink, $_GET['PurchaseOrderNo']);
-	
-	$poNo = strtolower($poNo);
-	$poNo = str_replace("po","",$poNo);
-	$poNo = str_replace("-","",$poNo);
 
 	$poData = array();
 	$poData['VendorId'] = intval($data['data']['SupplierId']);
@@ -182,6 +175,6 @@ else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$output = array();
 	
 	dbClose($dbLink);	
-	sendResponse($output,$error);
+	sendResponse($output);
 }
 ?>

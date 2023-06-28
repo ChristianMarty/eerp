@@ -23,7 +23,6 @@ if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode)
 	exit;
 }
 
-
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
@@ -40,8 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$stockResult = dbRunQuery($dbLink,$query);
 
 	dbClose($dbLink);
-	
-	
+
 	$locations = getLocations();
 	
 	$filename = "Manufacturer Part Export ".date("Y-m-d H:i:s").".csv";

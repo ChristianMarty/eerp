@@ -38,7 +38,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
 	} 
 	else 
 	{
-	  sendResponse(null,"File delete faild.");
+	  sendResponse(null,"File delete failed.");
 	}	
 }
 ?>

@@ -10,7 +10,6 @@
 
 include_once __DIR__ . "/../databaseConnector.php";
 
-
 function siFormatter($value, $scale = 1): string
 {
     if(!is_numeric($value)) return $value;
@@ -35,10 +34,7 @@ function siFormatter($value, $scale = 1): string
 
 	}
 
-	
-	dbClose($dbLink);	
-	
+	dbClose($dbLink);
 	return $output;
 }
-
 ?>

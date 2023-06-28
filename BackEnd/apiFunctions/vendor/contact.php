@@ -13,7 +13,6 @@ require_once __DIR__ . "/../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$query = "SELECT * FROM vendor_contact ";
 	if(isset($_GET["VendorId"])) $query .= "WHERE  VendorId = ".dbEscapeString($dbLink, $_GET["VendorId"]);
@@ -29,9 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$address[] = $r;
 	}
 
-	dbClose($dbLink);	
-	
+	dbClose($dbLink);
 	sendResponse($address);
 }
-
 ?>

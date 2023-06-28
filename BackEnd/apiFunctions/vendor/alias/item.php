@@ -15,7 +15,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["AliasId"]))sendResponse(null, "AliasId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$aliasId = dbEscapeString($dbLink, trim($_GET["AliasId"]));
 	
@@ -39,7 +38,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if(!isset($data["VendorId"]))sendResponse(null, "VendorId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$inserData = array();
 	$inserData['VendorId']= intval($data['VendorId']);
@@ -65,7 +63,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	if(!isset($data["AliasId"]))sendResponse(null, "AliasId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$aliasId = intval($data["AliasId"]);
 	

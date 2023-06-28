@@ -14,10 +14,8 @@ require_once __DIR__ . "/../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	// Query attributes
-
 	$attributes  = array();
 
     $query = <<<STR

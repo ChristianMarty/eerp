@@ -50,8 +50,4 @@ function getDocuments($documentIds): array
 
 	return $documents;
 }
-
-
-
-
 ?>

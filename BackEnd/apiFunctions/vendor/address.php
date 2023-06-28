@@ -13,10 +13,15 @@ require_once __DIR__ . "/../databaseConnector.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
-	$query = "SELECT *, vendor_address.Id AS Id, country.Name AS CountryName  FROM vendor_address ";
-	$query .= "LEFT JOIN country ON country.Id = vendor_address.CountryId ";
+    $query = <<<STR
+        SELECT *, 
+               vendor_address.Id AS Id, 
+               country.Name AS CountryName  
+        FROM vendor_address
+        LEFT JOIN country ON country.Id = vendor_address.CountryId 
+    STR;
+
 	if(isset($_GET["VendorId"])) $query .= "WHERE  VendorId = ".dbEscapeString($dbLink, $_GET["VendorId"]);
 	
 	$result = dbRunQuery($dbLink,$query);
@@ -30,10 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$address[] = $r;
 	}
 
-	dbClose($dbLink);	
-	
+	dbClose($dbLink);
 	sendResponse($address);
 }
-
-	
 ?>

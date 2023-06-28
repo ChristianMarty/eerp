@@ -8,26 +8,44 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../databaseConnector.php";
+require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
 	if(!isset($_GET["ProductionPartNumber"])) sendResponse(NULL, "Production Part Number Undefined");
+    $partNo = barcodeParser_ProductionPart($_GET["ProductionPartNumber"]);
 
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$partNo = dbEscapeString($dbLink, $_GET["ProductionPartNumber"]);
 
-	$query = "SELECT numbering.Prefix, productionPart.Number, productionPart.Description AS ProductionPartDescription, manufacturerPart.Id AS PartId, vendor.Name AS ManufacturerName, manufacturerPart.ManufacturerPartNumber, manufacturerPart.Status AS LifecycleStatus, partStock.StockNo, partStock.Date, partStock_getQuantity(partStock.StockNo) AS Quantity, productionPart.StockMinimum, productionPart.StockMaximum, productionPart.StockWarning, location_getName(partStock.LocationId) AS LocationName FROM manufacturerPart ";
-	$query .= "LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId ";
-	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id ";
-	$query .= "LEFT JOIN partStock ON partStock.ManufacturerPartId = manufacturerPart.Id ";
-	$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId ";
-    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
-	$query .= "WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '".$partNo."'";
+    $query = <<<STR
+        SELECT 
+            numbering.Prefix, 
+            productionPart.Number, 
+            productionPart.Description AS ProductionPartDescription, 
+            manufacturerPart.Id AS PartId, 
+            vendor.Name AS ManufacturerName, 
+            manufacturerPart.ManufacturerPartNumber, 
+            manufacturerPart.Status AS LifecycleStatus, 
+            partStock.StockNo, 
+            partStock.Date, 
+            partStock_getQuantity(partStock.StockNo) AS Quantity, 
+            productionPart.StockMinimum, 
+            productionPart.StockMaximum, 
+            productionPart.StockWarning, 
+            location_getName(partStock.LocationId) AS LocationName 
+        FROM manufacturerPart
+        LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId
+        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id
+        LEFT JOIN partStock ON partStock.ManufacturerPartId = manufacturerPart.Id
+        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$partNo'
+    STR;
+
+
+
 
 	$result = mysqli_query($dbLink,$query);
 	

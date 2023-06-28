@@ -13,6 +13,7 @@ require_once __DIR__ . "/../../../../config.php";
 
 require_once __DIR__ . "/../../_functions.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
+require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -20,13 +21,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $dbLink = dbConnect();
 
-    $poNumber = $data ['PurchaseOrderNumber'];
     $note = $data ['Note'];
-
-    $poNumber = barcodeParser_PurchaseOrderNumber($poNumber);
+    $poNumber = barcodeParser_PurchaseOrderNumber($data ['PurchaseOrderNumber']);
 
     $query = <<<STR
-    SELECT Id, PoNo, PurchaseDate, DocumentIds FROM purchaseOrder WHERE  PoNo = $poNumber   
+        SELECT Id, PoNo, PurchaseDate, DocumentIds FROM purchaseOrder WHERE  PoNo = $poNumber   
     STR;
 
     $result = dbRunQuery($dbLink,$query);
@@ -43,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         sendResponse(null,"PO-Number not found");
     }
 
-    $name= "PO-".$po['PoNo']."_".$po['PurchaseDate'];
+    $name= barcodeFormatter_PurchaseOrderNumber($po['PoNo'])."_".$po['PurchaseDate'];
 
     dbClose($dbLink);
 

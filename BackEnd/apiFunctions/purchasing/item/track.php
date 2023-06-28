@@ -20,10 +20,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$receivalId = intval(dbEscapeString($dbLink, $_GET["ReceivalId"]));
 	$output = array();
-	
-	$query  = "SELECT StockNo,  partStock_history.Quantity AS CreateQuantity FROM partStock ";
-	$query .= "LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id ";
-	$query .= "WHERE ReceivalId = ".$receivalId." AND partStock_history.ChangeType = 'Create' ";
+
+    $query = <<< STR
+        SELECT 
+            StockNo,
+            partStock_history.Quantity AS CreateQuantity 
+        FROM partStock
+        LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id
+        WHERE ReceivalId = $receivalId AND partStock_history.ChangeType = 'Create'
+    STR;
 	
 	$result = dbRunQuery($dbLink,$query);
 
@@ -55,10 +60,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$output[] = $temp;
 	}
 
-
 	dbClose($dbLink);	
 	sendResponse($output);
 }
-
-
 ?>

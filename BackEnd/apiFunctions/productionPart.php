@@ -14,14 +14,19 @@ require_once __DIR__ . "/../config.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$hideNoManufacturerPart = false;
 	if(isset($_GET["HideNoManufacturerPart"])) $hideNoManufacturerPart = filter_var($_GET["HideNoManufacturerPart"], FILTER_VALIDATE_BOOLEAN);
-	
-	$query  = "SELECT numbering.Prefix, productionPart.Number, Description FROM productionPart ";
-	$query .= "LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id ";
-    $query .= "LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId ";
+
+    $query = <<<STR
+        SELECT 
+            numbering.Prefix, 
+            productionPart.Number, 
+            Description 
+        FROM productionPart
+        LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+    STR;
 
 	$queryParam = array();
 	

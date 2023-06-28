@@ -11,6 +11,8 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -49,10 +51,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	foreach($data['DocumentBarcodes'] as $key => $line)
 	{
-		$docNumber = dbEscapeString($dbLink,$line);
-		$docNumber = strtolower($docNumber);
-		$docNumber = str_replace("doc-","",$docNumber);
-		
+        $docNumber = barcodeParser_DocumentNumber($line);
 		$docList .= $docNumber.",";
 	}
     $docList = substr($docList, 0, -1);

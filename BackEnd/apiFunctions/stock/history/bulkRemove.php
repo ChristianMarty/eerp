@@ -83,11 +83,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		}
 		
 		dbClose($dbLink);
-
-		
 	}
-		
 	sendResponse(null,$error);
 }
-
 ?>

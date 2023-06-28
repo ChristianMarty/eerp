@@ -9,7 +9,9 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
-require __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -23,21 +25,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$testDate = dbEscapeString($dbLink, $_GET["TestDate"]);
 	}
-	
-	$temp = dbEscapeString($dbLink, $_GET["TestSystemNumber"]);
-	$temp = strtolower($temp);
-	$testSystemNumber = str_replace("tsy-","",$temp);
 
-	$query  = "SELECT * FROM testSystem ";
-	$query .= "WHERE TestSystemNumber = '".$testSystemNumber."' LIMIT 1";
-	
+    $testSystemNumber = barcodeParser_TestSystemNumber($_GET["TestSystemNumber"]);
+
+    $query = <<<STR
+        SELECT * FROM testSystem
+        WHERE TestSystemNumber = '$testSystemNumber' LIMIT 1
+    STR;
+
+
 	$result = dbRunQuery($dbLink,$query);
 	
 	$testSystem = mysqli_fetch_assoc($result);
 	
 	$output = array();
 	$output['TestSystemNumber'] = $testSystem['TestSystemNumber'];
-	$output['TestSystemBarcode'] = "TSY-".$testSystem['TestSystemNumber'];
+	$output['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($testSystem['TestSystemNumber']);
 	$output['Name'] = $testSystem['Name'];
 	$output['Description'] = $testSystem['Description'];
     $output['Item'] = array();
@@ -72,7 +75,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$temp = $r;
 		$temp['InventoryNumber'] = $invNo;
-		$temp['InventoryBarcode'] = "Inv-".$invNo;
+		$temp['InventoryBarcode'] = barcodeFormatter_InventoryNumber($invNo);
 		
 		if($r['CalibrationRequired'] == 0) 
 		{

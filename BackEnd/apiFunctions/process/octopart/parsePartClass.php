@@ -17,12 +17,12 @@ $description = "Parse Octopart Class and converts it to BlueNova Part Class.";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT Id, OctopartPartData ";
-	$query .= "FROM `manufacturerPart` ";
 
-	$query .= "WHERE OctopartPartData IS NOT NULL";
+    $query = <<<STR
+        SELECT Id, OctopartPartData
+        FROM `manufacturerPart`
+        WHERE OctopartPartData IS NOT NULL
+    STR;
 	
 	$queryResult = dbRunQuery($dbLink,$query);
 	

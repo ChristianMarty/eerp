@@ -23,11 +23,9 @@ if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode)
 	exit;
 }
 
-
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$query  = <<<STR
 		SELECT partStock_view.*, GROUP_CONCAT(PartNo) AS PartNoList FROM  partStock_view

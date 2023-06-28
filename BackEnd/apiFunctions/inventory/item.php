@@ -13,16 +13,14 @@ require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/location.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/getPurchaseInformation.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(isset($_GET["InventoryNumber"]))
 	{
-		$InvNo = $_GET["InventoryNumber"];
-		$InvNo = strtolower($InvNo);
-		$InvNo = str_replace("inv","",$InvNo);
-		$InvNo = str_replace("-","",$InvNo);
+		$InvNo = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
 	}
 	elseif(isset($_GET["SerialNumber"]))
 	{
@@ -34,9 +32,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$locations = getLocations();
-	
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	if(isset($InvNo)) $InvNo = dbEscapeString($dbLink, $InvNo );
 	if(isset($SerNo)) $SerNo = dbEscapeString($dbLink, $SerNo );
@@ -65,7 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = array();
 	$output['PicturePath'] = $pictureRootPath.$r['PicturePath'];
 	$output['InventoryNumber'] = $r['InvNo'];
-	$output['InventoryBarcode'] = "Inv-".$r['InvNo'];
+	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($r['InvNo']);
 	$output['Title'] = $r['Title'];
 	$output['ManufacturerName'] = $r['Manufacturer'];
 	$output['Type'] = $r['Type'];

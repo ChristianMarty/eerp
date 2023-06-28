@@ -16,14 +16,15 @@ $description = "Queries Octopart data based on Octopart Part Id.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT Id, OctopartId FROM `manufacturerPart` ";
 
-	$query .= "WHERE OctopartPartData IS NULL AND OctopartId IS NOT NULL ORDER BY Id DESC LIMIT 250";
-	
+    $query = <<<STR
+        SELECT 
+            Id, 
+            OctopartId 
+        FROM manufacturerPart
+        WHERE OctopartPartData IS NULL AND OctopartId IS NOT NULL ORDER BY Id DESC LIMIT 250
+    STR;
 
 	$queryResult = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);
@@ -34,8 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$octopartPartData = getOctopartPartData($part['OctopartId']);
 
 		$partData = $octopartPartData->data->parts[0];
-		
-		
+
 		$dbLink = dbConnect();
 		if($dbLink == null) return null;
 		

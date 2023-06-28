@@ -10,9 +10,9 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../externalApi/mouser.php";
-require_once __DIR__ . "/../../externalApi/digikey.php";
-require_once __DIR__ . "/../../externalApi/distrelec.php";
+require_once __DIR__ . "/../../externalApi/mouser/mouser.php";
+require_once __DIR__ . "/../../externalApi/digikey/digikey.php";
+require_once __DIR__ . "/../../externalApi/distrelec/distrelec.php";
 
 
 global $mouserSupplierId;

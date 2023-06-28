@@ -10,6 +10,8 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -40,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	else if(isset($_GET["ProductionPartNumber"]))
 	{
-		$parameters[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = '" . dbEscapeString($dbLink, $_GET["ProductionPartNumber"]) . "'";
+		$parameters[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = '" . barcodeParser_ProductionPart($_GET["ProductionPartNumber"]) . "'";
 	}
 	else
 	{

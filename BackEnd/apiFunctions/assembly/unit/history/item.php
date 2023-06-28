@@ -9,8 +9,9 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../../databaseConnector.php";
-require __DIR__ . "/../../../../config.php";
+require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../../../util/_json.php";
+require_once __DIR__ . "/../../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -114,10 +115,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$assemblyNo = dbEscapeString($dbLink,$data['AssemblyUnitNumber']);
-	$assemblyNo = strtolower($assemblyNo);
-	$assemblyNo = str_replace("asm-","",$assemblyNo);
+
+    $assemblyNo = barcodeParser_AssemblyNumber($data['AssemblyUnitNumber']);
 	
 	$sqlData = array();
     $sqlData['AssemblyUnitHistoryNumber']['raw'] = "(SELECT generateItemNumber())";
@@ -146,7 +145,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 			if ($result = mysqli_store_result($dbLink)) {
 				while ($row = mysqli_fetch_row($result)) {
 					$output['EditToken'] = $row[0];
-                    $output['Barcode'] = "ASH-".$row[1];
+                    $output['Barcode'] = barcodeFormatter_AssemblyUnitHistoryNumber($row[1]);
 				}
 				mysqli_free_result($result);
 			}

@@ -23,7 +23,6 @@ if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode)
 	exit;
 }
 
-
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();

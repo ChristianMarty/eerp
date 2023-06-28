@@ -8,13 +8,12 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../../databaseConnector.php";
+require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-
 	if(!isset($_GET["ProductionPartNumber"])) sendResponse(NULL, "Production Part Number Undefined");
 
     $partNumber = barcodeParser_ProductionPart($_GET["ProductionPartNumber"]);
@@ -24,7 +23,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
     $query = <<< STR
-        SELECT LeadTime, Weight, InformationSource, InformationDate, Note, productionPartMapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName, suppier.Name AS SuppierName, suppier.ShortName AS SuppierShortName, suppier.Id AS SuppierId 
+        SELECT 
+            LeadTime, 
+            Weight, 
+            InformationSource, 
+            InformationDate, 
+            Note, 
+            productionPartMapping.ManufacturerPartId, 
+            ManufacturerPartNumber, 
+            vendor.Name AS VendorName, 
+            vendor.ShortName AS VendorShortName, 
+            suppier.Name AS SuppierName, 
+            suppier.ShortName AS SuppierShortName, 
+            suppier.Id AS SuppierId 
         FROM  part_referenceLeadTime
         LEFT JOIN productionPartMapping ON part_referenceLeadTime.ManufacturerPartId = productionPartMapping.ManufacturerPartId
         LEFT JOIN productionPart ON productionPartMapping.ProductionPartId = productionPart.Id OR part_referenceLeadTime.ProductionPartId = productionPart.Id

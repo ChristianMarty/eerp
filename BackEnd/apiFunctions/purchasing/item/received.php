@@ -18,7 +18,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$receivalId = intval($_GET["ReceivalId"]);
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$output = array();
 
@@ -53,14 +52,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	dbClose($dbLink);	
 	sendResponse($output,null);
-	
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$lineId = $data['data']['LineId'];
 	$lineNo = $data['data']['LineNo'];
@@ -98,11 +95,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	{
 		$error = "Error description: " . mysqli_error($dbLink);
 	}
-
 	
-	dbClose($dbLink);	
-	
+	dbClose($dbLink);
 	sendResponse($output,$error);
 }
-
 ?>

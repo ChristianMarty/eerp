@@ -13,6 +13,7 @@ require_once __DIR__ . "/../../../../config.php";
 
 require_once __DIR__ . "/../../_functions.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
+require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -43,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         sendResponse(null,"PO-Number not found");
     }
 
-    $name= "PO-".$po['PoNo']."_".$po['PurchaseDate'];
+    $name= barcodeFormatter_PurchaseOrderNumber($po['PoNo'])."_".$po['PurchaseDate'];
 
     dbClose($dbLink);
 

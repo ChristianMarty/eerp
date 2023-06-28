@@ -10,7 +10,7 @@
 
 function barcodeFormatter_StockNumber(string|int $input): string
 {
-    return "STK-".$input;
+    return "STK-".strtoupper($input);
 }
 
 function barcodeFormatter_InventoryNumber(string|int $input): string
@@ -28,6 +28,11 @@ function barcodeFormatter_PurchaseOrderNumber(string|int $input ,string|int|null
     return $output;
 }
 
+function barcodeFormatter_LocationNumber(string|int $input): string
+{
+    return "Loc-".$input;
+}
+
 function barcodeFormatter_ProductionPart(string|int $input): string
 {
     return $input; // TODO: Fix this
@@ -38,6 +43,16 @@ function barcodeFormatter_WorkOrderNumber(string|int|null $input): string|null
     if($input == null) return null;
 
     return "WO-".$input;
+}
+
+function barcodeFormatter_AssemblyNumber(string|int $input): string
+{
+    return "ASM-".$input;
+}
+
+function barcodeFormatter_AssemblyUnitNumber(string|int $input): string
+{
+    return "ASU-".$input;
 }
 
 function barcodeFormatter_AssemblyUnitHistoryNumber(string|int $input): string
@@ -58,5 +73,15 @@ function barcodeFormatter_CostCenter(string|int $input): string
 function barcodeFormatter_Project(string|int $input): string
 {
     return "Pjct-".$input;
+}
+
+function barcodeFormatter_ShipmentNumber(string|int $input): string
+{
+    return "Shp-".$input;
+}
+
+function barcodeFormatter_TestSystemNumber(string|int $input): string
+{
+    return "TSY-".$input;
 }
 ?>

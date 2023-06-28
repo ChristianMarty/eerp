@@ -70,25 +70,8 @@ function barcodeParser_PurchaseOrderNumber($input): bool|int
 
 function barcodeParser_ProductionPart($input): bool|string
 {
-    return $input;
-
     // TODO: Fix this
-
-    $poCode = trim($input);
-    $poCode = strtolower($poCode);
-
-    if( substr_count($poCode, '-') == 0) // if only number is given
-    {
-        if(!is_numeric($poCode)) return false;
-        return intval($poCode);
-    }
-
-    $poCodeParts = explode('-',$poCode);
-
-    //if($poCodeParts[0] != "po") return false; //TODO: check prefix
-    if(!is_numeric($poCodeParts[1])) return false;
-
-    return intval($poCodeParts[1]);
+    return $input;
 }
 
 function barcodeParser_WorkOrderNumber(string|int $input): bool|int
@@ -110,6 +93,48 @@ function barcodeParser_WorkOrderNumber(string|int $input): bool|int
     if(!is_numeric($woCodeParts[1])) return false;
 
     return intval($woCodeParts[1]);
+}
+
+function barcodeParser_AssemblyNumber(string|int $input): bool|string
+{
+    if(is_int($input)) $input = strval($input);
+
+    $ashCode = trim($input);
+    $ashCode = strtolower($ashCode);
+
+    if( substr_count($ashCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($ashCode)) return false;
+        return intval($ashCode);
+    }
+
+    $ashCodeParts = explode('-',$ashCode);
+
+    if($ashCodeParts[0] != "asm") return false;
+    if(!is_numeric($ashCodeParts[1])) return false;
+
+    return intval($ashCodeParts[1]);
+}
+
+function barcodeParser_AssemblyUnitNumber(string|int $input): bool|string
+{
+    if(is_int($input)) $input = strval($input);
+
+    $ashCode = trim($input);
+    $ashCode = strtolower($ashCode);
+
+    if( substr_count($ashCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($ashCode)) return false;
+        return intval($ashCode);
+    }
+
+    $ashCodeParts = explode('-',$ashCode);
+
+    if($ashCodeParts[0] != "asu") return false;
+    if(!is_numeric($ashCodeParts[1])) return false;
+
+    return intval($ashCodeParts[1]);
 }
 
 function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): bool|string
@@ -190,5 +215,26 @@ function barcodeParser_Project(string|int $input): bool|string
     if(!is_numeric($inventoryNumberParts[1])) return false;
 
     return intval($inventoryNumberParts[1]);
+}
+
+function barcodeParser_TestSystemNumber(string|int $input): bool|int
+{
+    if(is_int($input)) $input = strval($input);
+
+    $woCode = trim($input);
+    $woCode = strtolower($woCode);
+
+    if( substr_count($woCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($woCode)) return false;
+        return intval($woCode);
+    }
+
+    $woCodeParts = explode('-',$woCode);
+
+    if($woCodeParts[0] != "tsy") return false;
+    if(!is_numeric($woCodeParts[1])) return false;
+
+    return intval($woCodeParts[1]);
 }
 ?>

@@ -26,8 +26,13 @@ function extractVariable($path, $variableName)
 	array_shift($array);
 	$file_contents = implode("=", $array);
 	
-	$file_contents = str_replace('"', '',$file_contents);
+	//$file_contents = str_replace('"', '',$file_contents);
 	$file_contents = ltrim($file_contents, ' ');
+	$file_contents = ltrim($file_contents, '"');
+	$file_contents = rtrim($file_contents, '"');
+	$file_contents = ltrim($file_contents, "'");
+	$file_contents = rtrim($file_contents, "'");
+	$file_contents = rtrim($file_contents, ' ');
 	
 	return $file_contents;
 }

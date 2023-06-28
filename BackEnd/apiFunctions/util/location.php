@@ -158,12 +158,10 @@ function buildLocationPath($rows, $id, $depth): string
 			}
 			break;
 		}
-		
 
 		$i++;
 	}
 	
 	return $descriptionString;
 }
-	
 ?>

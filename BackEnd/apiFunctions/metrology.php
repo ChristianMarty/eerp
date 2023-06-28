@@ -10,6 +10,9 @@
 
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
+
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -23,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$r['TestSystemBarcode'] = "TSY-".$r['TestSystemNumber'];
+		$r['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($r['TestSystemNumber']);
 		$output[] = $r;
 	}
 
@@ -60,7 +63,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		do {
 			if ($result = mysqli_store_result($dbLink)) {
 				while ($row = mysqli_fetch_row($result)) {
-					$output = "TSY-".$row[0];
+					$output = barcodeFormatter_TestSystemNumber($row[0]);
 				}
 				mysqli_free_result($result);
 			}

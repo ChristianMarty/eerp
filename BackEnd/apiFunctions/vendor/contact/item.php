@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(isset($_GET["VendorAddressId"]))
 	{
-		require_once __DIR__ . "/_function.php";
+		require_once __DIR__ . "/../_vendor.php";
 		// legacy behavior
 		$vendor = getVendorContact($_GET["VendorAddressId"]);
 		sendResponse($vendor);
@@ -23,7 +23,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	else if(isset($_GET["ContactId"]))
 	{
 		$dbLink = dbConnect();
-		if($dbLink == null) return null;
 		
 		$contactId = dbEscapeString($dbLink, trim($_GET["ContactId"]));
 		
@@ -85,7 +84,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	if(!isset($data["ContactId"]))sendResponse(null, "ContactId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$contactId = intval($data["ContactId"]);
 	

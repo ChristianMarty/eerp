@@ -76,10 +76,23 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	
 	// Get Addresses
-	$query  = "SELECT vendor_address.Id, PhonePrefix, CountryCode, Name AS CountryName, CountryId, PostalCode, City, Street, VatTaxNumber, CustomsAccountNumber FROM vendor_address ";
-	$query .= "LEFT JOIN country ON country.Id = CountryId ";
-	$query .= "WHERE VendorId = {$vendorId} ";
-	
+    $query =  <<<STR
+        SELECT 
+            vendor_address.Id, 
+            PhonePrefix, 
+            CountryCode, 
+            Name AS CountryName, 
+            CountryId, 
+            PostalCode, 
+            City, 
+            Street, 
+            VatTaxNumber, 
+            CustomsAccountNumber 
+        FROM vendor_address
+        LEFT JOIN country ON country.Id = CountryId
+        WHERE VendorId = $vendorId
+    STR;
+
 	$result = dbRunQuery($dbLink,$query);
 	$address = array();
 	while($r = dbGetResult($result))

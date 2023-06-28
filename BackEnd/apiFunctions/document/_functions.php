@@ -10,6 +10,8 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 function checkFileNotDuplicate($path): ?array
 {
@@ -68,7 +70,7 @@ function getCitations($dbLink, $documentId): array
     {
         $temp = array();
         $temp['Category']= 'Inventory';
-        $temp['Barcode']= 'Inv-'.$r['InvNo'];
+        $temp['Barcode']= barcodeFormatter_InventoryNumber($r['InvNo']);
         $temp['Description']= $r['Title']." - ".$r['Manufacturer']." ".$r['Type'];
         $output[] = $temp;
     }
@@ -93,7 +95,7 @@ function getCitations($dbLink, $documentId): array
     {
         $temp = array();
         $temp['Category']= 'Inventory History';
-        $temp['Barcode']= 'Inv-'.$r['InvNo'];
+        $temp['Barcode']= barcodeFormatter_InventoryNumber($r['InvNo']);
         $temp['Description']= $r['HistoryType']." - ".$r['Description']." - ".$r['Manufacturer']." ".$r['Type'];
         $output[] = $temp;
     }
@@ -135,7 +137,7 @@ function getCitations($dbLink, $documentId): array
     {
         $temp = array();
         $temp['Category'] = 'Purchase Order';
-        $temp['Barcode'] = 'PO-'.$r['PoNo'];
+        $temp['Barcode'] = barcodeFormatter_PurchaseOrderNumber($r['PoNo']);
         $temp['Description'] = $r['VendorName']." - ".$r['Description'];
         $output[] = $temp;
     }
@@ -156,13 +158,10 @@ function getCitations($dbLink, $documentId): array
     {
         $temp = array();
         $temp['Category'] = 'Shipment';
-        $temp['Barcode'] = 'Shp-'.$r['ShipmentNumber'];
+        $temp['Barcode'] = barcodeFormatter_ShipmentNumber($r['ShipmentNumber']);
         $temp['Description'] = $r['Direction']." - ".$r['Description'];
         $output[] = $temp;
     }
-
-
-
 
     return $output;
 }

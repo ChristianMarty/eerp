@@ -94,14 +94,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	// Add manualy enterd Part Number if no found
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query  = "SELECT partStock.ManufacturerPartId,partStock.OrderReference FROM partStock  ";
-	$query .= "LEFT JOIN productionPartMapping ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId ";
-	$query .= "LEFT JOIN productionPart ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId ";
-	$query .= "WHERE (partStock.OrderReference != productionPart.Number OR (productionPart.Number IS NULL AND partStock.OrderReference IS NOT NULL)) AND partStock.OrderReference != ''  ";
-	$query .="GROUP BY partStock.ManufacturerPartId,partStock.OrderReference";
-	
+
+    $query = <<<STR
+        SELECT 
+            partStock.ManufacturerPartId,
+            partStock.OrderReference 
+        FROM partStock
+        LEFT JOIN productionPartMapping ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId
+        LEFT JOIN productionPart ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId
+        WHERE (partStock.OrderReference != productionPart.Number OR (productionPart.Number IS NULL AND partStock.OrderReference IS NOT NULL)) AND partStock.OrderReference != ''
+        GROUP BY partStock.ManufacturerPartId,partStock.OrderReference
+    STR;
+
 	$queryResult = dbRunQuery($dbLink,$query);
 	
 	dbClose($dbLink);

@@ -9,6 +9,8 @@
 
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/util/getChildren.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -22,12 +24,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["LocationNumber"]))
 	{	
 		$dbLink = dbConnect();
-		if($dbLink == null) return null;
-		
-		$locNr = $_GET["LocationNumber"];
-		$locNr = strtolower($locNr);
-		$locNr = str_replace("loc-","",$locNr);
-		$locNr = dbEscapeString($dbLink, $locNr );
+
+        $locNr = barcodeFormatter_LocationNumber($_GET["LocationNumber"]);
 		
 		$locationIds = 0;
 		$query = "SELECT `Id` FROM `location` WHERE `LocNr`= '".$locNr."'";
@@ -43,24 +41,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$baseQuery = "SELECT ";
-	$baseQuery .="PicturePath, InvNo, Title, Manufacturer, Type, SerialNumber, Status,";
-	$baseQuery .="vendor.name AS SupplierName ";
-	$baseQuery .="FROM `inventory` ";
-	$baseQuery .="LEFT JOIN `vendor` On vendor.Id = inventory.VendorId ";
-	$baseQuery .="LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId ";
-	
+
+    $baseQuery = <<<STR
+        SELECT 
+            PicturePath, 
+            InvNo, 
+            Title, 
+            Manufacturer, 
+            Type, 
+            SerialNumber, 
+            Status,
+            vendor.name AS SupplierName 
+        FROM `inventory`
+        LEFT JOIN `vendor` On vendor.Id = inventory.VendorId
+        LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId
+    STR;
+
 	$queryParam = array();
 	
 	if(isset($_GET["InventoryNumber"]))
 	{
-		$code = $_GET["InventoryNumber"];
-		$code = strtolower($code);
-		$code = str_replace("inv","",$code);
-		$code = str_replace("-","",$code);
-		$temp = dbEscapeString($dbLink, $code );
+        $temp = barcodeFormatter_InventoryNumber($_GET["InventoryNumber"]);
 		$queryParam[] = "InvNo LIKE '" . $temp . "'";
 	}
 	
@@ -87,10 +88,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	while($r = dbGetResult($result)) 
 	{
 		$item = array();
-		
 		$item['PicturePath'] = $pictureRootPath.$r['PicturePath'];
 		$item['InventoryNumber'] = $r['InvNo'];
-		$item['InventoryBarcode'] = "Inv-".$r['InvNo'];
+		$item['InventoryBarcode'] = barcodeFormatter_InventoryNumber($r['InvNo']);
 		$item['Title'] = $r['Title'];
 		$item['ManufacturerName'] = $r['Manufacturer'];
 		$item['Type'] = $r['Type'];
@@ -103,6 +103,4 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($output);
 }
-
-
 ?>

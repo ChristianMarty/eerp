@@ -9,14 +9,16 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
-require __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["AssemblyNumber"])) sendResponse(Null,"Assembly Number not set");
-	
+	$assemblyNumber = barcodeParser_AssemblyNumber($_GET["AssemblyNumber"]);
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$query = <<<STR
 		SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName, ShippingProhibited.ShippingProhibited, ShippingClearance.ShippingClearance, WorkOrderNumber, LastHistory.Title AS LastHistoryTitle, LastHistory.Type AS LastHistoryType, workOrder.Title AS WorkOrderTitle
@@ -30,10 +32,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	STR;
 
 	$queryParam = array();
-	$temp = dbEscapeString($dbLink, $_GET["AssemblyNumber"]);
-	$temp = strtolower($temp);
-	$assemblyNumber = str_replace("asm-","",$temp);
-
 	$queryParam[] = "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '" . $assemblyNumber . "')";
 	
 	if(isset($_GET['SerialNumber']))
@@ -54,7 +52,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$temp = array();
 		$temp['AssemblyUnitNumber'] = $r['AssemblyUnitNumber'];
-		$temp['AssemblyUnitBarcode'] = "ASU-".$r['AssemblyUnitNumber'];
+		$temp['AssemblyUnitBarcode'] = barcodeFormatter_AssemblyUnitNumber($r['AssemblyUnitNumber']);
 		$temp['Note'] = $r['Note'];
 		$temp['LocationName'] = $r['LocationName'];
 		$temp['SerialNumber'] = $r['SerialNumber'];
@@ -82,18 +80,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$output['Unit'][] = $temp;
 	}
-	
-	
+
 	$query  = "SELECT * FROM assembly WHERE AssemblyNumber = ".$assemblyNumber;
 	$result = dbRunQuery($dbLink,$query);
 	
 	$r = mysqli_fetch_assoc($result);
 	$output['AssemblyNumber'] = $r['AssemblyNumber'];
-	$output['AssemblyBarcode'] = "ASM-".$r['AssemblyNumber'];
+	$output['AssemblyBarcode'] = barcodeFormatter_AssemblyNumber($r['AssemblyNumber']);
 	$output['Name'] = $r['Name'];
 	$output['Description'] = $r['Description'];
-	
-	
+
 	dbClose($dbLink);	
 	sendResponse($output);
 }

@@ -9,8 +9,11 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../databaseConnector.php";
-require __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_json.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["InventoryNumber"]) AND !isset($_GET["EditToken"])) sendResponse(Null,"Inventory Number and Edit Token are not set");
@@ -20,11 +23,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if(isset($_GET["InventoryNumber"]))
 	{
-		$inventoryNumber = dbEscapeString($dbLink, $_GET["InventoryNumber"]);
-
-		$query  = "SELECT * FROM inventory ";
-		$query .= "LEFT JOIN inventory_history ON inventory_history.Id = inventory.InventoryId ";	
-		$query .= "WHERE inventory.InvNo = {$inventoryNumber}";	
+		$inventoryNumber = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
+        $query = <<<STR
+            SELECT * FROM inventory
+            LEFT JOIN inventory_history ON inventory_history.Id = inventory.InventoryId
+            WHERE inventory.InvNo = $inventoryNumber
+        STR;
 	}
 	else if(isset($_GET["EditToken"]))
 	{
@@ -78,11 +82,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if(!isset($data["InventoryNumber"])) sendResponse(Null,"Inventory Number not set");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$inventoryNumber = dbEscapeString($dbLink,$data['InventoryNumber']);
-	$inventoryNumber = strtolower($inventoryNumber);
-	$inventoryNumber = str_replace("inv-","",$inventoryNumber);
+
+    $inventoryNumber = barcodeParser_InventoryNumber($data["InventoryNumber"]);
 	
 	$sqlData = array();
 	$sqlData['Type'] = $data['Type'];

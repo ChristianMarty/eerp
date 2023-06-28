@@ -9,28 +9,31 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../databaseConnector.php";
-require __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_json.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
+
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET["InventoryNumber"]) ) sendResponse(Null,"Inventory Number not set");
-	
+
 	$inventoryNumber = $_GET["InventoryNumber"];
 	$inventoryNumber = strtolower($inventoryNumber);
 	$inventoryNumber = str_replace("inv-","",$inventoryNumber);
 
-	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$temp = explode("-",$inventoryNumber);
 	
 	$inventoryNumber = $temp[0];
 	$accessoryNumber = $temp[1];
-	
-	$query  = "SELECT inventory.InvNo AS InventoryNumber, inventory_accessory.AccessoryNumber, inventory_accessory.Description, inventory_accessory.Note,  inventory_accessory.Labeled FROM inventory ";
-	$query .= "LEFT JOIN inventory_accessory ON inventory_accessory.InventoryId = inventory.Id ";	
-	$query .= "WHERE inventory.InvNo = {$inventoryNumber} AND inventory_accessory.AccessoryNumber = {$accessoryNumber}";	
+
+    $query = <<<STR
+        SELECT inventory.InvNo AS InventoryNumber, inventory_accessory.AccessoryNumber, inventory_accessory.Description, inventory_accessory.Note,  inventory_accessory.Labeled FROM inventory
+        LEFT JOIN inventory_accessory ON inventory_accessory.InventoryId = inventory.Id 
+        WHERE inventory.InvNo = {$inventoryNumber} AND inventory_accessory.AccessoryNumber = $accessoryNumber
+    STR;
 
 	$result = dbRunQuery($dbLink,$query);
 	

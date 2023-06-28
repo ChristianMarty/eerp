@@ -63,7 +63,7 @@ function buildTree($rows, $parentId)
 				$temp['Children'] = array();
 				$temp['Children'] =  buildTree($rows,$row['Id']);
 			}
-			array_push($treeItem, $temp);
+			$treeItem[] = $temp;
 		}
 	}
 	

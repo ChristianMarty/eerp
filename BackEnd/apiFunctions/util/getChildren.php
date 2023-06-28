@@ -13,7 +13,6 @@ include_once __DIR__ . "/../databaseConnector.php";
 function getChildren($tableName, $parentId)
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$query = "SELECT Id, ParentId FROM ".$tableName." ORDER BY `Name` ASC";
 	$result = dbRunQuery($dbLink,$query);

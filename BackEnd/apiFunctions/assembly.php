@@ -9,12 +9,13 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/databaseConnector.php";
-require __DIR__ . "/../config.php";
+require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$query  = "SELECT * FROM assembly ";
 	
@@ -24,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-		$r['AssemblyBarcode'] = "ASM-".$r['AssemblyNumber'];
+		$r['AssemblyBarcode'] = barcodeFormatter_AssemblyNumber($r['AssemblyNumber']);
 		$assembly[] = $r;
 	}
 
@@ -38,7 +39,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if(!isset($data['Name'])) sendResponse(null,"Name missing");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$name = dbEscapeString($dbLink,$data['Name']);
 	$description = dbEscapeString($dbLink,$data['Description']);
@@ -61,7 +61,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		do {
 			if ($result = mysqli_store_result($dbLink)) {
 				while ($row = mysqli_fetch_row($result)) {
-					$output = "ASM-".$row[0];
+					$output = barcodeFormatter_AssemblyNumber($row[0]);
 				}
 				mysqli_free_result($result);
 			}

@@ -8,10 +8,12 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 
-//Generates a universal description of a item of any catogery
+//Generates a universal description of an item of any category
 
 function generateSummary($locationNr): array
 {
@@ -55,7 +57,7 @@ function generateSummary($locationNr): array
 		
 		$locationId = $itemData["LocationId"];
 		
-		$data["Item"] =  "Stk-".strtoupper($itemNr);
+		$data["Item"] =  barcodeFormatter_StockNumber($itemNr);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
@@ -80,16 +82,23 @@ function generateSummary($locationNr): array
 		
 		$locationId = $itemData["LocationId"];
 		
-		$data["Item"] = "Inv-".$itemNr;
+		$data["Item"] = barcodeFormatter_InventoryNumber($itemNr);
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
 	}
 	else if($itemPrefix == "asu")  
 	{
-		$query  = "SELECT Name, Description, SerialNumber, LocationId FROM assembly_unit ";
-		$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
-		$query .= "WHERE AssemblyUnitNumber = '".$itemNr."'";
+		$query = <<<STR
+			SELECT 
+				Name, 
+				Description, 
+				SerialNumber, 
+				LocationId
+			FROM assembly_unit
+			LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId
+			WHERE AssemblyUnitNumber = '$itemNr'
+		STR;
 		
 		$result = dbRunQuery($dbLink,$query);
 		
@@ -106,7 +115,7 @@ function generateSummary($locationNr): array
 		
 		$locationId = $itemData["LocationId"];
 		
-		$data["Item"] = "ASU-".$itemNr;
+		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($itemNr);
 		$data["Category"] = "Assembly Item";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
@@ -124,10 +133,10 @@ function generateSummary($locationNr): array
 		
 		$itemData = mysqli_fetch_assoc($result);
 		
-		$data["Item"] = "Loc-".$itemNr;
+		$data["Item"] = barcodeFormatter_LocationNumber($itemNr);
 		$data["Category"] = "Location";
 		$data["Description"] = $itemData["Name"]; 
-		$data["LocationNr"] = "Loc-".$itemData["LocNr"];
+		$data["LocationNr"] = barcodeFormatter_LocationNumber($itemData["LocNr"]);
 		$data["Location"] = $itemData["LocationName"]; 
 		if($itemData["Movable"] == "1") $data["Movable"] = true;
 		else $data["Movable"] = false;
@@ -144,7 +153,7 @@ function generateSummary($locationNr): array
 		$result = dbRunQuery($dbLink,$query);
 		$itemData = mysqli_fetch_assoc($result);
 		
-		$data["LocationNr"] = "Loc-".$itemData["LocNr"];
+		$data["LocationNr"] = barcodeFormatter_LocationNumber($itemData["LocNr"]);
 		$data["Location"] = $itemData["LocationName"]; 
 	}
 	

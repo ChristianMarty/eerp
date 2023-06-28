@@ -12,9 +12,7 @@ require_once __DIR__ . "/../databaseConnector.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$manufacturers = array();
 	$query = "SELECT * FROM vendor WHERE IsManufacturer = b'1' ORDER BY `Name` ASC";

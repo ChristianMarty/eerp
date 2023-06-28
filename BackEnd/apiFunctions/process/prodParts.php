@@ -19,14 +19,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	$query = "INSERT INTO productionPart(Number, Description) SELECT PartNo, Description FROM partLookup WHERE NOT EXISTS (SELECT Number FROM productionPart WHERE productionPart.Number =  partLookup.PartNo)  GROUP BY PartNo;";
+	$query =  <<<STR
+        INSERT INTO productionPart(Number, Description)
+            SELECT PartNo, Description 
+            FROM partLookup 
+            WHERE NOT EXISTS (SELECT Number FROM productionPart WHERE productionPart.Number =  partLookup.PartNo)  
+            GROUP BY PartNo;
+    STR;
+
 	$queryResult = dbRunQuery($dbLink,$query);
 	
 	dbClose($dbLink);
-	
-	
 	sendResponse(null);
 }
-
-
 ?>

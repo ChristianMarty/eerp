@@ -16,16 +16,18 @@ $description = "Queries Manufacturer and Part Number on octopart to get Octopart
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT manufacturerPart.Id, vendor.Name AS ManufacturerName, ManufacturerPartNumber ";
-	$query .= "FROM `manufacturerPart` ";
-	$query .= "LEFT JOIN `vendor` ON vendor.Id = manufacturerPart.VendorId ";
-	
-	$query .= "WHERE OctopartId IS NULL ORDER BY manufacturerPart.Id DESC";
-	
+
+    $query = <<<STR
+        SELECT 
+            manufacturerPart.Id, 
+            vendor.Name AS ManufacturerName, 
+            ManufacturerPartNumber 
+        FROM `manufacturerPart` 
+        LEFT JOIN `vendor` ON vendor.Id = manufacturerPart.VendorId 
+        WHERE OctopartId IS NULL ORDER BY manufacturerPart.Id DESC
+    STR;
+
 	$queryResult = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);
 	

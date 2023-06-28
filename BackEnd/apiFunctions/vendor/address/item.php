@@ -15,7 +15,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["AddressId"]))sendResponse(null, "AddressId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$addressId = dbEscapeString($dbLink, trim($_GET["AddressId"]));
 	
@@ -43,7 +42,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if(!isset($data["VendorId"]))sendResponse(null, "VendorId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$insertData = array();
 	$insertData['VendorId']= intval($data['VendorId']);
@@ -72,7 +70,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	if(!isset($data["AddressId"]))sendResponse(null, "AddressId not specified");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$addressId = intval($data["AddressId"]);
 	

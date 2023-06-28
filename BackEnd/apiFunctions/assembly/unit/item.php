@@ -9,23 +9,24 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../databaseConnector.php";
-require __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	if(!isset($_GET['AssemblyUnitNumber'])) sendResponse(null,"AssemblyUnitNumber missing");
-	
+    $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($_GET["AssemblyUnitNumber"]);
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$assemblyUnitNumber = dbEscapeString($dbLink, $_GET["AssemblyUnitNumber"]);
-	$assemblyUnitNumber = strtolower($assemblyUnitNumber);
-	$assemblyUnitNumber = str_replace("asu-","",$assemblyUnitNumber);
-	
+
 	// Get History Data
-	$query  = "SELECT * FROM assembly_unit_history ";
-	$query .= "WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyUnitNumber."')";
-	$query .= " ORDER BY Date DESC";
+    $query = <<<STR
+        SELECT * FROM assembly_unit_history
+        WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '.$assemblyUnitNumber.')
+         ORDER BY Date DESC
+    STR;
+
 	$result = dbRunQuery($dbLink,$query);
 	$assembly = array();
 	
@@ -50,8 +51,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if($shippingProhibited) $shippingClearance = false;
 
-	$query  = "SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit ";
-	$query .= "LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId ";
+    $query = <<<STR
+        SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit
+        LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId
+    STR;
 	
 	$queryParam = array();
 	$queryParam[] = " AssemblyUnitNumber = '" . $assemblyUnitNumber . "'";
@@ -80,17 +83,12 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($dbLink == null) return null;
 
 	$serialNumber = dbEscapeString($dbLink,$data['SerialNumber']);
-	
-	$assemblyNumber = dbEscapeString($dbLink,$data['AssemblyNumber']);
-	$assemblyNumber = strtolower($assemblyNumber);
-	$assemblyNumber = str_replace("asm-","",$assemblyNumber);
+    $assemblyNumber = barcodeFormatter_AssemblyNumber($data['AssemblyNumber']);
 	
 	$workOrderNumber = null;
 	if(isset($data['WorkOrderNumber']))
 	{
-		$workOrderNumber = dbEscapeString($dbLink,$data['WorkOrderNumber']);
-		$workOrderNumber = strtolower($workOrderNumber);
-		$workOrderNumber = str_replace("wo-","",$workOrderNumber);
+		$workOrderNumber = barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
 	} 
 	
 	

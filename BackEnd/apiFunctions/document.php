@@ -10,6 +10,8 @@
 
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -30,7 +32,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$r["FileName"] = $r['Path'];
 		$r['Path'] = $dataRootPath.$documentPath."/".$r['Type']."/".$r['Path'];
-		$r['Barcode'] = "Doc-".$r['DocumentNumber'];
+		$r['Barcode'] = barcodeFormatter_DocumentNumber($r['DocumentNumber']);
 		$output[] = $r;
 	}
 	

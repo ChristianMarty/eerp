@@ -12,6 +12,7 @@ require_once __DIR__ . "/../../databaseConnector.php";
 require __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_json.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -49,8 +50,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     
     STR;
 
-
-
 	$purchase = array();
 	$result = dbRunQuery($dbLink,$query);
 	
@@ -67,8 +66,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$por["ReceivalId"] = intval($por['ReceivalId']);
 			$por["Quantity"] = floatval($por['Quantity']);
 			$por["PurchaseOrderNumber"] = $por['PoNo'];
-			$por["PurchaseOrderBarcode"] = "PO-".$por['PoNo']."#".$por['LineNumber'];
-			$por['PoNo'] ="PO-".$por['PoNo'];
+			$por["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($por['PoNo'],$por['LineNumber']);
+			$por['PoNo'] = barcodeFormatter_PurchaseOrderNumber($por['PoNo']);
 			
 			//$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
 			
@@ -85,15 +84,10 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	if(!isset($data["InventoryNumber"]) ) sendResponse(Null,"Inventory Number not set");
-	
-	$inventoryNumber = $data["InventoryNumber"];
-	$inventoryNumber = strtolower($inventoryNumber);
-	$inventoryNumber = str_replace("inv-","",$inventoryNumber);
-	
+    $inventoryNumber = barcodeParser_InventoryNumber($data["InventoryNumber"]);
 	$purchaseOrderItems =  $data["PurchaseOrderItems"];
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 	
 	$query  = "SELECT Id FROM inventory ";
 	$query .= "WHERE InvNo = {$inventoryNumber}";	
