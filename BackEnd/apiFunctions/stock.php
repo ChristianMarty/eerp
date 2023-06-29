@@ -43,10 +43,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		}
 	}
 	 
-	if(isset($_GET["ManufacturerPartId"]))
+	if(isset($_GET["ManufacturerPartNumberId"]))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		$queryParam[] = "manufacturerPart.Id = '" . $temp . "'";
+		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
+		$queryParam[] = "manufacturerPart_partNumber.Id = '" . $temp . "'";
 	}
 	
 	if(isset($_GET["HideEmpty"]))
@@ -65,8 +65,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = dbGetResult($result)) 
 	{
-		$r['Barcode'] = barcodeFormatter_StockNumber($r['StockNo']);
+		$r['StockNumber'] = $r['StockNo'];
+		$r['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
+
 		$r['Location'] = buildLocation($locations, $r['LocationId']);
+
+		$r['Barcode'] = barcodeFormatter_StockNumber($r['StockNo']); // Legacy
 
 		$output[] = $r;
 	}

@@ -30,10 +30,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$queryParam = array();
 	
-	if(isset($_GET["ManufacturerPartId"]))
+	if(isset($_GET["ManufacturerPartNumberId"]))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
-		$queryParam[] = "productionPartMapping.ManufacturerPartId = '" . $temp . "'";
+		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
+		$queryParam[] = "productionPartMapping.ManufacturerPartNumberId = '" . $temp . "'";
 	}
 	else if(isset($_GET["ProductionPartNumber"]))
 	{

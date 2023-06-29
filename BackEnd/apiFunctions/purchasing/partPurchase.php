@@ -16,7 +16,7 @@ require_once __DIR__ . "/../util/_barcodeParser.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	
-	if(!isset($_GET["ManufacturerPartId"]) && !isset($_GET["ProductionPartNumber"])) sendResponse(NULL,"ManufacturerPartId or ProductionPartNumber Required!");
+	if(!isset($_GET["ManufacturerPartNumberId"]) && !isset($_GET["ProductionPartNumber"])) sendResponse(NULL,"ManufacturerPartNumberId or ProductionPartNumber Required!");
 	
 	$dbLink = dbConnect();
 
@@ -36,9 +36,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$parameters = array();
 	
-	if(isset($_GET["ManufacturerPartId"]))
+	if(isset($_GET["ManufacturerPartNumberId"]))
 	{
-		$parameters[] = 'supplierPart.ManufacturerPartId = ' . dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
+		$parameters[] = 'supplierPart.ManufacturerPartNumberId = ' . dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
 	}
 	else if(isset($_GET["ProductionPartNumber"]))
 	{
@@ -77,6 +77,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $priceAverageSum +=  $r['Price'];
         $priceWeightedAverageSum +=  $r['Price'] * $r['Quantity'];
         $priceWeightSum += $r['Quantity'];
+
+        $r['PurchaseOrderBarcode']= barcodeFormatter_PurchaseOrderNumber( $r['PoNo']);
+        $r['PurchaseOrderNumber'] = $r['PoNo'];
 		
 		$rows[] = $r;
 	}

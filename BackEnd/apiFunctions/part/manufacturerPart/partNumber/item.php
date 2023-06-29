@@ -43,6 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $result = dbRunQuery($dbLink,$query);
     $output = dbGetResult($result);
 
+    if($output['NumberTemplate'] == null) $output['NumberTemplate'] = $output['Number'];
     $output['PartNumberId'] = intval($output['PartNumberId']);
     $output['ItemId'] = intval($output['ItemId']);
     $output['SeriesId'] = intval($output['SeriesId']);

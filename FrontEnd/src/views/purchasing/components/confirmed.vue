@@ -60,7 +60,7 @@
         <template slot-scope="{ row }">
           <el-button
             v-if="
-              parseInt(row.QuantityOrderd, 10) >
+              parseInt(row.QuantityOrdered, 10) >
                 parseInt(row.QuantityReceived, 10)
             "
             v-permission="['purchasing.confirm']"
@@ -175,7 +175,7 @@ export default {
     tableAnalyzer({ row, column, rowIndex, columnIndex }) {
       if (columnIndex !== 2) return ''
 
-      if (row.QuantityReceived >= row.QuantityOrderd) {
+      if (row.QuantityReceived >= row.QuantityOrdered) {
         return 'success-row'
       } else {
         return 'warning-row'

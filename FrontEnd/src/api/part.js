@@ -17,12 +17,15 @@ class Part {
     })
   }
 
-  searchSupplierPart(SupplierId = null) {
+  searchSupplierPart(SupplierId = null, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         methood: 'get',
         url: '/part/supplierPart',
-        params: { SupplierId: SupplierId }
+        params: {
+          SupplierId: SupplierId,
+          ManufacturerPartNumberId: ManufacturerPartNumberId
+        }
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

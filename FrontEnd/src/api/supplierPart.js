@@ -1,14 +1,15 @@
 import eerpApi from '@/api/apiQuery'
 
 class SupplierPart {
-  search(ProductionPartNumber, SupplierId) {
+  search(ProductionPartNumber = null, SupplierId = null, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
-        url: '/supplier/supplierPart',
+        url: '/part/supplierPart',
         methood: 'get',
         params: {
           ProductionPartNo: ProductionPartNumber,
-          SupplierId: SupplierId
+          SupplierId: SupplierId,
+          ManufacturerPartNumberId: ManufacturerPartNumberId
         }
       }).then(response => {
         if (response.error == null) {

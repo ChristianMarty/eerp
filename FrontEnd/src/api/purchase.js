@@ -1,12 +1,33 @@
 import eerpApi from '@/api/apiQuery'
 
 class Purchase {
-  list(HideClosed = true) {
+  list(HideClosed = true, SupplierPartId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'get',
         url: '/purchasOrder',
-        params: { HideClosed: HideClosed }
+        params: {
+          HideClosed: HideClosed,
+          SupplierPartId: SupplierPartId
+        }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
+  partPurchase(ManufacturerPartNumberId) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'get',
+        url: '/purchasing/partPurchase',
+        params: {
+          ManufacturerPartNumberId: ManufacturerPartNumberId
+        }
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -27,7 +48,7 @@ class Purchase {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/purchasOrder/item',
+        url: '/purchasing/item',
         data: createParameters
       }).then(response => {
         if (response.error == null) {

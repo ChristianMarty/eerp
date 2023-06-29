@@ -16,6 +16,94 @@
     </p>
     <p><b>Package: </b>{{ data.PackageName }}</p>
 
+    <el-divider />
+    <h3>Production Parts</h3>
+    <el-table :data="productionPartData" style="width: 100%">
+      <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
+            class="link-type"
+          >
+            <span>{{ row.ProductionPartNumber }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Description" label="Description" sortable />
+    </el-table>
+
+    <el-divider />
+    <h3>Stock</h3>
+    <el-checkbox v-model="fliterEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
+    <el-table :data="stockData" style="width: 100%">
+      <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
+        <template slot-scope="{ row }">
+          <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
+            <span>{{ row.StockBarcode }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Date" label="Date" sortable />
+      <el-table-column prop="Quantity" label="Quantity" sortable />
+      <el-table-column prop="Location" label="Location" sortable />
+    </el-table>
+
+    <el-divider />
+    <h3>Purchase Orders</h3>
+    <p>
+      <b>Number of orders:</b>
+      {{ purchaseOrderData.Data.length }}
+    </p>
+    <el-table :data="purchaseOrderData.Data" style="width: 100%; margin-top:10px">
+      <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+        <template slot-scope="{ row }">
+          <router-link :to="'/purchasing/edit/' + row.PurchaseOrderNumber" class="link-type">
+            <span>{{ row.PurchaseOrderBarcode }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Title" label="PO Title" sortable />
+      <el-table-column prop="Sku" label="Sku" sortable />
+      <el-table-column prop="Quantity" label="Quantity" sortable width="120" />
+      <el-table-column prop="Price" label="Price" sortable width="100" />
+      <el-table-column prop="Status" label="Status" sortable width="100" />
+    </el-table>
+
+    <p>
+      <b>Total Order Quantity:</b>
+      {{ purchaseOrderData.Statistics.Quantity.Ordered }}
+    </p>
+    <p>
+      <b>Pending Order Quantity:</b>
+      {{ purchaseOrderData.Statistics.Quantity.Pending }}
+    </p>
+
+    <el-divider />
+    <h3>Supplier Parts</h3>
+    <p><b>Number of supplier parts:</b> {{ supplierPartData.length }}</p>
+    <el-table
+      :data="supplierPartData"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column label="Supplier" width="150" sortable>
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/vendor/view/' + row.SupplierId"
+            class="link-type"
+          >
+            <span>{{ row.SupplierName }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="Supplier Part Number" sortable>
+        <template slot-scope="{ row }">
+          <a :href="row.SupplierPartLink" target="blank">
+            {{ row.SupplierPartNumber }}
+          </a>
+        </template>
+      </el-table-column>
+    </el-table>
+
   </div>
 </template>
 
@@ -23,12 +111,29 @@
 import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
+import SupplierPart from '@/api/supplierPart'
+const supplierPart = new SupplierPart()
+
+import ProductionPart from '@/api/productionPart'
+const productionPart = new ProductionPart()
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
+import Stock from '@/api/stock'
+const stock = new Stock()
+
 export default {
   name: 'PartSeriesItem',
 
   data() {
     return {
       loading: true,
+      supplierPartData: [],
+      purchaseOrderData: [],
+      productionPartData: [],
+      stockData: [],
+      fliterEmptyStock: true,
 
       data: {}
     }
@@ -53,8 +158,59 @@ export default {
     getManufacturerPartNumberItem() {
       manufacturerPart.PartNumber.get(this.$route.params.ManufacturerPartNumberId).then(response => {
         this.data = response
+        this.getSupplierPart(this.data.PartNumberId)
+        this.getPurchaseOrder(this.data.PartNumberId)
+        this.getProductionPart(this.data.PartNumberId)
+        this.getStockItems()
         this.setTitle()
-
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getSupplierPart(ManufacturerPartNumberId) {
+      supplierPart.search(null, null, ManufacturerPartNumberId).then(response => {
+        this.supplierPartData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getPurchaseOrder(ManufacturerPartNumberId) {
+      purchase.partPurchase(ManufacturerPartNumberId).then(response => {
+        this.purchaseOrderData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getProductionPart(ManufacturerPartNumberId) {
+      productionPart.search(null, ManufacturerPartNumberId).then(response => {
+        this.productionPartData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getStockItems() {
+      stock.search(this.fliterEmptyStock, null, this.data.PartNumberId).then(response => {
+        this.stockData = response
         this.loading = false
       }).catch(response => {
         this.$message({

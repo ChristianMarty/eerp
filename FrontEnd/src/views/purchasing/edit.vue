@@ -111,7 +111,7 @@
       :barcode="orderData.PurchaseOrderBarcode"
       @change="getOrder()"
     />
-    <!--<documentsList :documents="documents" />-->
+    <documentsList :documents="documents" />
 
     <editOrderMetaDialog
       :visible.sync="showOrderMetaEditDialog"

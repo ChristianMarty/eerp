@@ -1,12 +1,16 @@
 import eerpApi from '@/api/apiQuery'
 
 class Stock {
-  search(HideEmpty = true, StockNo = null) {
+  search(HideEmpty = true, StockNo = null, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/stock',
         methood: 'get',
-        params: { HideEmpty: HideEmpty, StockNo: StockNo }
+        params: {
+          HideEmpty: HideEmpty,
+          StockNo: StockNo,
+          ManufacturerPartNumberId
+        }
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

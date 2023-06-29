@@ -58,6 +58,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$vendorId = dbEscapeString($dbLink, $_GET["VendorId"]);
 		$queryParam[] = "VendorId = " . $vendorId;
 	}
+
+	if(isset($_GET["SupplierPartId"]))
+	{
+		$supplierPartId = dbEscapeString($dbLink, $_GET["SupplierPartId"]);
+		$queryParam[] = "SupplierPartId = " . $supplierPartId;
+	}
 	
 	if(isset($_GET["HideClosed"]))
 	{

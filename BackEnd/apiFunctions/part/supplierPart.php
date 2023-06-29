@@ -16,7 +16,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 	
-	if(isset($_GET["ManufacturerPartId"])) $manufacturerPartId =  dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);
+	if(isset($_GET["ManufacturerPartNumberId"])) $manufacturerPartNumberId =  dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
 	if(isset($_GET["SupplierId"])) $supplierId =  dbEscapeString($dbLink, $_GET["SupplierId"]);
 	if(isset($_GET["ProductionPartNo"])) $productionPartNo =  dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
 	
@@ -24,6 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<<STR
         SELECT *, 
                manufacturerPart_partNumber.Number AS ManufacturerPartNumbe, 
+               vendor.Id AS SupplierId,
                vendor.Name AS SupplierName, 
                supplierPart.Id AS SupplierPartId 
         FROM supplierPart 
@@ -34,7 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     STR;
 
 	$parameters = array();
-	if(isset($manufacturerPartId)) $parameters[] = " supplierPart.ManufacturerPartId = " . $manufacturerPartId;
+	if(isset($manufacturerPartNumberId)) $parameters[] = " supplierPart.ManufacturerPartNumberId = " . $manufacturerPartNumberId;
 	if(isset($supplierId)) $parameters[] = " supplierPart.VendorId = " . $supplierId;
 	if(isset($productionPartNo)) $parameters[] = " productionPart.PartNo = '" . $productionPartNo . "'";
 	
