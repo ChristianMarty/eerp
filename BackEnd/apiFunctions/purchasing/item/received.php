@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_user.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -69,9 +70,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$row['ItemOrderId'] = $lineId;
 	$row['QuantityReceived'] = $receivedQuantity;
 	$row['ReceivalDate'] = $receivedDate;
-	if(isset($_SESSION["userid"]))$row['UserId'] = $_SESSION["userid"];
-	else $row['UserId'] = null;
-	
+	$row['UserId'] = user_getId();
+
 	$query = dbBuildInsertQuery($dbLink, "purchaseOrder_itemReceive", $row);
 
 	$query = $query ."SELECT LAST_INSERT_ID();";

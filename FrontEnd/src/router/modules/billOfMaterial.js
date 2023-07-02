@@ -26,6 +26,12 @@ const billOfMaterial = {
         activeMenu: '/billOfMaterial/billOfMaterialBrowser'
       },
       hidden: true
+    },
+    {
+      path: 'bomView',
+      component: () => import('@/views/parts/bomView'),
+      name: 'bomView',
+      meta: { title: 'Bom View', icon: 'list' }
     }
   ]
 }

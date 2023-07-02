@@ -121,6 +121,27 @@ function getCitations($dbLink, $documentId): array
         $output[] = $temp;
     }
 
+// Get documents from manufacturerPart_Item
+    $query = <<< STR
+        SELECT 
+            manufacturerPart_item.Number,
+            manufacturerPart_item.Description,
+            vendor.Name AS VendorName
+        FROM manufacturerPart_item
+        LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId
+        WHERE replace(json_array(manufacturerPart_item.DocumentIds), ',', '","') LIKE '%"$documentId"%'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Category']= 'Manufacturer Part Item';
+        $temp['Barcode']= 'TBD';
+        $temp['Description']= $r['VendorName']." ".$r['Number']." - ".$r['Description'];
+        $output[] = $temp;
+    }
+
 // Get documents from purchaseOrder
     $query = <<< STR
         SELECT 

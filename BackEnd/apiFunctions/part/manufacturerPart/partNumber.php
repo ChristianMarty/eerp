@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/_function.php";
+require_once __DIR__ . "/../_part.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -61,6 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $r['PartNumberId'] = intval($r['PartNumberId']);
         $r['PartId'] = intval($r['PartId']);
         $r['SeriesId'] = intval($r['SeriesId']);
+        $r['ManufacturerPartNumberTemplateWithoutParameters'] = manufacturerPart_numberWithoutParameters($r['ManufacturerPartNumberTemplate']);
         $output[] = $r;
     }
 

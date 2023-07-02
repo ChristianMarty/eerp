@@ -86,7 +86,7 @@
       </el-table-column>
 
       <el-table-column
-        prop="ManufacturerPartNumberTemplate"
+        prop="ManufacturerPartNumberTemplateWithoutParameters"
         label="Part"
         sortable
         width="220"
@@ -96,7 +96,7 @@
             :to="'/manufacturerPart/item/' + row.PartId"
             class="link-type"
           >
-            <span>{{ row.ManufacturerPartNumberTemplate }}</span>
+            <span>{{ row.ManufacturerPartNumberTemplateWithoutParameters }}</span>
           </router-link>
         </template>
       </el-table-column>

@@ -1,14 +1,15 @@
 import eerpApi from '@/api/apiQuery'
 
 class ProductionPart {
-  search(ProductionPartNumber = null, ManufacturerPartNumberId = null) {
+  search(ProductionPartNumber = null, ManufacturerPartNumberId = null, HideNoManufacturerPart = false) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/productionPart',
         methood: 'get',
         params: {
-          ProductionPartNo: ProductionPartNumber,
-          ManufacturerPartNumberId: ManufacturerPartNumberId
+          ProductionPartNumber: ProductionPartNumber,
+          ManufacturerPartNumberId: ManufacturerPartNumberId,
+          HideNoManufacturerPart: HideNoManufacturerPart
         }
       }).then(response => {
         if (response.error == null) {
@@ -20,14 +21,14 @@ class ProductionPart {
     })
   }
 
-  item(ProductionPartNumber, ManufacturerPartNumberId = null) {
+  item(ProductionPartNumber, HideEmptyStock = false) {
     return new Promise((resolve, reject) => {
       eerpApi({
-        url: '/part/productionPart',
+        url: '/part/productionPart/item',
         methood: 'get',
         params: {
-          ProductionPartNumber: ProductionPartNumber,
-          ManufacturerPartNumberId: ManufacturerPartNumberId
+          ProductionPartBarcode: ProductionPartNumber,
+          HideEmptyStock: HideEmptyStock
         }
       }).then(response => {
         if (response.error == null) {

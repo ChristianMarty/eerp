@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/location.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_user.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
@@ -70,6 +71,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		{
 			$sqlData['WorkOrderId'] = $workOrder['Id'];
 		}
+
+		$sqlData['UserId'] = user_getId();
 		
 		$query = dbBuildInsertQuery($dbLink,"partStock_history", $sqlData);
 

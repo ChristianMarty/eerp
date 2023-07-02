@@ -22,16 +22,22 @@ const partsRouter = {
       meta: { title: 'Part Number Search', icon: 'search' }
     },
     {
+      path: 'partSeriesSearch',
+      component: () => import('@/views/manufacturerPart/series'),
+      name: 'partSeriesSearch',
+      meta: { title: 'Part Series', icon: 'search' }
+    },
+    {
       path: 'createPartSeries',
       component: () => import('@/views/manufacturerPart/series/create'),
       name: 'createPartSeries',
-      meta: { title: 'Create Part Series', icon: 'edit' }
+      meta: { title: 'Create Part Series', icon: 'edit', roles: ['manufacturerPart.create'] }
     },
     {
       path: 'createPartNumber',
       component: () => import('@/views/manufacturerPart/partNumber/create'),
       name: 'createPartNumber',
-      meta: { title: 'Create Part Number', icon: 'edit' }
+      meta: { title: 'Create Part Number', icon: 'edit', roles: ['manufacturerPart.create'] }
     },
     {
       path: 'partNumber/item/:ManufacturerPartNumberId(.*)',
@@ -39,12 +45,6 @@ const partsRouter = {
       name: 'partNumberItem',
       meta: { title: 'Part Number Item', icon: 'list', noCache: true },
       hidden: true
-    },
-    {
-      path: 'series',
-      component: () => import('@/views/manufacturerPart/series'),
-      name: 'partSeriesBrowser',
-      meta: { title: 'Part Series', icon: 'list' }
     },
     {
       path: 'series/item/:ManufacturerPartSeriesId(.*)',

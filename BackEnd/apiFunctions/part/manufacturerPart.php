@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/_part.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -43,15 +44,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $baseQuery = <<<STR
         SELECT
             manufacturerPart_item.Id AS PartId, 
-            vendor.name AS ManufacturerName, 
+            vendor_displayName(vendor.Id) AS ManufacturerName, 
             vendor.Id AS ManufacturerId, 
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+            manufacturerPart_item.Number AS ManufacturerPartNumberTemplate,
             manufacturerPart_item.Description,
             manufacturerPart_item.Attribute AS PartData, 
-            manufacturerPart_partPackage.name AS Package, 
-            sum(partStock_getQuantity(partStock.StockNo)) AS StockQuantity 
+            GROUP_CONCAT(manufacturerPart_partPackage.name) AS Package, 
+            SUM(partStock_getQuantity(partStock.StockNo)) AS StockQuantity 
         FROM manufacturerPart_item
-        LEFT JOIN vendor On vendor.Id = manufacturerPart_item.VendorId
+        LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+        LEFT JOIN vendor On vendor.Id = manufacturerPart_item.VendorId OR vendor.Id = manufacturerPart_series.VendorId 
         LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.ItemId = manufacturerPart_item.Id
         LEFT JOIN manufacturerPart_partPackage On manufacturerPart_partPackage.Id = manufacturerPart_partNumber.PackageId 
         LEFT JOIN partStock On partStock.ManufacturerPartNumberId = manufacturerPart_partNumber.Id 
@@ -137,6 +140,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		}
 		
 		$r['PartData'] = $partData;
+
+        $r['ManufacturerPartNumberTemplateWithoutParameters'] = manufacturerPart_numberWithoutParameters($r['ManufacturerPartNumberTemplate']);
+        if($r['ManufacturerPartNumberTemplateWithoutParameters'] ==  NULL) $r['ManufacturerPartNumberTemplateWithoutParameters'] = $r['ManufacturerPartNumber'];
 		$rows[] = $r;
 	}
 

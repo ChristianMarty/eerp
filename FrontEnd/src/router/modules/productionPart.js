@@ -1,7 +1,7 @@
 import Layout from '@/layout'
 
 const partsRouter = {
-  path: '/prodParts',
+  path: '/productionPart',
   component: Layout,
   name: 'parts',
   meta: {
@@ -10,10 +10,10 @@ const partsRouter = {
   },
   children: [
     {
-      path: 'prodPartBrowser',
-      component: () => import('@/views/parts/prodPartBrowser'),
-      name: 'prodPartBrowser',
-      meta: { title: 'Production Part Browser', icon: 'list' }
+      path: 'search',
+      component: () => import('@/views/productionPart/search'),
+      name: 'productionPartSearch',
+      meta: { title: 'Search', icon: 'search' }
     },
     {
       path: 'prodPartNotification',
@@ -22,19 +22,13 @@ const partsRouter = {
       meta: { title: 'Stock Notification', icon: 'list' }
     },
     {
-      path: 'bomView',
-      component: () => import('@/views/parts/bomView'),
-      name: 'bomView',
-      meta: { title: 'Bom View', icon: 'list' }
-    },
-    {
-      path: 'prodPartView/:partNo(.*)',
-      component: () => import('@/views/parts/prodPartView'),
-      name: 'prodPartView',
+      path: 'item/:productionPartNumber(.*)',
+      component: () => import('@/views/productionPart/item'),
+      name: 'productionPart',
       meta: {
-        title: 'Production Part View',
+        title: 'Production Part',
         noCache: true,
-        activeMenu: '/productionPart/prodPartBrowser'
+        activeMenu: '/productionPart/productionPartSearch'
       },
       hidden: true
     }

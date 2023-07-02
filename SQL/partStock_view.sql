@@ -1,19 +1,35 @@
-SELECT supplier.Name AS SupplierName, supplierPart.SupplierPartNumber, partStock.OrderReference, partStock.StockNo, manufacturer.Name AS ManufacturerName, manufacturerPart.VendorId AS ManufacturerId, manufacturerPart.ManufacturerPartNumber, partStock.ManufacturerPartId, partStock.Date,
-partStock.LocationId, location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, hc.CreateQuantity,  h.HistoryQuantity AS Quantity, r.ReservedQuantity AS ReservedQuantity, h.LastCountDate AS LastCountDate, hc.CreateData
+SELECT 
+	supplier.Name AS SupplierName, 
+	supplierPart.SupplierPartNumber, 
+	partStock.OrderReference, 
+	partStock.StockNo, 
+	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
+	manufacturer.Id AS ManufacturerId, 
+	manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+	partStock.ManufacturerPartId, 
+	partStock.Date,
+	partStock.LocationId, 
+	location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, 
+	hc.CreateQuantity,  
+	h.HistoryQuantity AS Quantity, 
+	r.ReservedQuantity AS ReservedQuantity, 
+	h.LastCountDate AS LastCountDate, 
+	hc.CreateData
 FROM partStock
 
-LEFT JOIN (SELECT SupplierPartId, purchasOrder_itemReceive.Id FROM purchasOrder_itemOrder LEFT JOIN purchasOrder_itemReceive ON purchasOrder_itemOrder.Id = purchasOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId
+LEFT JOIN (SELECT SupplierPartId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId)poLine ON poLine.Id = partStock.ReceivalId
 
 LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)
 
-LEFT JOIN manufacturerPart ON (manufacturerPart.Id = partStock.ManufacturerPartId AND supplierPart.ManufacturerPartId IS NULL) OR manufacturerPart.Id = supplierPart.ManufacturerPartId
+LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartNumberId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
+LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
 
-LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart.VendorId
+LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId
 LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
 
 LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
 LEFT JOIN (SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create')hc ON  hc.StockId = partStock.Id
-
 
 LEFT JOIN (
 	SELECT partStock_history.Id, partStock_history.StockId, partStock_history.ChangeType, partStock_history.Quantity, partStock_history.Date, q.HistoryQuantity, q.LastCountDate

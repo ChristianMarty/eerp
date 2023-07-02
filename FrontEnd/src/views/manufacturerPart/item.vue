@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ partData.ManufacturerName }} - {{ partData.PartNumber }}</h1>
+    <h1>{{ partData.ManufacturerName }} - {{ partData.PartNumberWithoutParameters }}</h1>
     <h2>{{ partData.Description }} </h2>
     <p><b>Series:</b>
       <router-link :to="'/manufacturerPart/series/item/' + partData.SeriesId" class="link-type">
@@ -31,6 +31,7 @@
 
     <el-divider />
     <h3>Part Number</h3>
+    <p><b>Part Number Template:</b> {{ partData.PartNumber }}</p>
     <el-table
       :data="partData.PartNumberItem"
       style="width: 100%"
@@ -42,7 +43,7 @@
       <el-table-column prop="ProductionPartBarcode" label="Production Part Number">
         <template slot-scope="{ row }">
           <router-link
-            :to="'/prodParts/prodPartView/' + row.ProductionPartBarcode"
+            :to="'/productionPart/item/' + row.ProductionPartBarcode"
             class="link-type"
           >
             <span>{{ row.ProductionPartBarcode }}</span>
@@ -52,6 +53,14 @@
       <el-table-column prop="Description" label="Description" />
     </el-table>
 
+    <h3>Documents</h3>
+    <editDocumentsList
+      attach="ManufacturerPartItemDocument"
+      :barcode="partData.PartId"
+      @change="getManufacturerPartItem()"
+    />
+    <documentsList :documents="partData.Documents" />
+
   </div>
 </template>
 
@@ -60,8 +69,12 @@
 import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
+import documentsList from '@/views/document/components/documentsList'
+import editDocumentsList from '@/views/document/components/editDocumentsList'
+
 export default {
   name: 'PartSeriesBrowser',
+  components: { documentsList, editDocumentsList },
   data() {
     return {
       loading: true,
@@ -80,10 +93,10 @@ export default {
   methods: {
     setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: this.partData.ManufacturerName + ' - ' + this.partData.PartNumber
+        title: this.partData.ManufacturerName + ' - ' + this.partData.PartNumberWithoutParameters
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-      document.title = this.partData.ManufacturerName + ' - ' + this.partData.PartNumber
+      document.title = this.partData.ManufacturerName + ' - ' + this.partData.PartNumberWithoutParameters
     },
     getManufacturerPartItem() {
       manufacturerPart.item(this.$route.params.ManufacturerPartItemId).then(response => {

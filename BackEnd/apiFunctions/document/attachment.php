@@ -33,7 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         $result = dbRunQuery($dbLink,$query);
         if(!$result) sendResponse(null, "Error in doc list");
         $docIdList = mysqli_fetch_assoc($result)['DocumentIds'];
-
+    }
+    else if($attachToTable === "ManufacturerPartSeriesDocument")
+    {
+        $manufacturerPartSeriesId =  intval($attachToBarcode);
+        $query = "SELECT DocumentIds FROM manufacturerPart_series WHERE Id = '".$manufacturerPartSeriesId."'";
+        $result = dbRunQuery($dbLink,$query);
+        if(!$result) sendResponse(null, "Error in doc list");
+        $docIdList = mysqli_fetch_assoc($result)['DocumentIds'];
+    }
+    else if($attachToTable === "ManufacturerPartItemDocument")
+    {
+        $manufacturerPartItemId = intval($attachToBarcode);
+        $query = "SELECT DocumentIds FROM manufacturerPart_item WHERE Id = '".$manufacturerPartItemId."'";
+        $result = dbRunQuery($dbLink,$query);
+        if(!$result) sendResponse(null, "Error in doc list");
+        $docIdList = mysqli_fetch_assoc($result)['DocumentIds'];
     }
     $output = getDocuments($docIdList);
     dbClose($dbLink);
@@ -75,6 +90,25 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
         if(!$result) sendResponse(null, "Document List Update Failed");
 
     }
+    else if($attachToTable === "ManufacturerPartSeriesDocument")
+    {
+        $manufacturerPartSeriesId =  intval($attachToBarcode);
+
+        $query = "UPDATE manufacturerPart_series SET DocumentIds = '".$docIdList."' WHERE Id = ".$manufacturerPartSeriesId;
+        $result = dbRunQuery($dbLink,$query);
+        if(!$result) sendResponse(null, "Document List Update Failed");
+
+    }
+    else if($attachToTable === "ManufacturerPartItemDocument")
+    {
+        $manufacturerPartItemId =  intval($attachToBarcode);
+
+        $query = "UPDATE manufacturerPart_item SET DocumentIds = '".$docIdList."' WHERE Id = ".$manufacturerPartItemId;
+        $result = dbRunQuery($dbLink,$query);
+        if(!$result) sendResponse(null, "Document List Update Failed");
+
+    }
+
 
 	dbClose($dbLink);
 	sendResponse(null);

@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         FROM purchaseOrder_itemOrder
         LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
         LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
-        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = supplierPart.ManufacturerPartId
+        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = supplierPart.ManufacturerPartNumberId
         LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
         LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId

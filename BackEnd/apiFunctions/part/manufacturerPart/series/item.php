@@ -22,9 +22,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $dbLink = dbConnect();
 
     $query = <<<STR
-        SELECT manufacturerPart_series.Id AS ManufacturerPartSeriesId, manufacturerPart_series.Title, vendor.Name AS  ManufacturerName, manufacturerPart_class.Name AS ClassName, 
-               manufacturerPart_series.Description, NumberTemplate,
-               manufacturerPart_series.DocumentIds AS SeriesDocumentIds
+        SELECT
+            manufacturerPart_series.Id AS ManufacturerPartSeriesId, 
+            manufacturerPart_series.Title,
+            vendor.Name AS  ManufacturerName, 
+            manufacturerPart_class.Name AS ClassName, 
+            manufacturerPart_series.Description, NumberTemplate,
+            manufacturerPart_series.DocumentIds AS SeriesDocumentIds
         FROM manufacturerPart_series
         LEFT JOIN manufacturerPart_class ON manufacturerPart_class.Id = manufacturerPart_series.ClassId
         LEFT JOIN vendor on vendor.Id = manufacturerPart_series.VendorId
@@ -79,10 +83,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $result = mysqli_query($dbLink, $query);
         while ($r = mysqli_fetch_assoc($result)) {
             $r['Description'] = descriptionFromNumber($item['Number'],$parameter,$r['Number']);
+            $r['PartNumberId'] = intval($r['Id']);
             $manufacturerPartNumber[] = $r;
         }
         $item['PartNumber'] = $manufacturerPartNumber;
-
     }
 
     $output["Documents"] = getDocumentsFromIds($dbLink, $output['SeriesDocumentIds']);

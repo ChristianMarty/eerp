@@ -75,17 +75,17 @@
         style="width: 100%"
       >
         <el-table-column
-          prop="ManufacturerPartNumber"
+          prop="ManufacturerPartNumberTemplateWithoutParameters"
           sortable
-          label="Manufacturer Part No"
+          label="Manufacturer Part"
           width="220"
         >
           <template slot-scope="{ row }">
             <router-link
-              :to="'/mfrParts/partView/' + row.PartId"
+              :to="'/manufacturerPart/item/' + row.PartId"
               class="link-type"
             >
-              <span>{{ row.ManufacturerPartNumber }}</span>
+              <span>{{ row.ManufacturerPartNumberTemplateWithoutParameters }}</span>
             </router-link>
           </template>
         </el-table-column>

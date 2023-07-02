@@ -35,9 +35,16 @@
     >
       <el-table-column label="Number" prop="Number" sortable>
         <template slot-scope="{ row }">
-          <router-link :to="'/manufacturerPart/item/' + row.ItemId" class="link-type">
-            <span> {{ row.Number }}</span>
-          </router-link>
+          <template v-if="row.LineType === 'Part' ">
+            <router-link :to="'/manufacturerPart/item/' + row.ItemId" class="link-type">
+              <span> {{ row.Number }}</span>
+            </router-link>
+          </template>
+          <template v-if="row.LineType === 'PartNumber' ">
+            <router-link :to="'/manufacturerPart/partNumber/item/' + row.PartNumberId" class="link-type">
+              <span> {{ row.Number }}</span>
+            </router-link>
+          </template>
         </template>
       </el-table-column>
       <el-table-column label="Description" prop="Description" sortable />
@@ -45,6 +52,11 @@
     </el-table>
 
     <h3>Documents</h3>
+    <editDocumentsList
+      attach="ManufacturerPartSeriesDocument"
+      :barcode="data.ManufacturerPartSeriesId"
+      @change="getManufacturerPartSeriesItem()"
+    />
     <documentsList :documents="data.Documents" />
 
   </div>
@@ -52,13 +64,14 @@
 
 <script>
 import documentsList from '@/views/document/components/documentsList'
+import editDocumentsList from '@/views/document/components/editDocumentsList'
 
 import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
 export default {
   name: 'PartSeriesItem',
-  components: { documentsList },
+  components: { documentsList, editDocumentsList },
   data() {
     return {
       loading: true,
@@ -107,6 +120,7 @@ export default {
         rowKey = 1
         this.data.Item.forEach(element => {
           element.rowKey = String(rowKey)
+          element.LineType = 'Part'
           rowKey++
           if (element.PartNumber.length === 0) {
             delete element.PartNumber
@@ -114,6 +128,7 @@ export default {
             let rowKey2 = 1
             element.PartNumber.forEach(element2 => {
               element2.rowKey = element.rowKey + '.' + String(rowKey2)
+              element2.LineType = 'PartNumber'
               rowKey2++
             })
           }

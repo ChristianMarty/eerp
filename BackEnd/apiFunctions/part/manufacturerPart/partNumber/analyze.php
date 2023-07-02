@@ -100,7 +100,6 @@ function generateItemNumberTemplate($numberTemplate, $parameter, $number) :strin
             }
         }else{
 
-
             $length = intval($o['parameter']["Length"]);
             $decoder = $o['parameter']["Decoder"];
             $part = substr($numberPart, 0,$length);

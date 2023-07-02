@@ -353,7 +353,7 @@ export default {
     getProductionPartData() {
       if (this.partData.ManufacturerPartNumberId === null) return
 
-      productionPart.item(null, this.partData.ManufacturerPartNumberId).then(response => {
+      productionPart.search(null, this.partData.ManufacturerPartNumberId).then(response => {
         this.productionPartData = response
       }).catch(response => {
         this.$message({
