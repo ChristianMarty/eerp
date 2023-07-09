@@ -43,6 +43,7 @@ $json =  '{ "assembly":{"view": true, "create": true, "unit" : {"add": true, "hi
 			"process":{"run": true},
 			"document":{"upload": true, "create": true, "ingest": true},
 			"manufacturerPart":{"create": true,"edit": true},
+			"productionPart":{"create": true,"edit": true},
 			"stock":{"create": true, "add": true, "remove":true, "count":true, "delete":true}, 
 			"location":{"transfer":true, "bulkTransfer":true, "print": true},
 			"finance":{"view":true, "costCenter":true},

@@ -91,11 +91,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     if(isset($output['Attribute'])) $output['Attribute'] = decodeAttributes(getAttributes($dbLink),$output['Attribute']);
     else $output['Attribute'] = null;
 
-    $documentIds = $output['SeriesDocumentIds'];
-    if($documentIds && strlen($documentIds) > 1) $documentIds .=",";
-    $documentIds .= $output['ItemDocumentIds'];
-
-    $output["Documents"] = getDocumentsFromIds($dbLink, $documentIds);
+    $documentIds = array();
+    if($output['SeriesDocumentIds']) $documentIds = explode(",",$output['SeriesDocumentIds']);
+    if($output['ItemDocumentIds']) $documentIds[] = explode(",",$output['ItemDocumentIds']);
+    $documentIdsStr = implode(",", $documentIds);
+    $output["Documents"] = getDocumentsFromIds($dbLink, $documentIdsStr);
 
     dbClose($dbLink);
     sendResponse($output);

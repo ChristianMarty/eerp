@@ -12,7 +12,7 @@
       @cell-click="(row, column, cell, event) =>openViewLineItemDialog(row, column, cell, event)"
     >
       <el-table-column prop="LineNo" label="Line" width="80" sortable />
-      <el-table-column prop="QuantityOrderd" label="Orderd Qty" width="140" sortable />
+      <el-table-column prop="QuantityOrdered" label="Orderd Qty" width="140" sortable />
       <el-table-column
         prop="QuantityReceived"
         label="Received Qty"

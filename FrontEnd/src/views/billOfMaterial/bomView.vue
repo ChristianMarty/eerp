@@ -17,7 +17,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">Analyse</el-button>
+        <el-button type="primary" @click="onSubmit()">Analyse</el-button>
       </el-form-item>
     </el-form>
 
@@ -45,17 +45,17 @@
       style="width: 100%"
       :row-class-name="tableAnalyzer"
       border
-    ><el-table-column prop="PartNo" label="Part No" width="150" sortable>
+    ><el-table-column prop="ProductionPartNumber" label="Part No" width="150" sortable>
        <template slot-scope="{ row }">
          <router-link
-           :to="'/prodParts/prodPartView/' + row.PartNo"
+           :to="'/productionPart/item/' + row.ProductionPartNumber"
            class="link-type"
          >
-           <span>{{ row.PartNo }}</span>
+           <span>{{ row.ProductionPartNumber }}</span>
          </router-link>
        </template>
      </el-table-column>
-      <el-table-column prop="RefDes" label="RefDes" />
+      <el-table-column prop="ReferenceDesignator" label="RefDes" />
       <el-table-column prop="Description" label="Description" />
       <el-table-column prop="Quantity" label="Quantity" width="100" />
       <el-table-column prop="TotalQuantity" label="Total" width="100" />
@@ -114,14 +114,14 @@ export default {
         url: this.analyzePath,
         data: { csv: this.csv, BuildQuantity: this.buildQuantity }
       }).then(response => {
-        this.bom = response.data.bom
+        this.bom = response.data
         this.onQuantityChange()
       })
     },
     getAnalyzeOptions() {
       requestBN({
         method: 'get',
-        url: '/project/analyze'
+        url: '/billOfMaterial/analyze'
       }).then(response => {
         this.analyzeOptions = response.data
       })

@@ -10,7 +10,7 @@ import Layout from '@/layout'
 import purchasingRouter from './modules/purchasing'
 import vendorRouter from './modules/vendor'
 import prodPartsRouter from './modules/productionPart'
-import mfrPartsRouter from './modules/manufacturerPart'
+import manufacturerPartRouter from './modules/manufacturerPart'
 import inventoryRouter from './modules/inventory'
 import documentRouter from './modules/document'
 import locationsRouter from './modules/location'
@@ -26,8 +26,6 @@ import assemblyRouter from './modules/assembly'
 import metrologyRouter from './modules/metrology'
 import financeRouter from './modules/finance'
 import specificationPartRouter from './modules/specificationPart'
-
-import manufacturerPart_newRouter from './modules/manufacturerPart_new'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -148,8 +146,7 @@ export const asyncRoutes = [
   billOfMaterial,
   workOrderRouter,
   prodPartsRouter,
-  mfrPartsRouter,
-  manufacturerPart_newRouter,
+  manufacturerPartRouter,
   specificationPartRouter,
   partMetadataRouter,
   stockRouter,

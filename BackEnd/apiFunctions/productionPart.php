@@ -43,7 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	if($hideNoManufacturerPart)
 	{
-		$queryParam[] = "ManufacturerPartId IS NOT NULL";
+		$queryParam[] = "ManufacturerPartNumberId IS NOT NULL";
 	}
 	
 	$query = dbBuildQuery($dbLink, $query, $queryParam);

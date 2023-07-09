@@ -16,6 +16,12 @@ const partsRouter = {
       meta: { title: 'Search', icon: 'search' }
     },
     {
+      path: 'createProductionPart',
+      component: () => import('@/views/productionPart/create'),
+      name: 'createProductionPart',
+      meta: { title: 'Create', icon: 'edit', roles: ['productionPart.create'] }
+    },
+    {
       path: 'prodPartNotification',
       component: () => import('@/views/parts/prodPartNotification'),
       name: 'prodPartNotification',

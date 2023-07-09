@@ -29,7 +29,7 @@ const billOfMaterial = {
     },
     {
       path: 'bomView',
-      component: () => import('@/views/parts/bomView'),
+      component: () => import('@/views/billOfMaterial/bomView'),
       name: 'bomView',
       meta: { title: 'Bom View', icon: 'list' }
     }
