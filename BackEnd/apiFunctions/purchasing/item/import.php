@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_user.php";
 	
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -143,6 +144,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$sqlData['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
 		$sqlData['OrderReference'] = $line['OrderReference'];
 		$sqlData['StockPart']['raw'] = "b'1'";
+        $sqlData['VatTaxId'] = user_getVatIdDefault();
+        $sqlData['Discount'] = 0;
 		
 		$sqlData['PurchaseOrderId'] = $id;
 		$query = dbBuildInsertQuery($dbLink,"purchaseOrder_itemOrder", $sqlData);

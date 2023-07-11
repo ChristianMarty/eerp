@@ -58,6 +58,7 @@ function generateItemNumberTemplate($numberTemplate, $parameter, $number) :strin
             $values['Description'] = null;
 
             $parameter['Values'][] = $values;
+            $parameter['Type'] = "Fill";
             $parameter['Name'] = null;
             $tmp['parameter'] = $parameter;
 
@@ -88,13 +89,11 @@ function generateItemNumberTemplate($numberTemplate, $parameter, $number) :strin
             foreach ($o['parameter']["Values"] as $v) {
                 if (str_starts_with($numberPart, $v['Value'])) {
                     $size += strlen($v['Value']);
-                    if($o['parameter']['Type'] == 'Functional') {
+                    if($o['parameter']['Type'] == 'Functional' || $o['parameter']['Type'] == "Fill") {
                         if ($v['Value'] !== null) $output .= $v['Value'];
-                    }
-                    else{
+                    }else{
                         if ($v['Value'] !== null) $output .= "{".$o['parameter']['Name']."}";
                     }
-
                     break;
                 }
             }

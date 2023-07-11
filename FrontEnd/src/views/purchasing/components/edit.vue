@@ -275,11 +275,11 @@ export default {
     },
     setExpectedDate(date) {
       this.poData.Lines.forEach(element => { element.ExpectedReceiptDate = date })
-      this.saveItems()
+      this.saveLines()
     },
     setVat(vatId) {
       this.poData.Lines.forEach(element => { element.VatTaxId = vatId })
-      this.saveItems()
+      this.saveLines()
     },
     showSuccessMessage(message) {
       this.$message({

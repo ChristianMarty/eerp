@@ -139,12 +139,11 @@ function mouser_getOrderInformation($mouserOrderNumber ): array
 		
 		$lineIndex++;
 		
-		array_push($lines, $temp);
+		$lines[] = $temp;
 	}
 	
 	$data['Lines'] = $lines;
 
-	
     return $data; 
 }
 

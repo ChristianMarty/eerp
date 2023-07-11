@@ -16,4 +16,11 @@ function user_getId(): int|null
     if($devMode) return null;
     else return $_SESSION["userid"];
 }
+
+function user_getVatIdDefault(): int
+{
+    global $devMode;
+    if($devMode) return 1;
+    else return 1; // Todo: load default from DB
+}
 ?>

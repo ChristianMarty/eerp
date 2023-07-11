@@ -30,7 +30,8 @@
             <template>
               <template v-if="row.ManufacturerPartId !== null">
                 <router-link
-                  :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+                  v-if="row.ManufacturerPartNumberId !== null"
+                  :to="'/manufacturerPart/partNumber/item/' + row.ManufacturerPartNumberId"
                   class="link-type"
                 >
                   <span>{{ row.ManufacturerPartNumber }}</span>
