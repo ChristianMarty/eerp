@@ -10,6 +10,7 @@
 
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/util/location.php";
+require_once __DIR__ . "/util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -22,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$found = false;
 
-	if(count($parts) >= 2)
+	if(count($parts) >= 2)  // Search for barcodes
 	{
 		$category = "";	
 		$prefix = "";
@@ -42,41 +43,122 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				break;
 			}
 		}
-
 		dbClose($dbLink);
 
 		if($found)
 		{
 			$data["Category"] = $category;
-			$data["Item"] = $parts[1];
-			$data["Code"] = $prefix . "-" . $parts[1];
+			$data["Item"] = $prefix . "-" . $parts[1];
+			$data["RedirectCode"] = $prefix . "-" . $parts[1];
+
+			$output = array();
+			$output[] = $data;
+			sendResponse($output);
 		}
-		else
-		{
-			$output = array_merge(search_MPN($search), search_assemblySerialNumber($search));
-			if(!empty($output)) sendResponse($output);
-			else sendResponse(null,"Number format invalid.");
-		}
-	}
-	else
-	{
-		// Search MPN manufacturerPart
-		$output = array_merge(search_MPN($search), search_assemblySerialNumber($search));
-		if(!empty($output)) sendResponse($output);
-		else sendResponse(null,"Number format invalid.");
 	}
 
-	$output = array();
-	$output[] = $data;
+	$dbLink = dbConnect();
+	// Search everywhere else
+	$output = array_merge(
+		search_manufacturerPartNumber($dbLink, $search),
+		search_assemblySerialNumber($dbLink, $search),
+		search_manufacturerPartItem($dbLink, $search),
+		manufacturerPartSeries($dbLink, $search),
+		search_vendor($dbLink, $search)
+	);
+	dbClose($dbLink);
 	sendResponse($output);
 }
 
-function search_MPN($input): array
+
+function manufacturerPartSeries($dbLink, $input): array
 {
-	$dbLink = dbConnect();
 	$input = dbEscapeString($dbLink,$input);
 
-	$query = "SELECT Id, ManufacturerPartNumber FROM manufacturerPart WHERE ManufacturerPartNumber LIKE '$input'";
+	$query = <<<STR
+		SELECT manufacturerPart_series.Id, Title, Description, vendor_displayName(vendor.Id) AS VendorName
+		FROM manufacturerPart_series 
+		LEFT JOIN vendor on manufacturerPart_series.VendorId = vendor.Id
+		WHERE Title LIKE '$input' OR  Description LIKE '$input'
+	STR;
+	$result = dbRunQuery($dbLink,$query);
+
+	$output = array();
+	while($r = mysqli_fetch_assoc($result))
+	{
+		$temp = array();
+		$temp["Category"] = 'ManufacturerPartItem';
+		$temp["Item"] = $r['VendorName']." - ".$r['Title'];
+		$temp["RedirectCode"] = $r['Id'];
+		$temp["Description"] = $r['Description'];
+		$temp["LocationPath"] = '';
+
+		$output[] = $temp;
+	}
+	return $output;
+}
+
+function search_vendor($dbLink, $input): array
+{
+
+	$input = dbEscapeString($dbLink,$input);
+
+	$query = <<<STR
+		SELECT Id, Name, vendor_displayName(vendor.Id) AS VendorName
+		FROM vendor 
+		WHERE Name LIKE '$input' OR ShortName LIKE '$input'
+	STR;
+	$result = dbRunQuery($dbLink,$query);
+
+	$output = array();
+
+	while($r = mysqli_fetch_assoc($result))
+	{
+		$temp = array();
+		$temp["Category"] = 'Vendor';
+		$temp["Item"] = $r['VendorName'];
+		$temp["RedirectCode"] = $r['Id'];
+		$temp["Description"] = '';
+		$temp["LocationPath"] = '';
+
+		$output[] = $temp;
+	}
+	return $output;
+}
+
+function search_manufacturerPartItem($dbLink, $input): array
+{
+	$input = dbEscapeString($dbLink,$input);
+
+	$query = <<<STR
+		SELECT manufacturerPart_item.Id, Number, vendor_displayName(vendor.Id) AS VendorName
+		FROM manufacturerPart_item 
+		LEFT JOIN vendor on manufacturerPart_item.VendorId = vendor.Id
+		WHERE Number LIKE '$input'
+	STR;
+	$result = dbRunQuery($dbLink,$query);
+
+	$output = array();
+
+	while($r = mysqli_fetch_assoc($result))
+	{
+		$temp = array();
+		$temp["Category"] = 'ManufacturerPartItem';
+		$temp["Item"] = $r['VendorName']." - ".$r['Number'];
+		$temp["RedirectCode"] = $r['Id'];
+		$temp["Description"] = '';
+		$temp["LocationPath"] = '';
+
+		$output[] = $temp;
+	}
+	return $output;
+}
+
+function search_manufacturerPartNumber($dbLink, $input): array
+{
+	$input = dbEscapeString($dbLink,$input);
+
+	$query = "SELECT Id, Number FROM manufacturerPart_partNumber WHERE Number LIKE '$input'";
 	$result = dbRunQuery($dbLink,$query);
 
 	$output = array();
@@ -85,19 +167,19 @@ function search_MPN($input): array
 	{
 		$temp = array();
 		$temp["Category"] = 'ManufacturerPartNumber';
-		$temp["Item"] = $r['ManufacturerPartNumber'];
-		$temp["Code"] = $r['ManufacturerPartNumber'];
-		$temp["Id"] = $r['Id'];
+		$temp["Item"] = $r['Number'];
+		$temp["RedirectCode"] = $r['Id'];
+		$temp["Description"] = '';
+		$temp["LocationPath"] = '';
 
 		$output[] = $temp;
-
 	}
-
 	return $output;
 }
-function search_assemblySerialNumber($input): array
+
+
+function search_assemblySerialNumber($dbLink, $input): array
 {
-	$dbLink = dbConnect();
 	$input = dbEscapeString($dbLink,$input);
 
 	$query = "SELECT Id, AssemblyUnitNumber, SerialNumber FROM assembly_unit WHERE SerialNumber LIKE '$input'";
@@ -110,12 +192,12 @@ function search_assemblySerialNumber($input): array
 		$temp = array();
 		$temp["Category"] = 'AssemblyUnit';
 		$temp["Item"] = $r['SerialNumber'];
-		$temp["Code"] = "ASU-".$r['AssemblyUnitNumber'];
+		$temp["RedirectCode"] = barcodeFormatter_AssemblyUnitNumber($r['AssemblyUnitNumber']);
+		$temp["Description"] = '';
+		$temp["LocationPath"] = '';
 
 		$output[] = $temp;
-
 	}
-
 	return $output;
 }
 ?>

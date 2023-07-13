@@ -2,7 +2,14 @@
   <div class="app-container">
     <h1> Search Result for : {{ searchTerm }}</h1>
 
+    <el-input ref="searchInput" v-model="searchInput" placeholder="Search" @keyup.enter.native="search(searchInput)">
+      <el-button slot="append" icon="el-icon-search" @click="search(searchInput)" />
+    </el-input>
+    <p>Use SQL LIKE syntax for MPN search.</p>
+
     <el-table
+      v-loading="loading"
+      element-loading-text="Searching..."
       :data="result"
       border
       style="width: 100%"
@@ -14,7 +21,7 @@
       </el-table-column>
       <el-table-column prop="Category" label="Category" width="200" />
       <el-table-column prop="Description" label="Description" />
-      <el-table-column prop="Location" label="Current Location" />
+      <el-table-column prop="LocationPath" label="Current Location" />
     </el-table>  </div>
 </template>
 
@@ -32,15 +39,15 @@ export default {
   },
   data() {
     return {
+      loading: true,
+      searchInput: '',
       searchTerm: '',
-      result: {}
+      result: []
     }
   },
   mounted() {
     if (this.$route.params.Search != null) {
-      this.searchTerm = this.$route.params.Search
-
-      this.search(this.searchTerm)
+      this.search(this.$route.params.Search)
     }
   },
   created() {
@@ -66,31 +73,38 @@ export default {
       this.$store.dispatch('tagsView/delView', this.$route) // close search view
 
       switch (item.Category) {
-        case 'Location': this.$router.push('/location/summary/' + item.Code)
+        case 'Location': this.$router.push('/location/summary/' + item.RedirectCode)
           break
-        case 'Stock': this.$router.push('/stock/item/' + item.Code)
+        case 'Stock': this.$router.push('/stock/item/' + item.RedirectCode)
           break
-        case 'Inventory': this.$router.push('/Inventory/inventoryView/' + item.Code)
+        case 'Inventory': this.$router.push('/Inventory/inventoryView/' + item.RedirectCode)
           break
-        case 'PurchaseOrder': this.$router.push('/purchasing/edit/' + item.Code)
+        case 'PurchaseOrder': this.$router.push('/purchasing/edit/' + item.RedirectCode)
           break
-        case 'WorkOrder': this.$router.push('/workOrder/workOrderView/' + item.Code)
+        case 'WorkOrder': this.$router.push('/workOrder/workOrderView/' + item.RedirectCode)
           break
-        case 'ProductPart': this.$router.push('/prodParts/prodPartView/' + item.Code)
+        case 'Vendor': this.$router.push('/vendor/view/' + item.RedirectCode)
           break
-        case 'AssemblyUnit': this.$router.push('/assembly/unit/item/' + item.Code)
+        case 'ProductionPart': this.$router.push('/productionPart/item/' + item.RedirectCode)
           break
-        case 'ManufacturerPartNumber': this.$router.push('/mfrParts/partView/' + item.Id)
+        case 'AssemblyUnit': this.$router.push('/assembly/unit/item/' + item.RedirectCode)
+          break
+        case 'ManufacturerPartItem': this.$router.push('/manufacturerPart/item/' + item.RedirectCode)
+          break
+        case 'ManufacturerPartNumber': this.$router.push('/manufacturerPart/partNumber/item/' + item.RedirectCode)
           break
       }
     },
     search(term) {
+      this.loading = true
+      this.searchTerm = term
       requestBN({
         url: '/search',
         methood: 'get',
         params: { search: term }
       }).then(response => {
         this.result = response.data
+        this.loading = false
 
         if (this.result.length === 1) {
           this.redirect(this.result[0])

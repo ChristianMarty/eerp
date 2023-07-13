@@ -17,11 +17,11 @@
       </p>
     </el-card>
 
-    <el-card class="small-box">
+    <!-- <el-card class="small-box">
       <h3 style="text-align:center">Stock Notifications</h3>
       <p style="text-align:center">{{ StockNotification.Minimum }} / {{ StockNotification.Warning }} </p>
 
-    </el-card>
+    </el-card>-->
 
     <el-card class="small-box">
       <h3 style="text-align:center">Part Pick List</h3>
