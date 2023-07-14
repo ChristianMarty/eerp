@@ -9,12 +9,12 @@
         </el-form-item>
 
         <el-form-item label="Work Order:">
-          <el-select v-model="workOrderId" filterable>
+          <el-select v-model="workOrderNumber" filterable>
             <el-option
               v-for="wo in workOrders"
-              :key="wo.Id"
-              :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
-              :value="wo.Id"
+              :key="wo.WorkOrderBarcode"
+              :label="wo.WorkOrderBarcode + ' - ' + wo.Title"
+              :value="wo.WorkOrderBarcode"
             />
           </el-select>
         </el-form-item>
@@ -47,7 +47,7 @@ export default {
     return {
       removeQuantity: 0,
       workOrders: null,
-      workOrderId: null,
+      workOrderNumber: null,
       note: ''
     }
   },
@@ -75,7 +75,7 @@ export default {
         data: {
           StockNo: this.item.StockNo,
           RemoveQuantity: this.removeQuantity,
-          WorkOrderId: this.workOrderId,
+          WorkOrderNumber: this.workOrderNumber,
           Note: this.note
         }
       }).then(response => {

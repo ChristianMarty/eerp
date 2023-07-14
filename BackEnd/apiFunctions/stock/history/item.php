@@ -77,8 +77,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$result = dbRunQuery($dbLink,$query);
 	$stockId = dbGetResult($result)['Id'];
 
-	if(isset($data["WorkOrderId"])) $workOrderId = dbEscapeString($dbLink, $data["WorkOrderId"]);
-	else $workOrderId = null;
+	$workOrderNumber = null;
+	if(isset($data['WorkOrderNumber']))
+	{
+		$workOrderNumber = barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
+	}
 
 	$sqlData = array();
 
@@ -98,7 +101,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$removeQuantity = intval($removeQuantity);
 
 		$sqlData['Quantity'] = abs($removeQuantity)*-1;
-		if($workOrderId != null) $sqlData['workOrderId'] = $workOrderId;
+		if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = ".$workOrderNumber.")";
 		$sqlData['ChangeType']['raw'] = '"Relative"';
 	}
 	else if(isset($data["AddQuantity"]))

@@ -9,12 +9,12 @@
         </el-form-item>
 
         <el-form-item v-if="data.Type == 'remove'" label="Work Order:">
-          <el-select v-model="data.WorkOrderNo" filterable>
+          <el-select v-model="data.WorkOrderNumber" filterable>
             <el-option
               v-for="wo in workOrders"
-              :key="wo.WorkOrderNo"
-              :label="'WO-' + wo.WorkOrderNo + ' - ' + wo.Title"
-              :value="wo.WorkOrderNo"
+              :key="wo.WorkOrderBarcode"
+              :label="wo.WorkOrderBarcode + ' - ' + wo.Title"
+              :value="wo.WorkOrderBarcode"
             />
           </el-select>
         </el-form-item>
@@ -34,7 +34,7 @@
 
 const itemData = {
   Quantity: 0,
-  WorkOrderNo: null,
+  WorkOrderNumber: null,
   Note: ''
 }
 
@@ -49,7 +49,7 @@ export default {
   data() {
     return {
       workOrders: null,
-      WorkOrderNo: null
+      workOrderNumber: null
 
     }
   },
@@ -69,7 +69,7 @@ export default {
         data: {
           EditToken: this.data.EditToken,
           Quantity: this.data.Quantity,
-          WorkOrderNo: this.data.WorkOrderNo,
+          WorkOrderNumber: this.data.WorkOrderNumber,
           Note: this.data.Note,
           Type: this.data.Type
         }

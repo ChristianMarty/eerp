@@ -5,10 +5,10 @@
       <el-timeline :reverse="true">
         <el-timeline-item v-for="(line, index) in history" :key="index" :color="line.color" :timestamp="line.Date">
           {{ line.Description }}
-          <template v-if="line.WorkOrderNo != NULL">
+          <template v-if="line.WorkOrderBarcode != NULL">
             <span>, Work Order: </span>
-            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderNo" class="link-type">
-              <span>{{ line.WorkOrderNo }}</span>
+            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderBarcode" class="link-type">
+              <span>{{ line.WorkOrderBarcode }}</span>
             </router-link>
             {{ line.WorkOrderTitle }}
           </template>
