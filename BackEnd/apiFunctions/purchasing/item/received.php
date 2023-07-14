@@ -19,14 +19,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$receivalId = intval($_GET["ReceivalId"]);
 	
 	$dbLink = dbConnect();
-	
-	$output = array();
 
     $query = <<<STR
         SELECT 
             purchaseOrder_itemReceive.Id as ReceivalId, 
             manufacturer.Name AS ManufacturerName, 
-            manufacturerPart.ManufacturerPartNumber,
+            manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
             supplier.Name AS SupplierName, 
             supplierPart.SupplierPartNumber, 
             purchaseOrder_itemReceive.QuantityReceived, 
@@ -37,13 +35,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
         LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
         LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
-        LEFT JOIN manufacturerPart ON manufacturerPart.Id = supplierPart.ManufacturerPartId
-        LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer  ON manufacturer.Id = manufacturerPart.VendorId
+        LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
+        LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+        LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+        LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer  ON manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
         WHERE purchaseOrder_itemReceive.Id = $receivalId
     STR;
-
 	$result = dbRunQuery($dbLink,$query);
-	
+
+    $output = array();
 	while($r = mysqli_fetch_assoc($result)) 
 	{
 		$r['ReceivalId'] = intval($r['ReceivalId']);
@@ -60,11 +60,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 	
-	$lineId = $data['data']['LineId'];
-	$lineNo = $data['data']['LineNo'];
-	$purchaseOrderId = $data['data']['PurchaseOrderId'];
-	$receivedQuantity = $data['data']['ReceivedQuantity'];
-	$receivedDate = $data['data']['ReceivedDate'];
+	$lineId = $data['LineId'];
+	$lineNo = $data['LineNo'];
+	//$purchaseOrderId = $data['PurchaseOrderId'];
+	$receivedQuantity = $data['ReceivedQuantity'];
+	$receivedDate = $data['ReceivedDate'];
 	
 	$row = array();
 	$row['ItemOrderId'] = $lineId;

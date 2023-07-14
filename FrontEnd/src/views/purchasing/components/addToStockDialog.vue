@@ -176,7 +176,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/stock/item',
-        data: { data: this.data }
+        data: this.data
       }).then(response => {
         if (response.error == null) {
           this.partData = response.data

@@ -109,16 +109,16 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 		
-	$orderReference = dbEscapeString($dbLink,$data['data']['OrderReference']);
-	$date = dbEscapeString($dbLink,$data['data']['Date']); 
-	$quantity = dbEscapeString($dbLink,$data['data']['Quantity']);
-	$location = dbEscapeString($dbLink,$data['data']['Location']);	
+	$orderReference = dbEscapeString($dbLink,$data['OrderReference']);
+	$date = dbEscapeString($dbLink,$data['Date']);
+	$quantity = dbEscapeString($dbLink,$data['Quantity']);
+	$location = dbEscapeString($dbLink,$data['Location']);
 	$location = str_replace("Loc-","",$location);
 	
-	if(isset($data['data']['ReceivalId']))  // If part is created based on purchas receival id 
+	if(isset($data['ReceivalId']))  // If part is created based on purchas receival id
 	{
-		$receivalId = dbEscapeString($dbLink,$data['data']['ReceivalId']);
-		$lotNumber = dbEscapeString($dbLink,$data['data']['LotNumber']);
+		$receivalId = dbEscapeString($dbLink,$data['ReceivalId']);
+		$lotNumber = dbEscapeString($dbLink,$data['LotNumber']);
 		
 		$query  = "SELECT partStock_create_onReceival(";
 		$query .= $receivalId.", ";
@@ -127,17 +127,17 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= dbStringNull($date).", ";
 		$query .= dbStringNull($orderReference).", ";
 		$query .= dbStringNull($lotNumber).", ";
-		$query .= user_getId()." ";
+		$query .= dbIntegerNull(user_getId())." ";
 		$query .= ") AS StockNo; ";
 		
 	}
 	else // If part is created from scratch 
 	{
-		$manufacturerId = dbEscapeString($dbLink,$data['data']['ManufacturerId']);
-		$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
-		$supplierId = dbEscapeString($dbLink,$data['data']['SupplierId']);
-		$supplierPartNumber = dbEscapeString($dbLink,$data['data']['SupplierPartNumber']);
-		$lotNumber = dbEscapeString($dbLink,$data['data']['LotNumber']);
+		$manufacturerId = dbEscapeString($dbLink,$data['ManufacturerId']);
+		$manufacturerPartNumber = dbEscapeString($dbLink,$data['ManufacturerPartNumber']);
+		$supplierId = dbEscapeString($dbLink,$data['SupplierId']);
+		$supplierPartNumber = dbEscapeString($dbLink,$data['SupplierPartNumber']);
+		$lotNumber = dbEscapeString($dbLink,$data['LotNumber']);
 
 		$query  = "SELECT partStock_create(";
 		$query .= "'".$manufacturerId."',";
@@ -149,10 +149,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= dbStringNull($supplierId).", ";
 		$query .= dbStringNull($supplierPartNumber).", ";
 		$query .= dbStringNull($lotNumber).", ";
-		$query .= user_getId()." ";
+		$query .= dbIntegerNull(user_getId())." ";
 		$query .= ") AS StockNo; ";
 	}
-
 	$result = dbRunQuery($dbLink,$query);
 
 	$stockNo = dbGetResult($result)['StockNo'];

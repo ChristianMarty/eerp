@@ -146,6 +146,47 @@ class Purchase {
         })
       })
     },
+    receive: {
+      get(ReceivalId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            methood: 'get',
+            url: 'purchasing/item/received',
+            params: {
+              ReceivalId: ReceivalId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      addToStockParameters: {
+        ReceivedQuantity: 0,
+        ReceivedDate: 0,
+        LineId: 0,
+        LineNo: 0,
+        PurchasOrderId: 0
+      },
+      addToStock(addToStockParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/purchasing/item/received',
+            data: addToStockParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
+    },
     meta: {
       get(PurchaseOrderNumber) {
         return new Promise((resolve, reject) => {

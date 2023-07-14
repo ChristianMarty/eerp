@@ -137,7 +137,6 @@
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
-import requestBN from '@/utils/requestBN'
 import addToStock from './addToStockDialog'
 import trackDialog from './trackDialog'
 import permission from '@/directive/permission/index.js'
@@ -193,22 +192,23 @@ export default {
       this.receiveDialog.ReceivedDate = new Date()
     },
     openAddStockDialog(receivalId) {
-      requestBN({
-        url: 'purchasing/item/received',
-        methood: 'get',
-        params: {
-          ReceivalId: receivalId
-        }
-      }).then(response => {
-        if (response.data.SupplierPartId === 0) {
+      purchase.item.receive.get(receivalId).then(response => {
+        if (response.SupplierPartId === 0) {
           this.$message({
             type: 'error',
             message: 'The item is not matched with the database!'
           })
         } else {
-          this.rowReceivalData = response.data
+          this.rowReceivalData = response
           this.addToStockDialogVisible = true
         }
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     openTrackDialog(dialogData) {
@@ -271,41 +271,34 @@ export default {
       }
     },
     saveReceiveItem(received, addToStock = false) {
-      const receivedOrderData = {
-        ReceivedQuantity: this.dialogQuantityReceived,
-        ReceivedDate: this.dialogDateReceived,
-        LineId: received.OrderLineId,
-        LineNo: received.LineNo,
-        PurchasOrderId: received.PurchasOrderId
-      }
+      const receivedOrderData = Object.assign({}, purchase.item.receive.addToStockParameters)
 
-      requestBN({
-        method: 'post',
-        url: '/purchasing/item/received',
-        data: { data: receivedOrderData }
-      }).then(response => {
+      receivedOrderData.ReceivedQuantity = this.dialogQuantityReceived
+      receivedOrderData.ReceivedDate = this.dialogDateReceived
+      receivedOrderData.LineId = received.OrderLineId
+      receivedOrderData.LineNo = received.LineNo
+      receivedOrderData.PurchasOrderId = received.PurchasOrderId
+
+      purchase.item.receive.addToStock(receivedOrderData).then(response => {
         this.showConfirmDialog = false
         this.getOrderLines()
-
-        if (response.error == null) {
-          if (addToStock === false) {
-            this.$message({
-              showClose: true,
-              message: 'Changes saved successfully',
-              duration: 2,
-              type: 'success'
-            })
-          } else {
-            this.openAddStockDialog(response.data.ReceivalId)
-          }
-        } else {
+        if (addToStock === false) {
           this.$message({
             showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
+            message: 'Changes saved successfully',
+            duration: 2,
+            type: 'success'
           })
+        } else {
+          this.openAddStockDialog(response.ReceivalId)
         }
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     skuSearch() {
