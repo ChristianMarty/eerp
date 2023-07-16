@@ -15,7 +15,7 @@ require_once __DIR__ . "/../../../externalApi/octopart.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-    if(!isset($_GET["ManufacturerPartNumberId"]))  sendResponse(null, "ManufacturerPartNumberId unspecified");
+   if(!isset($_GET["ManufacturerPartNumberId"]))  sendResponse(null, "ManufacturerPartNumberId unspecified");
 
     $manufacturerPartNumberId =  intval($_GET["ManufacturerPartNumberId"]);
 
@@ -37,8 +37,28 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $rowId = 0;
 	foreach($data->data->parts[0]->sellers as $seller)
 	{
+        $dbLink = dbConnect();
+        $vendorName = dbEscapeString($dbLink, $seller->company->name);
+        $query = <<<STR
+            SELECT Id, vendor_displayName(Id) AS Name
+            FROM vendor_names 
+            WHERE Name = '$vendorName'
+        STR;
+
+        $queryResult = dbRunQuery($dbLink,$query);
+        dbClose($dbLink);
+
+        $vendorId = null;
+        if(mysqli_num_rows($queryResult))
+        {
+            $vendor = mysqli_fetch_assoc($queryResult);
+            $vendorName = $vendor['Name'];
+            $vendorId = intval($vendor['Id']);
+        }
+
 		$line = array();
-		$line['Name'] = $seller->company->name;
+		$line['VendorName'] = $vendorName;
+        $line['VendorId'] = $vendorId;
         $line['RowId'] = $rowId;
         $rowId++;
 
@@ -53,8 +73,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$line['Prices'] = array();
 			foreach($offer->prices as $price) {
                 $priceLine = array();
-                $priceLine['Price'] = $price->price;
-                $priceLine['Quantity'] = $price->quantity;
+                $priceLine['Price'] = floatval($price->price);
+                $priceLine['Quantity'] = floatval($price->quantity);
                 $priceLine['Currency'] = $price->currency;
 
                 $line['Prices'][] = $priceLine;
@@ -65,9 +85,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$output = array();
 	$output['Data'] = $availability;
-	$output['Timestamp'] = date("d.m.Y - H:i", time());
+	$output['Timestamp'] = date("d.m.Y - H:i", time()); //*/
 
-   // $output = json_decode('{"Data":[{"Name":"Conrad","SKU":"1567726","Stock":-2,"MinimumOrderQuantity":null,"URL":"https:\/\/octopart.com\/opatz8j6\/a1?t=dpcXQpqNTfC93gzoEZ0WyYQvtizXRCAL7lbAv_o25mB29aKzDeiO94X24xgeaBje_w7kLioQav7VpyZcBF8TjVhLm_9HQIIhJcjlj9MJXYxVxp9YbgcDBCWdabS58cg5GLDZtGbeRsMtGgdWgRHYJq9rHk-r0dFm4oeilRAfB25GtN-IOPdy6--Zv9jDskQjulQGk2t3DPTFZzWrGB5nSDHznHvkFjZZ8bZMflgLoY5LKHfGPhchTizgrxoxUKaTmspgumE","LeadTime":null,"Prices":[{"Price":2.79,"Quantity":1,"Currency":"EUR"},{"Price":28.99,"Quantity":7,"Currency":"EUR"}]}],"Timestamp":"16.07.2023 - 13:10"}');
+   //$output = json_decode('{"Data":[{"Name":"Conrad","SKU":"1567726","Stock":-2,"MinimumOrderQuantity":null,"URL":"https:\/\/octopart.com\/opatz8j6\/a1?t=dpcXQpqNTfC93gzoEZ0WyYQvtizXRCAL7lbAv_o25mB29aKzDeiO94X24xgeaBje_w7kLioQav7VpyZcBF8TjVhLm_9HQIIhJcjlj9MJXYxVxp9YbgcDBCWdabS58cg5GLDZtGbeRsMtGgdWgRHYJq9rHk-r0dFm4oeilRAfB25GtN-IOPdy6--Zv9jDskQjulQGk2t3DPTFZzWrGB5nSDHznHvkFjZZ8bZMflgLoY5LKHfGPhchTizgrxoxUKaTmspgumE","LeadTime":null,"Prices":[{"Price":2.79,"Quantity":1,"Currency":"EUR"},{"Price":28.99,"Quantity":7,"Currency":"EUR"}]}],"Timestamp":"16.07.2023 - 13:10"}');
 
 	sendResponse($output);
 }

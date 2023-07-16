@@ -10,12 +10,12 @@
     <p><b>Package: </b>{{ partData.Package }}</p>
     <el-divider />
 
-    <el-tabs type="card">
+    <!--<el-tabs type="card">
       <el-tab-pane label="Engineering">TBD Engineering</el-tab-pane>
       <el-tab-pane label="Purchasing">TBD Purchasing</el-tab-pane>
       <el-tab-pane label="Production">TBD Production</el-tab-pane>
       <el-tab-pane label="Stock">TBD Stock</el-tab-pane>
-    </el-tabs>
+    </el-tabs>-->
 
     <h3>Electrical Characteristics</h3>
     <el-table

@@ -58,6 +58,16 @@
           {{ purchaseOrderData.Data.length }}
         </p>
         <el-table :data="purchaseOrderData.Data" style="width: 100%; margin-top:10px">
+          <el-table-column label="Supplier" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/vendor/view/' + row.SupplierId"
+                class="link-type"
+              >
+                <span>{{ row.SupplierName }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
           <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
             <template slot-scope="{ row }">
               <router-link :to="'/purchasing/edit/' + row.PurchaseOrderNumber" class="link-type">
@@ -125,10 +135,26 @@
             row-key="rowKey"
             :tree-props="{ children: 'Prices' }"
           >
-            <el-table-column prop="Name" label="Distributor" width="150" sortable />
-            <el-table-column prop="SKU" label="SKU">
+            <el-table-column prop="VendorName" label="Distributor" width="250" sortable>
               <template slot-scope="{ row }">
-                <a :href="row.URL" target="blank" class="link-type">{{ row.SKU }}</a>
+                <template v-if="row.VendorId">
+                  <router-link :to="'/vendor/view/' + row.VendorId" class="link-type">
+                    <span>{{ row.VendorName }}</span>
+                  </router-link>
+                </template>
+                <template v-else>
+                  <span>{{ row.VendorName }}</span>
+                </template>
+              </template>
+            </el-table-column>
+            <el-table-column prop="SKU" label="SKU" sortable>
+              <template slot-scope="{ row }">
+                <span>{{ row.SKU }}</span>
+                <template v-if="row.SKU">
+                  <a :href="row.URL" target="blank" class="link-type">
+                    <el-button type="primary" icon="el-icon-shopping-cart-full" style="float: right;" size="mini">Buy</el-button>
+                  </a>
+                </template>
               </template>
             </el-table-column>
             <el-table-column prop="Stock" label="Stock" width="100" sortable />

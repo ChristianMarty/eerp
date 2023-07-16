@@ -23,10 +23,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<<STR
         SELECT
             *, 
-            SUM(QuantityReceived) AS TotalQuantityReceived 
+            SUM(QuantityReceived) AS TotalQuantityReceived,
+            vendor_displayName(vendor.Id) AS SupplierName,
+            vendor.Id AS SupplierId
         FROM purchaseOrder_itemOrder
         LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
         LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
+        LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
         LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = supplierPart.ManufacturerPartNumberId
         LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
         LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
