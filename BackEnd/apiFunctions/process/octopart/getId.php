@@ -10,9 +10,10 @@
 
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../databaseConnector.php";
+require_once __DIR__ . "/../../externalApi/octopart.php";
 
-$title = "Octopart Get Id";
-$description = "Queries Manufacturer and Part Number on octopart to get Octopart Part Id.";
+$title = "Octopart - Get Id";
+$description = "Queries Manufacturer and Part Number on Octopart to get OctopartId.";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -20,12 +21,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $query = <<<STR
         SELECT 
-            manufacturerPart.Id, 
+            manufacturerPart_partNumber.Id, 
             vendor.Name AS ManufacturerName, 
-            ManufacturerPartNumber 
-        FROM `manufacturerPart` 
-        LEFT JOIN `vendor` ON vendor.Id = manufacturerPart.VendorId 
-        WHERE OctopartId IS NULL ORDER BY manufacturerPart.Id DESC
+            manufacturerPart_partNumber.Number AS ManufacturerPartNumber 
+        FROM manufacturerPart_partNumber 
+        LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+        LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId    
+        LEFT JOIN `vendor` ON 
+            (vendor.Id = manufacturerPart_partNumber.VendorId and manufacturerPart_partNumber.VendorId IS NOT NULL) OR 
+            (vendor.Id = manufacturerPart_item.VendorId and manufacturerPart_item.VendorId IS NOT NULL) OR 
+            (vendor.Id = manufacturerPart_series.VendorId and manufacturerPart_series.VendorId IS NOT NULL)
+        WHERE OctopartId IS NULL ORDER BY manufacturerPart_partNumber.Id DESC
     STR;
 
 	$queryResult = dbRunQuery($dbLink,$query);
@@ -34,17 +40,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$i = 0;
 	while($part = mysqli_fetch_assoc($queryResult))
 	{
-		$octopartPartData = getOctopartPartData($part['ManufacturerName'],$part['ManufacturerPartNumber']);
+		$octopartPartData = octopart_getPartId($part['ManufacturerName'],$part['ManufacturerPartNumber']);
 
+        if(!$octopartPartData) continue;
 		if($octopartPartData->data->multi_match[0]->hits == 0) continue;//sendResponse(null, "No query result");
 	//	if($octopartPartData->data->multi_match[0]->hits != 1) continue; //sendResponse(null, "Ambiguous query result");
 		
 		$partData = $octopartPartData->data->multi_match[0]->parts[0];
 		
 		$dbLink = dbConnect();
-		if($dbLink == null) return null;
-		
-		$query = "UPDATE manufacturerPart SET OctopartId = '".$partData->id."' WHERE Id = ".$part['Id'];
+
+        $partNumberId = $part['Id'];
+        $query = <<<STR
+            UPDATE manufacturerPart_partNumber SET OctopartId = '$partData->id' WHERE Id = $partNumberId
+        STR;
 
 		dbRunQuery($dbLink,$query);
 		dbClose($dbLink);
@@ -52,40 +61,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$i++;
 		if($i>= 300) break;
 	}
-
 	sendResponse($partData);
-	
 }
-
-function getOctopartPartData($manufacturerName, $manufacturerPartNumber )
-{
-	global $octopartApiToken;
-	$OCTOPART_API = 'https://octopart.com/api/v4/endpoint?token='.$octopartApiToken;
-
-	$post = '{"query":"';
-	
-	$post .= '{multi_match(queries: [{ manufacturer: \"'.$manufacturerName.'\", mpn:  \"'.$manufacturerPartNumber.'\"  }])';
-	$post .= '{ hits reference parts {id}error}}' ;
-	
-	$post .= '","variables":{},"operationName":null}';
-	
-	/*echo $OCTOPART_API;
-	echo $post;
-	exit;*/
-	
-    $curl = curl_init();
-	curl_setopt($curl, CURLOPT_POST, true);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-    curl_setopt($curl, CURLOPT_URL, $OCTOPART_API);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
-	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-
-    $result = curl_exec($curl);
-
-    curl_close($curl);
-
-    return json_decode($result);
-}
-
 ?>

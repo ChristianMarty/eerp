@@ -257,6 +257,23 @@ class ManufacturerPart {
           }
         })
       })
+    },
+    availability(ManufacturerPartNumberId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/part/manufacturerPart/partNumber/availability',
+          params: {
+            ManufacturerPartNumberId: ManufacturerPartNumberId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
     }
   }
 }

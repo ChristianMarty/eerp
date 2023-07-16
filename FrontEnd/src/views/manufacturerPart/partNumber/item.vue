@@ -16,93 +16,136 @@
     </p>
     <p><b>Package: </b>{{ data.PackageName }}</p>
 
-    <el-divider />
-    <h3>Production Parts</h3>
-    <el-table :data="productionPartData" style="width: 100%">
-      <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/productionPart/item/' + row.ProductionPartNumber"
-            class="link-type"
-          >
-            <span>{{ row.ProductionPartNumber }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column prop="Description" label="Description" sortable />
-    </el-table>
-
-    <el-divider />
-    <h3>Stock</h3>
-    <el-checkbox v-model="fliterEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
-    <el-table :data="stockData" style="width: 100%">
-      <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
-        <template slot-scope="{ row }">
-          <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
-            <span>{{ row.StockBarcode }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column prop="Date" label="Date" sortable />
-      <el-table-column prop="Quantity" label="Quantity" sortable />
-      <el-table-column prop="Location" label="Location" sortable />
-    </el-table>
-
-    <el-divider />
-    <h3>Purchase Orders</h3>
-    <p>
-      <b>Number of orders:</b>
-      {{ purchaseOrderData.Data.length }}
-    </p>
-    <el-table :data="purchaseOrderData.Data" style="width: 100%; margin-top:10px">
-      <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
-        <template slot-scope="{ row }">
-          <router-link :to="'/purchasing/edit/' + row.PurchaseOrderNumber" class="link-type">
-            <span>{{ row.PurchaseOrderBarcode }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column prop="Title" label="PO Title" sortable />
-      <el-table-column prop="Sku" label="Sku" sortable />
-      <el-table-column prop="Quantity" label="Quantity" sortable width="120" />
-      <el-table-column prop="Price" label="Price" sortable width="100" />
-      <el-table-column prop="Status" label="Status" sortable width="100" />
-    </el-table>
-
-    <p>
-      <b>Total Order Quantity:</b>
-      {{ purchaseOrderData.Statistics.Quantity.Ordered }}
-    </p>
-    <p>
-      <b>Pending Order Quantity:</b>
-      {{ purchaseOrderData.Statistics.Quantity.Pending }}
-    </p>
-
-    <el-divider />
-    <h3>Supplier Parts</h3>
-    <p><b>Number of supplier parts:</b> {{ supplierPartData.length }}</p>
-    <el-table
-      :data="supplierPartData"
-      style="width: 100%; margin-top:10px"
+    <el-tabs
+      type="card"
     >
-      <el-table-column label="Supplier" width="150" sortable>
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/vendor/view/' + row.SupplierId"
-            class="link-type"
+      <el-tab-pane label="Part">
+        <h3>Production Parts</h3>
+        <el-table :data="productionPartData" style="width: 100%">
+          <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/productionPart/item/' + row.ProductionPartNumber"
+                class="link-type"
+              >
+                <span>{{ row.ProductionPartNumber }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="Description" label="Description" sortable />
+        </el-table>
+
+        <el-divider />
+        <h3>Stock</h3>
+        <el-checkbox v-model="fliterEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
+        <el-table :data="stockData" style="width: 100%">
+          <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
+                <span>{{ row.StockBarcode }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="Date" label="Date" sortable />
+          <el-table-column prop="Quantity" label="Quantity" sortable />
+          <el-table-column prop="Location" label="Location" sortable />
+        </el-table>
+
+        <el-divider />
+        <h3>Purchase Orders</h3>
+        <p>
+          <b>Number of orders:</b>
+          {{ purchaseOrderData.Data.length }}
+        </p>
+        <el-table :data="purchaseOrderData.Data" style="width: 100%; margin-top:10px">
+          <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link :to="'/purchasing/edit/' + row.PurchaseOrderNumber" class="link-type">
+                <span>{{ row.PurchaseOrderBarcode }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="Title" label="PO Title" sortable />
+          <el-table-column prop="Sku" label="Sku" sortable />
+          <el-table-column prop="Quantity" label="Quantity" sortable width="120" />
+          <el-table-column prop="Price" label="Price" sortable width="100" />
+          <el-table-column prop="Status" label="Status" sortable width="100" />
+        </el-table>
+
+        <p>
+          <b>Total Order Quantity:</b>
+          {{ purchaseOrderData.Statistics.Quantity.Ordered }}
+        </p>
+        <p>
+          <b>Pending Order Quantity:</b>
+          {{ purchaseOrderData.Statistics.Quantity.Pending }}
+        </p>
+
+        <el-divider />
+        <h3>Supplier Parts</h3>
+        <p><b>Number of supplier parts:</b> {{ supplierPartData.length }}</p>
+        <el-table
+          :data="supplierPartData"
+          style="width: 100%; margin-top:10px"
+        >
+          <el-table-column label="Supplier" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/vendor/view/' + row.SupplierId"
+                class="link-type"
+              >
+                <span>{{ row.SupplierName }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column label="Supplier Part Number" sortable>
+            <template slot-scope="{ row }">
+              <a :href="row.SupplierPartLink" target="blank">
+                {{ row.SupplierPartNumber }}
+              </a>
+            </template>
+          </el-table-column>
+        </el-table>
+
+      </el-tab-pane>
+      <el-tab-pane label="Availability">
+        <el-button type="primary" @click="getAvailabilityData">Load Data</el-button>
+        <template v-if="availabilityData != null">
+          <p>
+            Data provided by Octopart, {{ availabilityData.Timestamp }}
+          </p>
+          <el-checkbox v-model="expandedAllRows" @change="chnageAvailabilityExpandedRows()">Expanded all rows</el-checkbox>
+          <el-table
+            v-loading="availabilityLoading"
+            element-loading-text="Loading Availability Data"
+            :data="availabilityData.Data"
+            :expand-row-keys="availabilityExpandedRows"
+            border
+            style="width: 100%; margin-top:10px"
+            row-key="rowKey"
+            :tree-props="{ children: 'Prices' }"
           >
-            <span>{{ row.SupplierName }}</span>
-          </router-link>
+            <el-table-column prop="Name" label="Distributor" width="150" sortable />
+            <el-table-column prop="SKU" label="SKU">
+              <template slot-scope="{ row }">
+                <a :href="row.URL" target="blank" class="link-type">{{ row.SKU }}</a>
+              </template>
+            </el-table-column>
+            <el-table-column prop="Stock" label="Stock" width="100" sortable />
+            <el-table-column
+              prop="MinimumOrderQuantity"
+              label="MOQ"
+              width="100"
+              sortable
+            />
+            <el-table-column prop="LeadTime" label="LeadTime" width="120" sortable />
+            <el-table-column prop="Price" label="Price" width="120" sortable />
+            <el-table-column prop="Quantity" label="Quantity" width="120" sortable />
+            <el-table-column prop="Currency" label="Currency" width="120" sortable />
+          </el-table>
         </template>
-      </el-table-column>
-      <el-table-column label="Supplier Part Number" sortable>
-        <template slot-scope="{ row }">
-          <a :href="row.SupplierPartLink" target="blank">
-            {{ row.SupplierPartNumber }}
-          </a>
-        </template>
-      </el-table-column>
-    </el-table>
+      </el-tab-pane>
+    </el-tabs>
 
   </div>
 </template>
@@ -129,13 +172,17 @@ export default {
   data() {
     return {
       loading: true,
+      availabilityLoading: false,
+      availabilityExpandedRows: [],
+      expandedAllRows: false,
       supplierPartData: [],
       purchaseOrderData: [],
       productionPartData: [],
       stockData: [],
       fliterEmptyStock: true,
 
-      data: {}
+      data: {},
+      availabilityData: null
     }
   },
   mounted() {
@@ -154,6 +201,9 @@ export default {
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = this.data.ManufacturerName + ' - ' + this.data.PartNumber
+    },
+    onTabChnage(TabPaneName) {
+      console.log(TabPaneName)
     },
     getManufacturerPartNumberItem() {
       manufacturerPart.PartNumber.get(this.$route.params.ManufacturerPartNumberId).then(response => {
@@ -220,7 +270,53 @@ export default {
           type: 'error'
         })
       })
+    },
+    getAvailabilityData() {
+      this.availabilityLoading = true
+      manufacturerPart.PartNumber.availability(this.$route.params.ManufacturerPartNumberId).then(response => {
+        this.availabilityData = this.processAvailabilityData(response)
+        this.availabilityLoading = false
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    processAvailabilityData(data) {
+      let rowKey = 1
+      data.Data.forEach(element => {
+        element.rowKey = String(rowKey)
+        rowKey++
+        if (element.Prices.length === 0) {
+          delete element.Values
+        } else if (element.Prices.length === 1) {
+          element.Quantity = element.Prices[0].Quantity
+          element.Currency = element.Prices[0].Currency
+          element.Price = element.Prices[0].Price
+          delete element.Prices
+        } else {
+          let rowKey2 = 1
+          element.Prices.forEach(element2 => {
+            element2.rowKey = element.rowKey + '.' + String(rowKey2)
+            rowKey2++
+          })
+        }
+      })
+      return data
+    },
+    chnageAvailabilityExpandedRows(state) {
+      if (this.expandedAllRows) {
+        this.availabilityData.Data.forEach(element => {
+          this.availabilityExpandedRows.push(element.rowKey)
+        })
+      } else {
+        this.availabilityExpandedRows.length = 0
+      }
     }
+
   }
 }
 </script>
