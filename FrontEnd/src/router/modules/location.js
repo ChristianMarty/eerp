@@ -28,6 +28,13 @@ const inventoryRouter = {
       meta: { title: 'Summary', noCache: true, icon: 'list' }
     },
     {
+      path: 'item/:LocationBarcode(.*)',
+      component: () => import('@/views/location/item'),
+      name: 'locationItem',
+      meta: { title: 'Location Item', noCache: true, icon: 'list' },
+      hidden: true
+    },
+    {
       path: 'locationLabel',
       component: () => import('@/views/location/locationLabel'),
       name: 'locationLabel',

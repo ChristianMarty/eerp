@@ -13,7 +13,7 @@
         <el-table-column prop="LocNr" label="Location Nr">
           <template slot-scope="{ row }">
             <router-link
-              :to="'/location/summary/' + row.LocNr"
+              :to="'/location/item/' + row.LocNr"
               class="link-type"
             >
               <span>{{ row.LocNr }}</span>

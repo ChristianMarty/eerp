@@ -33,6 +33,24 @@ class Location {
     })
   }
 
+  item = {
+    get(LocationNumber) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/location/item',
+          methood: 'get',
+          params: { LocationNumber: LocationNumber }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
+
   summary(LocationNumber) {
     return new Promise((resolve, reject) => {
       eerpApi({
