@@ -92,8 +92,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     else $output['Attribute'] = null;
 
     $documentIds = array();
-    if($output['SeriesDocumentIds']) $documentIds = explode(",",$output['SeriesDocumentIds']);
-    if($output['ItemDocumentIds']) $documentIds[] = explode(",",$output['ItemDocumentIds']);
+    if($output['SeriesDocumentIds']) $documentIds += explode(",",$output['SeriesDocumentIds']);
+    if($output['ItemDocumentIds']) $documentIds += explode(",",$output['ItemDocumentIds']);
     $documentIdsStr = implode(",", $documentIds);
     $output["Documents"] = getDocumentsFromIds($dbLink, $documentIdsStr);
 
