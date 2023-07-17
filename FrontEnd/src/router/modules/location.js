@@ -9,23 +9,23 @@ const inventoryRouter = {
   },
   children: [
     {
-      path: 'locationBrowser',
-      component: () => import('@/views/location/locationBrowser'),
-      name: 'locationBrowser',
-      meta: { title: 'Browser', icon: 'list' }
+      path: 'search',
+      component: () => import('@/views/location/search'),
+      name: 'locationSearch',
+      meta: { title: 'Search', icon: 'search' }
     },
     {
       path: 'summary/:LocationNr(.*)',
       component: () => import('@/views/location/summary'),
       name: 'summary',
-      meta: { title: 'Summary', noCache: true, icon: 'list' },
+      meta: { title: 'Summary', noCache: true },
       hidden: true
     },
     {
       path: 'summary',
       component: () => import('@/views/location/summary'),
       name: 'summary',
-      meta: { title: 'Summary', noCache: true, icon: 'list' }
+      meta: { title: 'Summary', noCache: true, icon: 'search' }
     },
     {
       path: 'item/:LocationBarcode(.*)',
