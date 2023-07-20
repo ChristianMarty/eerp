@@ -16,27 +16,35 @@ require_once __DIR__ . "/../../../externalApi/octopart.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
    if(!isset($_GET["ManufacturerPartNumberId"]))  sendResponse(null, "ManufacturerPartNumberId unspecified");
-
     $manufacturerPartNumberId =  intval($_GET["ManufacturerPartNumberId"]);
 
-	$dbLink = dbConnect();
+    if(isset($_GET["AuthorizedOnly"])) $authorizedOnly = filter_var($_GET["AuthorizedOnly"],FILTER_VALIDATE_BOOLEAN);
+    if(isset($_GET["Brokers"])) $includeBrokers = filter_var($_GET["Brokers"],FILTER_VALIDATE_BOOLEAN);
 
+	$dbLink = dbConnect();
     $query = <<<STR
         SELECT Id, OctopartId FROM manufacturerPart_partNumber WHERE Id = $manufacturerPartNumberId
     STR;
-
 	$queryResult = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);
 	
 	$part = mysqli_fetch_assoc($queryResult);
 
-	if($part == null) sendResponse(null, "ManufacturerPartId not found");
+	if($part == null) sendResponse(null, "Manufacturer Part Number Id not found");
 	
 	$data = octopart_getPartData($part['OctopartId']);
 	$availability = array();
     $rowId = 0;
 	foreach($data->data->parts[0]->sellers as $seller)
 	{
+        if(isset($includeBrokers)) {
+            if(!$includeBrokers && $seller->is_broker) continue;
+        }
+
+        if(isset($authorizedOnly)) {
+            if($authorizedOnly && $seller->is_authorized === false) continue;
+        }
+
         $dbLink = dbConnect();
         $vendorName = dbEscapeString($dbLink, $seller->company->name);
         $query = <<<STR
@@ -64,6 +72,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 		foreach($seller->offers as $offer)
 		{
+            $line['IsBroker'] = $seller->is_broker;
+            $line['IsAuthorized'] = $seller->is_authorized;
 			$line['SKU'] = $offer->sku;
 			$line['Stock'] = $offer->inventory_level;
 			$line['MinimumOrderQuantity'] = $offer->moq;
@@ -86,8 +96,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = array();
 	$output['Data'] = $availability;
 	$output['Timestamp'] = date("d.m.Y - H:i", time()); //*/
-
-   //$output = json_decode('{"Data":[{"Name":"Conrad","SKU":"1567726","Stock":-2,"MinimumOrderQuantity":null,"URL":"https:\/\/octopart.com\/opatz8j6\/a1?t=dpcXQpqNTfC93gzoEZ0WyYQvtizXRCAL7lbAv_o25mB29aKzDeiO94X24xgeaBje_w7kLioQav7VpyZcBF8TjVhLm_9HQIIhJcjlj9MJXYxVxp9YbgcDBCWdabS58cg5GLDZtGbeRsMtGgdWgRHYJq9rHk-r0dFm4oeilRAfB25GtN-IOPdy6--Zv9jDskQjulQGk2t3DPTFZzWrGB5nSDHznHvkFjZZ8bZMflgLoY5LKHfGPhchTizgrxoxUKaTmspgumE","LeadTime":null,"Prices":[{"Price":2.79,"Quantity":1,"Currency":"EUR"},{"Price":28.99,"Quantity":7,"Currency":"EUR"}]}],"Timestamp":"16.07.2023 - 13:10"}');
 
 	sendResponse($output);
 }

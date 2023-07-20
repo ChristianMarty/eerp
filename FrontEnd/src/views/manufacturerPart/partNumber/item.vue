@@ -119,6 +119,8 @@
 
       </el-tab-pane>
       <el-tab-pane label="Availability">
+        <el-checkbox v-model="availabilityAuthorizedOnly">Authorized Only</el-checkbox>
+        <el-checkbox v-model="availabilityBrokers">Include Brokers</el-checkbox>
         <el-button type="primary" @click="getAvailabilityData">Load Data</el-button>
         <template v-if="availabilityData != null">
           <p>
@@ -208,7 +210,9 @@ export default {
       fliterEmptyStock: true,
 
       data: {},
-      availabilityData: null
+      availabilityData: null,
+      availabilityAuthorizedOnly: true,
+      availabilityBrokers: false
     }
   },
   mounted() {
@@ -299,7 +303,7 @@ export default {
     },
     getAvailabilityData() {
       this.availabilityLoading = true
-      manufacturerPart.PartNumber.availability(this.$route.params.ManufacturerPartNumberId).then(response => {
+      manufacturerPart.PartNumber.availability(this.$route.params.ManufacturerPartNumberId, this.availabilityAuthorizedOnly, this.availabilityBrokers).then(response => {
         this.availabilityData = this.processAvailabilityData(response)
         this.availabilityLoading = false
       }).catch(response => {

@@ -40,7 +40,7 @@ function octopart_getPartData($octopartId)
     global $octopartApiToken;
     $uri = $octopartApiPath.'endpoint?token='.$octopartApiToken;
 
-    $post = '{"query":"{parts(ids: [\"'.$octopartId.'\"], currency: \"CHF\"){id sellers{company{name} offers{sku, inventory_level, moq, click_url, factory_lead_days prices{price,quantity,currency,converted_price,converted_currency,conversion_rate}}}}}"}';
+    $post = '{"query":"{parts(ids: [\"'.$octopartId.'\"], currency: \"CHF\"){id sellers{is_broker is_authorized company{name} offers{sku, inventory_level, moq, click_url, factory_lead_days prices{price,quantity,currency,converted_price,converted_currency,conversion_rate}}}}}"}';
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_POST, true);

@@ -258,13 +258,15 @@ class ManufacturerPart {
         })
       })
     },
-    availability(ManufacturerPartNumberId) {
+    availability(ManufacturerPartNumberId, AuthorizedOnly = true, Brokers = false) {
       return new Promise((resolve, reject) => {
         eerpApi({
           method: 'get',
           url: '/part/manufacturerPart/partNumber/availability',
           params: {
-            ManufacturerPartNumberId: ManufacturerPartNumberId
+            ManufacturerPartNumberId: ManufacturerPartNumberId,
+            AuthorizedOnly: AuthorizedOnly,
+            Brokers: Brokers
           }
         }).then(response => {
           if (response.error == null) {
