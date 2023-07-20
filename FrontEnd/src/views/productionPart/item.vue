@@ -43,6 +43,9 @@
       <el-table-column prop="Description" label="Description" />
     </el-table>
 
+    <h3>Characteristics</h3>
+    <p>todo</p>
+
     <h3>Stock</h3>
     <el-checkbox v-model="hideEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
     <el-table
@@ -162,7 +165,6 @@
         label="Note"
       />
     </el-table>
-    <p />
     <!--  <table>
       <tr>
         <td><b>Minimum:</b></td>
@@ -235,7 +237,7 @@
       />
 
     </el-table>
-    <p />
+
     <table>
       <tr>
         <td><b>Total Order Quantity:</b></td>
@@ -266,7 +268,6 @@
         <td>{{ purchaseOrder.Statistics.Price.WeightedAverage }}</td>
       </tr>
     </table>
-
   </div>
 </template>
 

@@ -94,48 +94,31 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
     $output['TotalStockQuantity'] = $totalStockQuantity;
 
-	/*$manufacturerParts = array();
-	$manufacturerParts[] = array();
+// get Characteristics
 
-
-    if(!array_key_exists($r['PartId'],$manufacturerParts))
-    {
-        $Part = array();
-        $Part['ManufacturerName'] = $r['ManufacturerName'];
-        $Part['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
-        $Part['LifecycleStatus'] = $r['LifecycleStatus'];
-        $Part['PartId'] = $r['PartId'];
-        $Part['Description'] = "";
-
-        $manufacturerParts[$r['PartId']] = $Part;
-        $manufacturerParts[$r['PartId']]['Stock'] = array();
+    $manufacturerPartNumberIdList = array();
+    foreach ($output['ManufacturerPart'] as &$item) {
+        $manufacturerPartNumberIdList[] = $item['ManufacturerPartNumberId'];
     }
+    $manufacturerPartNumberIdStr = implode(",", $manufacturerPartNumberIdList);
 
-    $StockRow = array();
-    $StockRow['StockNo'] = $r['StockNo'];
-    $StockRow['Date'] = $r['Date'];
-    $StockRow['Quantity'] = $r['Quantity'];
-    $StockRow['LocationName'] = $r['LocationName'];
-    $StockRow['PartId'] = $r['PartId']+10;
+    $query = <<<STR
+        SELECT 
+            GROUP_CONCAT(manufacturerPart_partNumber.Id) AS PartNumberIds,
+            manufacturerPart_item.Id,
+            manufacturerPart_item.Attribute
+        FROM manufacturerPart_partNumber
+        LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+        WHERE manufacturerPart_partNumber.Id IN ($manufacturerPartNumberIdStr)
+        GROUP BY manufacturerPart_item.Id
+    STR;
+    $result = mysqli_query($dbLink,$query);
+    $characteristics = array();
+    while($r = mysqli_fetch_assoc($result)) {
+        $characteristics[] = $r;
+    }
+    $output['Characteristics'] = $characteristics;
 
-
-    $manufacturerParts[$r['PartId']]['Stock'][] = $StockRow;
-
-	unset($manufacturerParts[0]);
-	$manufacturerParts = array_values($manufacturerParts);
-	
-	$totalStockQuantity = 0;
-	foreach($manufacturerParts as &$item)
-	{
-		$totalPartQuantity = 0;
-		foreach($item['Stock'] as $StockItem) $totalPartQuantity += $StockItem['Quantity'];
-		$item['Quantity'] = $totalPartQuantity;
-		$totalStockQuantity += $totalPartQuantity;
-	}
-
-    $output['TotalStockQuantity'] = $totalStockQuantity;
-    $output['ManufacturerParts'] = $manufacturerParts;*/
-	
 	
 	dbClose($dbLink);
 
