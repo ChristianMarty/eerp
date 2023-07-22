@@ -56,17 +56,14 @@
     </el-table>
 
     <el-divider />
-    <h2>Children</h2>
-    <!--<template v-if="checkPermission(['vendor.edit'])">
-      <el-button
-        size="mini"
-        type="primary"
-        icon="el-icon-plus"
-        circle
-        style="margin-top: 00px; margin-bottom: 00px"
-        @click="showChildDialog()"
-      />
-    </template>-->
+    <h2>Relationships</h2>
+    <h3>Parent</h3>
+    <p>
+      <router-link :to="'/vendor/view/' + vendorData.ParentId" class="link-type">
+        <span>{{ vendorData.ParentName }}</span>
+      </router-link>
+    </p>
+    <h3>Children</h3>
     <el-table
       :data="vendorData.Children"
       style="width: 100%; margin-top:10px"

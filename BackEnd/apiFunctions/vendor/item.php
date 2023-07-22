@@ -20,26 +20,46 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($dbLink == null) return null;
 	
 	$vendorId = dbEscapeString($dbLink, trim($_GET["VendorId"]));
-	
-	$query = "SELECT * FROM vendor WHERE Id = {$vendorId} ";
-	
-	$result = dbRunQuery($dbLink,$query);
+
+    $query = <<< STR
+        SELECT
+            vendor.Id as VendorId,
+            vendor.Name as VendorName,
+            vendor.ParentId as VendorParentId,
+            vendor.CustomerNumber as VendorCustomerNumber,
+            vendor.ShortName as VendorShortName,
+            vendor.IsSupplier as VendorIsSupplier,
+            vendor.IsManufacturer as VendorIsManufacturer,
+            vendor.IsContractor as VendorIsContractor,
+            vendor.ParentId as VendorParentId,
+            parent.Name AS ParentName
+        FROM vendor 
+        LEFT JOIN vendor parent on parent.Id = vendor.ParentId
+        WHERE vendor.Id = {$vendorId}
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
 	
 	$data = dbGetResult($result);
 	
 	$output = array();
 	
-	$output['Id'] = intval($data['Id']);
-	$output['ParentId'] = intval($data['ParentId']);
-	if($output['ParentId'] == 0) $output['ParentId'] = null;
-	$output['Name'] = $data['Name'];
-	$output['CustomerNumber'] = $data['CustomerNumber'];
-	$output['ShortName'] = $data['ShortName'];
-	if($data['IsSupplier'] != 0) $output['IsSupplier'] = true;
+	$output['Id'] = intval($data['VendorId']);
+	$output['ParentId'] = intval($data['VendorParentId']);
+	if($output['ParentId'] == 0){
+        $output['ParentId'] = null;
+        $output['ParentName'] = null;
+    }else{
+        $output['ParentName'] = $data['ParentName'];
+    }
+	$output['Name'] = $data['VendorName'];
+	$output['CustomerNumber'] = $data['VendorCustomerNumber'];
+	$output['ShortName'] = $data['VendorShortName'];
+	if($data['VendorIsSupplier'] != 0) $output['IsSupplier'] = true;
 	else $output['IsSupplier'] = false;
-	if($data['IsManufacturer'] != 0) $output['IsManufacturer'] = true;
+	if($data['VendorIsManufacturer'] != 0) $output['IsManufacturer'] = true;
 	else $output['IsManufacturer'] = false;
-    if($data['IsContractor'] != 0) $output['IsContractor'] = true;
+    if($data['VendorIsContractor'] != 0) $output['IsContractor'] = true;
     else $output['IsContractor'] = false;
 
 	// Get Aliases
