@@ -136,6 +136,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             $r['Attribute'] = json_decode($r['Attribute']);
             $attributeIds = array_merge($attributeIds, array_keys((array)$r['Attribute']));
         }
+        else{
+            $r['Attribute'] = array();
+        }
 
         $characteristics[] = $r;
     }
