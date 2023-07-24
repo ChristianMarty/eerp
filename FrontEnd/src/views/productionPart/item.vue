@@ -44,7 +44,23 @@
     </el-table>
 
     <h3>Characteristics</h3>
-    <p>todo</p>
+    <el-table
+      v-loading="loading"
+      element-loading-text="Loading..."
+      element-loading-spinner="el-icon-loading"
+      :data="partData.Characteristics.Data"
+      border
+      style="width: 100%"
+      :formatter="siRowFormater"
+    >
+      <el-table-column prop="PartNumber" label="Part" width="200" />
+      <el-table-column
+        v-for="attribute in partData.Characteristics.Attributes"
+        :key="attribute.Name"
+        :label="attribute.Name"
+        :prop="attribute.Name"
+      />
+    </el-table>
 
     <h3>Stock</h3>
     <el-checkbox v-model="hideEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
@@ -272,6 +288,7 @@
 </template>
 
 <script>
+import siFormatter from '@/utils/siFormatter'
 import requestBN from '@/utils/requestBN'
 
 import ProductionPart from '@/api/productionPart'
@@ -365,6 +382,9 @@ export default {
     },
     setPageTitle() {
       document.title = `${this.$route.params.productionPartNumber}`
+    },
+    siRowFormater(row, column, cellValue, index) {
+      return siFormatter(cellValue, '')
     }
   }
 }

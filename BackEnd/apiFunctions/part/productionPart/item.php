@@ -50,10 +50,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $queryParam = array();
     $queryParam[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'";
-    if(isset($_GET["HideEmptyStock"]))
+   /* if(isset($_GET["HideEmptyStock"]))
     {
         if(filter_var($_GET["HideEmptyStock"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "(partStock.Cache_Quantity != '0' OR partStock.Cache_Quantity IS NULL)";
-    }
+    }*/
 
     $query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
 	$result = mysqli_query($dbLink,$query);
@@ -79,11 +79,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             $stockRow['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
             $stockRow['Date'] = $r['Date'];
             $stockRow['Lot'] = $r['LotNumber'];
-            $stockRow['Quantity'] = $r['Quantity'];
+            $stockRow['Quantity'] = intval($r['Quantity']);
             $totalStockQuantity += $stockRow['Quantity'];
             $stockRow['LocationName'] = $r['LocationName'];
         }
-        $output['Stock'][] = $stockRow;
+
+        if(isset($_GET["HideEmptyStock"]))
+        {
+            if(filter_var($_GET["HideEmptyStock"] , FILTER_VALIDATE_BOOLEAN))
+            {
+                if($stockRow['Quantity']  !== 0) $output['Stock'][] = $stockRow;
+            }
+            else
+            {
+                $output['Stock'][] = $stockRow;
+            }
+        }else{
+            $output['Stock'][] = $stockRow;
+        }
+
 
         $manufacturerRow = array();
         $manufacturerRow['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
@@ -104,6 +118,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $query = <<<STR
         SELECT 
+            manufacturerPart_partNumber.Number,
             GROUP_CONCAT(manufacturerPart_partNumber.Id) AS PartNumberIds,
             manufacturerPart_item.Id,
             manufacturerPart_item.Attribute
@@ -114,12 +129,58 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     STR;
     $result = mysqli_query($dbLink,$query);
     $characteristics = array();
+    $attributeIds = array();
     while($r = mysqli_fetch_assoc($result)) {
+        if($r['Attribute'] !== null)
+        {
+            $r['Attribute'] = json_decode($r['Attribute']);
+            $attributeIds = array_merge($attributeIds, array_keys((array)$r['Attribute']));
+        }
+
         $characteristics[] = $r;
     }
-    $output['Characteristics'] = $characteristics;
+    $output['Characteristics'] = array();
+    $output['Characteristics']["AttributeIds"] = array_unique($attributeIds);
+    $output['Characteristics']["Data"] = $characteristics;
 
-	
+// get Attributes
+    $attributeIdString = implode(",",$output['Characteristics']["AttributeIds"]);
+    $query = <<<STR
+        SELECT manufacturerPart_attribute.Id, 
+               manufacturerPart_attribute.ParentId, 
+               manufacturerPart_attribute.Name, 
+               manufacturerPart_attribute.Type, 
+               manufacturerPart_attribute.Scale, 
+               unitOfMeasurement.Name AS UnitName, 
+               unitOfMeasurement.Unit, 
+               unitOfMeasurement.Symbol 
+        FROM manufacturerPart_attribute 
+        LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
+        WHERE manufacturerPart_attribute.Id IN ($attributeIdString)
+
+    STR;
+    $result = mysqli_query($dbLink,$query);
+    $attributes = array();
+    while($r = mysqli_fetch_assoc($result)) {
+        $r['Id'] = intval($r['Id']);
+        $attributes[$r['Id']] = $r;
+    }
+    $output['Characteristics']["Attributes"] = $attributes;
+
+    // Decode Attributes
+    $dataWithAttribute = array();
+    foreach ($output['Characteristics']["Data"] as $line) {
+        $temp = array();
+        $temp['PartNumber'] = $line['Number'];
+        foreach ($line['Attribute'] as $key => $value) {
+            $attributeName = $attributes[$key]['Name'];
+            $temp[$attributeName] = $value;
+        }
+        $dataWithAttribute[] = $temp;
+    }
+
+    $output['Characteristics']["Data"] = $dataWithAttribute;
+
 	dbClose($dbLink);
 
 	sendResponse($output);
