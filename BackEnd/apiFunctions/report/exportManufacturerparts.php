@@ -28,12 +28,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
 	$query = <<<STR
-		SELECT vendor.Name, ManufacturerPartNumber, Status, GROUP_CONCAT(PartNo) AS PartNoList
-		FROM manufacturerPart
-		LEFT JOIN vendor ON vendor.Id = manufacturerPart.VendorId
-		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id
+		SELECT 
+		    vendor_displayName(vendor.Id) AS Name, 
+		    manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+		    GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number)) AS PartNoList
+		FROM manufacturerPart_partNumber
+		LEFT JOIN manufacturerPart_item ON manufacturerPart_partNumber.ItemId = manufacturerPart_item.Id
+		LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+		LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId or vendor.Id = manufacturerPart_series.VendorId OR manufacturerPart_partNumber.VendorId
+		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
 		LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId
-		GROUP BY manufacturerPart.Id
+		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
+		GROUP BY manufacturerPart_partNumber.Id
 	STR;
 
 	$stockResult = dbRunQuery($dbLink,$query);
@@ -48,17 +54,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$csvHandlee = fopen($csvFile, "w");
 	
 	
-	$header = "Manufacturer; ManufacturerPartNumber; Lifecycle Status;PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
+	$header = "Manufacturer; ManufacturerPartNumber; PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
 	fwrite($csvHandlee, $header.PHP_EOL);
 	
 	while($r = mysqli_fetch_assoc($stockResult)) 
 	{	
-		$line  = $r['Name'].";";
-		$line .= $r['ManufacturerPartNumber'].";";
-		$line .= $r['Status'].";";
-		foreach(explode(",",$r['PartNoList'],5) as $partNo)
-		{
-			$line .= $partNo.";";
+		$line  = '"'.$r['Name'].'";';
+		$line .= '"'.$r['ManufacturerPartNumber'].'";';
+		if($r['PartNoList'] !== null) {
+			foreach (explode(",", $r['PartNoList'], 5) as $partNo) {
+				$line .= '"'.$partNo.'";';
+			}
 		}
 		
 		fwrite($csvHandlee, $line.PHP_EOL);

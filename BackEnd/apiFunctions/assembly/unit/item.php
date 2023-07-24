@@ -23,8 +23,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	// Get History Data
     $query = <<<STR
         SELECT * FROM assembly_unit_history
-        WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '.$assemblyUnitNumber.')
-         ORDER BY Date DESC
+        WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '$assemblyUnitNumber')
+        ORDER BY Date DESC
     STR;
 
 	$result = dbRunQuery($dbLink,$query);
@@ -44,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		if($r['ShippingClearance']) $shippingClearance = true;
 		if($r['ShippingProhibited']) $shippingProhibited = true;
 
-        $r['AssemblyUnitHistoryBarcode'] = "ASH-".$r['AssemblyUnitHistoryNumber'];
+        $r['AssemblyUnitHistoryBarcode'] =  barcodeFormatter_AssemblyUnitHistoryNumber($r['AssemblyUnitHistoryNumber']);
 
 		$history[] = $r;
 	}
@@ -52,7 +52,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($shippingProhibited) $shippingClearance = false;
 
     $query = <<<STR
-        SELECT *,location_getName(LocationId) AS LocationName FROM assembly_unit
+        SELECT *,location_getName(LocationId) AS LocationName 
+        FROM assembly_unit
         LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId
     STR;
 	

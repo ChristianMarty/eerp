@@ -28,9 +28,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
 	$query  = <<<STR
-		SELECT partStock_view.*, GROUP_CONCAT(PartNo) AS PartNoList FROM  partStock_view
-		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = partStock_view.ManufacturerPartId
+		SELECT partStock_view.*, 
+				GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number) ) AS PartNoList 
+		FROM  partStock_view
+		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = partStock_view.ManufacturerPartNumberId
 		LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId
+		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
 		GROUP BY StockNo
 	STR;
 
@@ -44,28 +47,28 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$csvFile = tempnam("/tmp", $filename); 
 	$csvHandlee = fopen($csvFile, "w");
-	
 
 	$header = "Order Reference;Stock No;Manufacturer;Manufacturer Part Number;Date;Quantity;Create Quantity;Stocktaking Date;Create Data;Location;Supplier;Supplier Part Number;PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
 	fwrite($csvHandlee, $header.PHP_EOL);
 	
 	while($r = mysqli_fetch_assoc($stockResult)) 
 	{	
-		$line  = $r['OrderReference'].";";
-		$line .= $r['StockNo'].";";
-		$line .= $r['ManufacturerName'].";";
-		$line .= $r['ManufacturerPartNumber'].";";
-		$line .= $r['Date'].";";
-		$line .= $r['Quantity'].";";
-		$line .= $r['CreateQuantity'].";";
-		$line .= $r['LastCountDate'].";";
-		$line .= $r['CreateData'].";";
-		$line .= buildLocation($locations, $r['LocationId']).";";
-		$line .= $r['SupplierName'].";";
-		$line .= $r['SupplierPartNumber'].";";
-		foreach(explode(",",$r['PartNoList'],5) as $partNo)
-		{
-			$line .= $partNo.";";
+		$line  = '"'.$r['OrderReference'].'";';
+		$line .= '"'.$r['StockNo'].'";';
+		$line .= '"'.$r['ManufacturerName'].'";';
+		$line .= '"'.$r['ManufacturerPartNumber'].'";';
+		$line .= '"'.$r['Date'].'";';
+		$line .= '"'.$r['Quantity'].'";';
+		$line .= '"'.$r['CreateQuantity'].'";';
+		$line .= '"'.$r['LastCountDate'].'";';
+		$line .= '"'.$r['CreateData'].'";';
+		$line .= '"'.buildLocation($locations, $r['LocationId']).'";';
+		$line .= '"'.$r['SupplierName'].'";';
+		$line .= '"'.$r['SupplierPartNumber'].'";';
+		if($r['PartNoList'] !== null) {
+			foreach (explode(",", $r['PartNoList'], 5) as $partNo) {
+				$line .= '"'.$partNo .'";';
+			}
 		}
 		
 		fwrite($csvHandlee, $line.PHP_EOL);
