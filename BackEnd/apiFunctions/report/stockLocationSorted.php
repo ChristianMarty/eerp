@@ -29,33 +29,29 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$query = <<<STR
 		SELECT 
-			PartNo,
-			'Empty', 
+			CONCAT(numbering.Prefix,'-',productionPart.Number) AS PartNo,
 			GROUP_CONCAT(StockNo) AS StockNoList, 
 			GROUP_CONCAT(partStock_getQuantity(StockNo)) AS Quantity, 
 			GROUP_CONCAT(LocationId) AS LocationIdList
-		FROM partStock LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = partStock.ManufacturerPartId
+		FROM partStock 
+		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
 		LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
-		WHERE PartNo IS NOT NULL AND partStock.Empty = 0
+		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
+		WHERE productionPart.Number IS NOT NULL AND partStock.Cache_Quantity != 0
 		GROUP BY productionPartMapping.ProductionPartId
 	STR;
 
-
 	$stockResult = dbRunQuery($dbLink,$query);
-
 	dbClose($dbLink);
-	
-	
+
 	$locations = getLocations();
-	
+
 	$filename = "Stock Location Export ".date("Y-m-d H:i:s").".csv";
-	
 	$csvFile = tempnam("/tmp", $filename); 
-	$csvHandlee = fopen($csvFile, "w");
+	$csvHandle = fopen($csvFile, "w");
 	
 	$maxParts = 20;
 	$header = "Part Number;";
-	
 	foreach(range(1,$maxParts) as $i) 
 	{
 		$header.= "Stock No ".$i."; ";
@@ -63,32 +59,31 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$header.= "Location ".$i."; ";
 	}
 	
-	fwrite($csvHandlee, $header.PHP_EOL);
+	fwrite($csvHandle, $header.PHP_EOL);
 
 	while($r = mysqli_fetch_assoc($stockResult)) 
-	{	
-
-		$locationId = explode(",",$r['LocationIdList'],$maxParts);
+	{
+		$locationId = explode(",",$r['LocationIdList']);
+		$numberOfLocations = count(array_count_values($locationId));
 		
-		if( count(array_count_values($locationId)) > 1)
+		if( $numberOfLocations > 1)
 		{
-			$line  = $r['PartNo'].";";
-			
-			$stockNo = explode(",",$r['StockNoList'],$maxParts);
-			$quantity = explode(",",$r['Quantity'],$maxParts);
-			
-			foreach(range(0,$maxParts) as $i) 
-			{
-				$line .= $stockNo[$i].";";
-				$line .= $quantity[$i].";";
-				$line .= buildLocation($locations, $locationId[$i]).";";
-			}
+			$stockNo = explode(",",$r['StockNoList']);
+			$quantity = explode(",",$r['Quantity']);
 
-			
-			fwrite($csvHandlee, $line.PHP_EOL);
+			$line  = '"'.$r['PartNo'].'";';
+			foreach(range(0,$numberOfLocations-1) as $i)
+			{
+				$line .= '"'.$stockNo[$i].'";';
+				$line .= '"'.$quantity[$i].'";';
+				$line .= '"'.buildLocation($locations, $locationId[$i]).'";';
+			}
+			$line .= PHP_EOL;
+			fwrite($csvHandle, $line);
 		}
 	}
-		
+	fclose($csvHandle);
+
 	header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="'.$filename.'"');
@@ -97,7 +92,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     header('Pragma: public');
     header('Content-Length: ' . filesize($csvFile));
     readfile($csvFile);
-	fclose($csvHandlee);
 	exit;
 }
 
