@@ -7,7 +7,7 @@
       <el-button v-permission="['purchasing.edit']" type="info" @click="getOrderLines()">Reload</el-button>
     </span>
     <p />
-
+    <h3>Parts:</h3>
     <el-table
       ref="itemTable"
       :key="tableKey"
@@ -48,7 +48,7 @@
       </el-table-column>
       <el-table-column prop="Description" label="Description" />
     </el-table>
-    <h2>Generic:</h2>
+    <h3>Generic:</h3>
     <el-table
       :key="tableKey"
       v-loading="loading"
