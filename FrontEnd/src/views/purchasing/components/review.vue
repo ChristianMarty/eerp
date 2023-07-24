@@ -48,6 +48,23 @@
       </el-table-column>
       <el-table-column prop="Description" label="Description" />
     </el-table>
+    <h2>Generic:</h2>
+    <el-table
+      :key="tableKey"
+      v-loading="loading"
+      element-loading-text="Loading Order Lines"
+      :data="genericLines"
+      border
+      :cell-style="{ padding: '0', height: '20px' }"
+      style="width: 100%"
+    >
+      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="Type" label="Type" width="80" />
+      <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="220" />
+      <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" />
+      <el-table-column prop="ManufacturerPartNumber" label="Manufacturer Part Number" width="220" />
+      <el-table-column prop="Description" label="Description" />
+    </el-table>
   </div>
 </template>
 
@@ -66,6 +83,7 @@ export default {
   data() {
     return {
       matchedData: {},
+      genericLines: [],
 
       SupplierOrderNumber: '',
       poData: {},
@@ -75,10 +93,27 @@ export default {
     }
   },
   mounted() {
+    this.getMatchLines()
     this.getOrderLines()
   },
   methods: {
     getOrderLines() {
+      purchase.item.search(this.$props.orderData.PurchaseOrderNumber).then(response => {
+        response.Lines.forEach(element => {
+          if (element.LineType === 'Generic') {
+            this.genericLines.push(element)
+          }
+        })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getMatchLines() {
       this.loading = true
       purchase.item.match.get(this.$props.orderData.PurchaseOrderNumber).then(response => {
         this.matchedData = response
@@ -103,7 +138,7 @@ export default {
         this.$props.orderData.PurchaseOrderNumber,
         LineIdList
       ).then(response => {
-        this.getOrderLines()
+        this.getMatchLines()
       }).catch(response => {
         this.$message({
           showClose: true,
