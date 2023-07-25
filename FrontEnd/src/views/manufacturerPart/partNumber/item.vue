@@ -46,6 +46,8 @@
               </router-link>
             </template>
           </el-table-column>
+          <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" sortable />
+          <el-table-column prop="ManufacturerPartNumber" label="Part Number" width="200" sortable />
           <el-table-column prop="Date" label="Date" sortable />
           <el-table-column prop="Quantity" label="Quantity" sortable />
           <el-table-column prop="Location" label="Location" sortable />

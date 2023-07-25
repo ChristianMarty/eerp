@@ -55,6 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $query = <<<STR
         SELECT 
+            manufacturerPart_partNumber.Id AS ManufacturerPartNumberId,
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
             productionPart.Number AS ProductionPartNumber, 
             numbering.Prefix AS ProductionPartNumberPrefix
@@ -79,6 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         {
             $temp = array();
             $temp['ProductionPart'] = array();
+            $temp['ManufacturerPartNumberId'] = intval($r["ManufacturerPartNumberId"]);
             $temp['ManufacturerPartNumber'] = $manufacturerPartNumber;
             $partNumbers[$manufacturerPartNumber] = $temp;
         }

@@ -39,7 +39,13 @@
       border
       :tree-props="{ children: 'ProductionPart' }"
     >
-      <el-table-column prop="ManufacturerPartNumber" label="Number" />
+      <el-table-column prop="ManufacturerPartNumber" label="Number">
+        <template slot-scope="{ row }">
+          <router-link :to="'/manufacturerPart/partNumber/item/' + row.ManufacturerPartNumberId" class="link-type">
+            <span>{{ row.ManufacturerPartNumber }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="ProductionPartBarcode" label="Production Part Number">
         <template slot-scope="{ row }">
           <router-link

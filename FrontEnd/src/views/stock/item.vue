@@ -37,7 +37,7 @@
       <el-table :data="productionPartData" style="width: 100%">
         <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
           <template slot-scope="{ row }">
-            <router-link :to="'/prodParts/prodPartView/' + row.ProductionPartNumber" class="link-type">
+            <router-link :to="'/productionPart/item/' + row.ProductionPartNumber" class="link-type">
               <span>{{ row.ProductionPartNumber }}</span>
             </router-link>
           </template>
