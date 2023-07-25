@@ -88,7 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         {
             if(filter_var($_GET["HideEmptyStock"] , FILTER_VALIDATE_BOOLEAN))
             {
-                if($stockRow['Quantity']  !== 0) $output['Stock'][] = $stockRow;
+                if(isset($stockRow['Quantity']) && $stockRow['Quantity']  !== 0) $output['Stock'][] = $stockRow;
             }
             else
             {
@@ -148,26 +148,30 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 // get Attributes
     $attributeIdString = implode(",",$output['Characteristics']["AttributeIds"]);
-    $query = <<<STR
-        SELECT manufacturerPart_attribute.Id, 
-               manufacturerPart_attribute.ParentId, 
-               manufacturerPart_attribute.Name, 
-               manufacturerPart_attribute.Type, 
-               manufacturerPart_attribute.Scale, 
-               unitOfMeasurement.Name AS UnitName, 
-               unitOfMeasurement.Unit, 
-               unitOfMeasurement.Symbol 
-        FROM manufacturerPart_attribute 
-        LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
-        WHERE manufacturerPart_attribute.Id IN ($attributeIdString)
+	$attributes = array();
+	if($attributeIdString)
+	{
+		$query = <<<STR
+			SELECT manufacturerPart_attribute.Id, 
+				   manufacturerPart_attribute.ParentId, 
+				   manufacturerPart_attribute.Name, 
+				   manufacturerPart_attribute.Type, 
+				   manufacturerPart_attribute.Scale, 
+				   unitOfMeasurement.Name AS UnitName, 
+				   unitOfMeasurement.Unit, 
+				   unitOfMeasurement.Symbol 
+			FROM manufacturerPart_attribute 
+			LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
+			WHERE manufacturerPart_attribute.Id IN ($attributeIdString)
 
-    STR;
-    $result = mysqli_query($dbLink,$query);
-    $attributes = array();
-    while($r = mysqli_fetch_assoc($result)) {
-        $r['Id'] = intval($r['Id']);
-        $attributes[$r['Id']] = $r;
-    }
+		STR;
+		$result = mysqli_query($dbLink,$query);
+		
+		while($r = mysqli_fetch_assoc($result)) {
+			$r['Id'] = intval($r['Id']);
+			$attributes[$r['Id']] = $r;
+		}
+	}
     $output['Characteristics']["Attributes"] = $attributes;
 
     // Decode Attributes
