@@ -21,13 +21,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
 	$query = <<<STR
-		SELECT Test.Type AS Test, Inspection.Type AS Inspection, AssemblyUnitNumber, Note, SerialNumber, location_getName(LocationId) AS LocationName, ShippingProhibited.ShippingProhibited, ShippingClearance.ShippingClearance, WorkOrderNumber, LastHistory.Title AS LastHistoryTitle, LastHistory.Type AS LastHistoryType, workOrder.Title AS WorkOrderTitle
+		SELECT 
+		    Test.Type AS Test, 
+		    Inspection.Type AS Inspection, 
+		    AssemblyUnitNumber, 
+		    Note, 
+		    SerialNumber, 
+		    location_getName(LocationId) AS LocationName, 
+		    ShippingProhibited.ShippingProhibited, 
+		    ShippingClearance.ShippingClearance, 
+		    WorkOrderNumber, 
+		    LastHistory.Title AS LastHistoryTitle, 
+		    LastHistory.Type AS LastHistoryType, 
+		    workOrder.Title AS WorkOrderTitle
 		FROM assembly_unit
-		LEFT JOIN assembly_unit_history AS Test ON Test.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Test Fail','Test Pass') ORDER BY Data DESC LIMIT 1)
-		LEFT JOIN assembly_unit_history AS Inspection ON Inspection.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Inspection Fail','Inspection Pass') ORDER BY Data DESC LIMIT 1)
-		LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1 ORDER BY DATE DESC LIMIT 1)
-		LEFT JOIN assembly_unit_history AS ShippingClearance ON ShippingClearance.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingClearance = 1 ORDER BY DATE DESC LIMIT 1)
-		LEFT JOIN assembly_unit_history AS LastHistory ON LastHistory.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit_history.AssemblyUnitId = assembly_unit.Id ORDER BY Data DESC LIMIT 1)
+		LEFT JOIN assembly_unit_history AS Test ON Test.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Test Fail','Test Pass') ORDER BY Date DESC LIMIT 1)
+		LEFT JOIN assembly_unit_history AS Inspection ON Inspection.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND Type IN('Inspection Fail','Inspection Pass') ORDER BY Date DESC LIMIT 1)
+		LEFT JOIN assembly_unit_history AS ShippingProhibited ON ShippingProhibited.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingProhibited = 1 ORDER BY Date DESC LIMIT 1)
+		LEFT JOIN assembly_unit_history AS ShippingClearance ON ShippingClearance.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit.Id = assembly_unit_history.AssemblyUnitId AND ShippingClearance = 1 ORDER BY Date DESC LIMIT 1)
+		LEFT JOIN assembly_unit_history AS LastHistory ON LastHistory.Id = (SELECT Id FROM assembly_unit_history WHERE assembly_unit_history.AssemblyUnitId = assembly_unit.Id ORDER BY Date DESC LIMIT 1)
 		LEFT JOIN workOrder ON workOrder.Id = assembly_unit.WorkOrderId
 	STR;
 
