@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h2>{{ data.ManufacturerName }} - {{ data.Title }}</h2>
+    <h1>{{ data.ManufacturerName }} - {{ data.Title }}</h1>
     <p><b>{{ data.ClassName }}</b></p>
     <p>{{ data.Description }}</p>
 
@@ -16,6 +16,7 @@
         @click="showEditDialog()"
       />
     </template>
+    <p />
     <el-table
       v-loading="loading"
       element-loading-text="Loading Manufacturer Parts"
@@ -69,7 +70,11 @@
     />
     <documentsList :documents="data.Documents" />
 
-    <templateDialog :visible.sync="templateDialogVisible" :manufacturer-part-series-id="data.ManufacturerPartSeriesId" />
+    <templateDialog
+      :visible.sync="templateDialogVisible"
+      :manufacturer-part-series-id="data.ManufacturerPartSeriesId"
+      @change="getManufacturerPartSeriesItem()"
+    />
 
   </div>
 </template>
@@ -156,7 +161,6 @@ export default {
         })
 
         this.setTitle()
-
         this.loading = false
       }).catch(response => {
         this.$message({

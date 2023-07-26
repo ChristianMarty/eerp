@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <h1>{{ partData.ManufacturerName }} - {{ partData.PartNumberWithoutParameters }}</h1>
-    <h2>{{ partData.Description }} </h2>
+    <!--<h2>{{ partData.Description }} </h2>-->
     <p><b>Series:</b>
       <router-link :to="'/manufacturerPart/series/item/' + partData.SeriesId" class="link-type">
         <span> {{ partData.SeriesTitle }}</span> - {{ partData.SeriesDescription }}

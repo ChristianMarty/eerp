@@ -47,7 +47,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
     $seriesCreate = array();
     $seriesCreate['NumberTemplate'] = trim($data['NumberTemplate']);
     $seriesCreate['SeriesNameMatch'] = trim($data['SeriesNameMatch']);
-    $seriesCreate['Parameter'] = trim($data['Parameter']);
+    $seriesCreate['Parameter'] = json_encode($data['Parameter']);
 
     $query = dbBuildUpdateQuery($dbLink, "manufacturerPart_series", $seriesCreate, "Id = ".$manufacturerPartSeriesId);
     $result = mysqli_query($dbLink,$query);

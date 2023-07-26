@@ -27,6 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
                manufacturerPart_series.Id AS SeriesId,
                manufacturerPart_series.Title AS SeriesTitle,
                manufacturerPart_series.Description AS SeriesDescription,
+               manufacturerPart_series.NumberTemplate AS SeriesNumberTemplate, 
                manufacturerPart_partPackage.Id AS PackageId,
                manufacturerPart_partPackage.Name AS PackageName
         FROM manufacturerPart_partNumber
@@ -50,6 +51,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $output['PackageId'] = intval($output['PackageId']);
     $output['ManufacturerId'] = intval($output['ManufacturerId']);
     $output['PartId'] = intval($output['PartId']);
+
+    $parameter= getParameter($dbLink, $output['SeriesId']);
+    $output['PartNumberDescription'] = descriptionFromNumber($output['SeriesNumberTemplate'],$parameter,$output['PartNumber']);
 
     dbClose($dbLink);
 

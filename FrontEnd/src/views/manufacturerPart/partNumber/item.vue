@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h2> {{ data.ManufacturerName }} - {{ data.PartNumber }}</h2>
+    <h1> {{ data.ManufacturerName }} - {{ data.PartNumber }}</h1>
     <p><b>Part:</b>
       <router-link
         :to="'/manufacturerPart/item/' + data.PartId"
@@ -14,6 +14,7 @@
         <span> {{ data.SeriesTitle }}</span> - {{ data.SeriesDescription }}
       </router-link>
     </p>
+    <p><b>Description:</b> {{ data.PartNumberDescription }}</p>
     <p><b>Package: </b>{{ data.PackageName }}</p>
 
     <el-tabs
