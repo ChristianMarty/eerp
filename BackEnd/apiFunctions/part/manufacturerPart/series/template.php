@@ -30,7 +30,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $output =  mysqli_fetch_assoc($result);
 
     $output['ManufacturerPartSeriesId'] = intval($output['ManufacturerPartSeriesId']);
-    $output['Parameter'] = json_decode($output['Parameter']);
+    if($output['Parameter'] !== null) $output['Parameter'] = json_decode($output['Parameter']);
+    else $output['Parameter'] = array();
 
     dbClose($dbLink);
     sendResponse($output);
