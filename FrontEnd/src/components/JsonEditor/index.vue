@@ -36,7 +36,7 @@ export default {
       lineNumbers: true,
       mode: 'application/json',
       gutters: ['CodeMirror-lint-markers'],
-      theme: 'rubyblue',
+
       lint: true
     })
 
@@ -63,10 +63,14 @@ export default {
     .CodeMirror {
       height: auto;
       min-height: 300px;
+      font-family: Arial, monospace;
+      font-size: 16px;
+      line-height: 1.0;
     }
 
     .CodeMirror-scroll {
       min-height: 300px;
+      max-height: 750px;
     }
 
     .cm-s-rubyblue span.cm-string {

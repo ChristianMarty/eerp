@@ -32,6 +32,7 @@
     <el-divider />
     <h3>Part Number</h3>
     <p><b>Part Number Template:</b> {{ partData.PartNumber }}</p>
+    <p><b>Part Number Description:</b> {{ partData.PartNumberDescription }}</p>
     <el-table
       :data="partData.PartNumberItem"
       style="width: 100%"
@@ -56,7 +57,7 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Description" label="Description" />
+      <el-table-column prop="ManufacturerPartNumberDescription" label="Description" />
     </el-table>
 
     <h3>Documents</h3>

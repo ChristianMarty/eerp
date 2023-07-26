@@ -176,6 +176,46 @@ class ManufacturerPart {
           }
         })
       })
+    },
+    template: {
+      get(ManufacturerPartSeriesId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'get',
+            url: '/part/manufacturerPart/series/template',
+            params: {
+              ManufacturerPartSeriesId: ManufacturerPartSeriesId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      seriesTemplateParameters: {
+        ManufacturerPartSeriesId: 0,
+        SeriesNameMatch: '',
+        NumberTemplate: '',
+        Parameter: ''
+      },
+      save(seriesTemplateParameters) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/part/manufacturerPart/series/template',
+            data: seriesTemplateParameters
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
     }
   }
 

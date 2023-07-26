@@ -6,6 +6,16 @@
 
     <h3>Manufacturer Part Parameter</h3>
     <p><b>Part Number Template:</b> {{ data.NumberTemplate }} </p>
+    <template v-if="checkPermission(['manufacturerPartSeries.edit'])">
+      <el-button
+        size="mini"
+        type="primary"
+        icon="el-icon-edit"
+        circle
+        style="margin-top: 00px; margin-bottom: 00px"
+        @click="showEditDialog()"
+      />
+    </template>
     <el-table
       v-loading="loading"
       element-loading-text="Loading Manufacturer Parts"
@@ -59,24 +69,31 @@
     />
     <documentsList :documents="data.Documents" />
 
+    <templateDialog :visible.sync="templateDialogVisible" :manufacturer-part-series-id="data.ManufacturerPartSeriesId" />
+
   </div>
 </template>
 
 <script>
+import checkPermission from '@/utils/permission'
+
 import documentsList from '@/views/document/components/documentsList'
 import editDocumentsList from '@/views/document/components/editDocumentsList'
+import templateDialog from './components/templateDialog'
 
 import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
 export default {
   name: 'PartSeriesItem',
-  components: { documentsList, editDocumentsList },
+  components: { documentsList, editDocumentsList, templateDialog },
   data() {
     return {
       loading: true,
 
-      data: {}
+      data: {},
+
+      templateDialogVisible: false
     }
   },
   mounted() {
@@ -89,12 +106,16 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    checkPermission,
     setTitle() {
       const route = Object.assign({}, this.tempRoute, {
         title: this.data.ManufacturerName + ' - ' + this.data.Title
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = this.data.ManufacturerName + ' - ' + this.data.Title
+    },
+    showEditDialog() {
+      this.templateDialogVisible = true
     },
     getManufacturerPartSeriesItem() {
       manufacturerPart.series.item(this.$route.params.ManufacturerPartSeriesId).then(response => {

@@ -31,7 +31,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             manufacturerPart_partPackage.name AS Package, 
             manufacturerPart_class_getName(manufacturerPart_series.ClassId) AS PartClassName,
             manufacturerPart_item.SeriesId AS SeriesId, 
+            manufacturerPart_series.Id AS SeriesId,
             manufacturerPart_series.Title AS SeriesTitle, 
+            manufacturerPart_series.NumberTemplate AS SeriesNumberTemplate, 
             manufacturerPart_series.Description AS SeriesDescription,
             manufacturerPart_series.DocumentIds AS SeriesDocumentIds,
             manufacturerPart_item.DocumentIds AS ItemDocumentIds
@@ -51,7 +53,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $output = $r;
     }
 
+    $parameter= getParameter($dbLink, $output['SeriesId']);
+
     $output['PartNumberWithoutParameters'] = manufacturerPart_numberWithoutParameters($output['PartNumber']);
+    $output['PartNumberDescription'] = descriptionFromNumber($output['SeriesNumberTemplate'],$parameter,$output['PartNumber']);
+
 
     $query = <<<STR
         SELECT 
@@ -82,6 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             $temp['ProductionPart'] = array();
             $temp['ManufacturerPartNumberId'] = intval($r["ManufacturerPartNumberId"]);
             $temp['ManufacturerPartNumber'] = $manufacturerPartNumber;
+            $temp['ManufacturerPartNumberDescription'] = descriptionFromNumber($output['PartNumber'],$parameter,$manufacturerPartNumber);
             $partNumbers[$manufacturerPartNumber] = $temp;
         }
 
@@ -91,7 +98,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $output['PartNumberItem'] = array_values($partNumbers);
 
     if(isset($output['Attribute'])) $output['Attribute'] = decodeAttributes(getAttributes($dbLink),$output['Attribute']);
-    else $output['Attribute'] = null;
+    else $output['Attribute'] = array();
 
     $documentIds = array();
     if($output['SeriesDocumentIds']) $documentIds += explode(",",$output['SeriesDocumentIds']);
