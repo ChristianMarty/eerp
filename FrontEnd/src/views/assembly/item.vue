@@ -74,9 +74,9 @@
           <el-select v-model="assemblyCreateData.WorkOrderNumber" filterable style="width: 100%">
             <el-option
               v-for="wo in workOrders"
-              :key="wo.Id"
+              :key="wo.WorkOrderNumber"
               :label="wo.WorkOrderBarcode + ' -- ' + wo.Title"
-              :value="wo.WorkOrderNo"
+              :value="wo.WorkOrderNumber"
             />
           </el-select>
         </el-form-item>

@@ -84,7 +84,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($dbLink == null) return null;
 
 	$serialNumber = dbEscapeString($dbLink,$data['SerialNumber']);
-    $assemblyNumber = barcodeFormatter_AssemblyNumber($data['AssemblyNumber']);
+    $assemblyNumber = barcodeParser_AssemblyNumber($data['AssemblyNumber']);
 	
 	$workOrderNumber = null;
 	if(isset($data['WorkOrderNumber']))
