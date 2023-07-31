@@ -31,8 +31,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		SELECT partStock_view.*, 
 				GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number) ) AS PartNoList 
 		FROM  partStock_view
-		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = partStock_view.ManufacturerPartNumberId
-		LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId
+		LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock_view.ManufacturerPartNumberId
+		LEFT JOIN productionPart ON  productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
 		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
 		GROUP BY StockNo
 	STR;

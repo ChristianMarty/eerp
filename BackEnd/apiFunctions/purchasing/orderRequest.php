@@ -42,8 +42,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             FROM manufacturerPart 
                 LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId
             )mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId 
-        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = mfrPart.Id
-        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartId = mfrPart.Id
+        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
     STR;
 
 	if(isset($_GET["ManufacturerPartId"])) $manufacturerPartId =  dbEscapeString($dbLink, $_GET["ManufacturerPartId"]);

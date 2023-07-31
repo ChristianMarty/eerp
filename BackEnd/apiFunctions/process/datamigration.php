@@ -21,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $dbLink = dbConnect();
 
     $query = <<<STR
-        UPDATE productionPartMapping SET ManufacturerPartNumberId = NULL;
+        UPDATE productionPart_manufacturerPart_mapping SET ManufacturerPartNumberId = NULL;
         UPDATE supplierPart SET ManufacturerPartNumberId = NULL;
         UPDATE partStock SET ManufacturerPartNumberId = NULL;
     STR;
@@ -78,8 +78,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $oldId = $r2['OldId'];
 
         $query = <<<STR
-            UPDATE productionPartMapping SET ManufacturerPartNumberId = $manufacturerPartNumberId
-            WHERE productionPartMapping.ManufacturerPartId = $oldId;
+            UPDATE productionPart_manufacturerPart_mapping SET ManufacturerPartNumberId = $manufacturerPartNumberId
+            WHERE productionPart_manufacturerPart_mapping.ManufacturerPartId = $oldId;
         STR;
         dbRunQuery($dbLink, $query);
 

@@ -24,8 +24,12 @@
             placeholder="Type"
             style="min-width: 200px; margin-right: 10px;"
           >
-            <el-option value="Part">Part</el-option>
-            <el-option value="Generic">Generic</el-option>
+            <el-option
+              v-for="item in lineType"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-select>
         </el-form-item>
 
@@ -219,6 +223,7 @@ export default {
     return {
       isVisible: false,
       loading: true,
+      lineType: [],
       partOptions: [],
       uom: [],
       vat: [],
@@ -242,6 +247,8 @@ export default {
     this.uom = await unitOfMeasurement.list(true)
     this.partManufacturer = await vendor.search(false, true, false)
     this.costCenter = await finance.costCenter.list()
+
+    this.getType()
   },
   methods: {
     calculatePrice(line) {
@@ -386,6 +393,18 @@ export default {
         this.$message({
           type: 'info',
           message: 'Delete canceled'
+        })
+      })
+    },
+    getType() {
+      purchase.item.line.type().then(response => {
+        this.lineType = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
         })
       })
     },

@@ -34,11 +34,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			GROUP_CONCAT(partStock_getQuantity(StockNo)) AS Quantity, 
 			GROUP_CONCAT(LocationId) AS LocationIdList
 		FROM partStock 
-		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
-		LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+		LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
+		LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
 		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
 		WHERE productionPart.Number IS NOT NULL AND partStock.Cache_Quantity != 0
-		GROUP BY productionPartMapping.ProductionPartId
+		GROUP BY productionPart_manufacturerPart_mapping.ProductionPartId
 	STR;
 
 	$stockResult = dbRunQuery($dbLink,$query);

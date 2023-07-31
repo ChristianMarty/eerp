@@ -1,9 +1,14 @@
 <template>
-  <div class="app-container" />
+  <div class="app-container">
+    <h1>{{ partData.Type }} - {{ partData.Title }}</h1>
+  </div>
 </template>
 
 <script>
 import permission from '@/directive/permission/index.js'
+
+import SpecificationPart from '@/api/specificationPart'
+const specificationPart = new SpecificationPart()
 
 export default {
   name: 'LocationAssignment',
@@ -11,11 +16,11 @@ export default {
   directives: { permission },
   data() {
     return {
-
+      partData: {}
     }
   },
   mounted() {
-
+    this.getSpecificationPart()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -25,12 +30,26 @@ export default {
   },
   methods: {
 
-    setTitle(title) {
+    setTitle() {
+      const title = `${this.partData.Type} - ${this.partData.Title}`
       const route = Object.assign({}, this.tempRoute, {
         title: `${title}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-      document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
+      document.title = title
+    },
+    getSpecificationPart() {
+      specificationPart.item(this.$route.params.SpecificationPartBarcode).then(response => {
+        this.partData = response
+        this.setTitle()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
     }
 
   }

@@ -11,20 +11,20 @@ const specificationPartRouter = {
     {
       path: 'browser/',
       component: () => import('@/views/specificationPart/browser'),
-      name: 'workOrder',
-      meta: { title: 'Browser', icon: 'el-icon-sold-out' }
+      name: 'specificationPart',
+      meta: { title: 'Spec Part Search', icon: 'search', roles: ['specificationPart.view'] }
     },
     {
       path: 'create/',
       component: () => import('@/views/specificationPart/create'),
       name: 'create',
-      meta: { title: 'Create', icon: 'edit' }
+      meta: { title: 'Create', icon: 'edit', roles: ['specificationPart.create'] }
     },
     {
-      path: 'item/:SpecificationPartNumber(.*)',
+      path: 'item/:SpecificationPartBarcode(.*)',
       component: () => import('@/views/specificationPart/item/'),
       name: 'item',
-      meta: { title: 'Specification Part View', icon: 'el-icon-sold-out' },
+      meta: { title: 'Specification Part View', icon: 'el-icon-sold-out', roles: ['specificationPart.view'] },
       hidden: true
     }
   ]

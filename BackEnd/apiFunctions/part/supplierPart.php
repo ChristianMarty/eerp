@@ -30,8 +30,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         FROM supplierPart 
         LEFT JOIN vendor On vendor.Id = supplierPart.VendorId 
         LEFT JOIN manufacturerPart_partNumber On manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId 
-        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id 
-        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId 
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id 
+        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId 
     STR;
 
 	$parameters = array();

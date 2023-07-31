@@ -100,8 +100,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             partStock.ManufacturerPartId,
             partStock.OrderReference 
         FROM partStock
-        LEFT JOIN productionPartMapping ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId
-        LEFT JOIN productionPart ON partStock.ManufacturerPartId = productionPartMapping.ManufacturerPartId
+        LEFT JOIN productionPart_manufacturerPart_mapping ON partStock.ManufacturerPartId = productionPart_manufacturerPart_mapping.ManufacturerPartId
+        LEFT JOIN productionPart ON partStock.ManufacturerPartId = productionPart_manufacturerPart_mapping.ManufacturerPartId
         WHERE (partStock.OrderReference != productionPart.Number OR (productionPart.Number IS NULL AND partStock.OrderReference IS NOT NULL)) AND partStock.OrderReference != ''
         GROUP BY partStock.ManufacturerPartId,partStock.OrderReference
     STR;
@@ -220,7 +220,7 @@ function like_match($pattern, $subject): bool
 
 function addProdPart($partNo, $mfrPartId, $matchCertainty)
 {
-	$query = "INSERT IGNORE INTO productionPartMapping(ProductionPartId, ManufacturerPartId, MatchCertainty) VALUES( (SELECT Id FROM productionPart WHERE Number = '".$partNo."'), ".$mfrPartId.", '".$matchCertainty."')";
+	$query = "INSERT IGNORE INTO productionPart_manufacturerPart_mapping(ProductionPartId, ManufacturerPartId, MatchCertainty) VALUES( (SELECT Id FROM productionPart WHERE Number = '".$partNo."'), ".$mfrPartId.", '".$matchCertainty."')";
 		
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;

@@ -91,8 +91,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
                 SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers, 
                        Cache_ReferencePrice_WeightedAverage, Cache_PurchasePrice_WeightedAverage, Cache_ReferencePrice_Minimum, Cache_ReferencePrice_Maximum, Cache_ReferenceLeadTime_WeightedAverage
                 FROM productionPart
-                LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
-                LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
+                LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
+                LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPart_manufacturerPart_mapping.ManufacturerPartId 
                 LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
                 LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
                 WHERE productionPart.Number ='$partNo'

@@ -36,8 +36,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		LEFT JOIN manufacturerPart_item ON manufacturerPart_partNumber.ItemId = manufacturerPart_item.Id
 		LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
 		LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId or vendor.Id = manufacturerPart_series.VendorId OR manufacturerPart_partNumber.VendorId
-		LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-		LEFT JOIN productionPart ON  productionPart.Id = productionPartMapping.ProductionPartId
+		LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
+		LEFT JOIN productionPart ON  productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
 		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
 		GROUP BY manufacturerPart_partNumber.Id
 	STR;

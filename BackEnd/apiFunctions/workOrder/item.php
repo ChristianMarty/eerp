@@ -56,8 +56,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     LEFT JOIN vendor On vendor.Id = manufacturerPart_partNumber.VendorId 
     LEFT JOIN (
         SELECT GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number)) AS ProductionPartNumber, ManufacturerPartNumberId 
-        FROM productionPartMapping 
-        LEFT JOIN productionPart On productionPart.Id = productionPartMapping.ProductionPartId
+        FROM productionPart_manufacturerPart_mapping 
+        LEFT JOIN productionPart On productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         GROUP BY ManufacturerPartNumberId
     )prodPart On prodPart.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId

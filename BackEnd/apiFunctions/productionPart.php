@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             productionPart.Number, 
             Description 
         FROM productionPart
-        LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
     STR;
 
@@ -33,7 +33,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(isset($_GET["ManufacturerPartNumberId"]))
 	{
 		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
-		$queryParam[] = "productionPartMapping.ManufacturerPartNumberId = '" . $temp . "'";
+		$queryParam[] = "productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = '" . $temp . "'";
 	}
 	else if(isset($_GET["ProductionPartNumber"]))
 	{

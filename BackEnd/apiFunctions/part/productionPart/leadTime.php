@@ -29,7 +29,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             InformationSource, 
             InformationDate, 
             Note, 
-            productionPartMapping.ManufacturerPartId, 
+            productionPart_manufacturerPart_mapping.ManufacturerPartId, 
             ManufacturerPartNumber, 
             vendor.Name AS VendorName, 
             vendor.ShortName AS VendorShortName, 
@@ -37,9 +37,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             suppier.ShortName AS SuppierShortName, 
             suppier.Id AS SuppierId 
         FROM  part_referenceLeadTime
-        LEFT JOIN productionPartMapping ON part_referenceLeadTime.ManufacturerPartId = productionPartMapping.ManufacturerPartId
-        LEFT JOIN productionPart ON productionPartMapping.ProductionPartId = productionPart.Id OR part_referenceLeadTime.ProductionPartId = productionPart.Id
-        LEFT JOIN manufacturerPart ON manufacturerPart.Id = productionPartMapping.ManufacturerPartId
+        LEFT JOIN productionPart_manufacturerPart_mapping ON part_referenceLeadTime.ManufacturerPartId = productionPart_manufacturerPart_mapping.ManufacturerPartId
+        LEFT JOIN productionPart ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id OR part_referenceLeadTime.ProductionPartId = productionPart.Id
+        LEFT JOIN manufacturerPart ON manufacturerPart.Id = productionPart_manufacturerPart_mapping.ManufacturerPartId
         LEFT JOIN vendor ON manufacturerPart.VendorId = vendor.Id
         LEFT JOIN vendor AS suppier ON part_referenceLeadTime.SupplierId = vendor.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId

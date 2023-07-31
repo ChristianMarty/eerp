@@ -90,8 +90,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
             $query = <<<STR
                 SELECT PartNo, productionPart.Description, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers
                 FROM productionPart
-                LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
-                LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPartMapping.ManufacturerPartId 
+                LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
+                LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPart_manufacturerPart_mapping.ManufacturerPartId 
                 LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
                 WHERE productionPart.PartNo ='$partNo'
                 GROUP BY manufacturerPart.Id

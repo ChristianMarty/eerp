@@ -7,7 +7,7 @@
       <el-button v-permission="['purchasing.edit']" type="info" @click="getOrderLines()">Reload</el-button>
     </span>
     <p />
-    <h3>Parts:</h3>
+    <h3>Manufacturer Parts:</h3>
     <el-table
       ref="itemTable"
       :key="tableKey"
@@ -20,7 +20,6 @@
       :cell-class-name="tableAnalyzer"
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="Type" label="Type" width="80" />
       <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="220" />
       <el-table-column prop="ManufacturerName" label="Manufacturer" width="200">
         <template slot-scope="{ row }">
@@ -48,6 +47,19 @@
       </el-table-column>
       <el-table-column prop="Description" label="Description" />
     </el-table>
+    <h3>Specification Parts:</h3>
+    <el-table
+      :key="tableKey"
+      v-loading="loading"
+      element-loading-text="Loading Order Lines"
+      :data="specificationPartLines"
+      border
+      :cell-style="{ padding: '0', height: '20px' }"
+      style="width: 100%"
+    >
+      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="Description" label="Description" />
+    </el-table>
     <h3>Generic:</h3>
     <el-table
       :key="tableKey"
@@ -59,7 +71,6 @@
       style="width: 100%"
     >
       <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="Type" label="Type" width="80" />
       <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="220" />
       <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" />
       <el-table-column prop="ManufacturerPartNumber" label="Manufacturer Part Number" width="220" />
@@ -84,6 +95,7 @@ export default {
     return {
       matchedData: {},
       genericLines: [],
+      specificationPartLines: [],
 
       SupplierOrderNumber: '',
       poData: {},
@@ -102,6 +114,8 @@ export default {
         response.Lines.forEach(element => {
           if (element.LineType === 'Generic') {
             this.genericLines.push(element)
+          } else if (element.LineType === 'Specification Part') {
+            this.specificationPartLines.push(element)
           }
         })
       }).catch(response => {

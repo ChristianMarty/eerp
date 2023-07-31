@@ -78,7 +78,6 @@ function itemDataFromItemId($dbLink, $itemId) :array | null
     $query = <<<STR
         SELECT * 
         FROM manufacturerPart_item
-
         WHERE manufacturerPart_item.Id = '$itemId'
     STR;
 
@@ -89,7 +88,144 @@ function itemDataFromItemId($dbLink, $itemId) :array | null
     return  mysqli_fetch_assoc($result);
 }
 
+function decodeNumberTemplateParameters($numberTemplate, $parameter) :array | null
+{
+    $numberTemplateLength =  strlen($numberTemplate);
 
+    // Find parameters in template sting and order by occurrence
+    $options = array();
+    foreach($parameter as $p)
+    {
+        $tmp = array();
+        $pattern = '{'.$p['Name'].'}';
+        $tmp['position'] = strpos($numberTemplate,$pattern);
+        $tmp['endPosition'] = $tmp['position'] + strlen($pattern)-1;
+        $tmp['parameter'] = $p;
+
+        if($tmp['position']) $options[] = $tmp;
+    }
+    usort($options, "optionsSort");
+
+    if(!count($options)) return null;
+
+    // Fill in non-parameters at the start
+    if($options[0]['endPosition'] !== 0)
+    {
+        $tmp = array();
+        $tmp['position'] = 0;
+        $tmp['endPosition'] = $options[0]['position']-1;
+
+        $parameter = array();
+        $values = array();
+        $values['Value'] = substr($numberTemplate,$tmp['position'],$tmp['endPosition']-$tmp['position']+1);
+        $values['Description'] = null;
+
+        $parameter['Values'][] = $values;
+        $parameter['Name'] = null;
+        $parameter["Type"] = "Text";
+        $tmp['parameter'] = $parameter;
+        $options[] = $tmp;
+    }
+
+    usort($options, "optionsSort");
+
+    // Fill in non-parameters in the middle e.g {}-{}
+    foreach ($options as $key=>$o)
+    {
+        if($key != 0){
+
+            if ($options[$key-1]['endPosition']+1 == $o['position']) continue;
+
+            $tmp = array();
+            $tmp['position'] = $options[$key-1]['endPosition']+1;
+            $tmp['endPosition'] = $o['position']-1;
+
+            $parameter = array();
+            $values = array();
+            $values['Value'] = substr($numberTemplate, $tmp['position'],  $tmp['endPosition']-$tmp['position']+1);
+            $values['Description'] = null;
+
+            $parameter['Values'][] = $values;
+            $parameter['Name'] = null;
+            $parameter["Type"] = "Text";
+            $tmp['parameter'] = $parameter;
+            $options[] = $tmp;
+        }
+    }
+    usort($options, "optionsSort");
+
+    // Fill in non-parameters at the end
+    $lastOption = end($options);
+    if( $lastOption['endPosition'] < $numberTemplateLength-1){
+
+        $tmp = array();
+        $tmp['position'] = $lastOption['endPosition']+1;
+        $tmp['endPosition'] = $numberTemplateLength;
+
+        $parameter = array();
+        $values = array();
+        $values['Value'] = substr($numberTemplate, $tmp['position'],$tmp['endPosition']-$tmp['position']+1);
+        $values['Description'] = null;
+
+        $parameter['Values'][] = $values;
+        $parameter['Name'] = null;
+        $parameter["Type"] = "Text";
+        $tmp['parameter'] = $parameter;
+        $options[] = $tmp;
+    }
+
+    return($options);
+}
+
+function decodeNumber($number, $numberTemplateParts) : null|array
+{
+    if($number == null) return null;
+    if($numberTemplateParts == null) return null;
+
+    $output = array();
+
+    $numberPart = $number;
+    foreach($numberTemplateParts as $part)
+    {
+        if(isset($part['parameter']["Values"])) {
+            foreach ($part['parameter']["Values"] as $v) {
+                if (str_starts_with($numberPart, $v['Value'])) {
+
+                    $temp = array();
+                    $temp['Value'] = $v['Value'];
+                    $temp['Description'] = $v['Description'];
+                    $temp['Name'] = $part['parameter']['Name'];
+                    $temp['Type'] = $part['parameter']['Type'];
+
+                    $numberPart = substr($numberPart,  strlen($temp['Value']));
+                    $output[] = $temp;
+                    break;
+                }
+            }
+        }else{
+            $length = intval($part['parameter']["Length"]);
+            $decoder = $part['parameter']["Decoder"];
+            $inputPart = substr($numberPart, 0,$length);
+
+            ob_start();
+            $input = $inputPart;
+            eval($decoder);
+            $description = ob_get_contents();
+            ob_end_clean();
+
+            $temp = array();
+            $temp['Value'] = $inputPart;
+            $temp['Description'] = $description;
+            $temp['Name'] = $part['parameter']['Name'];
+            $temp['Type'] = $part['parameter']['Type'];
+
+            $numberPart = substr($numberPart,  $length);
+            $output[] = $temp;
+        }
+    }
+
+    return $output;
+}
 
 function optionsSort($a, $b)
 {
@@ -107,90 +243,16 @@ function descriptionFromNumber($numberTemplate, $parameter, $number) :string
     if($numberTemplate == "") return "";
     if($number == "") return "";
 
+    $options = decodeNumberTemplateParameters($numberTemplate,$parameter);
+    if($options == null || !count($options)) return "";
 
-    // Find parameters in template sting and order by occurrence
-    $options = array();
-    foreach($parameter as $p)
-    {
-        $tmp = array();
-        $tmp['position'] = strpos($numberTemplate,'{'.$p['Name'].'}');
-        $tmp['parameter'] = $p;
+    $decodedNumberParts =  decodeNumber($number,$options);
 
-        if($tmp['position']) $options[] = $tmp;
-    }
-    usort($options, "optionsSort");
-
-    if(!count($options)) return "";
-
-
-    // Fill in non-parameters in the middle of the part number e.g {}-{}
-    $lastPos = 0;
-    $lastLength = 0;
-    foreach ($options as $key=>$o)
-    {
-        if($key != 0)
-        {
-            if( $lastPos+$lastLength == $o['position']) continue;
-
-            $tmp = array();
-            $tmp['position'] = $lastPos+$lastLength;
-
-            $parameter = array();
-            $values = array();
-            $values['Value'] = substr($numberTemplate,$lastPos+$lastLength,$o['position']-($lastPos+$lastLength));
-            $values['Description'] = null;
-
-            $parameter['Values'][] = $values;
-            $parameter['Name'] = null;
-            $tmp['parameter'] = $parameter;
-
-            if($tmp['position']) $options[] = $tmp;
-        }
-
-        $lastPos = $o['position'];
-        $lastLength = strlen('{'.$o['parameter']['Name'].'}');
-    }
-    usort($options, "optionsSort");
-
-
-    $size = $options[0]['position'];
     $output = "";
-
-    foreach($options as $o)
+    foreach($decodedNumberParts as $part)
     {
-       // var_dump($o);
-        $numberPart = substr($number,$size);
-
-        if(str_starts_with($numberPart,'{'.$o["parameter"]['Name'].'}'))
-        {
-            $size += strlen('{'.$o["parameter"]['Name'].'}');
-            continue;
-        }
-
-        if(isset($o['parameter']["Values"])) {
-            foreach ($o['parameter']["Values"] as $v) {
-                if (str_starts_with($numberPart, $v['Value'])) {
-                    $size += strlen($v['Value']);
-                    if ($v['Description'] !== null) $output .= "; " . $v['Description'];
-                    break;
-                }
-            }
-        }else{
-
-
-            $length = intval($o['parameter']["Length"]);
-            $decoder = $o['parameter']["Decoder"];
-            $part = substr($numberPart, 0,$length);
-
-            ob_start();
-            $input = $part;
-            eval($decoder);
-            $description = ob_get_contents();
-            ob_end_clean();
-
-            $output .= "; " . $description;
-            $size += $length;
-        }
+        if($part['Type'] == "Text") continue;
+        $output .= "; " .$part['Description'];
     }
 
     if(str_starts_with($output, "; ")) $output = substr($output,2);

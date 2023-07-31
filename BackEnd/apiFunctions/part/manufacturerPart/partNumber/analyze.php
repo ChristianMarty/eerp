@@ -24,52 +24,8 @@ function generateItemNumberTemplate($numberTemplate, $parameter, $number) :strin
     if($numberTemplate == "") return "";
     if($number == "") return "";
 
-
-    // Find parameters in template sting and order by occurrence
-    $options = array();
-    foreach($parameter as $p)
-    {
-        $tmp = array();
-        $tmp['position'] = strpos($numberTemplate,'{'.$p['Name'].'}');
-        $tmp['parameter'] = $p;
-
-        if($tmp['position']) $options[] = $tmp;
-    }
-    usort($options, "optionsSort");
-
-    if(!count($options)) return "";
-
-
-    // Fill in non-parameters in the middle of the part number e.g {}-{}
-    $lastPos = 0;
-    $lastLength = 0;
-    foreach ($options as $key=>$o)
-    {
-        if($key != 0)
-        {
-            if( $lastPos+$lastLength == $o['position']) continue;
-
-            $tmp = array();
-            $tmp['position'] = $lastPos+$lastLength;
-
-            $parameter = array();
-            $values = array();
-            $values['Value'] = substr($numberTemplate,$lastPos+$lastLength,$o['position']-($lastPos+$lastLength));
-            $values['Description'] = null;
-
-            $parameter['Values'][] = $values;
-            $parameter['Type'] = "Fill";
-            $parameter['Name'] = null;
-            $tmp['parameter'] = $parameter;
-
-            if($tmp['position']) $options[] = $tmp;
-        }
-
-        $lastPos = $o['position'];
-        $lastLength = strlen('{'.$o['parameter']['Name'].'}');
-    }
-    usort($options, "optionsSort");
-
+    $options = decodeNumberTemplateParameters($numberTemplate,$parameter);
+    if($options == null || !count($options)) return "";
 
     $size = $options[0]['position'];
     $output =  substr($number, 0,$size);
@@ -102,7 +58,6 @@ function generateItemNumberTemplate($numberTemplate, $parameter, $number) :strin
             $length = intval($o['parameter']["Length"]);
             $decoder = $o['parameter']["Decoder"];
             $part = substr($numberPart, 0,$length);
-
 
             $output .= $part;
             $size += $length;

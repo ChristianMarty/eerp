@@ -233,7 +233,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     UPDATE productionPart SET DESCRIPTION = 
         (
         SELECT Description FROM manufacturerPart 
-        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartId = manufacturerPart.Id WHERE productionPartMapping.ProductionPartId = productionPart.Id LIMIT 1
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartId = manufacturerPart.Id WHERE productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id LIMIT 1
         ) 
     WHERE DESCRIPTION IS NULL
     STR;

@@ -24,12 +24,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
     $query = <<< STR
-        SELECT Price, MinimumOrderQuantity, IncrementalOrderQuantity, Weight, InformationSource, InformationDate, Note, CurrencyCode, productionPartMapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName, suppier.Name AS SuppierName, suppier.ShortName AS SuppierShortName, suppier.Id AS SuppierId
+        SELECT Price, MinimumOrderQuantity, IncrementalOrderQuantity, Weight, InformationSource, InformationDate, Note, CurrencyCode, productionPart_manufacturerPart_mapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName, suppier.Name AS SuppierName, suppier.ShortName AS SuppierShortName, suppier.Id AS SuppierId
         FROM  part_referencePrice
-        LEFT JOIN productionPartMapping ON part_referencePrice.ManufacturerPartId = productionPartMapping.ManufacturerPartId
-        LEFT JOIN productionPart ON productionPartMapping.ProductionPartId = productionPart.Id OR part_referencePrice.ProductionPartId = productionPart.Id
+        LEFT JOIN productionPart_manufacturerPart_mapping ON part_referencePrice.ManufacturerPartId = productionPart_manufacturerPart_mapping.ManufacturerPartId
+        LEFT JOIN productionPart ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id OR part_referencePrice.ProductionPartId = productionPart.Id
         LEFT JOIN finance_currency ON part_referencePrice.CurrencyId = finance_currency.Id
-        LEFT JOIN manufacturerPart ON manufacturerPart.Id = productionPartMapping.ManufacturerPartId
+        LEFT JOIN manufacturerPart ON manufacturerPart.Id = productionPart_manufacturerPart_mapping.ManufacturerPartId
         LEFT JOIN vendor ON manufacturerPart.VendorId = vendor.Id
         LEFT JOIN vendor AS suppier ON part_referencePrice.SupplierId = vendor.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId

@@ -34,6 +34,7 @@
         <el-table-column prop="LineNo" label="Line" width="70" />
         <el-table-column prop="QuantityOrdered" label="Quantity" width="80" />
         <el-table-column prop="UnitOfMeasurement" label="Unit" width="50" />
+        <el-table-column prop="LineType" label="Type" width="150" />
         <el-table-column label="SKU" prop="SupplierSku" width="220" />
         <el-table-column label="Item">
           <template slot-scope="{ row }">

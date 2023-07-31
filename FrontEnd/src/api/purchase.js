@@ -298,6 +298,20 @@ class Purchase {
             }
           })
         })
+      },
+      type() {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            url: '/purchasing/item/line/type',
+            methood: 'get'
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
       }
     },
     match: {

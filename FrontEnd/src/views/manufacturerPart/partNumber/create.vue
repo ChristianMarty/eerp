@@ -28,7 +28,7 @@
         <el-button type="primary" @click="onAnalyze()">Analyze Number</el-button>
       </el-form-item>
 
-      <template v-if="partSeriesData !== null">
+      <template v-if="partSeriesData !== undefined && partSeriesData !== null ">
         <el-form-item>
           <table>
             <p><b>{{ partSeriesData.SeriesData.VendorName }} - {{ partSeriesData.SeriesData.Title }}</b></p>

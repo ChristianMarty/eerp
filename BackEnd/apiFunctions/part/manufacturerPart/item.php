@@ -17,7 +17,6 @@ require_once __DIR__ . "/../../util/_getDocuments.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     if(!isset($_GET["ManufacturerPartItemId"])) sendResponse(null,"ManufacturerPartItemId not set");
-
     $manufacturerPartItemId = intval($_GET["ManufacturerPartItemId"]);
 
     $dbLink = dbConnect();
@@ -44,8 +43,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN vendor On vendor.Id = manufacturerPart_series.VendorId OR vendor.Id = manufacturerPart_item.VendorId
         WHERE manufacturerPart_item.Id = '$manufacturerPartItemId'
     STR;
-
-    $result = mysqli_query($dbLink,$query);
+    $result = dbRunQuery($dbLink,$query);
 
     $output = array();
     while($r = mysqli_fetch_assoc($result))
@@ -58,7 +56,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $output['PartNumberWithoutParameters'] = manufacturerPart_numberWithoutParameters($output['PartNumber']);
     $output['PartNumberDescription'] = descriptionFromNumber($output['SeriesNumberTemplate'],$parameter,$output['PartNumber']);
 
-
     $query = <<<STR
         SELECT 
             manufacturerPart_partNumber.Id AS ManufacturerPartNumberId,
@@ -66,15 +63,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             productionPart.Number AS ProductionPartNumber, 
             numbering.Prefix AS ProductionPartNumberPrefix
         FROM manufacturerPart_partNumber
-        LEFT JOIN productionPartMapping ON productionPartMapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-        LEFT JOIN productionPart ON productionPart.Id = productionPartMapping.ProductionPartId
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
+        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         WHERE manufacturerPart_partNumber.ItemId = '$manufacturerPartItemId'
     STR;
+    $result = dbRunQuery($dbLink,$query);
 
     $partNumbers = array();
-    $result = mysqli_query($dbLink,$query);
-
     while($r = mysqli_fetch_assoc($result))
     {
         $manufacturerPartNumber = $r["ManufacturerPartNumber"];

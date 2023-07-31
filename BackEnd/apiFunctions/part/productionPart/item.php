@@ -39,9 +39,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             productionPart.StockWarning,
             location_getName(partStock.LocationId) AS LocationName 
         FROM productionPart
-        LEFT JOIN productionPartMapping ON productionPartMapping.ProductionPartId = productionPart.Id
-        LEFT JOIN partStock ON partStock.ManufacturerPartNumberId = productionPartMapping.ManufacturerPartNumberId
-        LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id =  productionPartMapping.ManufacturerPartNumberId
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
+        LEFT JOIN partStock ON partStock.ManufacturerPartNumberId = productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
+        LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id =  productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId or vendor.Id = manufacturerPart_series.VendorId OR manufacturerPart_partNumber.VendorId

@@ -74,6 +74,12 @@ function barcodeParser_ProductionPart($input): bool|string
     return $input;
 }
 
+function barcodeParser_SpecificationPart($input): bool|string
+{
+    // TODO: Fix this
+    return intval($input);
+}
+
 function barcodeParser_WorkOrderNumber(string|int $input): bool|int
 {
     if(is_int($input)) $input = strval($input);
