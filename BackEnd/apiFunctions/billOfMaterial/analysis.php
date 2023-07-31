@@ -1,9 +1,9 @@
 <?php
 //*************************************************************************************************
-// FileName : availability.php
+// FileName : analysis.php
 // FilePath : apiFunctions/project/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 31.07.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
@@ -20,7 +20,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<<STR
         SELECT * ,
                COUNT(*) AS Quantity, 
-               productionPart_getQuantity(productionPart.NumberingPrefixId, productionPart.Number) AS Stock, 
                productionPart.Number AS ProductionPartNumber, 
                numbering.Prefix AS ProductionPartPrefix, 
                productionPart.Description 
@@ -37,6 +36,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$numberOfLines = 0;
 	$numberOfLinesAvailable = 0;
 	$totalComponents = 0;
+
+    $totalAveragePurchasePrice = 0;
 	
 	$result = mysqli_query($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
@@ -45,25 +46,43 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$bomLine["ProductionPartNumber"] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
 		$bomLine["Description"] = $r['Description'];
 		$bomLine["Quantity"] = $r['Quantity'];
-		$bomLine["StockQuantity"] = $r["Stock"];
-		$bomLine["Availability"] = $r["Stock"]/$r['Quantity']*100;
-		if($bomLine["Availability"] > 100) $bomLine["Availability"] = 100;
-		
-		$bomLine["StockCertaintyFactor"] = 0;  // TODO: Add real value
-		
-		array_push($bom, $bomLine);
+
+        $referencePrice = array();
+        $referencePrice['Minimum'] = $r['Cache_ReferencePrice_Minimum'];
+        $referencePrice['Average'] = $r['Cache_ReferencePrice_WeightedAverage'];
+        $referencePrice['Maximum'] = $r['Cache_ReferencePrice_Maximum'];
+
+        $referenceLeadTime = array();
+        $referenceLeadTime['Minimum'] = null;
+        $referenceLeadTime['Average'] = $r['Cache_ReferenceLeadTime_WeightedAverage'];
+        $referenceLeadTime['Maximum'] = null;
+
+        $purchasePrice = array();
+        $purchasePrice['Minimum'] = null;
+        $purchasePrice['Average'] = $r['Cache_PurchasePrice_WeightedAverage'];
+        $purchasePrice['Maximum'] = null;
+
+        $totalAveragePurchasePrice += $purchasePrice['Average']*$bomLine["Quantity"];
+
+        $bomLine["PurchasePrice"] = $purchasePrice;
+        $bomLine["ReferencePrice"] = $referencePrice;
+        $bomLine["ReferenceLeadTime"] = $referenceLeadTime;
+        $bomLine["NumberOfManufacturers"] = $r['Cache_Sourcing_NumberOfManufacturers'];
+        $bomLine["NumberOfParts"] = $r['Cache_Sourcing_NumberOfParts'];
+
+		$bom[] = $bomLine;
 		
 		$numberOfLines ++;
-		if($r["Stock"] >= $r['Quantity']) $numberOfLinesAvailable++;
-		
 		$totalComponents+= $r['Quantity'];
 	}
 	
 	dbClose($dbLink);
-	
+
+    $cost = array();
+    $cost['TotalAveragePurchasePrice'] = $totalAveragePurchasePrice;
+
+    $bomStock['Cost'] = $cost;
 	$bomStock['Bom'] = $bom;
-	if($numberOfLines != 0)$bomStock['StockItemsAvailability'] = $numberOfLinesAvailable/$numberOfLines*100;
-	else $bomStock['StockItemsAvailability'] = 0;
 	$bomStock['TotalNumberOfComponents'] = $totalComponents;
 	$bomStock['NumberOfUniqueComponents'] = $numberOfLines;
 	

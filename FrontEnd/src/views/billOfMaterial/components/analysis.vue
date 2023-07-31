@@ -1,9 +1,9 @@
 <template>
-  <div class="availability-container">
+  <div class="analysis-container">
 
-    <p><b>Stock Availability:</b><el-progress :percentage="stockBom.StockItemsAvailability" /></p>
     <p><b>Number Of Unique Components:</b> {{ stockBom.NumberOfUniqueComponents }}</p>
     <p><b>Total Number Of Components:</b> {{ stockBom.TotalNumberOfComponents }}</p>
+    <p><b>Total Average Purchase Price:</b> {{ stockBom.Cost.TotalAveragePurchasePrice }}</p>
     <el-table
       :data="stockBom.Bom"
       :cell-style="{ padding: '0', height: '15px' }"
@@ -22,21 +22,11 @@
       </el-table-column>¨
       <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="Quantity" label="Quantity" width="150" sortable />
-      <el-table-column prop="StockQuantity" label="On Stock" width="150" sortable />
-      <el-table-column prop="Availability" label="Availability" width="300" sortable>
-        <template slot-scope="{ row }">
-          <el-progress :percentage="row.Availability" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="StockCertainty" label="Stock Certainty" width="150" sortable>
-        <template slot-scope="{ row }">
-          <el-rate
-            v-model="row.StockCertaintyFactor*5"
-            disabled
-          />
-        </template>
-      </el-table-column>
+      <el-table-column prop="PurchasePrice.Average" label="Avg Purchase Price" width="200" sortable />
+      <el-table-column prop="NumberOfManufacturers" label="Manufacturers" width="150" sortable />
+      <el-table-column prop="NumberOfParts" label="Parts" width="150" sortable />
     </el-table>
+
   </div>
 </template>
 
@@ -52,11 +42,11 @@ export default {
     }
   },
   mounted() {
-    this.getBomStock()
+    this.getData()
   },
   methods: {
-    getBomStock() {
-      billOfMaterial.item.availability(this.$props.revisionId).then(response => {
+    getData() {
+      billOfMaterial.item.analysis(this.$props.revisionId).then(response => {
         this.stockBom = response
       }).catch(response => {
         this.$message({

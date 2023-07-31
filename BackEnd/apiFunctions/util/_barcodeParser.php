@@ -71,13 +71,34 @@ function barcodeParser_PurchaseOrderNumber($input): bool|int
 function barcodeParser_ProductionPart($input): bool|string
 {
     // TODO: Fix this
-    return $input;
+    return trim($input);
 }
 
 function barcodeParser_SpecificationPart($input): bool|string
 {
     // TODO: Fix this
     return intval($input);
+}
+
+function barcodeParser_BillOfMaterial($input): bool|string
+{
+    if(is_int($input)) $input = strval($input);
+
+    $bomCode = trim($input);
+    $bomCode = strtolower($bomCode);
+
+    if( substr_count($bomCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($bomCode)) return false;
+        return intval($bomCode);
+    }
+
+    $bomCodeParts = explode('-',$bomCode);
+
+    if($bomCodeParts[0] != "bom") return false;
+    if(!is_numeric($bomCodeParts[1])) return false;
+
+    return intval($bomCodeParts[1]);
 }
 
 function barcodeParser_WorkOrderNumber(string|int $input): bool|int

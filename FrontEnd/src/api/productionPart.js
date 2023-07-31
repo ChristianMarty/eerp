@@ -40,6 +40,26 @@ class ProductionPart {
     })
   }
 
+  availability(ProductionPartBarcode, AuthorizedOnly = true, Brokers = false) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'get',
+        url: '/part/productionPart/availability',
+        params: {
+          ProductionPartBarcode: ProductionPartBarcode,
+          AuthorizedOnly: AuthorizedOnly,
+          Brokers: Brokers
+        }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
   prefix() {
     return new Promise((resolve, reject) => {
       eerpApi({

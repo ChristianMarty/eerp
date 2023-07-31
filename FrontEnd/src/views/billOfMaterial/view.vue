@@ -10,14 +10,16 @@
       mode="horizontal"
       @select="handleSelect"
     >
-      <el-menu-item index="availability">Availability</el-menu-item>
+      <el-menu-item index="stockAvailability">Stock Availability</el-menu-item>
+      <el-menu-item index="analysis">Analysis</el-menu-item>
       <el-menu-item index="placement">Placement</el-menu-item>
-      <el-menu-item index="cost">Cost Analysis</el-menu-item>
+      <el-menu-item index="purchasing">Purchasing</el-menu-item>
     </el-menu>
 
-    <availability v-if="activeIndex == 'availability'" :revision-id="projectData.Revisions[0].Id" />
+    <availability v-if="activeIndex == 'stockAvailability'" :revision-id="projectData.Revisions[0].Id" />
+    <analysis v-if="activeIndex == 'analysis'" :revision-id="projectData.Revisions[0].Id" />
     <placement v-if="activeIndex == 'placement'" :revision-id="projectData.Revisions[0].Id" />
-    <cost v-if="activeIndex == 'cost'" :revision-id="projectData.Revisions[0].Id" />
+    <purchasing v-if="activeIndex == 'purchasing'" :revision-id="projectData.Revisions[0].Id" />
 
     <el-dialog title="Bom Upload" :visible.sync="showUploadDialog">
       <bomUpload :revision-id="projectData.Revisions[0].Id" />
@@ -29,12 +31,16 @@
 import requestBN from '@/utils/requestBN'
 import availability from './components/availability'
 import placement from './components/placement'
-import cost from './components/cost'
+import analysis from './components/analysis'
+import purchasing from './components/purchasing'
 import bomUpload from './components/upload'
+
+import BillOfMaterial from '@/api/billOfMaterial'
+const billOfMaterial = new BillOfMaterial()
 
 export default {
   name: 'ProjectView',
-  components: { availability, placement, bomUpload, cost },
+  components: { availability, placement, bomUpload, analysis, purchasing },
   data() {
     return {
       csv: null,
@@ -42,7 +48,7 @@ export default {
       buildQuantity: 1,
       projectData: null,
       showUploadDialog: false,
-      activeIndex: 'availability'
+      activeIndex: 'stockAvailability'
     }
   },
   mounted() {
@@ -67,13 +73,15 @@ export default {
       this.activeIndex = key
     },
     getProjectData() {
-      requestBN({
-        url: '/billOfMaterial/item',
-        methood: 'get',
-        params: { BillOfMaterialNumber: this.$route.params.BillOfMaterialNumber }
-      }).then(response => {
-        this.projectData = response.data
-        this.setPageTitle()
+      billOfMaterial.item.get(this.$route.params.BillOfMaterialNumber).then(response => {
+        this.projectData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     tableAnalyzer({ row, rowIndex }) {

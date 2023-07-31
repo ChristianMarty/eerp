@@ -10,7 +10,7 @@
       <el-table-column prop="ProductionPartNumber" label="Part No" width="100" sortable>
         <template slot-scope="{ row }">
           <router-link
-            :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
+            :to="'/productionPart/item/' + row.ProductionPartNumber"
             class="link-type"
           >
             <span>{{ row.ProductionPartNumber }}</span>

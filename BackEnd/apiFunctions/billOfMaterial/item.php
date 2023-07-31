@@ -10,22 +10,22 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	
-	if(!isset($_GET["BillOfMaterialNumber"])) sendResponse(NULL, "Bill of Material Number Undefined");
+	if(!isset($_GET["BillOfMaterialBarcode"])) sendResponse(NULL, "Bill of Material Number Undefined");
+    $billOfMaterialNumber = barcodeParser_BillOfMaterial($_GET["BillOfMaterialBarcode"]);
 
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
-	$billOfMaterialNumber = $_GET["BillOfMaterialNumber"];
-	$billOfMaterialNumber = strtolower($billOfMaterialNumber);
-	$billOfMaterialNumber = intval(str_replace("bom-","",$billOfMaterialNumber));
-	
-	$query = "SELECT * FROM billOfMaterial ";
-	$query .= "WHERE BillOfMaterialNumber = ".$billOfMaterialNumber;
-	
+    $query = <<<STR
+        SELECT * FROM billOfMaterial
+        WHERE BillOfMaterialNumber = $billOfMaterialNumber
+    STR;
+
 	$output = array();
 	$result = dbRunQuery($dbLink,$query);
 	$id = null;
@@ -46,6 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = dbRunQuery($dbLink,$query);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
+        $r['Id'] = intval($r['Id']);
 		$revisions[] = $r;
 	}
 	$output['Revisions'] = $revisions;

@@ -2,186 +2,190 @@
   <div class="app-container">
     <h1>{{ partData.ProductionPartBarcode }} - {{ partData.Description }}</h1>
 
-    <h2>Manufacturer Parts</h2>
-    <el-table
-      :data="partData.ManufacturerPart"
-      style="width: 100%;margin-bottom: 20px;"
-      border
+    <el-tabs
+      type="card"
     >
-      <el-table-column
-        prop="ManufacturerName"
-        label="Manufacturer"
-        sortable
-        width="200"
-      >
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/vendor/view/' + row.ManufacturerId"
-            class="link-type"
+      <el-tab-pane label="Part">
+        <h2>Manufacturer Parts</h2>
+        <el-table
+          :data="partData.ManufacturerPart"
+          style="width: 100%;margin-bottom: 20px;"
+          border
+        >
+          <el-table-column
+            prop="ManufacturerName"
+            label="Manufacturer"
+            sortable
+            width="200"
           >
-            <span>{{ row.ManufacturerName }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/vendor/view/' + row.ManufacturerId"
+                class="link-type"
+              >
+                <span>{{ row.ManufacturerName }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
 
-      <el-table-column
-        prop="ManufacturerPartNumber"
-        label="Part Number"
-        sortable
-        width="200"
-      >
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/manufacturerPart/partNumber/item/' + row.ManufacturerPartNumberId"
-            class="link-type"
+          <el-table-column
+            prop="ManufacturerPartNumber"
+            label="Part Number"
+            sortable
+            width="200"
           >
-            <span>{{ row.ManufacturerPartNumber }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/manufacturerPart/partNumber/item/' + row.ManufacturerPartNumberId"
+                class="link-type"
+              >
+                <span>{{ row.ManufacturerPartNumber }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
 
-      <el-table-column prop="Description" label="Description" />
-    </el-table>
+          <el-table-column prop="Description" label="Description" />
+        </el-table>
 
-    <h3>Characteristics</h3>
-    <el-table
-      v-loading="loading"
-      element-loading-text="Loading..."
-      element-loading-spinner="el-icon-loading"
-      :data="partData.Characteristics.Data"
-      border
-      style="width: 100%"
-      :formatter="siRowFormater"
-    >
-      <el-table-column prop="PartNumber" label="Part" width="200" />
-      <el-table-column
-        v-for="attribute in partData.Characteristics.Attributes"
-        :key="attribute.Name"
-        :label="attribute.Name"
-        :prop="attribute.Name"
-      />
-    </el-table>
+        <h3>Characteristics</h3>
+        <el-table
+          v-loading="loading"
+          element-loading-text="Loading..."
+          element-loading-spinner="el-icon-loading"
+          :data="partData.Characteristics.Data"
+          border
+          style="width: 100%"
+          :formatter="siRowFormater"
+        >
+          <el-table-column prop="PartNumber" label="Part" width="200" />
+          <el-table-column
+            v-for="attribute in partData.Characteristics.Attributes"
+            :key="attribute.Name"
+            :label="attribute.Name"
+            :prop="attribute.Name"
+          />
+        </el-table>
 
-    <h3>Stock</h3>
-    <el-checkbox v-model="hideEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
-    <el-table
-      :data="partData.Stock"
-      style="width: 100%"
-    >
-      <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
-        <template slot-scope="{ row }">
-          <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
-            <span>{{ row.StockBarcode }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column prop="Date" label="Date" sortable width="150" />
-      <el-table-column prop="Lot" label="Lot" sortable width="150" />
-      <el-table-column prop="Quantity" label="Quantity" sortable width="150" />
-      <el-table-column prop="Location" label="Location" sortable />
-    </el-table>
+        <h3>Stock</h3>
+        <el-checkbox v-model="hideEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
+        <el-table
+          :data="partData.Stock"
+          style="width: 100%"
+        >
+          <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
+                <span>{{ row.StockBarcode }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="Date" label="Date" sortable width="150" />
+          <el-table-column prop="Lot" label="Lot" sortable width="150" />
+          <el-table-column prop="Quantity" label="Quantity" sortable width="150" />
+          <el-table-column prop="Location" label="Location" sortable />
+        </el-table>
 
-    <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
+        <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
 
-    <h3>Stock Notification</h3>
-    <table>
-      <tr>
-        <td><b>Minimum:</b></td>
-        <td>{{ partData.StockMinimum }}</td>
-      </tr>
-      <tr>
-        <td><b>Maximum:</b></td>
-        <td>{{ partData.StockMaximum }}</td>
-      </tr>
-      <tr>
-        <td><b>Warning:</b></td>
-        <td>{{ partData.StockWarning }}</td>
-      </tr>
-    </table>
+        <h3>Stock Notification</h3>
+        <table>
+          <tr>
+            <td><b>Minimum:</b></td>
+            <td>{{ partData.StockMinimum }}</td>
+          </tr>
+          <tr>
+            <td><b>Maximum:</b></td>
+            <td>{{ partData.StockMaximum }}</td>
+          </tr>
+          <tr>
+            <td><b>Warning:</b></td>
+            <td>{{ partData.StockWarning }}</td>
+          </tr>
+        </table>
 
-    <h2>Quotation</h2>
-    <el-table
-      :data="quotation.data"
-      style="width: 100%; margin-top:10px"
-    >
-      <el-table-column
-        prop="ManufacturerPart"
-        label="Manufacturer Part"
-        sortable
-        width="200"
-      >
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/mfrParts/partView/' + row.ManufacturerPartId"
-            class="link-type"
+        <h2>Quotation</h2>
+        <el-table
+          :data="quotation.data"
+          style="width: 100%; margin-top:10px"
+        >
+          <el-table-column
+            prop="ManufacturerPart"
+            label="Manufacturer Part"
+            sortable
+            width="200"
           >
-            <span>{{ row.ManufacturerPart }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="Price"
-        label="Price"
-        sortable
-        width="120"
-      />
-      <el-table-column
-        prop="MinimumOrderQuantity"
-        label="MOQ"
-        sortable
-        width="100"
-      />
-      <el-table-column
-        prop="IncrementalOrderQuantity"
-        label="IOQ"
-        sortable
-        width="100"
-      />
-      <el-table-column
-        prop="LeadTime"
-        label="Lead Time"
-        sortable
-        width="120"
-      />
-      <el-table-column
-        prop="Weight"
-        label="Weight"
-        sortable
-        width="100"
-      />
-      <el-table-column
-        prop="InformationSource"
-        label="Information Source"
-        sortable
-        width="200"
-      />
-      <el-table-column
-        prop="InformationDate"
-        label="Information Date"
-        sortable
-        width="200"
-      />
-      <el-table-column
-        prop="SuppierName"
-        label="Suppier"
-        sortable
-        width="100"
-      >
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/vendor/view/' + row.SuppierId"
-            class="link-type"
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+                class="link-type"
+              >
+                <span>{{ row.ManufacturerPart }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="Price"
+            label="Price"
+            sortable
+            width="120"
+          />
+          <el-table-column
+            prop="MinimumOrderQuantity"
+            label="MOQ"
+            sortable
+            width="100"
+          />
+          <el-table-column
+            prop="IncrementalOrderQuantity"
+            label="IOQ"
+            sortable
+            width="100"
+          />
+          <el-table-column
+            prop="LeadTime"
+            label="Lead Time"
+            sortable
+            width="120"
+          />
+          <el-table-column
+            prop="Weight"
+            label="Weight"
+            sortable
+            width="100"
+          />
+          <el-table-column
+            prop="InformationSource"
+            label="Information Source"
+            sortable
+            width="200"
+          />
+          <el-table-column
+            prop="InformationDate"
+            label="Information Date"
+            sortable
+            width="200"
+          />
+          <el-table-column
+            prop="SuppierName"
+            label="Suppier"
+            sortable
+            width="100"
           >
-            <span>{{ row.SuppierId }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="Note"
-        label="Note"
-      />
-    </el-table>
-    <!--  <table>
+            <template slot-scope="{ row }">
+              <router-link
+                :to="'/vendor/view/' + row.SuppierId"
+                class="link-type"
+              >
+                <span>{{ row.SuppierId }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="Note"
+            label="Note"
+          />
+        </el-table>
+        <!--  <table>
       <tr>
         <td><b>Minimum:</b></td>
         <td>{{ leadTime.Statistics.Minimum }}</td>
@@ -199,7 +203,7 @@
         <td>{{ leadTime.Statistics.WeightedAverage }}</td>
       </tr>
     </table> -->
-    <!--<table>
+        <!--<table>
       <tr>
         <td><b>Minimum:</b></td>
         <td>{{ price.Statistics.Minimum }}</td>
@@ -218,72 +222,78 @@
       </tr>
     </table>-->
 
-    <h2>Purchase Orders</h2>
+        <h2>Purchase Orders</h2>
 
-    <el-table
-      :data="purchaseOrder.Data"
-      style="width: 100%; margin-top:10px"
-    >
-      <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
-        <template slot-scope="{ row }">
-          <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
-            <span>PO-{{ row.PoNo }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column prop="Title" label="PO Title" sortable />
-      <el-table-column prop="Sku" label="Sku" sortable />
-      <el-table-column
-        prop="Quantity"
-        label="Quantity"
-        sortable
-        width="120"
-      />
-      <el-table-column
-        prop="Price"
-        label="Price"
-        sortable
-        width="100"
-      />
-      <el-table-column
-        prop="Status"
-        label="Status"
-        sortable
-        width="100"
-      />
+        <el-table
+          :data="purchaseOrder.Data"
+          style="width: 100%; margin-top:10px"
+        >
+          <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+            <template slot-scope="{ row }">
+              <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
+                <span>PO-{{ row.PoNo }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="Title" label="PO Title" sortable />
+          <el-table-column prop="Sku" label="Sku" sortable />
+          <el-table-column
+            prop="Quantity"
+            label="Quantity"
+            sortable
+            width="120"
+          />
+          <el-table-column
+            prop="Price"
+            label="Price"
+            sortable
+            width="100"
+          />
+          <el-table-column
+            prop="Status"
+            label="Status"
+            sortable
+            width="100"
+          />
 
-    </el-table>
+        </el-table>
 
-    <table>
-      <tr>
-        <td><b>Total Order Quantity:</b></td>
-        <td>{{ purchaseOrder.Statistics.Quantity.Ordered }}</td>
-      </tr>
-      <tr>
-        <td><b>Pending Order Quantity:</b></td>
-        <td>{{ purchaseOrder.Statistics.Quantity.Pending }}</td>
-      </tr>
-      <tr>
-        <td><b>Received Order Quantity:</b></td>
-        <td>{{ purchaseOrder.Statistics.Quantity.Received }}</td>
-      </tr>
-      <tr>
-        <td><b>Minimum Price:</b></td>
-        <td>{{ purchaseOrder.Statistics.Price.Minimum }}</td>
-      </tr>
-      <tr>
-        <td><b>Maximum Price:</b></td>
-        <td>{{ purchaseOrder.Statistics.Price.Maximum }}</td>
-      </tr>
-      <tr>
-        <td><b>Average:</b></td>
-        <td>{{ purchaseOrder.Statistics.Price.Average }}</td>
-      </tr>
-      <tr>
-        <td><b>Weighted Average:</b></td>
-        <td>{{ purchaseOrder.Statistics.Price.WeightedAverage }}</td>
-      </tr>
-    </table>
+        <table>
+          <tr>
+            <td><b>Total Order Quantity:</b></td>
+            <td>{{ purchaseOrder.Statistics.Quantity.Ordered }}</td>
+          </tr>
+          <tr>
+            <td><b>Pending Order Quantity:</b></td>
+            <td>{{ purchaseOrder.Statistics.Quantity.Pending }}</td>
+          </tr>
+          <tr>
+            <td><b>Received Order Quantity:</b></td>
+            <td>{{ purchaseOrder.Statistics.Quantity.Received }}</td>
+          </tr>
+          <tr>
+            <td><b>Minimum Price:</b></td>
+            <td>{{ purchaseOrder.Statistics.Price.Minimum }}</td>
+          </tr>
+          <tr>
+            <td><b>Maximum Price:</b></td>
+            <td>{{ purchaseOrder.Statistics.Price.Maximum }}</td>
+          </tr>
+          <tr>
+            <td><b>Average:</b></td>
+            <td>{{ purchaseOrder.Statistics.Price.Average }}</td>
+          </tr>
+          <tr>
+            <td><b>Weighted Average:</b></td>
+            <td>{{ purchaseOrder.Statistics.Price.WeightedAverage }}</td>
+          </tr>
+        </table>
+
+      </el-tab-pane>
+      <el-tab-pane label="Availability">
+        <availability :production-part-barcode="partData.ProductionPartBarcode" />
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -294,8 +304,11 @@ import requestBN from '@/utils/requestBN'
 import ProductionPart from '@/api/productionPart'
 const productionPart = new ProductionPart()
 
+import availability from './components/availability'
+
 export default {
   name: 'ProdPartBrowser',
+  components: { availability },
   data() {
     return {
       partData: null,

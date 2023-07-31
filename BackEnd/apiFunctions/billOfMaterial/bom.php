@@ -13,16 +13,10 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
 	if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
+    $revisionId = intval($_GET["RevisionId"]);
 
-
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-
-	
-	$revisionId = dbEscapeString($dbLink, $_GET["RevisionId"]);
-
+    $dbLink = dbConnect();
     $query = <<<STR
         SELECT 
                billOfMaterial_item.ReferenceDesignator,
@@ -55,16 +49,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
 	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
+    $revisionId = intval($data["RevisionId"]);
+
 	if(!isset($data["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
 	if(!isset($data["Bom"])) sendResponse(NULL, "Bom Undefined");
-	
+
+    $dbLink = dbConnect();
+
 	$bom = $data['Bom'];
-	$revisionId = dbEscapeString($dbLink, $data["RevisionId"]);
-	
 	foreach ( $bom as $line)
 	{
 		$sqlData = array();
