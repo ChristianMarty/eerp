@@ -8,12 +8,11 @@
       <p>
         Data provided by Octopart, {{ availabilityData.Timestamp }}
       </p>
-      <el-checkbox v-model="expandedAllRows" @change="chnageAvailabilityExpandedRows()">Expanded all rows</el-checkbox>
+      <el-checkbox v-model="flat" @change="processAvailabilityData()">Flat View</el-checkbox>
       <el-table
         v-loading="availabilityLoading"
         element-loading-text="Loading Availability Data"
-        :data="availabilityData.Data"
-        :expand-row-keys="availabilityExpandedRows"
+        :data="availabilityData"
         border
         style="width: 100%; margin-top:10px"
         row-key="rowKey"
@@ -51,7 +50,7 @@
         />
         <el-table-column prop="LeadTime" label="LeadTime" width="120" sortable />
         <el-table-column prop="Price" label="Price" width="120" sortable />
-        <el-table-column prop="Quantity" label="Quantity" width="120" sortable />
+        <el-table-column v-if="flat == false" prop="Quantity" label="Quantity" width="120" sortable />
         <el-table-column prop="Currency" label="Currency" width="120" sortable />
       </el-table>
     </template>
@@ -74,16 +73,24 @@ export default {
   data() {
     return {
       availabilityData: null,
+      availabilityDataRaw: null,
       availabilityAuthorizedOnly: true,
-      availabilityBrokers: false
+      availabilityBrokers: false,
+      flat: true
     }
   },
   mounted() {
   },
   methods: {
+    processAvailabilityData() {
+      const temp = structuredClone(this.availabilityDataRaw)
+      if (this.flat === true) this.availabilityData = this.processAvailabilityDataFlat(temp)
+      else this.availabilityData = this.processAvailabilityDataNotFlat(temp)
+    },
     getAvailability() {
       productionPart.availability(this.$props.productionPartBarcode, this.availabilityAuthorizedOnly, this.availabilityBrokers).then(response => {
-        this.availabilityData = this.processAvailabilityData(response)
+        this.availabilityDataRaw = response
+        this.processAvailabilityData()
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -93,7 +100,7 @@ export default {
         })
       })
     },
-    processAvailabilityData(data) {
+    processAvailabilityDataNotFlat(data) {
       let rowKey = 1
       data.Data.forEach(element => {
         element.rowKey = String(rowKey)
@@ -113,7 +120,26 @@ export default {
           })
         }
       })
-      return data
+      return data.Data
+    },
+    processAvailabilityDataFlat(data) {
+      let rowKey = 1
+      const output = []
+      data.Data.forEach(element => {
+        if (element.Prices.length !== 0) {
+          element.Prices.forEach(element2 => {
+            rowKey++
+            element.rowKey = String(rowKey)
+            element.MinimumOrderQuantity = element2.Quantity
+            element.Currency = element2.Currency
+            element.Price = element2.Price
+            const temp = structuredClone(element)
+            delete temp.Prices
+            output.push(temp)
+          }) 
+        }
+      })
+      return output
     }
   }
 }
