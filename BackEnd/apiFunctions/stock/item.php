@@ -29,7 +29,6 @@ function _stockPartQuery(string $stockNo): string
 			manufacturer.Id AS ManufacturerId, 
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
 			manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
-			partStock.ManufacturerPartId, 
 			partStock.Date, 
 			manufacturerPart_partNumber.Description,
 			manufacturerPart_item.Id AS ManufacturerPartItemId,

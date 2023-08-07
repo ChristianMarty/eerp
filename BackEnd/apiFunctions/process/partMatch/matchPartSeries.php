@@ -8,9 +8,9 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/siFormatter.php";
+require_once __DIR__ . "/../../databaseConnector.php";
+require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/siFormatter.php";
 
 $title = "Match Part Series";
 $description = "Add Manufacturer Part Items to Part Series";
