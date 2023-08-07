@@ -6,7 +6,7 @@
         :to="'/manufacturerPart/item/' + data.PartId"
         class="link-type"
       >
-        <span>{{ data.NumberTemplate }}</span>
+        <span>{{ data.Number }}</span>
       </router-link>
     </p>
     <p><b>Series:</b>
@@ -363,7 +363,7 @@ export default {
             const temp = structuredClone(element)
             delete temp.Prices
             output.push(temp)
-          }) 
+          })
         }
       })
       return output

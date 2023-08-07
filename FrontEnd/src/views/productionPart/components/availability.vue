@@ -6,9 +6,16 @@
     <el-button type="primary" @click="getAvailability">Load Data</el-button>
     <template v-if="availabilityData != null">
       <p>
-        Data provided by Octopart, {{ availabilityData.Timestamp }}
+        Data provided by Octopart, {{ availabilityDataRaw.Timestamp }}
       </p>
-      <el-checkbox v-model="flat" @change="processAvailabilityData()">Flat View</el-checkbox>
+      <el-checkbox v-model="flat" @change="processAvailabilityData()">Flat View</el-checkbox> <br>
+      <template v-if="flat">
+        <el-checkbox v-model="knownSuppliers" @change="processAvailabilityData()">Known Suppliers Only</el-checkbox> <br>
+        <p>
+          Minimum Quantity: <el-input-number v-model="minimumQuantity" :min="1" :max="1000000" @change="processAvailabilityData()" />
+          Maximum Quantity: <el-input-number v-model="maximumQuantity" :min="1" :max="1000000" @change="processAvailabilityData()" />
+        </p>
+      </template>
       <el-table
         v-loading="availabilityLoading"
         element-loading-text="Loading Availability Data"
@@ -76,7 +83,10 @@ export default {
       availabilityDataRaw: null,
       availabilityAuthorizedOnly: true,
       availabilityBrokers: false,
-      flat: true
+      flat: true,
+      knownSuppliers: true,
+      minimumQuantity: 0,
+      maximumQuantity: 1000000
     }
   },
   mounted() {
@@ -131,12 +141,17 @@ export default {
             rowKey++
             element.rowKey = String(rowKey)
             element.MinimumOrderQuantity = element2.Quantity
-            element.Currency = element2.Currency
-            element.Price = element2.Price
-            const temp = structuredClone(element)
-            delete temp.Prices
-            output.push(temp)
-          }) 
+            if (
+              (!this.knownSuppliers || (this.knownSuppliers && element.VendorId !== null)) &&
+              (this.minimumQuantity <= element.MinimumOrderQuantity && element.MinimumOrderQuantity <= this.maximumQuantity)
+            ) {
+              element.Currency = element2.Currency
+              element.Price = element2.Price
+              const temp = structuredClone(element)
+              delete temp.Prices
+              output.push(temp)
+            }
+          })
         }
       })
       return output

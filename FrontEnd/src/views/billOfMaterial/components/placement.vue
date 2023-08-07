@@ -7,7 +7,7 @@
       style="width: 100%"
       :row-class-name="tableAnalyzer"
     >
-      <el-table-column prop="ProductionPartNumber" label="Part No" width="100" sortable>
+      <el-table-column prop="ProductionPartNumber" label="Part No" width="120" sortable>
         <template slot-scope="{ row }">
           <router-link
             :to="'/productionPart/item/' + row.ProductionPartNumber"

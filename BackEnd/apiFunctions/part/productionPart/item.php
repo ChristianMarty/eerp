@@ -12,6 +12,7 @@ require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../_part.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -20,7 +21,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$dbLink = dbConnect();
 
-    $baseQuery = <<<STR
+    $productionPartBarcode = dbEscapeString($dbLink, $productionPartBarcode);
+
+    $query = <<<STR
         SELECT 
             numbering.Prefix, 
             productionPart.Number, 
@@ -30,36 +33,24 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             vendor_displayName(vendor.Id) AS ManufacturerName, 
             manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
-            partStock.StockNo, 
-            partStock.Date, 
-            partStock.LotNumber,
-            partStock_getQuantity(partStock.StockNo) AS Quantity, 
+            manufacturerPart_item.Number AS ManufacturerPart,
+            manufacturerPart_item.Id AS ManufacturerPartId,
             productionPart.StockMinimum, 
             productionPart.StockMaximum, 
-            productionPart.StockWarning,
-            location_getName(partStock.LocationId) AS LocationName 
+            productionPart.StockWarning
         FROM productionPart
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
-        LEFT JOIN partStock ON partStock.ManufacturerPartNumberId = productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
         LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id =  productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId or vendor.Id = manufacturerPart_series.VendorId OR manufacturerPart_partNumber.VendorId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
     STR;
 
-    $queryParam = array();
-    $queryParam[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'";
-   /* if(isset($_GET["HideEmptyStock"]))
-    {
-        if(filter_var($_GET["HideEmptyStock"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "(partStock.Cache_Quantity != '0' OR partStock.Cache_Quantity IS NULL)";
-    }*/
-
-    $query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	$result = mysqli_query($dbLink,$query);
+	$result = dbRunQuery($dbLink,$query);
 
 	$output = array();
-    $totalStockQuantity = 0;
     while($r = mysqli_fetch_assoc($result)) {
         if (!isset($output['ProductionPartBarcode'])) // First row
         {
@@ -72,41 +63,53 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             $output['ManufacturerPart'] = array();
         }
 
-        $stockRow = array();
-        if ($r['StockNo'] != null)
-        {
-            $stockRow['StockNumber'] = $r['StockNo'];
-            $stockRow['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
-            $stockRow['Date'] = $r['Date'];
-            $stockRow['Lot'] = $r['LotNumber'];
-            $stockRow['Quantity'] = intval($r['Quantity']);
-            $totalStockQuantity += $stockRow['Quantity'];
-            $stockRow['LocationName'] = $r['LocationName'];
-        }
-
-        if(isset($_GET["HideEmptyStock"]))
-        {
-            if(filter_var($_GET["HideEmptyStock"] , FILTER_VALIDATE_BOOLEAN))
-            {
-                if(isset($stockRow['Quantity']) && $stockRow['Quantity']  !== 0) $output['Stock'][] = $stockRow;
-            }
-            else
-            {
-                $output['Stock'][] = $stockRow;
-            }
-        }else{
-            $output['Stock'][] = $stockRow;
-        }
-
-
         $manufacturerRow = array();
         $manufacturerRow['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
         $manufacturerRow['ManufacturerPartNumberId'] = intval($r['ManufacturerPartNumberId']);
+        $manufacturerRow['ManufacturerPartNumberTemplate'] = manufacturerPart_numberWithoutParameters($r['ManufacturerPart']);
+        $manufacturerRow['ManufacturerPartId'] = intval($r['ManufacturerPartId']);
         $manufacturerRow['ManufacturerName'] = $r['ManufacturerName'];
         $manufacturerRow['ManufacturerId'] = intval($r['ManufacturerId']);
         $output['ManufacturerPart'][] = $manufacturerRow;
     }
-    $output['TotalStockQuantity'] = $totalStockQuantity;
+
+// get stock
+    $query = <<<STR
+        SELECT
+            partStock.StockNo,
+            partStock.Date,
+            partStock.LotNumber,
+            partStock_getQuantity(partStock.StockNo) AS Quantity,
+            location_getName(partStock.LocationId) AS LocationName
+        FROM partStock  
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
+        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
+    STR;
+
+    $result = dbRunQuery($dbLink,$query);
+
+    $stock = array();
+    $totalStockQuantity = 0;
+    while($r = mysqli_fetch_assoc($result)) {
+        $stockRow = array();
+        $stockRow['StockNumber'] = $r['StockNo'];
+        $stockRow['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
+        $stockRow['Date'] = $r['Date'];
+        $stockRow['Lot'] = $r['LotNumber'];
+        $stockRow['Quantity'] = intval($r['Quantity']);
+        $totalStockQuantity += $stockRow['Quantity'];
+        $stockRow['LocationName'] = $r['LocationName'];
+
+        if(isset($_GET["HideEmptyStock"]) && $stockRow['Quantity'] == 0) {
+            if (filter_var($_GET["HideEmptyStock"], FILTER_VALIDATE_BOOLEAN)) {
+                continue;
+            }
+        }
+        $stock[] = $stockRow;
+    }
+    $output['Stock'] = $stock;
 
 // get Characteristics
 
@@ -127,7 +130,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE manufacturerPart_partNumber.Id IN ($manufacturerPartNumberIdStr)
         GROUP BY manufacturerPart_item.Id
     STR;
-    $result = mysqli_query($dbLink,$query);
+    $result = dbRunQuery($dbLink,$query);
     $characteristics = array();
     $attributeIds = array();
     while($r = mysqli_fetch_assoc($result)) {
@@ -165,7 +168,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			WHERE manufacturerPart_attribute.Id IN ($attributeIdString)
 
 		STR;
-		$result = mysqli_query($dbLink,$query);
+		$result = dbRunQuery($dbLink,$query);
 		
 		while($r = mysqli_fetch_assoc($result)) {
 			$r['Id'] = intval($r['Id']);

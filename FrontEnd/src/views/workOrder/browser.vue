@@ -42,13 +42,16 @@ export default {
     }
   },
   mounted() {
-    this.loading = true
-    workOrder.search(null, this.hideClosed).then(response => {
-      this.workOrders = response
-      this.loading = false
-    })
+    this.getWorkOrders()
   },
   methods: {
+    getWorkOrders() {
+      this.loading = true
+      workOrder.search(null, this.hideClosed).then(response => {
+        this.workOrders = response
+        this.loading = false
+      })
+    }
   }
 }
 </script>
