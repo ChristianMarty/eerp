@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$csvDataStr = str_replace("\r","",$csvDataStr);
 
     $flat = false;
-    if(isset($data['Flat']) && filter_var($data['Flat'],FILTER_VALIDATE_BOOLEAN)){
+    if(isset($_GET['Flat']) && filter_var($_GET['Flat'],FILTER_VALIDATE_BOOLEAN)){
         $flat = true;
     }
 
@@ -59,9 +59,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
         $output[] = $outputLine;
 	}
 
-    if(!$flat){
-        $outputFlat = array();
 
+    if($flat !== true)
+    { var_dump($flat);
+        $outputFlat = array();
         foreach($output as $i => $line)
         {
             $metaLine = array();
@@ -85,7 +86,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
                 $outputFlat[$line["ProductionPartBarcode"]] = $partLine;
             }
         }
-        $output = $outputFlat;
+        $output = array_values($outputFlat);
     }
 
     if($buildQuantity)
@@ -98,7 +99,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
         }
     }
 
-	sendResponse(array_values($output));
+	sendResponse($output);
 }
 
 function getStockData($productionPartNumber)

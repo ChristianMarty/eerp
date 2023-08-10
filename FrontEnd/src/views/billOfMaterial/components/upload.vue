@@ -16,13 +16,13 @@
       :cell-style="{ padding: '0', height: '15px' }"
       style="width: 100%"
       :row-class-name="tableAnalyzer"
-    ><el-table-column prop="ProductionPartNumber" label="Part No" width="120" sortable>
+    ><el-table-column prop="ProductionPartBarcode" label="Part No" width="120" sortable>
        <template slot-scope="{ row }">
          <router-link
-           :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
+           :to="'/prodParts/prodPartView/' + row.ProductionPartBarcode"
            class="link-type"
          >
-           <span>{{ row.ProductionPartNumber }}</span>
+           <span>{{ row.ProductionPartBarcode }}</span>
          </router-link>
        </template>
      </el-table-column>
@@ -69,12 +69,8 @@ export default {
       })
     },
     analyse() {
-      requestBN({
-        method: 'post',
-        url: this.analyzePath,
-        data: { csv: this.bomData }
-      }).then(response => {
-        this.bom = response.data
+      billOfMaterial.analyze(this.analyzePath, this.bomData, 0).then(response => {
+        this.bom = response
       })
     }
   }
