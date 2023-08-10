@@ -8,61 +8,11 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
-
-require_once __DIR__ . "/util/extractVariable.php";
+require_once __DIR__."/util/_files.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	$path = __DIR__ ."/report/";
-	$output = array();
-	$files = scandir($path);
-	$files = array_diff($files, array('.', '..'));
-	
-	foreach( $files as $file)
-	{
-		if(is_file($path.$file))
-		{
-			if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php")
-			{
-				$output[] = getInfo("", $file);
-			}				
-			
-		}
-		else if(is_dir($path.$file))
-		{
-			$files2 = scandir($path.$file);
-			$files = array_diff($files, array('.', '..'));
-			
-			foreach( $files2 as $file2)
-			{
-				if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php")
-				{
-					$output[] = getInfo($file, $file2);
-				}
-			}
-		}
-	}
-	sendResponse($output);
+	$path = "report/";
+	sendResponse(files_listFiles($path));
 }
-
-
-function getInfo($path, $file)
-{
-	global $apiRootPath;
-	
-	$filePath = __DIR__ ."/report/".$path."/".$file;
-	
-	$output = array();
-	$filename = pathinfo($filePath,PATHINFO_FILENAME);
-	$output["FileName"] = $filename;
-	
-	$output["Title"] = extractVariable($filePath,"title");
-	$output["Description"] = extractVariable($filePath,"description");
-	$output["Path"] =  $apiRootPath."/report/".$path."/".$filename;
-	
-	return $output;
-}
-
 ?>

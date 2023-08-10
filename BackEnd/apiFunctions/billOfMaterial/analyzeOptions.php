@@ -1,18 +1,19 @@
 <?php
 //*************************************************************************************************
-// FileName : process.php
-// FilePath : apiFunctions/
+// FileName : analyze.php
+// FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 02.01.2021
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__."/util/_files.php";
+require_once __DIR__."/../util/_files.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	$path = "process/";
-	sendResponse(files_listFiles($path));
+	$path = "billOfMaterial/analyze/";
+    sendResponse(files_listFiles($path));
 }
 ?>
+

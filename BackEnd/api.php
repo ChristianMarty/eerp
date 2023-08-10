@@ -19,16 +19,12 @@ if($showPhpError)
 }
 
 
-// TODO: Fix for prod version
-
-header("Access-Control-Allow-Methods: POST, PATCH, GET, DELETE, OPTIONS"); 
-
-
+// TODO: Fix this
+header("Access-Control-Allow-Methods: POST, PATCH, GET, DELETE, OPTIONS");
 if($devMode)
 {
 	header("Access-Control-Allow-Origin: *");      
 	header("Access-Control-Allow-Headers: *");
-	//header("Access-Control-Allow-Headers:{$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
@@ -62,6 +58,7 @@ else if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'])||$devMode)
 {
 	$idempotencyToken = null;
 	if(isset(getallheaders()['Idempotency-Key'])) $idempotencyToken = getallheaders()['Idempotency-Key'];
+	if(isset(getallheaders()['idempotency-key'])) $idempotencyToken = getallheaders()['idempotency-key'];
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST' && !$devMode && $filePath != 'apiFunctions/document/ingest/upload.php')
 	{

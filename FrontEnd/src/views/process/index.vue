@@ -31,7 +31,6 @@
         <el-button @click="showDialog = false">Cancel</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
@@ -64,7 +63,7 @@ export default {
       })
     },
     run(process) {
-      if (process.Parameter !== null) {
+      if (process.Parameter != null) {
         this.selectedProcess = process
         this.showDialog = true
       } else {
