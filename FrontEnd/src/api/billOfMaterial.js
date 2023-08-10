@@ -16,6 +16,38 @@ class BillOfMaterial {
     })
   }
 
+  getAnalyzeOptions() {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        url: '/billOfMaterial/analyzeOptions',
+        methood: 'get'
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
+  analyze(analyzePath, data, quantity, flat = true) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'post',
+        url: analyzePath,
+        params: { Flat: flat },
+        data: { csv: data, BuildQuantity: quantity }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
   item = {
     get(BillOfMaterialBarcode) {
       return new Promise((resolve, reject) => {

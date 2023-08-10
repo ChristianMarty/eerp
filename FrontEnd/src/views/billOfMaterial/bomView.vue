@@ -45,13 +45,13 @@
       style="width: 100%"
       :row-class-name="tableAnalyzer"
       border
-    ><el-table-column prop="ProductionPartNumber" label="Part No" width="150" sortable>
+    ><el-table-column prop="ProductionPartBarcode" label="Part No" width="150" sortable>
        <template slot-scope="{ row }">
          <router-link
-           :to="'/productionPart/item/' + row.ProductionPartNumber"
+           :to="'/productionPart/item/' + row.ProductionPartBarcode"
            class="link-type"
          >
-           <span>{{ row.ProductionPartNumber }}</span>
+           <span>{{ row.ProductionPartBarcode }}</span>
          </router-link>
        </template>
      </el-table-column>
@@ -60,7 +60,7 @@
       <el-table-column prop="Quantity" label="Quantity" width="100" />
       <el-table-column prop="TotalQuantity" label="Total" width="100" />
       <el-table-column prop="Value" label="Description from CSV" />
-      <el-table-column prop="Stock" label="Stock" width="100" />
+      <el-table-column prop="StockQuantity" label="Stock" width="100" />
       <el-table-column prop="Name" label="Manufacturer Parts" />
 
       <el-table-column prop="ReferencePriceMinimum" label="Ref. Price Min." width="130" />
@@ -77,6 +77,9 @@
 <script>
 import requestBN from '@/utils/requestBN'
 import permission from '@/directive/permission/index.js'
+
+import BillOfMaterial from '@/api/billOfMaterial'
+const billOfMaterial = new BillOfMaterial()
 
 export default {
   name: 'BomView',
@@ -96,9 +99,9 @@ export default {
   },
   methods: {
     tableAnalyzer({ row, rowIndex }) {
-      if (String(row.PartNo).includes('Unknown')) {
+      if (String(row.ProductionPartBarcode).includes('Unknown')) {
         return 'error-row'
-      } else if (row.TotalQuantity > row.Stock) {
+      } else if (row.TotalQuantity > row.StockQuantity) {
         return 'warning-row'
       }
       return ''
@@ -109,21 +112,14 @@ export default {
       )
     },
     onSubmit() {
-      requestBN({
-        method: 'post',
-        url: this.analyzePath,
-        data: { csv: this.csv, BuildQuantity: this.buildQuantity }
-      }).then(response => {
-        this.bom = response.data
+      billOfMaterial.analyze(this.analyzePath, this.csv, this.buildQuantity, false).then(response => {
+        this.bom = response
         this.onQuantityChange()
       })
     },
     getAnalyzeOptions() {
-      requestBN({
-        method: 'get',
-        url: '/billOfMaterial/analyze'
-      }).then(response => {
-        this.analyzeOptions = response.data
+      billOfMaterial.getAnalyzeOptions().then(response => {
+        this.analyzeOptions = response
       })
     },
     onPrint() {

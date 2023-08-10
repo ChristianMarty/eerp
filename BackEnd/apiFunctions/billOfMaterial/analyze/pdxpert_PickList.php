@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : pdxpert_PickList.php
-// FilePath : apiFunctions/project/analyze
+// FilePath : apiFunctions/billOfMaterial/analyze
 // Author   : Christian Marty
 // Date		: 21.02.2023
 // License  : MIT

@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : pdxpert.php
-// FilePath : apiFunctions/project/analyze
+// FilePath : apiFunctions/billOfMaterial/analyze
 // Author   : Christian Marty
 // Date		: 03.01.2022
 // License  : MIT

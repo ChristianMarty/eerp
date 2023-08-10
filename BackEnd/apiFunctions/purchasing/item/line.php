@@ -39,6 +39,10 @@ function save_line($dbLink, $purchaseOrderNumber, $line): int
     $sqlData['ManufacturerName'] = $line['ManufacturerName'];
     $sqlData['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
 
+    if($sqlData['Type'] == 'Generic'){
+        $sqlData['StockPart']['raw'] = dbToBit(false);
+    }
+
     if($lineId != 0)// Update row
     {
         $condition = "Id = ".$lineId;

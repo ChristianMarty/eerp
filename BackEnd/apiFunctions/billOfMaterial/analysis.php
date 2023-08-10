@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : analysis.php
-// FilePath : apiFunctions/project/
+// FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
 // Date		: 31.07.2023
 // License  : MIT

@@ -37,6 +37,9 @@
 <script>
 import requestBN from '@/utils/requestBN'
 
+import BillOfMaterial from '@/api/billOfMaterial'
+const billOfMaterial = new BillOfMaterial()
+
 export default {
   props: { revisionId: { type: Number, default: 0 }},
   data() {
@@ -51,6 +54,11 @@ export default {
     this.getAnalyzeOptions()
   },
   methods: {
+    getAnalyzeOptions() {
+      billOfMaterial.getAnalyzeOptions().then(response => {
+        this.analyzeOptions = response
+      })
+    },
     save() {
       requestBN({
         method: 'post',
@@ -58,14 +66,6 @@ export default {
         data: { Bom: this.bom, RevisionId: this.$props.revisionId }
       }).then(response => {
 
-      })
-    },
-    getAnalyzeOptions() {
-      requestBN({
-        method: 'get',
-        url: '/billOfMaterial/analyze'
-      }).then(response => {
-        this.analyzeOptions = response.data
       })
     },
     analyse() {

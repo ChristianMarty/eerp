@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : availability.php
-// FilePath : apiFunctions/project/
+// FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
 // Date		: 01.08.2020
 // License  : MIT

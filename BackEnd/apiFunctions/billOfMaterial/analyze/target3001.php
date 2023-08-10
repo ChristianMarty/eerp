@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : target3001.php
-// FilePath : apiFunctions/project/analyze
+// FilePath : apiFunctions/billOfMaterial/analyze
 // Author   : Christian Marty
 // Date		: 03.01.2022
 // License  : MIT
@@ -11,153 +11,131 @@
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
-
-$title = "Target 3001";
+$title = "Target 3001!";
 $description = "";
-
-
-
-// TODO: This is not working -> fix  it all
-
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
 	$output = array();
 	$bom = array();
 	
 	$PriceTotal = 0;
 	
 	$data = json_decode(file_get_contents('php://input'),true);
-	$csvDataStr =   $data["csv"];
+	$csvDataStr =  $data["csv"];
 	$csvDataStr = str_replace("\r","",$csvDataStr);
+
+    $flat = false;
+    if(isset($data['Flat']) && filter_var($data['Flat'],FILTER_VALIDATE_BOOLEAN)){
+        $flat = true;
+    }
+
+    $buildQuantity = null;
+    if(isset($data['BuildQuantity'])) $buildQuantity = intval($data['BuildQuantity']);
 
 	$CSVLines = explode(";\n",$csvDataStr);
 	
-	$BoMData = array();
+	$output = array();
 	
-	foreach($CSVLines as $i => $Line)
+	foreach($CSVLines as $i => $line)
 	{
-		$Line = isset($Line) ? trim($Line) : false;
-		if(empty($Line)) continue;
+        $line = isset($line) ? trim($line) : false;
+		if(empty($line)) continue;
 		
-		$temp  = str_getcsv($Line,";");	
+		$temp  = str_getcsv($line,";");
 
-		$BoMData[$i]["ReferenceDesignator"] = $temp["0"];
-		$BoMData[$i]["Description"] =  $temp["1"];
-		$BoMData[$i]["XPosition"] = $temp["2"];
-		$BoMData[$i]["YPosition"] = $temp["3"];
-		if($temp["4"] == "oben") $BoMData[$i]["Layer"]  = "Top";
-		else if($temp["4"] == "unten") $BoMData[$i]["Layer"]  = "Bottom";
-		else $BoMData[$i]["Layer"]  = "Other";
-		$BoMData[$i]["Rotation"] = trim($temp["5"],"°");
-		$BoMData[$i]["ProductionPartNumber"] = $temp["6"];
+        $outputLine = array();
+
+        $outputLine["ReferenceDesignator"] = $temp["0"];
+        $outputLine["Description"] =  $temp["1"];
+        $outputLine["XPosition"] = $temp["2"];
+        $outputLine["YPosition"] = $temp["3"];
+		if($temp["4"] == "oben") $outputLine["Layer"]  = "Top";
+		else if($temp["4"] == "unten") $outputLine["Layer"]  = "Bottom";
+		else $outputLine["Layer"]  = "Other";
+        $outputLine["Rotation"] = trim($temp["5"],"°");
+        $outputLine["ProductionPartBarcode"] = $temp["6"];
+
+        $output[] = $outputLine;
 	}
 
-	dbClose($dbLink);	
-	sendResponse($BoMData);
-/*
+    if(!$flat){
+        $outputFlat = array();
 
-	$BoM = array();
-	$index = 1;
-	
-	
-	// Sort and combine by PartNo
-	foreach ($BoMData as $PartDataLine)
-	{
-	
-		if($PartDataLine["Value"] == "DNP") $PartDataLine["PartNo"] = "DNP";
-		
-		if(array_key_exists($PartDataLine["PartNo"],$BoM))
-		{
-			if(strlen($PartDataLine["PartNo"])>1)
-			{
-				$BoM[$PartDataLine["PartNo"]]["RefDes"] .= ", ".$PartDataLine["RefDes"];
-				$BoM[$PartDataLine["PartNo"]]["Quantity"] += 1;
-			}
-			else
-			{
-				$BoMadd = array("RefDes"=>$PartDataLine["RefDes"],"Value"=>$PartDataLine["Value"],"PartNo"=>$index,"Quantity"=>1);
-				$BoM[$index] = $BoMadd;
-				$index++;
-			}
-		}
-		else
-		{
-			$BoMadd = array();
-			
-			$PartNo = explode('#', $PartDataLine["PartNo"])[0];
-			$result = false;
-			if($PartNo!= Null)
-			{
-				$query = "SELECT *, productionPart_getQuantity(productionPart.PartNo) AS StockQuantity FROM manufacturerPart ";
-				$query .= "LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id ";
-				$query .= "LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartId = manufacturerPart.Id ";
-				$query .= "LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId ";
-				$query .= "WHERE productionPart.PartNo ='".dbEscapeString($dbLink, $PartNo)."'";  
-				$query .= " GROUP BY manufacturerPart.Id ";
-				
-				$result = dbRunQuery($dbLink,$query);
-			}
-			$PartData  = array();
-			$TotalQuantity = 0;
-			$ManufacturerParts = "";
-			
-			if($result)
-			{
-				while($r = mysqli_fetch_assoc($result)) 
-				{
-					$PartData = $r;
-					$TotalQuantity = $PartData["StockQuantity"];
-				}
-			}
-			
-			$ManufacturerParts = substr($ManufacturerParts, 2);
-			
-			$BoMadd["PartNo"] = $PartDataLine["PartNo"];
-			
-			if(!empty($PartData))
-			{
-				$BoMadd["Stock"] = $TotalQuantity;
-			}
-			else
-			{
-				$BoMadd["PartNo"] = "Unknown ".$PartDataLine["PartNo"];
-				$BoMadd["Stock"] = 0;
-			}
-			
-			$BoMadd["RefDes"] = $PartDataLine["RefDes"];
-			$BoMadd["Quantity"] = 1;
-			$BoMadd["Value"] = $PartDataLine["Value"];
-			
-			$BoM[$PartDataLine["PartNo"]] = $BoMadd ;
-		}
-	}
+        foreach($output as $i => $line)
+        {
+            $metaLine = array();
+            $metaLine['ReferenceDesignator'] = $line['ReferenceDesignator'];
+            $metaLine['XPosition'] = $line['XPosition'];
+            $metaLine['YPosition'] = $line['YPosition'];
+            $metaLine['Layer'] = $line['Layer'];
+            $metaLine['Rotation'] = $line['Rotation'];
 
-	// Display data
-	foreach ($BoM as $PartDataLine)
-	{
-		$bomLine = array();
+            if(array_key_exists($line["ProductionPartBarcode"],$outputFlat))
+            {
+                $outputFlat[$line["ProductionPartBarcode"]]['Quantity']++;
+                $outputFlat[$line["ProductionPartBarcode"]]['Meta'][] = $metaLine;
+            } else {
+                $partLine = array();
+                $partLine['ProductionPartBarcode'] = $line['ProductionPartBarcode'];
+                $partLine['Description'] = $line['Description'];
+                $partLine['Quantity'] = 1;
+                $partLine['Meta'][] = $metaLine;
 
-		$bomLine['RefDes'] = $PartDataLine["RefDes"];
-		$bomLine['Quantity'] = count(explode(",", $PartDataLine["RefDes"]));
-		$bomLine['PartNo'] = $PartDataLine["PartNo"];
-		$bomLine['Value'] = $PartDataLine["Value"];
-		if(isset($PartDataLine["Stock"])) $bomLine['Stock'] = $PartDataLine["Stock"];
-		else $bomLine['Stock'] = 0;
-		
-		
-		array_push($bom, $bomLine);
-	}
+                $outputFlat[$line["ProductionPartBarcode"]] = $partLine;
+            }
+        }
+        $output = $outputFlat;
+    }
 
-	
-	$output['bom'] = $bom;
+    if($buildQuantity)
+    {
+        foreach($output as $i => $line)
+        {
+            $productionPartData = getStockData($line["ProductionPartBarcode"]);
+            unset($line['ProductionPartBarcode']);
+            $output[$i] = array_merge($productionPartData,$line);
+        }
+    }
 
-	dbClose($dbLink);	
-	sendResponse($output);*/
+	sendResponse(array_values($output));
+}
+
+function getStockData($productionPartNumber)
+{
+    $dbLink = dbConnect();
+
+    $productionPartNumber = dbEscapeString($dbLink, $productionPartNumber);
+    $query = <<<STR
+        SELECT 
+            CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartBarcode,
+            productionPart.Description,
+            productionPart_getQuantity(numbering.Id, productionPart.Number) AS StockQuantity,
+            Cache_ReferencePrice_WeightedAverage AS ReferencePriceWeightedAverage,
+            Cache_ReferencePrice_Minimum AS ReferencePriceMinimum,
+            Cache_ReferencePrice_Maximum AS ReferencePriceMaximum,
+            Cache_ReferenceLeadTime_WeightedAverage AS ReferenceLeadTimeWeightedAverage,
+            Cache_PurchasePrice_WeightedAverage AS PurchasePriceWeightedAverage
+        FROM productionPart
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartNumber'
+    STR;
+
+    $result = dbRunQuery($dbLink, $query);
+    $output = array();
+
+    if ($r = mysqli_fetch_assoc($result)) {
+        $output = $r;
+    }
+    else
+    {
+        $output["ProductionPartBarcode"] = "Unknown - ".$productionPartNumber;
+        $output["ManufacturerPartNumber"] = "";
+        $output["StockQuantity"] = 0;
+    }
+
+    dbClose($dbLink);
+    return $output;
 }
 
 ?>
