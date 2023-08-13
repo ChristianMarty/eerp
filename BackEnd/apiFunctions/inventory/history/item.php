@@ -19,30 +19,33 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if(!isset($_GET["InventoryNumber"]) AND !isset($_GET["EditToken"])) sendResponse(Null,"Inventory Number and Edit Token are not set");
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
+
+    $query = null;
 	if(isset($_GET["InventoryNumber"]))
 	{
 		$inventoryNumber = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
         $query = <<<STR
             SELECT * FROM inventory
-            LEFT JOIN inventory_history ON inventory_history.Id = inventory.InventoryId
+            LEFT JOIN inventory_history ON inventory.Id = inventory_history.InventoryId
             WHERE inventory.InvNo = $inventoryNumber
         STR;
 	}
 	else if(isset($_GET["EditToken"]))
 	{
 		$editToken = dbEscapeString($dbLink, $_GET["EditToken"]);
-
-		$query  = "SELECT * FROM inventory_history ";
-		$query .= "WHERE EditToken = '{$editToken}'";	
+        $query = <<<STR
+            SELECT * FROM inventory_history
+            WHERE EditToken = '$editToken'
+        STR;
 	}
+
+    if($query == null) sendResponse(null,"Error that should not happen!");
 
 	$result = dbRunQuery($dbLink,$query);
 	
 	$error = null;
 	$history = null;
-	if($result == false) $error = "Error description: " . mysqli_error($dbLink);
+	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
 	else $history = mysqli_fetch_assoc($result);
 
 	dbClose($dbLink);	

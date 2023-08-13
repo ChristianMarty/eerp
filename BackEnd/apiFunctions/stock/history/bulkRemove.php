@@ -9,7 +9,6 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../util/location.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_user.php";
 
@@ -18,7 +17,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$data = json_decode(file_get_contents('php://input'),true);
 	
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
 
 	$workOrderNumber = null;
 	if(isset($data['WorkOrderNumber'])) $workOrderNumber= barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
@@ -26,7 +24,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$workOrder = null;
 	if($workOrderNumber != null)
 	{
-		$query = "SELECT * FROM workOrder WHERE WorkOrderNumber = '".$workOrderNumber."'";
+		$query = <<<STR
+			SELECT * FROM workOrder WHERE WorkOrderNumber = '$workOrderNumber'";
+		STR;
+
 		$result = dbRunQuery($dbLink,$query);	
 		$workOrder = mysqli_fetch_assoc($result);
 	}
@@ -48,12 +49,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$note = trim($note);
 			if($note == "") $note = null;
 		}
-		
-		$temp = dbEscapeString($dbLink, $line["Barcode"]);
-		$temp = strtolower($temp);
-		$stockNo = str_replace("stk-","",$temp);
 
-		$query = 'SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'"';
+
+		$stockNo = barcodeParser_StockNumber($line["Barcode"]);
+		$stockNo = dbEscapeString($dbLink, $stockNo);
+
+		$query = <<<STR
+			SELECT Id FROM partStock WHERE StockNo = '$stockNo';
+		STR;
+
 		$result = dbRunQuery($dbLink,$query);
 		$stockId = dbGetResult($result)['Id'];
 		

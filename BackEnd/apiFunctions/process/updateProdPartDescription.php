@@ -83,7 +83,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $uom[0]  = ['Name' => "", 'Unit' => "", 'Symbol' => ""];
 
     $query = <<<STR
-        SELECT Id, ParentId, Name, Symbol AS SymbolOverride, UnitOfMeasurementId FROM partAttribute;
+        SELECT Id, ParentId, Name, Symbol AS SymbolOverride, UnitOfMeasurementId FROM manufacturerPart_attribute;
     STR;
     $result = dbRunQuery($dbLink, $query);
 
@@ -110,7 +110,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 
 // Get and process part class template
-    $query = "SELECT Id, ParentId, DescriptionTemplate, Name, ShortName, Prefix FROM partClass";
+    $query = "SELECT Id, ParentId, DescriptionTemplate, Name, ShortName, Prefix FROM manufacturerPart_class";
     $result = dbRunQuery($dbLink, $query);
 
     $templateRaw = array();
@@ -146,8 +146,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 // Template creation finished -> generate description
     $query = <<<STR
-        SELECT manufacturerPart.Id, manufacturerPart.PartClassId, manufacturerPart.ManufacturerPartNumber, manufacturerPart.PartData,
-               vendor.Name AS VendorName, partPackage.Name AS PackageName
+        SELECT 
+            manufacturerPart.Id, 
+            manufacturerPart.PartClassId, 
+            manufacturerPart.ManufacturerPartNumber, 
+            manufacturerPart.PartData,
+            vendor.Name AS VendorName, 
+            partPackage.Name AS PackageName
         FROM manufacturerPart 
         LEFT JOIN vendor ON manufacturerPart.VendorId = vendor.Id
         LEFT JOIN partPackage ON manufacturerPart.PackageId = partPackage.Id

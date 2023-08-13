@@ -19,7 +19,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
     $query = <<<STR
-        SELECT Id, OctopartPartData
+        SELECT 
+            Id, 
+            OctopartPartData
         FROM `manufacturerPart`
         WHERE OctopartPartData IS NOT NULL
     STR;

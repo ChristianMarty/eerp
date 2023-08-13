@@ -173,7 +173,10 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$error = "Error description: " . dbGetErrorString($dbLink);
 	}
 	
-	$query = "SELECT Id FROM manufacturerPart WHERE Id = LAST_INSERT_ID();";
+	$query = <<< STR
+        SELECT Id FROM manufacturerPart WHERE Id = LAST_INSERT_ID();
+    STR;
+
 	$result = dbRunQuery($dbLink,$query);
 	
 	$manufacturerPart['ManufacturerPartId'] = dbGetResult($result)['Id'];

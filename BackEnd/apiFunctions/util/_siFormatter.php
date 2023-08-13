@@ -21,7 +21,6 @@ function siFormatter($value, $scale = 1): string
 	$result = dbRunQuery($dbLink,$query);
 	
 	$output = "";
-
     $value = $value*$scale;
 
 	while($r = mysqli_fetch_assoc($result)) 
@@ -31,7 +30,6 @@ function siFormatter($value, $scale = 1): string
             $output = ($value/floatval($r['Multiplier'])).$r['Symbol'];
             break;
         }
-
 	}
 
 	dbClose($dbLink);

@@ -79,8 +79,12 @@
 		
 
 	}
-	
-	$query = "SELECT `InvNo`,`Title`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN(".implode(", ",$invNo).")";
+
+    $invNoList = implode(", ",$invNo);
+    $query = <<< STR
+        SELECT `InvNo`,`Title`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN( $invNoList );
+    STR;
+
 	$result = dbRunQuery($dbLink,$query);
 
 	if(!$result)

@@ -26,6 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = dbRunQuery($dbLink,$query);
 	$sourceCurrencyCode = mysqli_fetch_assoc($result)['CurrencyCode'];
 
+    $targetCurrencyCode = null;
 	if(isset($_GET["CurrencyCode"]))
 	{
 		$targetCurrencyCode = $_GET["CurrencyCode"];
@@ -55,7 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	else
 	{
-	$data = null;
+	    $data = null;
 	}
 	
 	sendResponse($data, $error);

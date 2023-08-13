@@ -10,7 +10,6 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/location.php";
 
 global $devMode;
 
@@ -46,8 +45,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	dbClose($dbLink);
 
-	$locations = getLocations();
-	
 	$filename = "Manufacturer Part Export ".date("Y-m-d H:i:s").".csv";
 	
 	$csvFile = tempnam("/tmp", $filename); 

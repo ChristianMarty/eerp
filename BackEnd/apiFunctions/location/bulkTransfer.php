@@ -8,7 +8,8 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
+require_once __DIR__."/../databaseConnector.php";
+require_once __DIR__."/../util/_barcodeParser.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
@@ -16,22 +17,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$dbLink = dbConnect();
 
-	$oldLocationNr = dbEscapeString($dbLink,strtolower($data['SourceLocationNumber']));
-	$newLocationNr = dbEscapeString($dbLink,strtolower($data['DestinationLocationNumber']));
-	
-	if(!str_starts_with($oldLocationNr, "loc-"))  sendResponse(null,"Invalid source location");
-	$oldLocationNr = str_replace("loc-","",$oldLocationNr);
-	
-	if(!str_starts_with($newLocationNr, "loc-"))  sendResponse(null,"Invalid destination location");
-	$newLocationNr = str_replace("loc-","",$newLocationNr);
-	
-	$invQuery = "UPDATE inventory SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
-	$stkQuery = "UPDATE partStock SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
-	$locQuery = "UPDATE location  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
-	$locQuery = "UPDATE assembly_item  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$newLocationNr."') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$oldLocationNr."'); ";
-	
-	$query = $invQuery.$stkQuery.$locQuery;
-	
+	$oldLocationNr = barcodeParser_LocationNumber($data['SourceLocationNumber']);
+	$newLocationNr = barcodeParser_LocationNumber($data['DestinationLocationNumber']);
+
+	if(!$oldLocationNr)  sendResponse(null,"Invalid source location");
+	if(!$newLocationNr)  sendResponse(null,"Invalid destination location");
+
+	$query = <<<STR
+		UPDATE inventory SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
+		UPDATE partStock SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
+		UPDATE location  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
+		UPDATE assembly_unit  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
+	STR;
+
 	$error = null;
 	
 	if(!mysqli_multi_query($dbLink, $query))

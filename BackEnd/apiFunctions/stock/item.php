@@ -114,7 +114,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$location = dbEscapeString($dbLink,$data['Location']);
 	$location = str_replace("Loc-","",$location);
 	
-	if(isset($data['ReceivalId']))  // If part is created based on purchas receival id
+	if(isset($data['ReceivalId']))  // If part is created based on purchase receival id
 	{
 		$receivalId = dbEscapeString($dbLink,$data['ReceivalId']);
 		$lotNumber = dbEscapeString($dbLink,$data['LotNumber']);
@@ -130,7 +130,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$query .= ") AS StockNo; ";
 		
 	}
-	else // If part is created from scratch 
+	else // If new part is created
 	{
 		$manufacturerId = dbEscapeString($dbLink,$data['ManufacturerId']);
 		$manufacturerPartNumber = dbEscapeString($dbLink,$data['ManufacturerPartNumber']);

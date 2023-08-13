@@ -19,8 +19,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
-	
-	$query = "SELECT Id, OctopartPartData FROM `manufacturerPart` WHERE OctopartPartData IS NOT NULL AND PartData IS NULL";
+
+    $query = <<<STR
+        SELECT Id, OctopartPartData 
+        FROM manufacturerPart_item
+        WHERE OctopartPartData IS NOT NULL AND PartData IS NULL
+    STR;
 
 	$queryResult = dbRunQuery($dbLink,$query);
 	
@@ -173,7 +177,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			}
 			else if($attributeName == "Number of Rows")
 			{
-				$PartData["110"] = $attributeValuee;
+				$PartData["110"] = $attributeValue;
 			}
 			else if($attributeName == "Orientation")
 			{

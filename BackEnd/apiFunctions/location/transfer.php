@@ -34,19 +34,21 @@ function filterAsu($var): int
 	else return 0;
 }
 
-function moveItems($dbLink, $itemList, $locationNr, $catogery, $idName)
+function moveItems($dbLink, $itemList, $locationNr, $category, $idName)
 {
-	$baseQuery = "UPDATE `".$catogery."` ";
-	$baseQuery  .= "SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '".$locationNr."')";
-
-	foreach($itemList as &$item) 
+	foreach($itemList as &$item)
 	{
 		$item = explode("-", $item)[1];
 		$item = dbEscapeString($dbLink,$item);
 	}
+	$itemListStr = implode("', '",$itemList);
 
-	$baseQuery  .= "WHERE ".$idName." IN('".implode("', '",$itemList)."')";
-	
+	$baseQuery = <<<STR
+		UPDATE $category
+		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$locationNr')
+		WHERE $idName IN($itemListStr)
+	STR;
+
 	if(!mysqli_multi_query($dbLink,$baseQuery))
 	{
 		return "Error description: " . mysqli_error($dbLink);

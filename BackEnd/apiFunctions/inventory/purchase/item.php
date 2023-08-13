@@ -103,9 +103,11 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 		$quantity = dbEscapeString($dbLink,$item['Quantity']);
 		$receivalId = dbEscapeString($dbLink,$item['ReceivalId']);
 		$receivalIdList[] = $receivalId;
-		
-		$query  = "INSERT IGNORE INTO inventory_purchaseOrderReference SET ";
-		$query .= "InventoryId = {$id}, Quantity = {$quantity}, ReceivalId = {$receivalId}, Type = '{$costType}';";
+
+        $query = <<< STR
+            INSERT IGNORE INTO inventory_purchaseOrderReference 
+            SET InventoryId = $id, Quantity = $quantity, ReceivalId = $receivalId, Type = '$costType';
+        STR;
 
 		$result = dbRunQuery($dbLink,$query);
 		
@@ -117,7 +119,10 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 
 	}
 
-    $query  = "DELETE FROM inventory_purchaseOrderReference WHERE InventoryId = {$id} ";
+    $query = <<< STR
+        DELETE FROM inventory_purchaseOrderReference WHERE InventoryId = $id;
+    STR;
+
     if(!empty($receivalIdList))
     {
         $temp = implode(", ", $receivalIdList);

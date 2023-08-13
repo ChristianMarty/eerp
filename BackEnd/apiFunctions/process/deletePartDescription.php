@@ -21,8 +21,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $dbLink = dbConnect();
 
     $query = <<<STR
-        UPDATE productionPart SET DESCRIPTION = NULL;
-        UPDATE manufacturerPart SET DESCRIPTION = NULL; 
+        UPDATE productionPart SET Description = NULL;
+        UPDATE manufacturerPart_item SET Description = NULL; 
     STR;
     dbRunQuery($dbLink, $query);
 

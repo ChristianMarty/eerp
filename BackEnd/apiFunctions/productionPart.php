@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             productionPart.Number, 
             Description,
             Cache_BillOfMaterial_TotalQuantityUsed,
-            Cache_BillOfMaterial_NumberOfOccurence
+            Cache_BillOfMaterial_NumberOfOccurrence
         FROM productionPart
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
@@ -58,8 +58,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$rowcount = mysqli_num_rows($result);
 	while($r = mysqli_fetch_assoc($result)) 
 	{
-        $r['Cache_BillOfMaterial_TotalQuantityUsed'] = $r['Cache_BillOfMaterial_TotalQuantityUsed'];
-        $r['Cache_BillOfMaterial_NumberOfOccurence'] = $r['Cache_BillOfMaterial_NumberOfOccurence'];
+        $r['Cache_BillOfMaterial_TotalQuantityUsed'] = intval($r['Cache_BillOfMaterial_TotalQuantityUsed']);
+        $r['Cache_BillOfMaterial_NumberOfOccurence'] = intval($r['Cache_BillOfMaterial_NumberOfOccurrence']);
         $r['ProductionPartNumber'] = $r['Prefix']."-".$r['Number'];
 		unset($r['Id']);
 		$rows[] = $r;

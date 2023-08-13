@@ -21,13 +21,11 @@ if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode)
 }
 
 $params = array();
-
 $apiRequestParts = explode('data.php/', $_SERVER['REQUEST_URI']);
 
 $filePath = $serverDataPath."/";
 $apiRequest = explode('?',rawurldecode($apiRequestParts[1]))[0];
 $filePath .= $apiRequest;
-
 
 if(file_exists($filePath))
 {

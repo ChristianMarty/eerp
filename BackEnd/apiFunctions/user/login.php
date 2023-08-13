@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$password = $data['password'];
 	
     $ldap = ldap_connect($adServer);
-	if ( !$ldap) sendResponse(null,"LDAP server connection faild");
+	if ( !$ldap) sendResponse(null,"LDAP server connection failed");
 	
     $ldaprdn =  "uid=".$username.",".$ldapBase;
 	

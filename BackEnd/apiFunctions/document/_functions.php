@@ -229,7 +229,7 @@ function ingest($data): int|array
         return array('error' => "File already exists as ".$fileHashCheck['path']." with type ".$fileHashCheck['type']);
     }
 
-    if(!rename($src, $dst)) return array('error' => "File copy faild.");
+    if(!rename($src, $dst)) return array('error' => "File copy failed.");
 
     $sqlData = array();
     $sqlData['Path'] = $dstFileName;

@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../location/_location.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -119,7 +120,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$descriptor = $itemData["Name"];
 		
 		$data = array();
-		$data["Item"] = "Loc-".$itemData["LocNr"];
+		$data["Item"] = barcodeFormatter_LocationNumber($itemData["LocNr"]);
 		$data["Category"] = "Location";
 		$data["Description"] = $descriptor; 
 		

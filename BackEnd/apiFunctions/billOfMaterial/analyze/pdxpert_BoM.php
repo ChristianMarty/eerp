@@ -16,20 +16,19 @@ $description = "";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
 	$output = array();
 	$bom = array();
-	
-	$PriceTotal = 0;
-	
-	$data = json_decode(file_get_contents('php://input'),true);
 
-	$buildQuantity = intval($data["BuildQuantity"], 10);
+	$data = json_decode(file_get_contents('php://input'),true);
 	
-	
+	$flat = false;
+    if(isset($_GET['Flat']) && filter_var($_GET['Flat'],FILTER_VALIDATE_BOOLEAN)){
+        $flat = true;
+    }
+
+    $buildQuantity = null;
+    if(isset($data['BuildQuantity'])) $buildQuantity = intval($data['BuildQuantity']);
+
 	$bomCsvFile = tmpfile();
 	fwrite($bomCsvFile, $data["csv"]);
 	fseek($bomCsvFile, 0);
@@ -41,10 +40,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$partNoIndex = array_search("Number",$firstLine);
 	
 	$i = 0;
+	$BoMData = array();
 	while (($bomLine = fgetcsv($bomCsvFile, 1000, ",",'"',"\\")) !== FALSE) 
 	{
         $BoMData[$i]["PartNo"] = $bomLine[$partNoIndex];
-
+		
 		if($descriptionIndex === false) $BoMData[$i]["Value"] = "";
         else $BoMData[$i]["Value"] =  $bomLine[$descriptionIndex];
         if($refDesIndex === false) $BoMData[$i]["RefDes"] = "";
@@ -52,114 +52,115 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		$i++;
     }
-	
 	fclose($bomCsvFile); 
-
-	$BoM = array();
-	$index = 1;
 	
-	
-	// Sort and combine by PartNo
-	foreach ($BoMData as $PartDataLine)
+	$BomClean = array();
+	foreach ($BoMData as $line)
 	{
-	
-		if($PartDataLine["Value"] == "DNP") $PartDataLine["PartNo"] = "DNP";
-		
-		if(array_key_exists($PartDataLine["PartNo"],$BoM))
+		$refDeses = explode(",",$line['RefDes']);
+		foreach ($refDeses as $refDes)
 		{
-			if(strlen($PartDataLine["PartNo"])>1)
-			{
-				$BoM[$PartDataLine["PartNo"]]["RefDes"] .= ", ".$PartDataLine["RefDes"];
-				$BoM[$PartDataLine["PartNo"]]["Quantity"] += 1;
-			}
-			else
-			{
-				$BoMadd = array("RefDes"=>$PartDataLine["RefDes"],"Value"=>$PartDataLine["Value"],"PartNo"=>$index,"Quantity"=>1);
-				$BoM[$index] = $BoMadd;
-				$index++;
-			}
+			$line['RefDes'] = $refDes;
+			$BomClean[] = $line;
 		}
-		else
-        {
-            $PartNo = $PartDataLine["PartNo"];
-            if ($PartNo == Null) continue;
-
-            $BoMadd = array();
-
-            $partNo = dbEscapeString($dbLink, $PartNo);
-            $query = <<<STR
-                SELECT productionPart.Number AS  PartNo, productionPart.Description, productionPart_getQuantity(numbering.Id ,productionPart.Number) AS StockQuantity, GROUP_CONCAT(manufacturerPart.ManufacturerPartNumber, "")  AS ManufacturerPartNumbers, 
-                       Cache_ReferencePrice_WeightedAverage, Cache_PurchasePrice_WeightedAverage, Cache_ReferencePrice_Minimum, Cache_ReferencePrice_Maximum, Cache_ReferenceLeadTime_WeightedAverage
-                FROM productionPart
-                LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
-                LEFT JOIN manufacturerPart ON  manufacturerPart.Id = productionPart_manufacturerPart_mapping.ManufacturerPartId 
-                LEFT JOIN partStock On partStock.ManufacturerPartId = manufacturerPart.Id
-                LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
-                WHERE productionPart.Number ='$partNo'
-                GROUP BY manufacturerPart.Id
-            STR;
-
-            $result = dbRunQuery($dbLink, $query);
-
-            if ($r = mysqli_fetch_assoc($result))
-            {
-                $BoMadd["PartNo"] = $PartDataLine["PartNo"];
-
-                //$BoMadd["ManufacturerPartNumber"] = substr($r["ManufacturerPartNumbers"], 0,-1);
-                $BoMadd["ManufacturerPartNumber"] = $r["ManufacturerPartNumbers"];
-                $BoMadd["Stock"] = $r["StockQuantity"];
-
-                $BoMadd["Cache_ReferencePrice_WeightedAverage"] = $r["Cache_ReferencePrice_WeightedAverage"];
-                $BoMadd["Cache_PurchasePrice_WeightedAverage"] = $r["Cache_PurchasePrice_WeightedAverage"];
-				$BoMadd["Cache_ReferencePrice_Minimum"] = $r["Cache_ReferencePrice_Minimum"];
-				$BoMadd["Cache_ReferencePrice_Maximum"] = $r["Cache_ReferencePrice_Maximum"];
-
-                $BoMadd["RefDes"] = $PartDataLine["RefDes"];
-                if ($PartDataLine["Value"] == "DNP") $BoMadd["Quantity"] = 0;
-                else  $BoMadd["Quantity"] = 1;
-
-                $BoMadd["Value"] = $PartDataLine["Value"];
-                $BoMadd["Description"] = $r["Description"];
-            }
-            else
-            {
-                $BoMadd["PartNo"] = "Unknown " . $PartDataLine["PartNo"];
-                $BoMadd["ManufacturerPartNumber"] = "";
-                $BoMadd["Stock"] = 0;
-            }
-
-            $BoM[$PartDataLine["PartNo"]] = $BoMadd;
-		}
-	}
-
-	// Display data
-	foreach ($BoM as $PartDataLine)
-	{
-		$bomLine = array();
 		
-		//$PriceTotal += $PartDataLine["PaidPrice"]*$PartDataLine["Quantity"];
-
-		$bomLine['RefDes'] = $PartDataLine["RefDes"];
-		$bomLine['Quantity'] = count(explode(",", $PartDataLine["RefDes"]));//$PartDataLine["Quantity"];
-		$bomLine['PartNo'] = "GCT-".$PartDataLine["PartNo"];
-		$bomLine['Name'] = $PartDataLine["ManufacturerPartNumber"];
-		$bomLine['Value'] = $PartDataLine["Value"];
-		$bomLine['Stock'] = $PartDataLine["Stock"];
-        $bomLine["Description"] = $PartDataLine["Description"];
-        $bomLine["ReferencePriceMinimum"] = $PartDataLine["Cache_ReferencePrice_Minimum"];
-        $bomLine["ReferencePriceWeightedAverage"] = $PartDataLine["Cache_ReferencePrice_WeightedAverage"];
-        $bomLine["ReferencePriceMaximum"] = $PartDataLine["Cache_ReferencePrice_Maximum"];
-        $bomLine["PurchasePriceWeightedAverage"] = $PartDataLine["Cache_PurchasePrice_WeightedAverage"];
-        $bomLine["ReferenceLeadTimeWeightedAverage"] = $PartDataLine["Cache_ReferenceLeadTime_WeightedAverage"];  
-		$bom[] = $bomLine;
 	}
 	
-
+	$output = array();
 	
-	$output['bom'] = $bom;
+	foreach($BomClean as $i => $temp)
+	{
+		$refDes = trim($temp['RefDes']);
+		if($refDes != "")
+		{
+			$line = array();
+			$line["ReferenceDesignator"] = $refDes;
+			$line["Description"] =  $temp['Value'];
+			$line["XPosition"] = "0";
+			$line["YPosition"] = "0";
+			$line["Layer"]  = "Other";
+			$line["Rotation"] = "0";
+			$line["ProductionPartBarcode"] = "GCT-".$temp["PartNo"];
+			$output[] = $line;
+		}
+	}
 
-	dbClose($dbLink);	
+	if($flat !== true)
+    { 
+        $outputFlat = array();
+        foreach($output as $i => $line)
+        {
+            $metaLine = array();
+            $metaLine['ReferenceDesignator'] = $line['ReferenceDesignator'];
+            $metaLine['XPosition'] = $line['XPosition'];
+            $metaLine['YPosition'] = $line['YPosition'];
+            $metaLine['Layer'] = $line['Layer'];
+            $metaLine['Rotation'] = $line['Rotation'];
+
+            if(array_key_exists($line["ProductionPartBarcode"],$outputFlat))
+            {
+                $outputFlat[$line["ProductionPartBarcode"]]['Quantity']++;
+                $outputFlat[$line["ProductionPartBarcode"]]['Meta'][] = $metaLine;
+            } else {
+                $partLine = array();
+                $partLine['ProductionPartBarcode'] = $line['ProductionPartBarcode'];
+                $partLine['Description'] = $line['Description'];
+                $partLine['Quantity'] = 1;
+                $partLine['Meta'][] = $metaLine;
+
+                $outputFlat[$line["ProductionPartBarcode"]] = $partLine;
+            }
+        }
+        $output = array_values($outputFlat);
+    }
+
+    if($buildQuantity)
+    {
+        foreach($output as $i => $line)
+        {
+            $productionPartData = getStockData($line["ProductionPartBarcode"]);
+            unset($line['ProductionPartBarcode']);
+            $output[$i] = array_merge($productionPartData,$line);
+        }
+    }
+
 	sendResponse($output);
 }
 
+function getStockData($productionPartNumber)
+{
+    $dbLink = dbConnect();
+
+    $productionPartNumber = dbEscapeString($dbLink, $productionPartNumber);
+    $query = <<<STR
+        SELECT 
+            CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartBarcode,
+            productionPart.Description,
+            productionPart_getQuantity(numbering.Id, productionPart.Number) AS StockQuantity,
+            Cache_ReferencePrice_WeightedAverage AS ReferencePriceWeightedAverage,
+            Cache_ReferencePrice_Minimum AS ReferencePriceMinimum,
+            Cache_ReferencePrice_Maximum AS ReferencePriceMaximum,
+            Cache_ReferenceLeadTime_WeightedAverage AS ReferenceLeadTimeWeightedAverage,
+            Cache_PurchasePrice_WeightedAverage AS PurchasePriceWeightedAverage
+        FROM productionPart
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartNumber'
+    STR;
+
+    $result = dbRunQuery($dbLink, $query);
+    $output = array();
+
+    if ($r = mysqli_fetch_assoc($result)) {
+        $output = $r;
+    }
+    else
+    {
+        $output["ProductionPartBarcode"] = "Unknown - ".$productionPartNumber;
+        $output["ManufacturerPartNumber"] = "";
+        $output["StockQuantity"] = 0;
+    }
+
+    dbClose($dbLink);
+    return $output;
+}
 ?>

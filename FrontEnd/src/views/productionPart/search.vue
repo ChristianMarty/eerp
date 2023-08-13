@@ -52,7 +52,7 @@
       </el-table-column>
       <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="Cache_BillOfMaterial_TotalQuantityUsed" label="Total use in BoM" width="170" sortable />
-      <el-table-column prop="Cache_BillOfMaterial_NumberOfOccurence" label="Number of BoMs" width="170" sortable />
+      <el-table-column prop="Cache_BillOfMaterial_NumberOfOccurrence" label="Number of BoMs" width="170" sortable />
     </el-table>
   </div>
 </template>

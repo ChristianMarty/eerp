@@ -12,7 +12,7 @@
 
 function extractVariable($path, $variableName)
 {
-	$file_contents  = file_get_contents($path, $maxlen = 1000);
+	$file_contents  = file_get_contents($path, $length = 1000);
 	$startPos = strpos($file_contents, $variableName);
 	if($startPos === false) return $variableName." not found";
 	

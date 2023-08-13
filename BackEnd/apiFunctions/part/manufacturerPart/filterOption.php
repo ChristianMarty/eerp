@@ -55,5 +55,4 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     dbClose($dbLink);    
     sendResponse($output);
 }
-e
 ?>
