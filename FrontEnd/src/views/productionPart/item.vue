@@ -98,7 +98,7 @@
           <el-table-column prop="Date" label="Date" sortable width="150" />
           <el-table-column prop="Lot" label="Lot" sortable width="150" />
           <el-table-column prop="Quantity" label="Quantity" sortable width="150" />
-          <el-table-column prop="Location" label="Location" sortable />
+          <el-table-column prop="LocationName" label="Location" sortable />
         </el-table>
 
         <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>

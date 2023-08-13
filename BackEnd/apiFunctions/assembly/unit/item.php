@@ -12,6 +12,7 @@ require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../location/_location.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -52,7 +53,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	if($shippingProhibited) $shippingClearance = false;
 
     $query = <<<STR
-        SELECT *,location_getName(LocationId) AS LocationName 
+        SELECT *
         FROM assembly_unit
         LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId
     STR;
@@ -65,8 +66,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output = array();
 
 	$output = mysqli_fetch_assoc($result);
-    $output['AssemblyBarcode'] =  "ASM-".$output['AssemblyNumber'];
-    $output['AssemblyUnitBarcode'] =  "ASU-".$output['AssemblyUnitNumber'];
+    $output['LocationName'] = location_getName(intval($output['LocationId']));
+    $output['AssemblyBarcode'] =  barcodeFormatter_AssemblyNumber($output['AssemblyNumber']);
+    $output['AssemblyUnitBarcode'] =  barcodeFormatter_AssemblyUnitNumber($output['AssemblyUnitNumber']);
 	$output['ShippingClearance'] =  $shippingClearance;
 	$output['ShippingProhibited'] = $shippingProhibited;
 	$output['History'] = $history;

@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/location.php";
+require_once __DIR__ . "/../location/_location.php";
 
 global $devMode;
 
@@ -44,8 +44,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$stockResult = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);
 
-	$locations = getLocations();
-
 	$filename = "Stock Location Export ".date("Y-m-d H:i:s").".csv";
 	$csvFile = tempnam("/tmp", $filename); 
 	$csvHandle = fopen($csvFile, "w");
@@ -76,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			{
 				$line .= '"'.$stockNo[$i].'";';
 				$line .= '"'.$quantity[$i].'";';
-				$line .= '"'.buildLocation($locations, $locationId[$i]).'";';
+				$line .= '"'.location_getName($locationId[$i]).'";';
 			}
 			$line .= PHP_EOL;
 			fwrite($csvHandle, $line);

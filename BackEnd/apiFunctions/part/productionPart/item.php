@@ -13,6 +13,7 @@ require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../_part.php";
+require_once __DIR__ . "/../../location/_location.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -80,7 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             partStock.Date,
             partStock.LotNumber,
             partStock_getQuantity(partStock.StockNo) AS Quantity,
-            location_getName(partStock.LocationId) AS LocationName
+            LocationId
         FROM partStock  
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
         LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
@@ -100,7 +101,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $stockRow['Lot'] = $r['LotNumber'];
         $stockRow['Quantity'] = intval($r['Quantity']);
         $totalStockQuantity += $stockRow['Quantity'];
-        $stockRow['LocationName'] = $r['LocationName'];
+        $stockRow['LocationName'] = location_getName($r['LocationId']);
 
         if(isset($_GET["HideEmptyStock"]) && $stockRow['Quantity'] == 0) {
             if (filter_var($_GET["HideEmptyStock"], FILTER_VALIDATE_BOOLEAN)) {

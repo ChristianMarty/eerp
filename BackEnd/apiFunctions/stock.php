@@ -9,7 +9,7 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/databaseConnector.php";
-require_once __DIR__ . "/util/location.php";
+require_once __DIR__ . "/location/_location.php";
 require_once __DIR__ . "/util/_barcodeParser.php";
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 
@@ -58,8 +58,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	$result = dbRunQuery($dbLink,$query);
 	dbClose($dbLink);	
-	
-	$locations = getLocations();
 
 	$output = array();
 
@@ -67,11 +65,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$r['StockNumber'] = $r['StockNo'];
 		$r['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
-
-		$r['Location'] = buildLocation($locations, $r['LocationId']);
-
-		$r['Barcode'] = barcodeFormatter_StockNumber($r['StockNo']); // Legacy
-
+		$r['Location'] = location_getName(intval($r['LocationId']));
+		$r['Barcode'] = $r['StockBarcode']; // Legacy
 		$output[] = $r;
 	}
 	

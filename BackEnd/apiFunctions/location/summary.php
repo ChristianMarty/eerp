@@ -107,8 +107,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$query = <<<STR
 		SELECT 
-			LocNr, 
-			location_getName(Id) AS Name 
+		    Id,
+			LocNr
 		FROM location
 		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
 	STR;
@@ -117,12 +117,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 	while($itemData = mysqli_fetch_assoc($result))
 	{
-		$descriptor = $itemData["Name"];
-		
 		$data = array();
 		$data["Item"] = barcodeFormatter_LocationNumber($itemData["LocNr"]);
 		$data["Category"] = "Location";
-		$data["Description"] = $descriptor; 
+		$data["Description"] = location_getName(intval($itemData["Id"]));
 		
 		$response[] = $data;
 	}

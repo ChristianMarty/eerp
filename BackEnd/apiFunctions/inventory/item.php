@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/location.php";
+require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
@@ -30,8 +30,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		sendResponse(null,"No inventory item specified");
 	}
-	
-	$locations = getLocations();
 
 	$dbLink = dbConnect();
 	
@@ -89,10 +87,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['Status'] = $r['Status'];
 	$output['LocationNumber'] = $r['LocNr'];
 	$output['CategoryId'] = $r['InventoryCategoryId'];
-	$output['LocationName'] = buildLocation($locations, $r['LocationId']);
-	$output['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
-	$output['HomeLocationName'] = buildLocation($locations, $r['HomeLocationId']);
-	$output['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
+	$output['LocationName'] = location_getName( $r['LocationId']);
+	$output['LocationPath'] = location_getPath( $r['LocationId']);
+	$output['HomeLocationName'] = location_getName( $r['HomeLocationId']);
+	$output['HomeLocationPath'] = location_getPath( $r['HomeLocationId']);
 
 	// Get Purchase Information
 	$query = <<<STR

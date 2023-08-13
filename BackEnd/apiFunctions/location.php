@@ -10,15 +10,15 @@
 
 require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/../config.php";
-require_once __DIR__ . "/util/location.php";
+require_once __DIR__ . "/location/_location.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$locationsTree = array();
-	$locations = getLocations();
+	$locations = location_getLocations();
 
 	$classId = 0;
-	$locationsTree = buildLocationTree($locations,$classId);
+	$locationsTree = location_buildTree($locations,$classId);
 	
 	sendResponse($locationsTree);
 }

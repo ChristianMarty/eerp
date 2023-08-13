@@ -9,7 +9,7 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../util/location.php";
+require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_user.php";
@@ -33,7 +33,7 @@ function _stockPartQuery(string $stockNo): string
 			manufacturerPart_partNumber.Description,
 			manufacturerPart_item.Id AS ManufacturerPartItemId,
 			partStock.LocationId, 
-			location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId, 
+			partStock.HomeLocationId, 
 			hc.CreateQuantity,  
 			partStock_getQuantity(partStock.StockNo) AS Quantity, 
 			r.ReservedQuantity AS ReservedQuantity, 
@@ -73,8 +73,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 	$result = dbRunQuery($dbLink,_stockPartQuery($stockNumber));
 	dbClose($dbLink);	
-	
-	$locations = getLocations();
 
 	$r = dbGetResult($result);
 
@@ -85,10 +83,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}else{
 		$r['DateCode'] = "";
 	}
-	$r['Location'] = buildLocation($locations, $r['LocationId']);
-	$r['HomeLocation'] = buildLocation($locations, $r['HomeLocationId']);
-	$r['LocationPath'] = buildLocationPath($locations, $r['LocationId'], 100);
-	$r['HomeLocationPath'] = buildLocationPath($locations, $r['HomeLocationId'], 100);
+	$r['Location'] = location_getName($r['LocationId']);
+	$r['HomeLocation'] = location_getName($r['HomeLocationId']);
+	$r['LocationPath'] = location_getPath($r['LocationId'], 100);
+	$r['HomeLocationPath'] = location_getPath($r['HomeLocationId'], 100);
 
 	if($r['DeleteRequestUserId'] !== null)$r['Deleted'] = true;
 	else $r['Deleted'] = false;

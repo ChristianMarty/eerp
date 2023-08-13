@@ -12,6 +12,7 @@ require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../location/_location.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
@@ -27,7 +28,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    AssemblyUnitNumber, 
 		    Note, 
 		    SerialNumber, 
-		    location_getName(LocationId) AS LocationName, 
+		    LocationId,
 		    ShippingProhibited.ShippingProhibited, 
 		    ShippingClearance.ShippingClearance, 
 		    WorkOrderNumber, 
@@ -66,7 +67,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$temp['AssemblyUnitNumber'] = $r['AssemblyUnitNumber'];
 		$temp['AssemblyUnitBarcode'] = barcodeFormatter_AssemblyUnitNumber($r['AssemblyUnitNumber']);
 		$temp['Note'] = $r['Note'];
-		$temp['LocationName'] = $r['LocationName'];
+		$temp['LocationName'] = location_getName($r['LocationId']);
 		$temp['SerialNumber'] = $r['SerialNumber'];
 
 		$temp['WorkOrderNumber'] = $r['WorkOrderNumber'];
