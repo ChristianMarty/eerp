@@ -58,6 +58,44 @@ class Stock {
         })
       })
     },
+    createParameter: {
+      ManufacturerId: null,
+      ManufacturerPartNumber: null,
+      LocationCode: 'Loc-00000',
+      SupplierId: null,
+      SupplierPartNumber: null,
+      LotNumber: null,
+      OrderReference: null,
+      Quantity: 0,
+      Date: null
+    },
+    create(CreateParameter) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/stock/item',
+          data: CreateParameter
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    createResponse: {
+      StockId: '',
+      ManufacturerName: '',
+      Supplier: '',
+      ManufacturerPartNumber: '',
+      Date: '',
+      Quantity: '',
+      Location: '',
+      Barcode: '',
+      SupplierName: '',
+      SupplierPartNumber: ''
+    },
     delete(StockId, Note = null) {
       return new Promise((resolve, reject) => {
         eerpApi({

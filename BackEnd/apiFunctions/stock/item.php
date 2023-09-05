@@ -96,7 +96,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 }
 else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 {
-
 	sendResponse(null, "API moved");
 }
 else if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -109,8 +108,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$orderReference = dbEscapeString($dbLink,$data['OrderReference']);
 	$date = dbEscapeString($dbLink,$data['Date']);
 	$quantity = dbEscapeString($dbLink,$data['Quantity']);
-	$location = dbEscapeString($dbLink,$data['Location']);
-	$location = str_replace("Loc-","",$location);
+	$location = barcodeParser_LocationNumber($data['LocationCode']);
 	
 	if(isset($data['ReceivalId']))  // If part is created based on purchase receival id
 	{

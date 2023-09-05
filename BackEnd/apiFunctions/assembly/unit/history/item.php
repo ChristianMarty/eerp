@@ -52,7 +52,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		else $temp['Data'] = NULL;
 		$temp['Date'] = $r['Date'];
 
-        $temp['AssemblyUnitHistoryBarcode'] = "ASH-".$r['AssemblyUnitHistoryNumber'];
+        $temp['AssemblyUnitHistoryBarcode'] = barcodeFormatter_AssemblyUnitHistoryNumber($r['AssemblyUnitHistoryNumber']);
 
 		$history = $temp;
 	}
@@ -116,7 +116,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$dbLink = dbConnect();
 	if($dbLink == null) return null;
 
-    $assemblyNo = barcodeParser_AssemblyNumber($data['AssemblyUnitNumber']);
+    $assemblyNo = barcodeParser_AssemblyUnitNumber($data['AssemblyUnitNumber']);
 	
 	$sqlData = array();
     $sqlData['AssemblyUnitHistoryNumber']['raw'] = "(SELECT generateItemNumber())";

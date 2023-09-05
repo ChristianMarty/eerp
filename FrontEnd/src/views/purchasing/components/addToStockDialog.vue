@@ -46,12 +46,12 @@
           <span>
             <el-input
               ref="locNrInput"
-              v-model="data.Location"
+              v-model="data.LocationCode"
               placeholder="Loc-xxxxx"
               style="width: 150px; margin-right: 10px"
             />
             <el-cascader
-              v-model="data.Location"
+              v-model="data.LocationCode"
               :options="locations"
               :props="{
                 emitPath: false,
@@ -123,7 +123,7 @@ const saveData = {
   ReceivalId: 0,
   Date: '',
   Quantity: 0,
-  Location: '',
+  LocationCode: '',
   OrderReference: '',
   LotNumber: ''
 }
@@ -137,7 +137,6 @@ export default {
     return {
       data: Object.assign({}, saveData),
       locations: null,
-      locationNo: null,
       dateCode: '',
       trackData: null
     }

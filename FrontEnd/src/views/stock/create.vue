@@ -3,13 +3,13 @@
     <h1>Create Stock Item</h1>
     <el-divider />
 
-    <el-form ref="inputForm" :model="formData" :rules="rules" class="form-container" label-width="150px">
-      <el-form-item label="Manufacturer:" prop="ManufacturerName">
+    <el-form ref="inputForm" :model="createParameter" :rules="rules" class="form-container" label-width="150px">
+      <el-form-item label="Manufacturer:" prop="ManufacturerId">
         <el-select
-          v-model="formData.ManufacturerId"
+          v-model="createParameter.ManufacturerId"
           filterable
           placeholder="Select"
-          @change="getParts(formData.ManufacturerId)"
+          @change="getParts(createParameter.ManufacturerId)"
         >
           <el-option v-for="item in manufacturer" :key="item.Id" :label="item.Name" :value="item.Id" />
         </el-select>
@@ -17,7 +17,7 @@
 
       <el-form-item label="MPN:" prop="ManufacturerPartNumber">
         <el-autocomplete
-          v-model="formData.ManufacturerPartNumber"
+          v-model="createParameter.ManufacturerPartNumber"
           style="width: 100%;"
           placeholder="Please input"
           :fetch-suggestions="searchManufacturerPartNumber"
@@ -26,37 +26,37 @@
       </el-form-item>
 
       <el-form-item label="Supplier:" prop="Supplier">
-        <el-select v-model="formData.SupplierId" filterable placeholder="Select">
+        <el-select v-model="createParameter.SupplierId" filterable placeholder="Select">
           <el-option v-for="item in suppliers" :key="item.Id" :label="item.Name" :value="item.Id" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="Supplier SKU:" prop="SupplierPartNumber">
-        <el-input v-model="formData.SupplierPartNumber" placeholder="Please input" />
+        <el-input v-model="createParameter.SupplierPartNumber" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Order Reference:" prop="OrderReference">
-        <el-input v-model="formData.OrderReference" placeholder="Please input" />
+        <el-input v-model="createParameter.OrderReference" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Quantity:" prop="Quantity">
-        <el-input-number v-model="formData.Quantity" placeholder="Please input" :controls="false" />
+        <el-input-number v-model="createParameter.Quantity" placeholder="Please input" :controls="false" />
       </el-form-item>
 
       <el-form-item label="Date:" prop="Date">
-        <el-date-picker v-model="formData.Date" type="week" format="yyyy Week WW" value-format="yyyy-MM-dd">
+        <el-date-picker v-model="createParameter.Date" type="week" format="yyyy Week WW" value-format="yyyy-MM-dd">
           >
         </el-date-picker>
       </el-form-item>
 
       <el-form-item label="Lot Number:" prop="LotNumber">
-        <el-input v-model="formData.LotNumber" placeholder="Please input" />
+        <el-input v-model="createParameter.LotNumber" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Location" prop="Location">
-        <el-input ref="locNrInput" v-model="formData.Location" placeholder="Please input" />
+        <el-input ref="locNrInput" v-model="createParameter.LocationCode" placeholder="Please input" />
         <el-cascader-panel
-          v-model="formData.Location"
+          v-model="createParameter.LocationCode"
           :options="locations"
           :props="{
             emitPath: false,
@@ -95,83 +95,46 @@
 import * as labelTemplate from '@/utils/labelTemplate'
 import * as defaultSetting from '@/utils/defaultSetting'
 
-import requestBN from '@/utils/requestBN'
 import printDialog from './components/printDialog'
 
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
 
-const emptyData = {
-  ManufacturerId: '',
-  ManufacturerPartNumber: '',
-  SupplierId: '',
-  SupplierPartNumber: '',
-  OrderReference: '',
-  Date: '',
-  Quantity: '',
-  Location: 'Loc-00000',
-  LotNumber: ''
-}
+import Stock from '@/api/stock'
+const stock = new Stock()
 
-const returnData = {
-  StockId: '',
-  ManufacturerName: '',
-  Supplier: '',
-  ManufacturerPartNumber: '',
-  Date: '',
-  Quantity: '',
-  Location: '',
-  Barcode: '',
-  SupplierName: '',
-  SupplierPartNumber: ''
-}
+import Location from '@/api/location'
+const location = new Location()
+
+import ManufacturerPart from '@/api/manufacturerPart'
+const manufacturerPart = new ManufacturerPart()
+
+import Print from '@/api/print'
+const print = new Print()
 
 export default {
   name: 'LocationAssignment',
   components: { printDialog },
   data() {
     return {
-      formData: Object.assign({}, emptyData),
-      partData: Object.assign({}, returnData),
+
+      partData: Object.assign({}, stock.item.createResponse),
 
       rules: {
-        GctNo: [
-          { min: 6, max: 6, message: 'Must be 6 characters', trigger: 'change' }
-        ],
         ManufacturerPartNumber: [
-          {
-            required: true,
-            message: 'Please input the Manufacturer Part Number',
-            trigger: 'change'
-          }
+          { required: true, message: 'Please input the Manufacturer Part Number', trigger: 'change' }
         ],
-        ManufacturerName: [
-          {
-            required: true,
-            message: 'Please select the Manufacturer',
-            trigger: 'change'
-          }
+        ManufacturerId: [
+          { required: true, message: 'Please select the Manufacturer', trigger: 'change' }
         ],
         Date: [
-          {
-            required: true,
-            message: 'Please select the year and week',
-            trigger: 'change'
-          }
+          { required: true, message: 'Please select the year and week', trigger: 'change' }
         ],
         Quantity: [
-          {
-            required: true,
-            message: 'Please input the quantity',
-            trigger: 'change'
-          }
+          { required: true, message: 'Please input the quantity', trigger: 'change' }
         ],
-        Location: [
-          {
-            required: true,
-            message: 'Please select the location',
-            trigger: 'change'
-          }
+        LocationCode: [
+          { required: true, message: 'Please select the location', trigger: 'change' }
         ]
       },
       autoPrint: false,
@@ -186,34 +149,25 @@ export default {
       selectedPrinterId: 0,
       selectedLabelId: 0,
 
-      printDialogVisible: false
+      printDialogVisible: false,
+
+      createParameter: Object.assign({}, stock.item.createParameter)
     }
   },
   async mounted() {
-    this.suppliers = await vendor.search(true, false)
-    this.getLocations()
-    this.getManufacturers()
+    this.suppliers = await vendor.search(true, false, false)
+    this.locations = await location.search()
+    this.manufacturer = await vendor.search(false, true, false)
+
+    this.label = await print.label.search('Stock')
+
+    this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
+    this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+    this.printer = await print.printer.search()
+
     this.resetForm()
-    this.getLabel()
-    this.getPrinter()
   },
   methods: {
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
-    getManufacturers() {
-      requestBN({
-        url: '/part/manufacturer',
-        methood: 'get'
-      }).then(response => {
-        this.manufacturer = response.data
-      })
-    },
     searchManufacturerPartNumber(queryString, cb) {
       const options = this.partOptions
       const out = []
@@ -228,24 +182,14 @@ export default {
       )
     },
     getParts(ManufacturerId) {
-      requestBN({
-        url: '/part',
-        methood: 'get',
-        params: { ManufacturerId: ManufacturerId }
-      }).then(response => {
-        this.partOptions = response.data
+      const searchParameters = Object.assign({}, manufacturerPart.searchParameters)
+      searchParameters.VendorId = ManufacturerId
+      manufacturerPart.search(searchParameters).then(response => {
+        this.partOptions = response
       })
     },
     resetForm() {
-      this.formData.ManufacturerId = ''
-      this.formData.ManufacturerPartNumber = ''
-      this.formData.SupplierId = ''
-      this.formData.SupplierPartNumber = ''
-      this.formData.OrderReference = ''
-      this.formData.Date = ''
-      this.formData.Quantity = ''
-      this.formData.Location = 'Loc-00000'
-      this.formData.LotNumber = ''
+      this.createParameter = Object.assign({}, stock.item.createParameter)
     },
     isValid() {
       this.$refs.inputForm.validate(valid => {
@@ -260,57 +204,31 @@ export default {
       if (this.isValid() === false) {
         this.$message({
           showClose: true,
-          message: 'Input Invalide',
+          message: 'Invalide Input',
           duration: 3,
           type: 'error'
         })
       } else {
-        requestBN({
-          method: 'post',
-          url: '/stock/item',
-          data: { data: this.formData }
-        }).then(response => {
-          if (response.error == null) {
-            this.partData = response.data
-            if (this.autoPrint === true) {
-              this.print(this.partData)
-            } else {
-              this.printDialogVisible = true
-            }
+        stock.item.create(this.createParameter).then(response => {
+          this.partData = response
+          if (this.autoPrint === true) {
+            this.print(this.partData)
           } else {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 0,
-              type: 'error'
-            })
+            this.printDialogVisible = true
           }
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response,
+            duration: 0,
+            type: 'error'
+          })
         })
       }
     },
     closeDialog() {
       this.printDialogVisible = false
       this.resetForm()
-    },
-    getLabel() {
-      requestBN({
-        url: '/label',
-        methood: 'get',
-        params: { Tag: 'Stock' }
-      }).then(response => {
-        this.label = response.data
-      })
-    },
-    getPrinter() {
-      requestBN({
-        url: '/printer',
-        methood: 'get'
-      }).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
-        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
-
-        this.printer = response.data
-      })
     },
     print(printData) {
       var labelData = {
@@ -324,20 +242,16 @@ export default {
       var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
       var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
 
-      requestBN({
-        method: 'post',
-        url: '/print/print',
-        data: {
-          Driver: 'raw',
-          Language: labelTemplateObject.Language,
-          PrinterId: this.selectedPrinterId,
-          Data: labelCode
-        }
-      }).then(response => {
-
+      print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {
+        this.resetForm()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
-
-      this.resetForm()
     }
   }
 }
