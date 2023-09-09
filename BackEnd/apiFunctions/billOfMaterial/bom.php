@@ -67,7 +67,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 		$sqlData['BillOfMaterialRevisionId'] = $revisionId;
 
-        $sqlData['ProductionPartId']['raw'] = "(SELECT productionPart.Id FROM productionPart LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId WHERE CONCAT (numbering.Prefix,'-',productionPart.Number) = '".dbEscapeString($dbLink,$line['ProductionPartNumber'])."')";
+        $sqlData['ProductionPartId']['raw'] = "(SELECT productionPart.Id FROM productionPart LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId WHERE CONCAT (numbering.Prefix,'-',productionPart.Number) = '".dbEscapeString($dbLink,$line['ProductionPartBarcode'])."')";
 		//$sqlData["ProductionPartId']['raw'] = '(SELECT Id FROM productionPart WHERE Number = "'.$productionPartNumber.'" AND NumberingPrefixId = ( SELECT Id FROM numbering WHERE Prefix = "'.$productionPartPrefix.'") )';
 		$sqlData['ReferenceDesignator'] = trim(dbEscapeString($dbLink,$line['ReferenceDesignator']));
 		$sqlData['PositionX'] = trim(dbEscapeString($dbLink,$line['XPosition']));

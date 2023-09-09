@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../util/siFormatter.php";
+require_once __DIR__ . "/../../util/_siFormatter.php";
 
 $title = "Match Part Series";
 $description = "Add Manufacturer Part Items to Part Series";
