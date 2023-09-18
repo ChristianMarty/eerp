@@ -41,7 +41,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$query = "UPDATE manufacturerPart SET OctopartPartData = '".dbEscapeString($dbLink,json_encode($partData))."' WHERE Id = ".$part['Id'];
 		
-		
 		dbRunQuery($dbLink,$query);
 		dbClose($dbLink);
 		

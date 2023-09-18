@@ -128,7 +128,14 @@ const saveData = {
   LotNumber: ''
 }
 
-import requestBN from '@/utils/requestBN'
+import Stock from '@/api/stock'
+const stock = new Stock()
+
+import Location from '@/api/location'
+const location = new Location()
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 export default {
   name: 'AddToStock',
@@ -144,50 +151,37 @@ export default {
   mounted() {
   },
   methods: {
-    loadData() {
+    async loadData() {
       this.getTrackData()
-      this.getLocations()
+
+      this.locations = await location.search()
 
       this.data.ReceivalId = this.$props.receivalData.ReceivalId
       this.data.Quantity = this.$props.receivalData.QuantityReceived
       this.data.OrderReference = this.$props.receivalData.OrderReference
     },
-    getLocations() {
-      requestBN({
-        url: '/location',
-        methood: 'get'
-      }).then(response => {
-        this.locations = response.data
-      })
-    },
     getTrackData() {
-      requestBN({
-        url: '/purchasing/item/track',
-        methood: 'get',
-        params: {
-          ReceivalId: this.$props.receivalData.ReceivalId
-        }
-      }).then(response => {
-        this.trackData = response.data
+      purchase.item.track(this.$props.receivalData.ReceivalId).then(response => {
+        this.trackData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     saveToStock() {
-      requestBN({
-        method: 'post',
-        url: '/stock/item',
-        data: this.data
-      }).then(response => {
-        if (response.error == null) {
-          this.partData = response.data
-          this.$router.push('/stock/item/' + this.partData.StockNo)
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      stock.item.create(this.data).then(response => {
+        this.$router.push('/stock/item/' + response.StockNo)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     closeDialog() {

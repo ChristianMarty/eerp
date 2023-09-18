@@ -46,7 +46,7 @@ function moveItems($dbLink, $itemList, $locationNr, $category, $idName)
 	$baseQuery = <<<STR
 		UPDATE $category
 		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$locationNr')
-		WHERE $idName IN($itemListStr)
+		WHERE $idName IN('$itemListStr')
 	STR;
 
 	if(!mysqli_multi_query($dbLink,$baseQuery))

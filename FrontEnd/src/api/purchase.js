@@ -129,6 +129,23 @@ class Purchase {
         })
       })
     },
+    track(ReceivalId = null) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/purchasing/item/track',
+          methood: 'get',
+          params: {
+            ReceivalId: ReceivalId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
     skuSearch(SupplierId, sku) {
       return new Promise((resolve, reject) => {
         eerpApi({
