@@ -9,6 +9,7 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../databaseConnector.php";
 
 function octopart_getPartId($manufacturerName, $manufacturerPartNumber )
 {
@@ -36,6 +37,41 @@ function octopart_getPartId($manufacturerName, $manufacturerPartNumber )
 
 function octopart_getPartData($octopartId)
 {
+    $octopartId = intval($octopartId);
+
+    $dbLink = dbConnect();
+    $query = <<<STR
+        SELECT Id, OctopartId, Timestamp, Data FROM octopart_cache WHERE OctopartId = $octopartId
+    STR;
+    $result = dbRunQuery($dbLink, $query);
+    dbClose($dbLink);
+
+    $output = dbGetResult($result);
+
+    $octopartData = null;
+    if($output  === null ||  (date("Y-m-d",strtotime($output['Timestamp'])) !== date("Y-m-d")))
+    {
+        $octopartData = octopart_queryApiPartData($octopartId);
+
+        $dbLink = dbConnect();
+        $escaped_data = dbEscapeString($dbLink, $octopartData);
+        $query = <<<STR
+            REPLACE INTO octopart_cache(OctopartId, Data) VALUES($octopartId, '$escaped_data');
+        STR;
+        dbRunQuery($dbLink, $query);
+        dbClose($dbLink);
+    }
+    else
+    {
+        $octopartData = $output['Data'];
+    }
+
+    return json_decode($octopartData);
+}
+
+function octopart_queryApiPartData($octopartId)
+{
+
     global $octopartApiPath;
     global $octopartApiToken;
     $uri = $octopartApiPath.'endpoint?token='.$octopartApiToken;
@@ -52,7 +88,7 @@ function octopart_getPartData($octopartId)
     $result = curl_exec($curl);
     curl_close($curl);
 
-    return json_decode($result);
+    return $result;
 }
 
 ?>
