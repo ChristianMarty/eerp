@@ -35,9 +35,74 @@ function octopart_getPartId($manufacturerName, $manufacturerPartNumber )
     return json_decode($result);
 }
 
+function octopart_formatAvailabilityData(object|null $data, bool $authorizedOnly = false, bool  $includeBrokers = false): array
+{
+    if($data === null) return array();
+
+    $availability = array();
+    $rowId = 0;
+    foreach($data->data->parts[0]->sellers as $seller)
+    {
+        if(!$includeBrokers && $seller->is_broker) continue;
+        if($authorizedOnly && $seller->is_authorized === false) continue;
+
+
+        $dbLink = dbConnect();
+        $vendorName = dbEscapeString($dbLink, $seller->company->name);
+        $query = <<<STR
+            SELECT Id, vendor_displayName(Id) AS Name
+            FROM vendor_names 
+            WHERE Name = '$vendorName'
+        STR;
+
+        $queryResult = dbRunQuery($dbLink,$query);
+        dbClose($dbLink);
+
+        $vendorId = null;
+        if(mysqli_num_rows($queryResult))
+        {
+            $vendor = mysqli_fetch_assoc($queryResult);
+            $vendorName = $vendor['Name'];
+            $vendorId = intval($vendor['Id']);
+        }
+
+        $line = array();
+        $line['VendorName'] = $vendorName;
+        $line['VendorId'] = $vendorId;
+        $line['RowId'] = $rowId;
+        $rowId++;
+
+        foreach($seller->offers as $offer)
+        {
+            $line['IsBroker'] = $seller->is_broker;
+            $line['IsAuthorized'] = $seller->is_authorized;
+            $line['SKU'] = $offer->sku;
+            $line['Stock'] = $offer->inventory_level;
+            $line['MinimumOrderQuantity'] = $offer->moq;
+            $line['URL'] = $offer->click_url;
+            if($offer->factory_lead_days != null) $line['LeadTime'] = intval($offer->factory_lead_days/7,10);
+            else $line['LeadTime'] = null;
+            $line['Prices'] = array();
+            foreach($offer->prices as $price) {
+                $priceLine = array();
+                $priceLine['Price'] = floatval($price->price);
+                $priceLine['Quantity'] = floatval($price->quantity);
+                $priceLine['Currency'] = $price->currency;
+
+                $line['Prices'][] = $priceLine;
+            }
+            $availability[] = $line;
+        }
+    }
+    return $availability;
+}
+
+
 function octopart_getPartData($octopartId)
 {
     $octopartId = intval($octopartId);
+
+    if($octopartId === 0) return null;
 
     $dbLink = dbConnect();
     $query = <<<STR
@@ -48,7 +113,6 @@ function octopart_getPartData($octopartId)
 
     $output = dbGetResult($result);
 
-    $octopartData = null;
     if($output  === null ||  (date("Y-m-d",strtotime($output['Timestamp'])) !== date("Y-m-d")))
     {
         $octopartData = octopart_queryApiPartData($octopartId);
@@ -71,7 +135,6 @@ function octopart_getPartData($octopartId)
 
 function octopart_queryApiPartData($octopartId)
 {
-
     global $octopartApiPath;
     global $octopartApiToken;
     $uri = $octopartApiPath.'endpoint?token='.$octopartApiToken;

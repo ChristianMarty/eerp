@@ -79,6 +79,43 @@ class BillOfMaterial {
         })
       })
     },
+    placement(BillOfMaterialRevisionId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/billOfMaterial/placement',
+          methood: 'get',
+          params: { RevisionId: BillOfMaterialRevisionId }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    purchasing(BillOfMaterialRevisionId, Quantity = 1, NoStock = false, KnownSuppliers = true, AuthorizedOnly = true, Brokers = false) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/billOfMaterial/purchasing',
+          methood: 'get',
+          params: {
+            RevisionId: BillOfMaterialRevisionId,
+            Quantity: Quantity,
+            NoStock: NoStock,
+            AuthorizedOnly: AuthorizedOnly,
+            Brokers: Brokers,
+            KnownSuppliers: KnownSuppliers
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
     analysis(BillOfMaterialRevisionId) {
       return new Promise((resolve, reject) => {
         eerpApi({

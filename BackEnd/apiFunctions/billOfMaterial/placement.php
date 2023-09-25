@@ -3,7 +3,7 @@
 // FileName : placement.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 25.09.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
@@ -13,27 +13,38 @@ require_once __DIR__ . "/../../config.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	
-	if(!isset($_GET["ProjectId"])) sendResponse(NULL, "Project Id Undefined");
 
-	$dbLink = dbConnect();
+    if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
+    $revisionId = intval($_GET["RevisionId"]);
 
-	$projectId = dbEscapeString($dbLink, $_GET["ProjectId"]);
-	
-	$query = "SELECT * FROM project_bom ";
-	$query .= "WHERE ProjectId = ".$projectId;
+    $dbLink = dbConnect();
+    $query = <<<STR
+        SELECT 
+               billOfMaterial_item.ReferenceDesignator,
+               billOfMaterial_item.Layer,
+               billOfMaterial_item.PositionX,
+               billOfMaterial_item.PositionY,
+               billOfMaterial_item.Rotation, 
+               productionPart.Number AS ProductionPartNumber, 
+               numbering.Prefix AS ProductionPartPrefix, 
+               productionPart.Description 
+        FROM billOfMaterial_item 
+        LEFT JOIN productionPart ON productionPart.Id = billOfMaterial_item.ProductionPartId
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
+        WHERE BillOfMaterialRevisionId = $revisionId
+    STR;
 
-	$bom = array();
+    $bom = array();
+    $result = dbRunQuery($dbLink,$query);
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
+        $bom[] = $r;
+    }
 
-	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$bom[] = $r;
-	}
-	
-	dbClose($dbLink);
-	
-	sendResponse($bom);
+    dbClose($dbLink);
+
+    sendResponse($bom);
 }
 
 ?>
