@@ -12,10 +12,13 @@
       v-loading="loading"
       element-loading-text="Loading purchasing information"
       :data="bom"
-      :cell-style="{ padding: '0', height: '15px' }"
+      height="90vh"
+      border
       style="width: 100%"
+      :cell-class-name="tableAnalyzer"
+      :header-cell-class-name="tableAnalyzer"
     >
-      <el-table-column prop="ProductionPartNumber" label="Part No" width="120" sortable>
+      <el-table-column prop="ProductionPartNumber" label="Part No" width="120" sortable fixed>
         <template slot-scope="{ row }">
           <router-link
             :to="'/productionPart/item/' + row.ProductionPartNumber"
@@ -25,10 +28,12 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Description" label="Description" sortable />
-      <el-table-column prop="TotalQuantity" label="Total Quantity" width="150" sortable />
-      <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" sortable />
-      <el-table-column prop="ManufacturerPartNumber" label="Part Number" width="150" sortable />
+      <el-table-column prop="Description" label="Description" sortable fixed />
+      <el-table-column prop="TotalQuantity" label="Total Quantity" width="150" sortable fixed />
+      <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" sortable fixed />
+      <el-table-column prop="ManufacturerPartNumber" label="Part Number" width="150" sortable fixed />
+      <el-table-column prop="CheapestSupplier" label="Cheapest" width="150" sortable fixed />
+      <el-table-column prop="CheapestPrice" label="Price" width="150" sortable fixed />
       <el-table-column
         v-for="supplier in suppliers"
         :key="supplier"
@@ -86,6 +91,8 @@ export default {
         temp.ManufacturerName = element.ManufacturerName
         temp.ManufacturerPartNumber = element.ManufacturerPartNumber
         temp.TotalQuantity = element.TotalQuantity
+        temp.CheapestPrice = element.CheapestPrice
+        temp.CheapestSupplier = element.CheapestSupplier
 
         element.Data.forEach(supplier => {
           if (this.suppliers.indexOf(supplier.VendorName) === -1) {
@@ -97,12 +104,23 @@ export default {
           temp[supplier.VendorName] = supplier.Prices[0].Price
           temp[supplier.VendorName + ' SKU'] = supplier.SKU
           temp[supplier.VendorName + ' Stock'] = supplier.Stock
-          output.push(temp)
         })
+        output.push(temp)
       })
 
       return output
+    },
+    tableAnalyzer({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 5) return 'supplier-border'
+      else if (columnIndex === 7) return 'supplier-border'
+      else if (columnIndex > 7 && (columnIndex - 7) % 3 === 0) return 'supplier-border'
     }
   }
 }
 </script>
+
+<style>
+.el-table .supplier-border {
+  border-left: 1px solid black;
+}
+</style>

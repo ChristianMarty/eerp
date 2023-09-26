@@ -61,6 +61,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
         $r['Data'] = octopart_formatAvailabilityData(octopart_getPartData($r['OctopartId']),  $authorizedOnly,  $includeBrokers);
 
+        $r['CheapestPrice'] = 100000000000;
+        $r['CheapestSupplier'] = "";
+
         foreach ($r['Data'] as $key=>&$supplier) {
             if(!$includeNoStock && $supplier['Stock'] === 0){
                 unset($r['Data'][$key]);
@@ -79,15 +82,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
                 continue;
             }
 
-
-
             $i = 0;
             foreach ($supplier['Prices'] as &$prices) {
                 if($prices['Quantity'] > $r['TotalQuantity'])break;
                 $i++;
             }
             $supplier['Prices'] = array_values(array_slice($supplier['Prices'],$i-1,2)); // Show price for set quantity and next higher quantity
+
+            if($supplier['Prices'][0]['Price'] < $r['CheapestPrice']){
+                $r['CheapestPrice'] = $supplier['Prices'][0]['Price'] ;
+                $r['CheapestSupplier'] = $supplier['VendorName'];
+            }
         }
+
+        if($r['CheapestPrice'] == 100000000000) $r['CheapestPrice'] = null;
 
         $r['Data'] = array_values($r['Data']);
         $data[] = $r;
