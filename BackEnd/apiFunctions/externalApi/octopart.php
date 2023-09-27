@@ -34,8 +34,29 @@ function octopart_getPartId($manufacturerName, $manufacturerPartNumber )
 
     return json_decode($result);
 }
+function octopart_getVendorList(): array
+{
+    // Get vendor list
+    $dbLink = dbConnect();
+    $query = <<<STR
+        SELECT Id, Name, vendor_displayName(Id) AS DisplayName
+        FROM vendor_names 
+    STR;
+    $result = dbRunQuery($dbLink,$query);
+    dbClose($dbLink);
 
-function octopart_formatAvailabilityData(object|null $data, bool $authorizedOnly = false, bool  $includeBrokers = false): array
+    $vendorList = array();
+    while($r = mysqli_fetch_assoc($result))
+    {
+        $temp = array();
+        $temp['Id'] = intval($r['Id']);
+        $temp['DisplayName'] = $r['DisplayName'];
+        $vendorList[$r['Name']] = $temp;
+    }
+    return $vendorList;
+}
+
+function octopart_formatAvailabilityData(object|null $data, array $vendorList, bool $authorizedOnly = false, bool  $includeBrokers = false, $includeNoStock = true, $knownSuppliers = false): array
 {
     if($data === null) return array();
 
@@ -46,38 +67,34 @@ function octopart_formatAvailabilityData(object|null $data, bool $authorizedOnly
         if(!$includeBrokers && $seller->is_broker) continue;
         if($authorizedOnly && $seller->is_authorized === false) continue;
 
-
-        $dbLink = dbConnect();
-        $vendorName = dbEscapeString($dbLink, $seller->company->name);
-        $query = <<<STR
-            SELECT Id, vendor_displayName(Id) AS Name
-            FROM vendor_names 
-            WHERE Name = '$vendorName'
-        STR;
-
-        $queryResult = dbRunQuery($dbLink,$query);
-        dbClose($dbLink);
-
-        $vendorId = null;
-        if(mysqli_num_rows($queryResult))
-        {
-            $vendor = mysqli_fetch_assoc($queryResult);
-            $vendorName = $vendor['Name'];
-            $vendorId = intval($vendor['Id']);
-        }
+        $vendorName = $seller->company->name;
 
         $line = array();
-        $line['VendorName'] = $vendorName;
-        $line['VendorId'] = $vendorId;
+
+        if(array_key_exists($vendorName, $vendorList))
+        {
+            $line['VendorName'] = $vendorList[$vendorName]['DisplayName'];
+            $line['VendorId'] = $vendorList[$vendorName]['Id'];
+        }
+        else
+        {
+            if($knownSuppliers) continue;
+
+            $line['VendorName'] = $vendorName;
+            $line['VendorId'] = null;
+        }
+
         $line['RowId'] = $rowId;
         $rowId++;
 
         foreach($seller->offers as $offer)
         {
+            if(!$includeNoStock && $offer->inventory_level == 0) continue;
+
+            $line['Stock'] = $offer->inventory_level;
             $line['IsBroker'] = $seller->is_broker;
             $line['IsAuthorized'] = $seller->is_authorized;
             $line['SKU'] = $offer->sku;
-            $line['Stock'] = $offer->inventory_level;
             $line['MinimumOrderQuantity'] = $offer->moq;
             $line['URL'] = $offer->click_url;
             if($offer->factory_lead_days != null) $line['LeadTime'] = intval($offer->factory_lead_days/7,10);

@@ -53,16 +53,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $data = array();
 	$result = dbRunQuery($dbLink,$query);
 
+    $vendorList = octopart_getVendorList();
+
 	while($r = mysqli_fetch_assoc($result)) 
 	{
         $r['Quantity'] = intval($r['Quantity']);
         $r['TotalQuantity'] = $r['Quantity']*$quantity;
         $r['Stock'] = intval($r['Stock']);
         $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
-        $r['Data'] = octopart_formatAvailabilityData(octopart_getPartData($r['OctopartId']),  $authorizedOnly,  $includeBrokers);
+
+        $start = microtime(true);
+        $octopartData = octopart_getPartData($r['OctopartId']);
+        $r['Load Time'] = microtime(true) - $start;
+
+        $formatStart = microtime(true);
+        $r['Data'] = octopart_formatAvailabilityData($octopartData, $vendorList, $authorizedOnly,  $includeBrokers, $includeNoStock, $knownSuppliers);
+        $r['Format Time'] = microtime(true) - $formatStart;
 
         $r['CheapestPrice'] = 100000000000;
         $r['CheapestSupplier'] = "";
+
+        $start = microtime(true);
 
         foreach ($r['Data'] as $key=>&$supplier) {
             if(!$includeNoStock && $supplier['Stock'] === 0){
@@ -98,6 +109,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         if($r['CheapestPrice'] == 100000000000) $r['CheapestPrice'] = null;
 
         $r['Data'] = array_values($r['Data']);
+
+        $r['Process Time'] = microtime(true) - $start;
         $data[] = $r;
 	}
 	
