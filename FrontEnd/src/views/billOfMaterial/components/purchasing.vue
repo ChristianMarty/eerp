@@ -8,7 +8,10 @@
     <p>Quantity: <el-input-number v-model="quantity" :min="1" :max="1000000" /></p>
     <el-button type="primary" @click="getData()">Load Data</el-button>
 
+    <el-button type="info" @click="copyData()">Copy to Clipboard</el-button>
+
     <el-table
+      id="bomTable"
       v-loading="loading"
       element-loading-text="Loading purchasing information"
       :data="bom"
@@ -18,7 +21,7 @@
       :cell-class-name="tableAnalyzer"
       :header-cell-class-name="tableAnalyzer"
     >
-      <el-table-column prop="ProductionPartNumber" label="Part No" width="120" sortable fixed>
+      <el-table-column prop="ProductionPartNumber" label="Part No" width="120" sortable>
         <template slot-scope="{ row }">
           <router-link
             :to="'/productionPart/item/' + row.ProductionPartNumber"
@@ -28,12 +31,12 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Description" label="Description" sortable fixed />
-      <el-table-column prop="TotalQuantity" label="Total Quantity" width="150" sortable fixed />
-      <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" sortable fixed />
-      <el-table-column prop="ManufacturerPartNumber" label="Part Number" width="150" sortable fixed />
-      <el-table-column prop="CheapestSupplier" label="Cheapest" width="150" sortable fixed />
-      <el-table-column prop="CheapestPrice" label="Price" width="150" sortable fixed />
+      <el-table-column prop="Description" label="Description" sortable />
+      <el-table-column prop="TotalQuantity" label="Total Quantity" width="150" sortable />
+      <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" sortable />
+      <el-table-column prop="ManufacturerPartNumber" label="Part Number" width="150" sortable />
+      <el-table-column prop="CheapestSupplier" label="Cheapest" width="150" sortable />
+      <el-table-column prop="CheapestPrice" label="Price" width="150" sortable />
       <el-table-column
         v-for="supplier in suppliers"
         :key="supplier"
@@ -68,6 +71,22 @@ export default {
   mounted() {
   },
   methods: {
+    copyData() {
+      const elTable = document.getElementById('bomTable')
+      const tableHeader = elTable.getElementsByTagName('table').item(0)
+      const tableBody = elTable.getElementsByTagName('table').item(1)
+
+      const range = document.createRange()
+      range.setStartBefore(tableHeader)
+      range.setEndAfter(tableBody)
+
+      const selection = window.getSelection()
+      selection.removeAllRanges()
+      selection.addRange(range)
+
+      document.execCommand('copy')
+      selection.removeAllRanges()
+    },
     getData() {
       this.loading = true
       billOfMaterial.item.purchasing(this.$props.revisionId, this.quantity, this.noStock, this.knownSuppliers, this.authorizedOnly, this.brokers).then(response => {
