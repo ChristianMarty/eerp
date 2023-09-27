@@ -119,8 +119,9 @@ export default {
             this.suppliers.push(supplier.VendorName + ' SKU')
             this.suppliers.push(supplier.VendorName + ' Stock')
           }
-
-          temp[supplier.VendorName] = supplier.Prices[0].Price
+          if (supplier.Prices.length) {
+            temp[supplier.VendorName] = supplier.Prices[0].Price
+          }
           temp[supplier.VendorName + ' SKU'] = supplier.SKU
           temp[supplier.VendorName + ' Stock'] = supplier.Stock
         })
