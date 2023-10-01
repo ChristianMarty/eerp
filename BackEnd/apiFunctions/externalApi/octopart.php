@@ -115,18 +115,17 @@ function octopart_formatAvailabilityData(object|null $data, array $vendorList, b
 }
 
 
-function octopart_getPartData($octopartId)
+function octopart_getPartData($dbLink, $octopartId)
 {
     $octopartId = intval($octopartId);
 
     if($octopartId === 0) return null;
 
-    $dbLink = dbConnect();
+    
     $query = <<<STR
         SELECT Id, OctopartId, Timestamp, Data FROM octopart_cache WHERE OctopartId = $octopartId
     STR;
     $result = dbRunQuery($dbLink, $query);
-    dbClose($dbLink);
 
     $output = dbGetResult($result);
 
@@ -134,13 +133,13 @@ function octopart_getPartData($octopartId)
     {
         $octopartData = octopart_queryApiPartData($octopartId);
 
-        $dbLink = dbConnect();
+
         $escaped_data = dbEscapeString($dbLink, $octopartData);
         $query = <<<STR
             REPLACE INTO octopart_cache(OctopartId, Data) VALUES($octopartId, '$escaped_data');
         STR;
         dbRunQuery($dbLink, $query);
-        dbClose($dbLink);
+
     }
     else
     {

@@ -45,7 +45,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
-        LEFT JOIN vendor ON vendor.Id = manufacturerPart_partNumber_getVendorId(manufacturerPart_partNumber.Id)
+        LEFT JOIN manufacturerPart_item ON manufacturerPart_partNumber.ItemId = manufacturerPart_item.Id
+        LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+        LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId OR vendor.Id = manufacturerPart_item.VendorId OR manufacturerPart_partNumber.VendorId
         WHERE BillOfMaterialRevisionId = $revisionId
         GROUP BY manufacturerPart_partNumber.Id
     STR;
@@ -54,6 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$result = dbRunQuery($dbLink,$query);
 
     $vendorList = octopart_getVendorList();
+	
 
 	while($r = mysqli_fetch_assoc($result)) 
 	{
@@ -63,7 +66,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
 
         $start = microtime(true);
-        $octopartData = octopart_getPartData($r['OctopartId']);
+        $octopartData = octopart_getPartData($dbLink, $r['OctopartId']);
         $r['Load Time'] = microtime(true) - $start;
 
         $formatStart = microtime(true);
@@ -99,8 +102,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
                 $i++;
             }
             $supplier['Prices'] = array_values(array_slice($supplier['Prices'],$i-1,2)); // Show price for set quantity and next higher quantity
-
-            if($supplier['Prices'][0]['Price'] < $r['CheapestPrice']){
+			
+            if(isset($supplier['Prices'][0]) && $supplier['Prices'][0]['Price'] < $r['CheapestPrice']){
                 $r['CheapestPrice'] = $supplier['Prices'][0]['Price'] ;
                 $r['CheapestSupplier'] = $supplier['VendorName'];
             }

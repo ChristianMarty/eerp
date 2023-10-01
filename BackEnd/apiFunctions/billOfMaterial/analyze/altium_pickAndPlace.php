@@ -44,17 +44,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		
 		$temp  = str_getcsv($Line,',','"');	
 
-		$BoMData[$i]["ReferenceDesignator"] = $temp["1"];
-		$BoMData[$i]["Description"] =  $temp["8"];
-		$BoMData[$i]["XPosition"] = $temp["2"];
-		$BoMData[$i]["YPosition"] = $temp["3"];
-		$BoMData[$i]["Rotation"] = $temp["4"];
+		$BoMData[$i]["ReferenceDesignator"] = $temp["2"];
+		$BoMData[$i]["Description"] =  $temp["1"];
+		$BoMData[$i]["XPosition"] = $temp["4"];
+		$BoMData[$i]["YPosition"] = $temp["5"];
+		$BoMData[$i]["Rotation"] = $temp["6"];
 		
-		if($temp["5"] == "TopLayer") $BoMData[$i]["Layer"]  = "Top";
-		else if($temp["5"] == "BottomLayer") $BoMData[$i]["Layer"]  = "Bottom";
+		if($temp["3"] == "TopLayer") $BoMData[$i]["Layer"]  = "Top";
+		else if($temp["3"] == "BottomLayer") $BoMData[$i]["Layer"]  = "Bottom";
 		else $BoMData[$i]["Layer"]  = "Other";
 		
-		$BoMData[$i]["ProductionPartNumber"] = "GCT-".$temp["0"];
+		$BoMData[$i]["ProductionPartBarcode"] = "GCT-".$temp["0"];
 	}
 
 	dbClose($dbLink);	
