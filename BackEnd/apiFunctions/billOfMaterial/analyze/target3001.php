@@ -61,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 
     if($flat !== true)
-    { var_dump($flat);
+    { 
         $outputFlat = array();
         foreach($output as $i => $line)
         {

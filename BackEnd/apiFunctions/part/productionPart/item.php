@@ -44,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id =  productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-        LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId or vendor.Id = manufacturerPart_series.VendorId OR manufacturerPart_partNumber.VendorId
+        LEFT JOIN vendor ON vendor.Id = manufacturerPart_partNumber_getVendorId(manufacturerPart_partNumber.Id)
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
     STR;

@@ -119,8 +119,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 
 
-    // Try to match manufacturer part item
-    if($output['ItemId'] == null) // If part number did not exist search for an item
+    // If series exist but part dose not
+    if($output['ItemId'] === null && $manufacturerPartSeries !== null)
     {
         $temp = array();
         $temp['Number'] = generateItemNumberTemplate($manufacturerPartSeries['NumberTemplate'], $partParameter, $partNumber);

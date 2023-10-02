@@ -35,7 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN manufacturerPart_class ON manufacturerPart_class.Id = manufacturerPart_series.ClassId
         LEFT JOIN manufacturerPart_partPackage ON manufacturerPart_partPackage.Id = manufacturerPart_item.PackageId
-        LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId OR vendor.Id = manufacturerPart_item.VendorId
+        LEFT JOIN vendor ON vendor.Id = manufacturerPart_partNumber_getVendorId(manufacturerPart_partNumber.Id)
         
         WHERE manufacturerPart_partNumber.Id = '$partNumber'
     STR;
@@ -66,17 +66,16 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
     if(!isset($data['VendorId']))  sendResponse(null, "VendorId is not specified!");
     if(!isset($data['PartNumber']))  sendResponse(null, "PartNumber is not specified!");
 
-    $vendorId = intval($data['VendorId']);
-    $partNumber = $data['PartNumber'];//dbEscapeString($dbLink, $_GET["PartNumber"]);
-
     $dbLink = dbConnect();
+
+    $vendorId = intval($data['VendorId']);
+    $partNumber = dbEscapeString($dbLink, trim($data['PartNumber']));
 
     $partNumberCreate = array();
     $partNumberCreate['VendorId'] = intval($data['VendorId']);
     $partNumberCreate['PartNumber'] = trim($data['PartNumber']);
 
-    $manufacturerPartData = itemFromNumber($dbLink, $vendorId, $partNumber);
-
+    $manufacturerPartData = partNumberDataFromNumber($dbLink, $vendorId, $partNumber);
 
     if($manufacturerPartData !== null)
     {
@@ -87,11 +86,25 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
         sendResponse($output);
     }
 
+
+    $mpnCreate = array();
+    $mpnCreate['VendorId'] = $vendorId;
+    $mpnCreate['Number'] = $partNumber;
+
+    $query = dbBuildInsertQuery($dbLink, "manufacturerPart_partNumber", $mpnCreate);
+    $query .= "SELECT Id FROM manufacturerPart_series WHERE Id = LAST_INSERT_ID();";
+
+    $result = dbMultiQuery($dbLink,$query);
+
+    var_dump($result[0]);
+
+    $output = dbGetResult($result[0]);
+
     //$partParameter = getParameter($dbLink, $manufacturerPartSeries['SeriesId']);
 
     //$manufacturerPartSeries['PartNumberDescription'] = descriptionFromNumber( $manufacturerPartSeries['NumberTemplate'],$partParameter,$partNumber);
 
     dbClose($dbLink);
 
-    sendResponse($manufacturerPartSeries);
+    sendResponse($output);
 }
