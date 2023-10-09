@@ -191,7 +191,7 @@ $meta = new stdClass;
 $meta->poNo = $_GET["PurchaseOrderNo"];
 
 $buyerName = $buyer['LastName'];
-if(isset($vendor['LastName'])) 
+if(isset($buyer['FirstName'])) 
 {
 	$buyerName = $buyer['FirstName']." ".$buyer['LastName'];
 }
@@ -231,7 +231,7 @@ $meta->shippingAddress->country = $shipping['CountryName'];
 
 $meta->vendor = new stdClass;
 $meta->vendor->name = $vendor['LastName'];
-if(isset($vendor['LastName'])) 
+if(isset($vendor['FirstName'])) 
 {
 	$meta->vendor->name = $vendor['FirstName']." ".$meta->vendor->name;
 }
