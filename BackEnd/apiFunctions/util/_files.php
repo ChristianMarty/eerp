@@ -10,7 +10,7 @@
 
 require_once __DIR__."/_extractVariable.php";
 
-function files_listFiles(string $path): array
+function files_listFiles(string $path, string|null $entrypoint = null): array
 {
     $localPath = __DIR__."/../".$path;  // TODO: This is a hack
 
@@ -24,7 +24,7 @@ function files_listFiles(string $path): array
         {
             if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php")
             {
-                $output[] = files_getInfo($localPath, $path, $file);
+                $output[] = files_getInfo($localPath, $path, $file, $entrypoint);
             }
         }
         else if(is_dir($localPath.$file))
@@ -36,7 +36,7 @@ function files_listFiles(string $path): array
             {
                 if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php")
                 {
-                    $output[] = files_getInfo($localPath.$file,$path.$file, $file2);
+                    $output[] = files_getInfo($localPath.$file,$path.$file, $file2, $entrypoint);
                 }
             }
         }
@@ -44,18 +44,19 @@ function files_listFiles(string $path): array
     return $output;
 }
 
-function files_getInfo(string $localPath, string $path, string $file): array
+function files_getInfo(string $localPath, string $path, string $file, string|null $entrypoint = null): array
 {
     global $apiRootPath;
 
     $filePath = $localPath."/".$file;
-    $externalPath = $path."/".pathinfo($filePath,PATHINFO_FILENAME);
+	if($entrypoint === null) $externalPath = $path."/".pathinfo($filePath,PATHINFO_FILENAME);
+    else $externalPath = $entrypoint."/".pathinfo($filePath,PATHINFO_FILENAME);
 
     $output = array();
     $output["FileName"] = $file;
     $output["Title"] = extractVariable($filePath,"title");
     $output["Description"] = extractVariable($filePath,"description");
-    $output["Path"] =  $externalPath;
+    $output["Path"] = $externalPath;
 
     return $output;
 }

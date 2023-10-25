@@ -27,20 +27,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
     $items = $data['Items'];
     $printerId = intval($data['PrinterId']);
-    $workOrderNumber =  barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
-
+	
 	$query = "SELECT * FROM printer WHERE Id =".$printerId;
 	$result = dbRunQuery($dbLink,$query);	
 	$printer = mysqli_fetch_assoc($result);
-	
+		
 	$workOrder = null;
-	if($workOrderNumber != 0)
+	if($data['WorkOrderNumber'])
 	{
-		$query = "SELECT * FROM workOrder WHERE WorkOrderNumber =".$workOrderNumber;
-		$result = dbRunQuery($dbLink,$query);	
-		$workOrder = mysqli_fetch_assoc($result);
+		$workOrderNumber =  barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
+		if($workOrderNumber != 0)
+		{
+			$query = "SELECT * FROM workOrder WHERE WorkOrderNumber =".$workOrderNumber;
+			$result = dbRunQuery($dbLink,$query);	
+			$workOrder = mysqli_fetch_assoc($result);
+		}
 	}
-
+	
 	$connector = new NetworkPrintConnector($printer['Ip'], $printer['Port']);
 	$printer = new Printer($connector);
 	

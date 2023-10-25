@@ -88,7 +88,7 @@
       </el-form-item>
     </el-form>
 
-    <printDialog :visible.sync="printDialogVisible" :data="partData" @print="print" />  </div>
+    <printDialog :visible.sync="printDialogVisible" :data="partData" @print="printHandler" />  </div>
 </template>
 
 <script>
@@ -230,7 +230,7 @@ export default {
       this.printDialogVisible = false
       this.resetForm()
     },
-    print(printData) {
+    printHandler(printData) {
       var labelData = {
         $Barcode: printData.Barcode,
         $StockId: printData.StockNo,
@@ -242,7 +242,7 @@ export default {
       var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
       var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
 
-      print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {
+      print.print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {
         this.resetForm()
       }).catch(response => {
         this.$message({

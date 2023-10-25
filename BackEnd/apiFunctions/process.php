@@ -13,6 +13,6 @@ require_once __DIR__."/util/_files.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	$path = "process/";
-	sendResponse(files_listFiles($path));
+	sendResponse(files_listFiles($path,"process.php"));
 }
 ?>
