@@ -164,7 +164,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
         if($result == null) continue;
         $orderLine = mysqli_fetch_assoc($result);
 
-        $manufacturerId = vendor_getIdFromName($dbLink, $orderLine['ManufacturerName']);
+        $manufacturerId = \vendor\getIdByName($orderLine['ManufacturerName']);
         $manufacturerPartNumber = dbEscapeString($dbLink, $orderLine['ManufacturerPartNumber']);
         $supplierPartNumber = dbEscapeString($dbLink, $orderLine['Sku']);
         dbClose($dbLink);

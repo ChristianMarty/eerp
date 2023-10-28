@@ -76,7 +76,11 @@ function manufacturerPartSeries($dbLink, $input): array
 	$input = dbEscapeString($dbLink,$input);
 
 	$query = <<<STR
-		SELECT manufacturerPart_series.Id, Title, Description, vendor_displayName(vendor.Id) AS VendorName
+		SELECT
+			manufacturerPart_series.Id, 
+			Title, 
+			Description, 
+			vendor_displayName(vendor.Id) AS VendorName
 		FROM manufacturerPart_series 
 		LEFT JOIN vendor on manufacturerPart_series.VendorId = vendor.Id
 		WHERE Title LIKE '$input' OR  Description LIKE '$input'
@@ -104,9 +108,14 @@ function search_vendor($dbLink, $input): array
 	$input = dbEscapeString($dbLink,$input);
 
 	$query = <<<STR
-		SELECT Id, Name, vendor_displayName(vendor.Id) AS VendorName
+		SELECT 
+			Id, 
+			FullName, 
+			ShortName,
+			AbbreviatedName,
+			vendor_displayName(vendor.Id) AS VendorName
 		FROM vendor 
-		WHERE Name LIKE '$input' OR ShortName LIKE '$input'
+		WHERE FullName LIKE '$input' OR ShortName LIKE '$input' OR AbbreviatedName LIKE '$input'
 	STR;
 	$result = dbRunQuery($dbLink,$query);
 

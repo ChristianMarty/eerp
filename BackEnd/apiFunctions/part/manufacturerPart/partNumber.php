@@ -20,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $baseQuery = <<<STR
         SELECT
         manufacturerPart_partNumber.Number AS PartNumber,
-        vendor.Name AS ManufacturerName,
+        vendor_displayName(vendor.Id) AS ManufacturerName,
         vendor.Id AS ManufacturerId,
         manufacturerPart_partNumber.Id AS PartNumberId,
         manufacturerPart_item.Id AS PartId,

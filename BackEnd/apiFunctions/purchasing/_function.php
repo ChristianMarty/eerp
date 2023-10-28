@@ -30,14 +30,35 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	}
 
     $query = <<<STR
-        SELECT Carrier, PaymentTerms, InternationalCommercialTerms, HeadNote, FootNote, 
-            VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, 
-            purchaseOrder.DocumentIds, purchaseOrder.PoNo, purchaseOrder.CreationDate, 
-            purchaseOrder.PurchaseDate, purchaseOrder.Title, purchaseOrder.Description, 
-            purchaseOrder.Status, purchaseOrder.Id AS PoId ,vendor.Name AS SupplierName, 
-            vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, 
-            finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, 
-            ExchangeRate, purchaseOrder.QuotationNumber FROM purchaseOrder
+        SELECT 
+            Carrier, 
+            PaymentTerms, 
+            InternationalCommercialTerms, 
+            HeadNote, 
+            FootNote, 
+            VendorContactId, 
+            VendorAddressId, 
+            ShippingContactId, 
+            BillingContactId, 
+            PurchaseContactId, 
+            purchaseOrder.DocumentIds, 
+            purchaseOrder.PoNo, 
+            purchaseOrder.CreationDate, 
+            purchaseOrder.PurchaseDate, 
+            purchaseOrder.Title, 
+            purchaseOrder.Description, 
+            purchaseOrder.Status, 
+            purchaseOrder.Id AS PoId ,
+            vendor_displayName(vendor.Id) AS SupplierName, 
+            vendor.Id AS SupplierId, 
+            AcknowledgementNumber, 
+            OrderNumber, 
+            finance_currency.CurrencyCode, 
+            finance_currency.Digits AS CurrencyDigits,  
+            finance_currency.Id AS CurrencyId, 
+            ExchangeRate, 
+            purchaseOrder.QuotationNumber 
+        FROM purchaseOrder
         LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId 
         LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
     STR;

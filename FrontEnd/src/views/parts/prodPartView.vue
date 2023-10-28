@@ -368,7 +368,7 @@ export default {
     getPartData() {
       productionPart.item(this.$route.params.partNo).then(response => {
         this.partData = response
-        this.getPurchasOrder()
+        this.getPurchaseOrder()
         this.getLeadTime()
         this.getPrice()
       }).catch(response => {
@@ -410,7 +410,7 @@ export default {
         this.price = response.data
       })*/
     },
-    getPurchasOrder() {
+    getPurchaseOrder() {
       requestBN({
         url: '/purchasing/partPurchase',
         methood: 'get',

@@ -9,7 +9,7 @@
           :props="{
             emitPath: false,
             value: 'Id',
-            label: 'Name',
+            label: 'DisplayName',
             children: 'Children',
             checkStrictly: true
           }"

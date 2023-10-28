@@ -3,7 +3,7 @@
     <el-form ref="filter" :inline="true">
       <el-form-item>
         <el-input
-          v-model="filter.StockNo"
+          v-model="filter.StockNumber"
           placeholder="Stock No"
           @keyup.enter.native="onFilterChange"
         />
@@ -16,9 +16,9 @@
         >
           <el-option
             v-for="item in manufacturers"
-            :key="item.Name"
-            :label="item.Name"
-            :value="item.Name"
+            :key="item.FullName"
+            :label="item.FullName"
+            :value="item.FullName"
           />
         </el-select>
       </el-form-item>
@@ -58,10 +58,10 @@
       style="width: 100%"
       height="82vh"
     >
-      <el-table-column prop="StockNo" label="Stock No">
+      <el-table-column prop="StockNumber" label="Stock No">
         <template slot-scope="{ row }">
-          <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-            <span>{{ row.StockNo }}</span>
+          <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
+            <span>{{ row.StockNumber }}</span>
           </router-link>
         </template>
       </el-table-column>
@@ -103,7 +103,7 @@ import Stock from '@/api/stock'
 const stock = new Stock()
 
 const FilterSettings = {
-  StockNo: null,
+  StockNumber: null,
   Manufacturer: null,
   PartNumber: null,
   Location: null
@@ -152,17 +152,17 @@ export default {
           ) { filterPass = false }
         }
 
-        if (this.filter.StockNo != null) {
-          let StockNo = this.filter.StockNo.toUpperCase()
-          StockNo = StockNo.replace('STK-', '')
-          if (!element.StockNo.includes(StockNo)) filterPass = false
+        if (this.filter.StockNumber != null) {
+          let StockNumber = this.filter.StockNumber.toUpperCase()
+          StockNumber = StockNumber.replace('STK-', '')
+          if (!element.StockNumber.includes(StockNumber)) filterPass = false
         }
 
         if (filterPass === true) this.stockItemsFilterd.push(element)
       })
 
       if (this.stockItemsFilterd.length === 1) {
-        this.$router.push('/stock/item/' + this.stockItemsFilterd[0].StockNo)
+        this.$router.push('/stock/item/' + this.stockItemsFilterd[0].StockNumber)
       }
     },
     onFilterReset() {

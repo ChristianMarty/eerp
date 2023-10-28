@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
     <h1>
-      {{ vendorData.Name }}
+      {{ vendorData.FullName }}
     </h1>
     <el-divider />
-    <p><b>Short Name:</b> {{ vendorData.ShortName }}</p>
+    <p><b>Display Name:</b> {{ vendorData.DisplayName }}</p>
+    <p><b>Abbreviated Name:</b> {{ vendorData.AbbreviatedName }}</p>
     <p><b>Customer Number:</b> {{ vendorData.CustomerNumber }}</p>
     <p><b>Is Supplier:</b> {{ vendorData.IsSupplier }}</p>
     <p><b>Is Manufacturer:</b> {{ vendorData.IsManufacturer }}</p>
@@ -159,9 +160,9 @@
 
     <el-divider />
     <h2>Purchas Orders</h2>
-    <p><b>Number of orders:</b> {{ purchasOrders.length }}</p>
+    <p><b>Number of orders:</b> {{ PurchaseOrders.length }}</p>
     <el-table
-      :data="purchasOrders"
+      :data="PurchaseOrders"
       style="width: 100%; margin-top:10px"
     >
       <el-table-column prop="PoNo" label="Po Number" sortable width="150">
@@ -309,7 +310,7 @@ export default {
       editDialogVisible: false,
 
       supplierPartData: null,
-      purchasOrders: [],
+      PurchaseOrders: [],
       manufacturerartPartData: null,
 
       editAliasVisible: false,
@@ -350,7 +351,7 @@ export default {
       })
 
       purchase.get(vendorId).then(response => {
-        this.purchasOrders = response
+        this.PurchaseOrders = response
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -400,11 +401,13 @@ export default {
       this.editContactVisible = true
     },
     setTitle() {
+      let name = this.vendorData.DisplayName
+      if (name === null) name = this.vendorData.FullName
       const title = 'Part View'
-      document.title = `${title} - ${this.vendorData.Name}`
+      document.title = `${title} - ${name}`
 
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.vendorData.Name}`
+        title: `${name}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     }

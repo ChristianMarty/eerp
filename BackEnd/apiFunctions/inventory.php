@@ -51,7 +51,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             Type, 
             SerialNumber, 
             Status,
-            vendor.name AS SupplierName 
+            vendor_displayName(vendor.Id) AS SupplierName 
         FROM `inventory`
         LEFT JOIN `vendor` On vendor.Id = inventory.VendorId
         LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId

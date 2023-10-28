@@ -21,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $query = <<<STR
         SELECT 
-            vendor.Name AS ManufacturerName, 
+            vendor_displayName(vendor.Id) AS ManufacturerName, 
             ManufacturerPartNumber, 
             Description
         FROM partLookup

@@ -3,44 +3,31 @@
 // FileName : unitOfMeasurement.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 23.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
-require __DIR__ . "/../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+$api->options(apiMethod::GET);
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT * FROM unitOfMeasurement ";	
-	
-	$queryParam = array();
-	
-	if(isset($_GET["Countable"]) AND $_GET["Countable"]) $queryParam[] = "Countable = b'1'";
+    $parameters = $api->getGetData();
+    $queryParam = [];
+    if(isset($parameters->Countable))
+    {
+        if($parameters->Countable === true) $queryParam[] = "Countable = b'1'";
+        else $queryParam[] = "Countable = b'0'";
+    }
 
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	
-	$query .= " ORDER BY `Name` ASC ";
-	
-	$classId = 0;
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$uom = array();
-	
-	while($r = mysqli_fetch_assoc($result))
-	{
-		$r['Id'] = intval($r['Id']);
-		$uom[] = $r;
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($uom);
+    $query = "SELECT * FROM unitOfMeasurement ";
+    try {
+        $api->returnData($database->query($query,$queryParam));
+    }
+    catch (\Exception $e)
+    {
+        $api->returnError();
+    }
 }
-
-	
-?>

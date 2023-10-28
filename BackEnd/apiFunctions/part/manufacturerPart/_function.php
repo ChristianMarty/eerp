@@ -22,7 +22,7 @@ function seriesDataFromNumber($dbLink, $vendorId, $partNumber) :array | null
                manufacturerPart_series.SeriesNameMatch,
                manufacturerPart_series.Description,
                manufacturerPart_series.Id AS SeriesId, 
-               vendor.Name AS VendorName 
+               vendor_displayName(vendor.Id) AS VendorName 
         FROM manufacturerPart_series
         LEFT JOIN vendor on vendor.Id = manufacturerPart_series.VendorId
         WHERE manufacturerPart_series.VendorId = '$vendorId'

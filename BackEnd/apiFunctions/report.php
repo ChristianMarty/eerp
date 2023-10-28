@@ -12,7 +12,7 @@ require_once __DIR__."/util/_files.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	$path = "report/";
+	$path = "../report/";
 	sendResponse(files_listFiles($path,"report.php"));
 }
 ?>

@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<<STR
         SELECT 
             manufacturerPart_item.Id AS PartId, 
-            vendor.name AS ManufacturerName, 
+            vendor_displayName(vendor.Id) AS ManufacturerName, 
             manufacturerPart_item.Number AS PartNumber, 
             Attribute,
             manufacturerPart_partPackage.name AS Package, 
@@ -62,6 +62,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $output['PartNumberWithoutParameters'] = "";
         $output['PartNumberDescription'] = "";
     }
+
+    if($output['PartNumberWithoutParameters'] !== ""){
+        $output['DisplayPartNumber'] = $output['PartNumberWithoutParameters'];
+    }else{
+        $output['DisplayPartNumber'] = $output['PartNumber'];
+    }
+
 
     $query = <<<STR
         SELECT 

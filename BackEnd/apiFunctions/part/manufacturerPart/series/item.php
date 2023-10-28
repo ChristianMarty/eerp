@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         SELECT
             manufacturerPart_series.Id AS ManufacturerPartSeriesId, 
             manufacturerPart_series.Title,
-            vendor.Name AS  ManufacturerName, 
+            vendor_displayName(vendor.Id) AS  ManufacturerName, 
             manufacturerPart_class.Name AS ClassName, 
             manufacturerPart_series.Description, NumberTemplate,
             manufacturerPart_series.DocumentIds AS SeriesDocumentIds

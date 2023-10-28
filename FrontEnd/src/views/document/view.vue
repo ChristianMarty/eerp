@@ -45,7 +45,7 @@
         <el-table-column
           prop="Category"
           label="Category"
-          width="150"
+          width="250"
           sortable
         />
 

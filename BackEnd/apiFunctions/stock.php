@@ -7,21 +7,22 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/location/_location.php";
 require_once __DIR__ . "/util/_barcodeParser.php";
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet("stock.view"))
 {
-	$dbLink = dbConnect();
+	$parameters = $api->getGetData();
 
 	$baseQuery = <<<STR
-		SELECT StockNo, 
+		SELECT StockNo AS StockNumber, 
 		       manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
 		       manufacturerPart_item.Id AS ManufacturerPartItemId , 
-		       vendor.Name AS ManufacturerName, 
+		       vendor_displayName(vendor.Id) AS ManufacturerName, 
 		       Cache_Quantity AS Quantity, 
 		       LocationId, 
 		       vendor.Id AS ManufacturerId
@@ -34,42 +35,35 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$queryParam = array();
 	
-	if(isset($_GET["StockNo"]))
+	if(isset($parameters->StockNumber))
 	{
-		$stockNo = barcodeParser_StockNumber($_GET["StockNo"]);
+		$stockNo = barcodeParser_StockNumber($parameters->StockNumber);
 		if($stockNo)
 		{
-			$queryParam[] = "StockNo = '" . $stockNo . "'";
+			$queryParam[] = "partStock.StockNo = '" . $stockNo . "'";
 		}
 	}
-	 
-	if(isset($_GET["ManufacturerPartNumberId"]))
-	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
-		$queryParam[] = "manufacturerPart_partNumber.Id = '" . $temp . "'";
-	}
-	
-	if(isset($_GET["HideEmpty"]))
-	{
-		if(filter_var($_GET["HideEmpty"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "partStock.Cache_Quantity != '0'";
-	}
-	
-	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	
-	$result = dbRunQuery($dbLink,$query);
-	dbClose($dbLink);	
 
-	$output = array();
-
-	while($r = dbGetResult($result)) 
+	if(isset($parameters->ManufacturerPartNumberId))
 	{
-		$r['StockNumber'] = $r['StockNo'];
-		$r['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
-		$r['Location'] = location_getName(intval($r['LocationId']));
-		$r['Barcode'] = $r['StockBarcode']; // Legacy
-		$output[] = $r;
+		$temp = intval($parameters->ManufacturerPartNumberId);
+		$queryParam[] = "manufacturerPart_partNumber.Id = {$temp}";
 	}
 	
-	sendResponse($output);
+	if(isset($parameters->HideEmpty) && $parameters->HideEmpty === true)
+	{
+		$queryParam[] = "partStock.Cache_Quantity != '0'";
+	}
+
+
+	$data = $database->query($baseQuery,$queryParam);
+	foreach ($data as &$line)
+	{
+		$line->StockBarcode = barcodeFormatter_StockNumber($line->StockNumber);
+		$line->Location = location_getName(intval($line->LocationId));
+		$line->Barcode = $line->StockBarcode;
+	}
+
+	$api->returnData($data);
 }
-?>
+

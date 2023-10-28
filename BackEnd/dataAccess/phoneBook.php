@@ -11,16 +11,26 @@
 require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
 require_once __DIR__ . "/../config.php";
 
-if(!isset($_GET["token"])) exit;
+require_once __DIR__ . "/../core/userAuthentication.php";
 
-
-global $phoneToken;
-if($_GET["token"] != $phoneToken)
+if(!isset($_GET["user"]) || !isset($_GET["token"]))
 {
-    http_response_code(404);
-    echo "404 Not Found";
+    http_response_code(400);
+    echo "400 Bad Request";
     exit;
 }
+
+$user = new userAuthentication();
+
+$user->loginWithToken($_GET["user"],$_GET["token"]);
+
+if(!$user->loggedIn())
+{
+    http_response_code(401);
+    echo "401 Unauthorized";
+    exit;
+}
+
 
 function escape($input):string
 {
@@ -33,10 +43,21 @@ function escape($input):string
 
 $dbLink = dbConnect();
 
-$query = <<< STR
-    SELECT Name, ShortName, FirstName, LastName, CustomerNumber, Phone, Gender, Language, `E-Mail` AS EMail  FROM vendor
+$query = <<< QUERY
+    SELECT 
+        FullName, 
+        ShortName, 
+        vendor_displayName(Id) AS DisplayName,
+        FirstName, 
+        LastName, 
+        CustomerNumber, 
+        Phone, 
+        Gender, 
+        Language, 
+        `E-Mail` AS EMail  
+    FROM vendor
     LEFT JOIN vendor_contact ON vendor_contact.VendorId = vendor.Id
-STR;
+QUERY;
 
 $result = dbRunQuery($dbLink,$query);
 
@@ -55,7 +76,7 @@ while($r = mysqli_fetch_assoc($result))
 	if(str_starts_with($number, "+")) $number = "00".substr($number, 1);
 	if(str_starts_with($number, "0041")) $number = "0".substr($number, 4);
 	
-	if($r['ShortName']) $name = $r['ShortName'];	
+	if($r['DisplayName']) $name = $r['DisplayName'];	
     else $name = $r['Name'];
 	
 	if($r['FirstName'] || $r['LastName']) $name .=";";

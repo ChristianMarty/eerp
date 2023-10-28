@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <template>
-      <el-checkbox v-model="hideClosed" @change="getPurchasOrders()">Hide closed orders</el-checkbox>
+      <el-checkbox v-model="hideClosed" @change="getPurchaseOrders()">Hide closed orders</el-checkbox>
       <el-table
         v-loading="loading"
         element-loading-text="Loading Purchase Orders "
-        :data="purchasOrders"
+        :data="PurchaseOrders"
         style="width: 100%"
       >
         <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
@@ -67,17 +67,17 @@ export default {
     return {
       hideClosed: true,
       loading: true,
-      purchasOrders: []
+      PurchaseOrders: []
     }
   },
   mounted() {
-    this.getPurchasOrders()
+    this.getPurchaseOrders()
   },
   methods: {
-    getPurchasOrders() {
+    getPurchaseOrders() {
       this.loading = true
       purchase.list(this.hideClosed).then(response => {
-        this.purchasOrders = response
+        this.PurchaseOrders = response
         this.loading = false
       }).catch(response => {
         this.$message({

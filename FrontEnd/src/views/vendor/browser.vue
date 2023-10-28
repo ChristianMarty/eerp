@@ -5,18 +5,23 @@
       <el-checkbox v-model="manufacturer" @change="update()">Must be Manufacturer</el-checkbox>
       <el-checkbox v-model="contractor" @change="update()">Must be Contractor</el-checkbox>
       <el-table :data="vendors" style="width: 100%">
-        <el-table-column prop="Name" label="Name" width="250" sortable>
+        <el-table-column prop="FullName" label="Name" width="250" sortable>
           <template slot-scope="{ row }">
             <router-link :to="'/vendor/view/' + row.Id" class="link-type">
-              <span>{{ row.Name }}</span>
+              <span>{{ row.FullName }}</span>
             </router-link>
           </template>
+        </el-table-column>
+        <el-table-column prop="ShortName" label="Short Name" width="250" sortable />
+        <el-table-column prop="AbbreviatedName" label="Abbreviation" width="250" sortable />
         </el-table-column>
         <el-table-column prop="Url" label="Url" sortable />
       </el-table>
     </template>
   </div>
 </template>
+
+
 
 <script>
 import Vendor from '@/api/vendor'

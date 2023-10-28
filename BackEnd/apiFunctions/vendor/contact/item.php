@@ -7,109 +7,59 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/_contact.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(isset($_GET["VendorAddressId"]))
+    $parameters = $api->getGetData();
+
+	if(isset($parameters->VendorAddressId))
 	{
 		require_once __DIR__ . "/../_vendor.php";
 		// legacy behavior
 		$vendor = getVendorContact($_GET["VendorAddressId"]);
 		sendResponse($vendor);
 	}
-	else if(isset($_GET["ContactId"]))
+	else if(isset($parameters->ContactId))
 	{
-		$dbLink = dbConnect();
-		
-		$contactId = dbEscapeString($dbLink, trim($_GET["ContactId"]));
-		
-		$query = "SELECT * FROM vendor_contact WHERE Id = {$contactId} ";
-		
-		$result = dbRunQuery($dbLink,$query);
-		$data = dbGetResult($result);
+        if(!isset($parameters->ContactId))$api->returnParameterMissingError("ContactId");
+        $contactId = intval($parameters->ContactId);
 
-		$output = array();
-		$output['Id'] = intval($data['Id']);
-		$output['VendorId'] = intval($data['VendorId']);
-		$output['AddressId'] = intval($data['VendorAddressId']);
-		$output['Gender'] = $data['Gender'];
-        $output['JobTitle'] = $data['JobTitle'];
-		$output['FirstName'] = $data['FirstName'];
-		$output['LastName'] = $data['LastName'];
-		$output['Language'] = $data['Language'];
-		$output['Phone'] = $data['Phone'];
-		$output['EMail'] = $data['E-Mail'];
-		
-		dbClose($dbLink);	
-		sendResponse($output);
+        try {
+            $api->returnData(vendor\contact::contact($contactId));
+        } catch (\Exception $e) {
+            $api->returnError($e->getMessage());
+        }
 	}
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($data["VendorId"]))sendResponse(null, "VendorId not specified");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+    $data = $api->getPostData();
+    if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
+    $vendorId= intval($data->VendorId);
 
-	$insertData = array();
-	$insertData['VendorId'] = intval($data['VendorId']);
-	$insertData['VendorAddressId'] = intval($data['AddressId']);
-	$insertData['Gender'] = $data['Gender'];
-	$insertData['FirstName'] = $data['FirstName'];
-	$insertData['LastName'] = $data['LastName'];
-    $insertData['JobTitle'] = $data['JobTitle'];
-	$insertData['Language'] = $data['Language'];
-	$insertData['Phone'] = $data['Phone'];
-	$insertData['E-Mail'] = $data['EMail'];
-	
-	$query = dbBuildInsertQuery($dbLink, "vendor_contact", $insertData);
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse(null, $error);
+    try {
+        vendor\contact::createContact(intval($data->VendorId),$data);
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+    $api->returnEmpty();
+
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPatch())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($data["ContactId"]))sendResponse(null, "ContactId not specified");
-	
-	$dbLink = dbConnect();
-	
-	$contactId = intval($data["ContactId"]);
-	
-	$insertData = array();
-	$insertData['VendorId'] = intval($data['VendorId']);
-	$insertData['VendorAddressId'] = intval($data['AddressId']);
-	$insertData['Gender'] = $data['Gender'];
-	$insertData['FirstName'] = $data['FirstName'];
-	$insertData['LastName'] = $data['LastName'];
-    $insertData['JobTitle'] = $data['JobTitle'];
-	$insertData['Language'] = $data['Language'];
-	$insertData['Phone'] = $data['Phone'];
-	$insertData['`E-Mail`'] = $data['EMail'];
+    $data = $api->getPostData();
+    if(!isset($data->ContactId))$api->returnParameterMissingError("ContactId");
+    $contactId= intval($data->ContactId);
 
-	$query = dbBuildUpdateQuery($dbLink, "vendor_contact", $insertData, "Id = {$contactId}");
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse(null, $error);
+    try {
+        vendor\alias::updateContact($contactId,$data);
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+    $api->returnEmpty();
 }
-
-	
-?>

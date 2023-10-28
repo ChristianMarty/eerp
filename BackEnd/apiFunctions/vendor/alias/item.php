@@ -3,84 +3,54 @@
 // FileName : item.php
 // FilePath : apiFunctions/vendor/alias
 // Author   : Christian Marty
-// Date		: 08.05.2022
+// Date		: 23.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-	if(!isset($_GET["AliasId"]))sendResponse(null, "AliasId not specified");
-	
-	$dbLink = dbConnect();
-	
-	$aliasId = dbEscapeString($dbLink, trim($_GET["AliasId"]));
-	
-	$query = "SELECT * FROM vendor_alias WHERE Id = {$aliasId} ";
-	
-	$result = dbRunQuery($dbLink,$query);
-	$data = dbGetResult($result);
+require_once __DIR__. "/_alias.php";
 
-	$output = array();
-	$output['Id'] = intval($data['Id']);
-	$output['VendorId'] = intval($data['VendorId']);
-	$output['Name'] = $data['Name'];
-	$output['Note'] = $data['Note'];
-	
-	dbClose($dbLink);	
-	sendResponse($output);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+$api->options(apiMethod::GET, apiMethod::POST, apiMethod::PATCH);
+if($api->isGet())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($data["VendorId"]))sendResponse(null, "VendorId not specified");
-	
-	$dbLink = dbConnect();
-	
-	$inserData = array();
-	$inserData['VendorId']= intval($data['VendorId']);
-	$inserData['Name']  = dbEscapeString($dbLink,trim($data['Name']));
-	$inserData['Note']  = dbEscapeString($dbLink,trim($data['Note']));
-	
-	$query = dbBuildInsertQuery($dbLink, "vendor_alias", $inserData);
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse(null, $error);
-	
+    $data = $api->getGetData();
+    if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
+
+    $aliasId = intval($data->AliasId);
+    try {
+        $alias = vendor\alias::alias($aliasId);
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+    $api->returnData($alias);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($data["AliasId"]))sendResponse(null, "AliasId not specified");
-	
-	$dbLink = dbConnect();
-	
-	$aliasId = intval($data["AliasId"]);
-	
-	$insertData = array();
-	$insertData['Name']  = dbEscapeString($dbLink,trim($data['Name']));
-	$insertData['Note']  = dbEscapeString($dbLink,trim($data['Note']));
-	
-	$query = dbBuildUpdateQuery($dbLink, "vendor_alias", $insertData, "Id = {$aliasId}");
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse(null, $error);
+    $data = $api->getPostData();
+    if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
+    if(!isset($data->Name))$api->returnParameterMissingError("Name");
+
+    try {
+        vendor\alias::createAlias(intval($data->VendorId),$data->Name, $data->Note??null);
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+    $api->returnEmpty();
+}
+else if($api->isPatch())
+{
+    $data = $api->getPostData();
+    if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
+
+    try {
+        vendor\alias::updateAlias(intval($data->AliasId),$data->Name??"", $data->Note??null);
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+    $api->returnEmpty();
 }
 
 	

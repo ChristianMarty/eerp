@@ -11,7 +11,7 @@
           placeholder="Select"
           @change="getParts(createParameter.ManufacturerId)"
         >
-          <el-option v-for="item in manufacturer" :key="item.Id" :label="item.Name" :value="item.Id" />
+          <el-option v-for="item in manufacturer" :key="item.Id" :label="item.DisplayName" :value="item.Id" />
         </el-select>
       </el-form-item>
 
@@ -27,7 +27,7 @@
 
       <el-form-item label="Supplier:" prop="Supplier">
         <el-select v-model="createParameter.SupplierId" filterable placeholder="Select">
-          <el-option v-for="item in suppliers" :key="item.Id" :label="item.Name" :value="item.Id" />
+          <el-option v-for="item in suppliers" :key="item.Id" :label="item.DisplayName" :value="item.Id" />
         </el-select>
       </el-form-item>
 
@@ -155,7 +155,7 @@ export default {
     }
   },
   async mounted() {
-    this.suppliers = await vendor.search(true, false, false)
+    this.suppliers = await vendor.search(true, false, false, true)
     this.locations = await location.search()
     this.manufacturer = await vendor.search(false, true, false)
 

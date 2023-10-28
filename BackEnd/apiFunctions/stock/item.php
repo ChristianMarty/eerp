@@ -7,6 +7,8 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $database;
+global $api;
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../location/_location.php";
@@ -19,11 +21,11 @@ function _stockPartQuery(string $stockNo): string
 	return <<<STR
 	SELECT 	partStock.Id AS PartStockId, 
 	        partStock.DeleteRequestUserId, 
-	        supplier.Name AS SupplierName, 
+	        vendor_displayName(supplier.Id) AS SupplierName, 
 	        supplierPart.SupplierPartNumber, 
 	       	partStock.OrderReference, 
 	       	partStock.StockNo, 
-	       	manufacturer.Name AS ManufacturerName, 
+	       	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
 	       	manufacturer.Id AS ManufacturerId, 
 	       	partStock.LotNumber, 
 			manufacturer.Id AS ManufacturerId, 
@@ -49,8 +51,8 @@ function _stockPartQuery(string $stockNo): string
 	LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartNumberId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
 	LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
 	LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-	LEFT JOIN (SELECT Id, Name FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
-	LEFT JOIN (SELECT Id, Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
+	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
+	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
 	LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
 
 	LEFT JOIN (
@@ -64,7 +66,7 @@ function _stockPartQuery(string $stockNo): string
 	STR;
 }
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet("stock.view"))
 {
 	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
 	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
@@ -94,11 +96,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	sendResponse($r);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
-{
-	sendResponse(null, "API moved");
-}
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost("stock.create"))
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
@@ -184,7 +182,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	sendResponse($stockPart, $error);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
+if($api->isDelete("stock.delete"))
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	$stockNumber = barcodeParser_StockNumber($data['StockNumber']);

@@ -277,7 +277,7 @@ export default {
       receivedOrderData.ReceivedDate = this.dialogDateReceived
       receivedOrderData.LineId = received.OrderLineId
       receivedOrderData.LineNo = received.LineNo
-      receivedOrderData.PurchasOrderId = received.PurchasOrderId
+      receivedOrderData.PurchaseOrderId = received.PurchaseOrderId
 
       purchase.item.receive.addToStock(receivedOrderData).then(response => {
         this.showConfirmDialog = false

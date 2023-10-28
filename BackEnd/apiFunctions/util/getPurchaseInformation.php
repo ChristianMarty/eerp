@@ -23,7 +23,7 @@ function getPurchaseInformation($receivalId)
             finance_currency.CurrencyCode AS Currency, 
             PurchaseDate, 
             Sku AS SupplierPartNumber, 
-            vendor.Name AS SupplierName, 
+            vendor_displayName(vendor.Id) AS SupplierName, 
             OrderReference, 
             vendor.Id AS VendorId 
         FROM purchaseOrder_itemOrder

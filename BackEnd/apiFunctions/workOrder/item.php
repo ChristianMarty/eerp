@@ -46,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         partStock.StockNo AS StockNumber, 
         manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
         manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
-        vendor.Name as ManufacturerName, 
+        vendor_displayName(vendor.Id) as ManufacturerName, 
         partStock_history.Quantity, 
         partStock_history.Date AS RemovalDate, 
         partStock_getPrice(partStock_history.StockId) AS Price

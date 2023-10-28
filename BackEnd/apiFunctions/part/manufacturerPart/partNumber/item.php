@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
                manufacturerPart_partNumber.Id AS PartNumberId,
                manufacturerPart_item.Id AS PartId,
                vendor.Id AS ManufacturerId,
-               vendor.Name AS ManufacturerName,
+               vendor_displayName(vendor.Id) AS ManufacturerName,
                manufacturerPart_series.Id AS SeriesId,
                manufacturerPart_series.Title AS SeriesTitle,
                manufacturerPart_series.Description AS SeriesDescription,

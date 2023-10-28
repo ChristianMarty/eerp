@@ -3,96 +3,84 @@
 // FileName : item.php
 // FilePath : apiFunctions/vendor/address
 // Author   : Christian Marty
-// Date		: 08.05.2022
+// Date		: 23.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["AddressId"]))sendResponse(null, "AddressId not specified");
-	
-	$dbLink = dbConnect();
-	
-	$addressId = dbEscapeString($dbLink, trim($_GET["AddressId"]));
-	
-	$query = "SELECT * FROM vendor_address WHERE Id = {$addressId} ";
-	
-	$result = dbRunQuery($dbLink,$query);
-	$data = dbGetResult($result);
+    $data = $api->getGetData();
+    if(!isset($data->AddressId))$api->returnParameterMissingError("AddressId");
 
-	$output = array();
-	$output['Id'] = intval($data['Id']);
-	$output['VendorId'] = intval($data['VendorId']);
-	$output['CountryId'] = intval($data['CountryId']);
-	$output['Street'] = $data['Street'];
-	$output['PostalCode'] = $data['PostalCode'];
-	$output['City'] = $data['City'];
-	$output['VatTaxNumber'] = $data['VatTaxNumber'];
-	$output['CustomsAccountNumber'] = $data['CustomsAccountNumber'];
-	
-	dbClose($dbLink);	
-	sendResponse($output);
+    $addressId = intval($data->AddressId);
+    $query =  <<< QUERY
+            SELECT
+                Id,
+                VendorId,
+                CountryId,
+                Street,
+                PostalCode,
+                City,
+                VatTaxNumber,
+                CustomsAccountNumber
+            FROM vendor_address 
+            WHERE Id = {$addressId} 
+            LIMIT 1;
+    QUERY;
+
+    try {
+        $result = $database->query($query)[0];
+        $api->returnData($result);
+    }
+    catch (\Exception $e)
+    {
+        $api->returnError($e->getMessage());
+    }
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($data["VendorId"]))sendResponse(null, "VendorId not specified");
-	
-	$dbLink = dbConnect();
+    $data = $api->getPostData();
+    if (!isset($data->VendorId)) $api->returnParameterMissingError("VendorId");
+    $vendorId = intval($data->VendorId);
 
-	$insertData = array();
-	$insertData['VendorId']= intval($data['VendorId']);
-	$insertData['CountryId'] = intval($data['CountryId']);
-	$insertData['Street'] = $data['Street'];
-	$insertData['PostalCode'] = $data['PostalCode'];
-	$insertData['City'] = $data['City'];
-	$insertData['VatTaxNumber'] = $data['VatTaxNumber'];
-	$insertData['CustomsAccountNumber'] = $data['CustomsAccountNumber'];
-	
-	$query = dbBuildInsertQuery($dbLink, "vendor_address", $insertData);
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse(null, $error);
+    $insertData = [];
+    $insertData['VendorId'] = $vendorId;
+    $insertData['CountryId'] = intval($data->CountryId);
+    $insertData['Street'] = $data->Street;
+    $insertData['PostalCode'] = $data->PostalCode;
+    $insertData['City'] = $data->City;
+    $insertData['VatTaxNumber'] = $data->VatTaxNumber;
+    $insertData['CustomsAccountNumber'] = $data->CustomsAccountNumber;
+
+    try {
+        $database->insert("vendor_address", $insertData);
+        $api->returnEmpty();
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPatch())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($data["AddressId"]))sendResponse(null, "AddressId not specified");
-	
-	$dbLink = dbConnect();
-	
-	$addressId = intval($data["AddressId"]);
-	
-	$insertData = array();
-	$insertData['CountryId'] = intval($data['CountryId']);
-	$insertData['Street'] = $data['Street'];
-	$insertData['PostalCode'] = $data['PostalCode'];
-	$insertData['City'] = $data['City'];
-	$insertData['VatTaxNumber'] = $data['VatTaxNumber'];
-	$insertData['CustomsAccountNumber'] = $data['CustomsAccountNumber'];
-	
-	$query = dbBuildUpdateQuery($dbLink, "vendor_address", $insertData, "Id = {$addressId}");
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse(null, $error);
-}
+    $data = $api->getPostData();
+    if(!isset($data->AddressId))$api->returnParameterMissingError("AddressId");
+    $addressId = intval($data->AddressId);
 
-	
-?>
+    $insertData = [];
+    $insertData['CountryId'] = intval($data->CountryId);
+    $insertData['Street'] = $data->Street;
+    $insertData['PostalCode'] = $data->PostalCode;
+    $insertData['City'] = $data->City;
+    $insertData['VatTaxNumber'] = $data->VatTaxNumber;
+    $insertData['CustomsAccountNumber'] = $data->CustomsAccountNumber;
+
+    try {
+        $database->update("vendor_address", $insertData,"Id = {$addressId}");
+        $api->returnEmpty();
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+}

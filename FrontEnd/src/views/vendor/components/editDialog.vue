@@ -9,11 +9,14 @@
       @open="onOpen()"
     >
       <el-form ref="form" :model="vendorData" label-width="150px">
-        <el-form-item label="Name">
-          <el-input v-model="vendorData.Name" />
+        <el-form-item label="Full Name">
+          <el-input v-model="vendorData.FullName" />
         </el-form-item>
-        <el-form-item label="Short Name">
-          <el-input v-model="vendorData.ShortName" />
+        <el-form-item label="Display Name">
+          <el-input v-model="vendorData.DisplayName" />
+        </el-form-item>
+        <el-form-item label="Abbreviated Name">
+          <el-input v-model="vendorData.AbbreviatedName" />
         </el-form-item>
         <el-form-item label="Customer Number">
           <el-input v-model="vendorData.CustomerNumber" />
@@ -100,8 +103,9 @@ export default {
       const saveParameters = {
         VendorId: this.$props.VendorId,
         ParentId: parentId,
-        Name: this.vendorData.Name,
-        ShortName: this.vendorData.ShortName,
+        FullName: this.vendorData.FullName,
+        DisplayName: this.vendorData.DisplayName,
+        AbbreviatedName: this.vendorData.AbbreviatedName,
         CustomerNumber: this.vendorData.CustomerNumber,
         IsSupplier: this.vendorData.IsSupplier,
         IsManufacturer: this.vendorData.IsManufacturer,

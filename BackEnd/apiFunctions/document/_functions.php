@@ -105,7 +105,7 @@ function getCitations($dbLink, $documentId): array
         SELECT 
             manufacturerPart_series.Title,
             manufacturerPart_series.Description,
-            vendor.Name AS VendorName
+            vendor_displayName(vendor.Id) AS VendorName
         FROM manufacturerPart_series 
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId
         WHERE replace(json_array(manufacturerPart_series.DocumentIds), ',', '","') LIKE '%"$documentId"%'
@@ -126,7 +126,7 @@ function getCitations($dbLink, $documentId): array
         SELECT 
             manufacturerPart_item.Number,
             manufacturerPart_item.Description,
-            vendor.Name AS VendorName
+            vendor_displayName(vendor.Id) AS VendorName
         FROM manufacturerPart_item
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId
         WHERE replace(json_array(manufacturerPart_item.DocumentIds), ',', '","') LIKE '%"$documentId"%'
@@ -147,7 +147,7 @@ function getCitations($dbLink, $documentId): array
         SELECT 
             purchaseOrder.PoNo,
             purchaseOrder.Description,
-            vendor.Name AS VendorName
+            vendor_displayName(vendor.Id) AS VendorName
         FROM purchaseOrder 
         LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
         WHERE replace(json_array(purchaseOrder.DocumentIds), ',', '","') LIKE '%"$documentId"%'

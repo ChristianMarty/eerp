@@ -3,21 +3,23 @@
 // FileName : gender.php
 // FilePath : apiFunctions/vendor/contact
 // Author   : Christian Marty
-// Date		: 25.11.2022
+// Date		: 23.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
-    $output = dbGetEnumOptions($dbLink, 'vendor_contact','Gender');
-    dbClose($dbLink);
-
-    if(!$output) sendResponse(null, "Database error for vendor_contact Language");
-
-    sendResponse($output);
+    $options = $database->getEnumOptions('vendor_contact','Gender');
+    if($options === null)
+    {
+        $api->returnError('Database error for vendor_contact Gender');
+    }
+    else
+    {
+        $api->returnData($options);
+    }
 }
-?>

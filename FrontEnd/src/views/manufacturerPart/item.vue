@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ partData.ManufacturerName }} - {{ partData.PartNumberWithoutParameters }}</h1>
+    <h1>{{ partData.ManufacturerName }} - {{ partData.DisplayPartNumber }}</h1>
     <!--<h2>{{ partData.Description }} </h2>-->
     <p><b>Series:</b>
       <router-link :to="'/manufacturerPart/series/item/' + partData.SeriesId" class="link-type">
@@ -99,11 +99,12 @@ export default {
   },
   methods: {
     setTitle() {
+      const title = this.partData.ManufacturerName + ' - ' + this.partData.DisplayPartNumber
       const route = Object.assign({}, this.tempRoute, {
-        title: this.partData.ManufacturerName + ' - ' + this.partData.PartNumberWithoutParameters
+        title: title
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-      document.title = this.partData.ManufacturerName + ' - ' + this.partData.PartNumberWithoutParameters
+      document.title = title
     },
     getManufacturerPartItem() {
       manufacturerPart.item(this.$route.params.ManufacturerPartItemId).then(response => {

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
             VendorContactId, VendorAddressId, ShippingContactId, BillingContactId, PurchaseContactId, 
             purchaseOrder.DocumentIds, purchaseOrder.PoNo, purchaseOrder.CreationDate, 
             purchaseOrder.PurchaseDate, purchaseOrder.Title, purchaseOrder.Description, 
-            purchaseOrder.Status ,vendor.Name AS SupplierName, 
+            purchaseOrder.Status ,vendor_displayName(vendor.Id) AS SupplierName, 
             vendor.Id AS SupplierId, AcknowledgementNumber, OrderNumber, 
             finance_currency.CurrencyCode, finance_currency.Digits AS CurrencyDigits,  finance_currency.Id AS CurrencyId, 
             ExchangeRate, purchaseOrder.QuotationNumber FROM purchaseOrder

@@ -91,7 +91,7 @@ export default {
     },
     getOrderStatus() {
       requestBN({
-        url: '/purchasOrder',
+        url: '/PurchaseOrder',
         methood: 'get',
         params: { Status: 'Confirmed' }
       }).then(response => {

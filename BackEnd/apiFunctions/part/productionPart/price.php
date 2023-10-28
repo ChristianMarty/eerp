@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$dbLink = dbConnect();
 
     $query = <<< STR
-        SELECT Price, MinimumOrderQuantity, IncrementalOrderQuantity, Weight, InformationSource, InformationDate, Note, CurrencyCode, productionPart_manufacturerPart_mapping.ManufacturerPartId, ManufacturerPartNumber, vendor.Name AS VendorName, vendor.ShortName AS VendorShortName, suppier.Name AS SuppierName, suppier.ShortName AS SuppierShortName, suppier.Id AS SuppierId
+        SELECT Price, MinimumOrderQuantity, IncrementalOrderQuantity, Weight, InformationSource, InformationDate, Note, CurrencyCode, productionPart_manufacturerPart_mapping.ManufacturerPartId, ManufacturerPartNumber, vendor_displayName(vendor.Id) AS VendorName, vendor.DisplayName AS VendorDisplayName, suppier.Name AS SuppierName, suppier.DisplayName AS SuppierDisplayName, suppier.Id AS SuppierId
         FROM  part_referencePrice
         LEFT JOIN productionPart_manufacturerPart_mapping ON part_referencePrice.ManufacturerPartId = productionPart_manufacturerPart_mapping.ManufacturerPartId
         LEFT JOIN productionPart ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id OR part_referencePrice.ProductionPartId = productionPart.Id
@@ -50,11 +50,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = mysqli_fetch_assoc($result))
     {
-        if($r['VendorShortName']) $r['ManufacturerPart'] = $r['VendorShortName']." ".$r['ManufacturerPartNumber'];
+        if($r['VendorDisplayName']) $r['ManufacturerPart'] = $r['VendorDisplayName']." ".$r['ManufacturerPartNumber'];
         else $r['ManufacturerPart'] = $r['VendorName']." ".$r['ManufacturerPartNumber'];
 
-        if($r['SuppierShortName']) $r['SuppierName'] = $r['SuppierShortName'];
-        unset($r['SuppierShortName']);
+        if($r['SuppierDisplayName']) $r['SuppierName'] = $r['SuppierDisplayName'];
+        unset($r['SuppierDisplayName']);
 
         $output['Data'][] = $r;
 

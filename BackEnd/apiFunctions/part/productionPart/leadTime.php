@@ -31,10 +31,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             Note, 
             productionPart_manufacturerPart_mapping.ManufacturerPartId, 
             ManufacturerPartNumber, 
-            vendor.Name AS VendorName, 
-            vendor.ShortName AS VendorShortName, 
+            vendor_displayName(vendor.Id) AS VendorName, 
+            vendor.DisplayName AS VendorDisplayName, 
             suppier.Name AS SuppierName, 
-            suppier.ShortName AS SuppierShortName, 
+            suppier.DisplayName AS SuppierDisplayName, 
             suppier.Id AS SuppierId 
         FROM  part_referenceLeadTime
         LEFT JOIN productionPart_manufacturerPart_mapping ON part_referenceLeadTime.ManufacturerPartId = productionPart_manufacturerPart_mapping.ManufacturerPartId
@@ -60,11 +60,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	while($r = mysqli_fetch_assoc($result))
     {
-        if($r['VendorShortName']) $r['ManufacturerPart'] = $r['VendorShortName']." ".$r['ManufacturerPartNumber'];
+        if($r['VendorDisplayName']) $r['ManufacturerPart'] = $r['VendorDisplayName']." ".$r['ManufacturerPartNumber'];
         else $r['ManufacturerPart'] = $r['VendorName']." ".$r['ManufacturerPartNumber'];
 
-        if($r['SuppierShortName']) $r['SuppierName'] = $r['SuppierShortName'];
-        unset($r['SuppierShortName']);
+        if($r['SuppierDisplayName']) $r['SuppierName'] = $r['SuppierDisplayName'];
+        unset($r['SuppierDisplayName']);
 
         $output['Data'][] = $r;
 

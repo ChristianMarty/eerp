@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             PoNo, 
             purchaseOrder_itemOrder.LineNo AS LineNumber , 
             purchaseOrder_itemOrder.Description, 
-            vendor.Name AS SupplierName, 
+            vendor_displayName(vendor.Id) AS SupplierName, 
             purchaseOrder.VendorId AS SupplierId, 
             Price, 
             PurchaseDate, 

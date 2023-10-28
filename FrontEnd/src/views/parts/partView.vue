@@ -339,7 +339,7 @@ export default {
         this.getStockItems()
         this.getProductionPartData()
         this.getOrderRequests()
-        this.getPurchasOrder()
+        this.getPurchaseOrder()
       })
     },
     getStockItems() {
@@ -398,7 +398,7 @@ export default {
         this.orderRequests = response.data
       })
     },
-    getPurchasOrder() {
+    getPurchaseOrder() {
       requestBN({
         url: '/purchasing/partPurchase',
         methood: 'get',

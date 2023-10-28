@@ -1,7 +1,7 @@
 import eerpApi from '@/api/apiQuery'
 
 class Vendor {
-  search(Supplier = null, Manufacturer = null, Contractor = null) {
+  search(Supplier = null, Manufacturer = null, Contractor = null, IncludeChildren = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/vendor',
@@ -9,7 +9,8 @@ class Vendor {
         params: {
           Supplier: Supplier,
           Manufacturer: Manufacturer,
-          Contractor: Contractor
+          Contractor: Contractor,
+          IncludeChildren: IncludeChildren
         }
       }).then(response => {
         if (response.error == null) {
@@ -45,8 +46,9 @@ class Vendor {
   saveParameters = {
     VendorId: '',
     ParentId: null,
-    Name: '',
-    ShortName: '',
+    FullName: '',
+    DisplayName: '',
+    AbbreviatedName: '',
     CustomerNumber: '',
     IsSupplier: false,
     IsManufacturer: false,
@@ -72,7 +74,7 @@ class Vendor {
   Create Vendor
   **********************************************************/
   createParameters = {
-    Name: '',
+    FullName: '',
     IsSupplier: false,
     IsManufacturer: false,
     IsContractor: false

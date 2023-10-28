@@ -7,12 +7,16 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $database;
+global $api;
+
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
+require_once __DIR__. "/alias/_alias.php";
+require_once __DIR__. "/contact/_contact.php";
 
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet("vendor.view"))
 {
 	if(!isset($_GET["VendorId"]))sendResponse(null, "VendorId not specified");
 	
@@ -24,15 +28,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<< STR
         SELECT
             vendor.Id as VendorId,
-            vendor.Name as VendorName,
+            vendor.FullName as FullName,
             vendor.ParentId as VendorParentId,
             vendor.CustomerNumber as VendorCustomerNumber,
+            vendor_displayName(vendor.Id) as VendorDisplayName,
             vendor.ShortName as VendorShortName,
+            vendor.AbbreviatedName as AbbreviatedName,
             vendor.IsSupplier as VendorIsSupplier,
             vendor.IsManufacturer as VendorIsManufacturer,
             vendor.IsContractor as VendorIsContractor,
             vendor.ParentId as VendorParentId,
-            parent.Name AS ParentName
+            vendor_displayName(parent.Id) AS ParentName
         FROM vendor 
         LEFT JOIN vendor parent on parent.Id = vendor.ParentId
         WHERE vendor.Id = {$vendorId}
@@ -52,9 +58,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }else{
         $output['ParentName'] = $data['ParentName'];
     }
-	$output['Name'] = $data['VendorName'];
+	$output['FullName'] = $data['FullName'];
 	$output['CustomerNumber'] = $data['VendorCustomerNumber'];
-	$output['ShortName'] = $data['VendorShortName'];
+	$output['DisplayName'] = $data['VendorDisplayName'];
+    $output['AbbreviatedName'] = $data['AbbreviatedName'];
 	if($data['VendorIsSupplier'] != 0) $output['IsSupplier'] = true;
 	else $output['IsSupplier'] = false;
 	if($data['VendorIsManufacturer'] != 0) $output['IsManufacturer'] = true;
@@ -62,21 +69,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     if($data['VendorIsContractor'] != 0) $output['IsContractor'] = true;
     else $output['IsContractor'] = false;
 
-	// Get Aliases
-	$query = "SELECT * FROM vendor_alias WHERE VendorId = {$vendorId} ";
-	
-	$result = dbRunQuery($dbLink,$query);
-	$alias = array();
-	while($r = dbGetResult($result))
-	{
-		$temp = array();
-		$temp['Id'] = intval($r['Id']);
-		$temp['Name'] = $r['Name'];
-		$temp['Note'] = $r['Note'];
-		$alias[] = $temp;
-	}
-	
-	$output['Alias'] = $alias;
+
+	$output['Alias'] = \vendor\alias::aliasesForVendor($vendorId);
 	
 	// Get Children
 	$query = "SELECT * FROM vendor WHERE ParentId = {$vendorId} ";
@@ -93,8 +87,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 	
 	$output['Children'] = $children;
-	
-	
+
 	// Get Addresses
     $query =  <<<STR
         SELECT 
@@ -140,7 +133,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPatch())
 {
 	$data = json_decode(file_get_contents('php://input'),true);
 	
@@ -149,8 +142,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	$vendorId = dbEscapeString($dbLink,$data['VendorId']);
 	
 	$insertData = array();
-    $insertData['Name']  = dbEscapeString($dbLink,trim($data['Name']));
-    $insertData['ShortName']  = dbEscapeString($dbLink,trim($data['ShortName']));
+    $insertData['FullName']  = dbEscapeString($dbLink,trim($data['FullName']));
+    $insertData['DisplayName']  = dbEscapeString($dbLink,trim($data['DisplayName']));
+    $insertData['AbbreviatedName']  = dbEscapeString($dbLink,trim($data['AbbreviatedName']));
     $insertData['CustomerNumber']  = dbEscapeString($dbLink,trim($data['CustomerNumber']));
 	
 	if($data['IsSupplier']) $insertData['IsSupplier']['raw']  = "b'1'";
@@ -176,14 +170,14 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	dbClose($dbLink);	
 	sendResponse(null, $error);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
 
     $dbLink = dbConnect();
 
-    $vendorName = dbEscapeString($dbLink,$data['Name']);
-    $insertData['Name']  = trim($vendorName);
+    $vendorName = dbEscapeString($dbLink,$data['FullName']);
+    $insertData['FullName']  = trim($vendorName);
 
     if($data['IsSupplier']) $insertData['IsSupplier']['raw']  = "b'1'";
     else $insertData['IsSupplier']['raw']  = "b'0'";

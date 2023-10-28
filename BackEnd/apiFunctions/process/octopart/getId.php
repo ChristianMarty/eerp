@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $query = <<<STR
         SELECT 
             manufacturerPart_partNumber.Id, 
-            vendor.Name AS ManufacturerName, 
+            vendor_displayName(vendor.Id) AS ManufacturerName, 
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber 
         FROM manufacturerPart_partNumber 
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId

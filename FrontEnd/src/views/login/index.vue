@@ -69,8 +69,6 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-
 export default {
   name: 'Login',
   data() {

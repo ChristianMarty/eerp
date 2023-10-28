@@ -53,7 +53,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    MacAddressWired, 
 		    MacAddressWireless, 
 		    Status,  
-		vendor.name AS SupplierName, HomeLocationId, location.LocNr, InventoryCategoryId, inventory.LocationId 
+			vendor_displayName(vendor.Id) AS SupplierName, 
+			HomeLocationId, 
+			location.LocNr, 
+			InventoryCategoryId, 
+			inventory.LocationId 
 		FROM `inventory`
 		LEFT JOIN `vendor` On vendor.Id = inventory.VendorId 
 		LEFT JOIN `location` On location.Id = inventory.LocationId 
@@ -99,7 +103,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    purchaseOrder_itemOrder.LineNo AS LineNumber , 
 		    purchaseOrder_itemOrder.Description, 
 		    purchaseOrder_itemOrder.Discount, 
-		    vendor.Name AS SupplierName, 
+		    vendor_displayName(vendor.Id) AS SupplierName, 
 		    purchaseOrder.VendorId AS SupplierId, 
 		    Price, 
 		    PurchaseDate, 

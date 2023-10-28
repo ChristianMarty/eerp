@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             supplierPart.ManufacturerPartId, 
             orderRequest.SupplierPartId, 
             vendor.Id AS SupplierId, 
-            vendor.Name AS SupplierName, 
+            vendor_displayName(vendor.Id) AS SupplierName, 
             supplierPart.SupplierPartNumber, 
             supplierPart.SupplierPartLink, 
             Quantity, 
@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             SELECT 
                 ManufacturerPartNumber, 
                 manufacturerPart.Id AS Id, 
-                vendor.Name AS ManufacturerName 
+                vendor_displayName(vendor.Id) AS ManufacturerName 
             FROM manufacturerPart 
                 LEFT JOIN vendor On vendor.Id = manufacturerPart.VendorId
             )mfrPart On mfrPart.Id = supplierPart.ManufacturerPartId 

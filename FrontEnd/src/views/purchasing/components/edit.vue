@@ -196,7 +196,7 @@ const emptyAdditionalChargesLine = {
   Type: 'Shipping',
   Quantity: 1,
   Price: 0,
-  VatTaxId: Number(defaultSetting.defaultSetting().PurchasOrder.VAT),
+  VatTaxId: Number(defaultSetting.defaultSetting().PurchaseOrder.VAT),
   Description: ''
 }
 

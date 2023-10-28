@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : purchaseOrder.php
+// FileName : PurchaseOrder.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
 // Date		: 01.08.2020

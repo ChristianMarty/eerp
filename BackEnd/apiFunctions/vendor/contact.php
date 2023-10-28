@@ -3,32 +3,23 @@
 // FileName : contact.php
 // FilePath : apiFunctions/vendor
 // Author   : Christian Marty
-// Date		: 08.05.2022
+// Date		: 23.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-	
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+require_once __DIR__. "/contact/_contact.php";
+
+if($api->isGet())
 {
-	$dbLink = dbConnect();
+    $parameters = $api->getGetData();
 
-	$query = "SELECT * FROM vendor_contact ";
-	if(isset($_GET["VendorId"])) $query .= "WHERE  VendorId = ".dbEscapeString($dbLink, $_GET["VendorId"]);
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$address = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$r['Id'] = intval($r['Id']);
-		$r['VendorId'] = intval($r['VendorId']);
-		$r['VendorAddressId'] = intval($r['VendorAddressId']);
-		$address[] = $r;
-	}
-
-	dbClose($dbLink);
-	sendResponse($address);
+    try {
+        $api->returnData(vendor\contact::contactByVendor($parameters->VendorId));
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
 }
-?>

@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         SELECT *, 
                manufacturerPart_partNumber.Number AS ManufacturerPartNumbe, 
                vendor.Id AS SupplierId,
-               vendor.Name AS SupplierName, 
+               vendor_displayName(vendor.Id) AS SupplierName,
                supplierPart.Id AS SupplierPartId 
         FROM supplierPart 
         LEFT JOIN vendor On vendor.Id = supplierPart.VendorId 

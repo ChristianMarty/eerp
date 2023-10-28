@@ -14,7 +14,8 @@ require_once __DIR__ . "/../../config.php";
 $title = "Hash Documents";
 $description = "Calculate missing document hash.";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+global $api;
+if($api->isGet("process.run"))
 {
 	$dbLink = dbConnect();
 	
@@ -42,9 +43,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	}
 
 	dbClose($dbLink);
-	
-	sendResponse($output);
+	$api->returnData($output);
 }
-
-
-?>
