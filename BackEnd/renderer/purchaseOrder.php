@@ -13,31 +13,24 @@ require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
 require_once __DIR__ . "/../apiFunctions/vendor/_vendor.php";
 
+if(!isset($_GET["PurchaseOrderNo"]))
+{
+    echo "<p>Parameter error</p>";
+    exit;
+}
+
 $poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
 
-$vendor = \vendor\vendor::getContact($poData["MetaData"]["VendorContactId"]);
-$shipping = \vendor\vendor::getContact($poData["MetaData"]["ShippingContactId"]);
-$billing = \vendor\vendor::getContact($poData["MetaData"]["BillingContactId"]);
-$buyer = \vendor\vendor::getContact($poData["MetaData"]["PurchaseContactId"]);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>PO-<?php echo $_GET["PurchaseOrderNo"]." - ".$vendor['VendorName']; ?> </title>
+<title><?php echo $poData["MetaData"]["PurchaseOrderBarcode"]." - ".$poData["MetaData"]["SupplierName"]; ?> </title>
 <link  media="print" />
  <link rel="stylesheet" href="../assets/documentTemplate_A4.css">
 </head>
-
-<?php 
-
-if(!isset($_GET["PurchaseOrderNo"]))
-{
-	echo "<p>Parameter error</p>";
-	exit;
-}
-?>
 
 <style>
 	
@@ -183,16 +176,23 @@ if(!isset($_GET["PurchaseOrderNo"]))
 <?php
 
 global $addressId;
+
+$vendor = \vendor\vendor::getContact($poData["MetaData"]["VendorContactId"]);
+$shipping = \vendor\vendor::getContact($poData["MetaData"]["ShippingContactId"]);
+$billing = \vendor\vendor::getContact($poData["MetaData"]["BillingContactId"]);
+$buyer = \vendor\vendor::getContact($poData["MetaData"]["PurchaseContactId"]);
+
+
 $footer = \vendor\vendor::getAddress($addressId);
 
 $meta = new stdClass;
 
-$meta->poNo = $_GET["PurchaseOrderNo"];
+$meta->PurchaseOrderBarcode = $poData["MetaData"]["PurchaseOrderBarcode"];
 
-$buyerName = $buyer['LastName'];
-if(isset($buyer['FirstName'])) 
+$buyerName = $buyer->LastName;
+if(isset($buyer->FirstName))
 {
-	$buyerName = $buyer['FirstName']." ".$buyer['LastName'];
+	$buyerName = $buyer->FirstName." ".$buyer->LastName;
 }
 
 $meta->date = $poData["MetaData"]["PurchaseDate"];
@@ -202,45 +202,45 @@ $meta->footNote = $poData["MetaData"]["FootNote"];
 $meta->carrier = $poData["MetaData"]["Carrier"];
 $meta->incoterms = $poData["MetaData"]["InternationalCommercialTerms"];
 $meta->name = $buyerName;
-$meta->phone = $buyer['Phone'];
-$meta->email = $buyer['E-Mail'];
+$meta->phone = $buyer->Phone;
+$meta->email = $buyer->EMail;
 
-$meta->footerLine1 = $footer['VendorName'];
-$meta->footerLine2 = $footer['Street'].", ".$footer['PostalCode']." ".$footer['City'].", ".$footer['CountryName'];
+$meta->footerLine1 = $footer->VendorName;
+$meta->footerLine2 = $footer->Street.", ".$footer->PostalCode." ".$footer->City.", ".$footer->CountryName;
 $meta->footerLine3 = "";
-if(isset($footer['VatTaxNumber'])) $meta->footerLine3 =  "VAT-Nr.: ".$footer['VatTaxNumber'];
-if(isset($footer['CustomsAccountNumber'])) $meta->footerLine3 .= ", ZAZ-Nr.: ".$footer['CustomsAccountNumber'];
+if(isset($footer->VatTaxNumber)) $meta->footerLine3 =  "VAT-Nr.: ".$footer->VatTaxNumber;
+if(isset($footer->CustomsAccountNumber)) $meta->footerLine3 .= ", ZAZ-Nr.: ".$footer->CustomsAccountNumber;
 
 $meta->billingAddress = new stdClass;
-$meta->billingAddress->name = $billing['VendorName'];
-$meta->billingAddress->company = $billing['VendorName'];
-$meta->billingAddress->street = $billing['Street'];
-$meta->billingAddress->postalCode = $billing['PostalCode'];
-$meta->billingAddress->city = $billing['City'];
-$meta->billingAddress->country = $billing['CountryName'];
+$meta->billingAddress->name = $billing->VendorName;
+$meta->billingAddress->company = $billing->VendorName;
+$meta->billingAddress->street = $billing->Street;
+$meta->billingAddress->postalCode = $billing->PostalCode;
+$meta->billingAddress->city = $billing->City;
+$meta->billingAddress->country = $billing->CountryName;
 
 $meta->shippingAddress = new stdClass;
-$meta->shippingAddress->name = $shipping['VendorName'];
-$meta->shippingAddress->company = $shipping['VendorName'];
-$meta->shippingAddress->street = $shipping['Street'];
-$meta->shippingAddress->postalCode = $shipping['PostalCode'];
-$meta->shippingAddress->city = $shipping['City'];
-$meta->shippingAddress->country = $shipping['CountryName'];
+$meta->shippingAddress->name = $shipping->VendorName;
+$meta->shippingAddress->company = $shipping->VendorName;
+$meta->shippingAddress->street = $shipping->Street;
+$meta->shippingAddress->postalCode = $shipping->PostalCode;
+$meta->shippingAddress->city = $shipping->City;
+$meta->shippingAddress->country = $shipping->CountryName;
 
 
 $meta->vendor = new stdClass;
-$meta->vendor->name = $vendor['LastName'];
-if(isset($vendor['FirstName'])) 
+$meta->vendor->name = $vendor->LastName;
+if(isset($vendor->FirstName))
 {
-	$meta->vendor->name = $vendor['FirstName']." ".$meta->vendor->name;
+	$meta->vendor->name = $vendor->FirstName." ".$meta->vendor->name;
 }
-$meta->vendor->phone = $vendor['Phone'];
-$meta->vendor->email = $vendor['E-Mail'];
-$meta->vendor->company = $vendor['VendorName'];
-$meta->vendor->street = $vendor['Street'];
-$meta->vendor->postalCode = $vendor['PostalCode'];
-$meta->vendor->city = $vendor['City'];
-$meta->vendor->country = $vendor['CountryName'];
+$meta->vendor->phone = $vendor->Phone;
+$meta->vendor->email = $vendor->EMail;
+$meta->vendor->company = $vendor->VendorName;
+$meta->vendor->street = $vendor->Street;
+$meta->vendor->postalCode = $vendor->PostalCode;
+$meta->vendor->city = $vendor->City;
+$meta->vendor->country = $vendor->CountryName;
 
 $meta->page = new stdClass;
 $meta->page->current = 1;
@@ -304,7 +304,7 @@ function add_meta($meta): string
 	
 	$temp .= "<div style='grid-column: 1; grid-row: 1;'>";
 	$temp .= "<table class='header'>";
-	$temp .= "<tr><td class='header'><b>PO Number:</b></td><td class='header'>{$meta->poNo}</td></tr>";
+	$temp .= "<tr><td class='header'><b>PO Number:</b></td><td class='header'>{$meta->PurchaseOrderBarcode}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Date:</b></td><td class='header'>{$meta->date}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Payment Terms:</b></td><td class='header'>{$meta->paymentTerms}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Incoterms:</b></td><td class='header'>{$meta->incoterms}</td></tr>";
@@ -529,7 +529,7 @@ function add_page($metaData, $content): void
 	
 	echo "<div class='header'>";
 	echo "<div class='header_left'><h1 class='header'>Purchase Order</h1></div>";
-	echo "<div class='header_center'><h2 class='header_center'>PO-{$metaData->poNo}</h2>";
+	echo "<div class='header_center'><h2 class='header_center'>{$metaData->PurchaseOrderBarcode}</h2>";
 	echo "<p class='header_center'>Page {$metaData->page->current} of {$metaData->page->total}</p></div>";
 	echo "<div class='header_right'><img class='header' src='{$assetsRootPath}/logo.png' alt='logo'></div>";
 	echo "</div>";

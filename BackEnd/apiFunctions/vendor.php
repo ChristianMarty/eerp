@@ -1,17 +1,14 @@
 <?php
 //*************************************************************************************************
-// FileName : supplier.php
+// FileName : vendor.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 28.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 global $database;
 global $api;
-
-require_once __DIR__ . "/databaseConnector.php";
-require __DIR__ . "/../config.php";
 
 if($api->isGet())
 {

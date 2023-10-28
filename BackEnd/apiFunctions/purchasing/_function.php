@@ -11,6 +11,7 @@
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/item/_line.php";
 
 
@@ -74,7 +75,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 
     $purchaseOrderNumber= $r['PoNo'];
     $r['PurchaseOrderNumber'] = $r['PoNo'];
-    $r['PurchaseOrderBarcode'] = "PO-".$r['PoNo'];
+    $r['PurchaseOrderBarcode'] = barcodeFormatter_PurchaseOrderNumber($r['PoNo']);
     $r['CurrencyId'] = intval($r['CurrencyId']);
     $r['VendorContactId'] = intval($r['VendorContactId']);
     $r['VendorAddressId'] = intval($r['VendorAddressId']);

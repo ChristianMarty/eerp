@@ -47,7 +47,7 @@ class Vendor {
     VendorId: '',
     ParentId: null,
     FullName: '',
-    DisplayName: '',
+    ShortName: '',
     AbbreviatedName: '',
     CustomerNumber: '',
     IsSupplier: false,

@@ -12,8 +12,8 @@
         <el-form-item label="Full Name">
           <el-input v-model="vendorData.FullName" />
         </el-form-item>
-        <el-form-item label="Display Name">
-          <el-input v-model="vendorData.DisplayName" />
+        <el-form-item label="Short Name">
+          <el-input v-model="vendorData.ShortName" />
         </el-form-item>
         <el-form-item label="Abbreviated Name">
           <el-input v-model="vendorData.AbbreviatedName" />
@@ -104,7 +104,7 @@ export default {
         VendorId: this.$props.VendorId,
         ParentId: parentId,
         FullName: this.vendorData.FullName,
-        DisplayName: this.vendorData.DisplayName,
+        ShortName: this.vendorData.ShortName,
         AbbreviatedName: this.vendorData.AbbreviatedName,
         CustomerNumber: this.vendorData.CustomerNumber,
         IsSupplier: this.vendorData.IsSupplier,

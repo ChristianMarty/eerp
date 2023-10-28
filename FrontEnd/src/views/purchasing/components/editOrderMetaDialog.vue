@@ -39,7 +39,12 @@
 
         <el-form-item label="Supplier Address:">
           <el-select v-model="dialogData.VendorAddressId" placeholder="Currency" filterable>
-            <el-option v-for="item in supplierAddress" :key="item.Id" :label="item.Street+', '+item.PostalCode+' '+item.City+', '+item.CountryName" :value="item.Id" />
+            <el-option
+              v-for="item in supplierAddress"
+              :key="item.AddressId"
+              :label="item.Street+', '+item.PostalCode+' '+item.City+', '+item.CountryName"
+              :value="item.AddressId"
+            />
           </el-select>
         </el-form-item>
 

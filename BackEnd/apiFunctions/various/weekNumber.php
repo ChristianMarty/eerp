@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
-// FileName : contact.php
-// FilePath : apiFunctions/vendor
+// FileName : weekNumber.php
+// FilePath : apiFunctions/various
 // Author   : Christian Marty
 // Date		: 23.10.2023
 // License  : MIT
@@ -11,15 +11,10 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__. "/contact/_contact.php";
-
 if($api->isGet())
 {
-    $parameters = $api->getGetData();
+    $output = new stdClass();
+    $output->WeekNumber = date("W");
 
-    try {
-        $api->returnData(vendor\contact::contactByVendor(intval($parameters->VendorId)));
-    } catch (\Exception $e) {
-        $api->returnError($e->getMessage());
-    }
+    $api->returnData($output);
 }

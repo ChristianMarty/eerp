@@ -21,8 +21,6 @@
   </div>
 </template>
 
-
-
 <script>
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()

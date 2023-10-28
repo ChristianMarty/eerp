@@ -4,7 +4,7 @@
       {{ vendorData.FullName }}
     </h1>
     <el-divider />
-    <p><b>Display Name:</b> {{ vendorData.DisplayName }}</p>
+    <p><b>Short Name:</b> {{ vendorData.ShortName }}</p>
     <p><b>Abbreviated Name:</b> {{ vendorData.AbbreviatedName }}</p>
     <p><b>Customer Number:</b> {{ vendorData.CustomerNumber }}</p>
     <p><b>Is Supplier:</b> {{ vendorData.IsSupplier }}</p>

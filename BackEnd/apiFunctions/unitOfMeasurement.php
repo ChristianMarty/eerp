@@ -11,7 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-$api->options(apiMethod::GET);
 if($api->isGet())
 {
     $parameters = $api->getGetData();

@@ -31,12 +31,11 @@ class vendor
         }
     }
 
-    static function getContact(int|null $vendorContactId): array
+    static function getContact(int|null $vendorContactId): \stdClass
     {
-        if($vendorContactId == null) return [];
+        if($vendorContactId == null) return new \stdClass();
 
         global $database;
-
         $query = <<<STR
             SELECT
                 *,
@@ -50,18 +49,17 @@ class vendor
         STR;
 
         try {
-            return $database->query($query);
+            return $database->query($query)[0]??new \stdClass();
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-    static function getAddress(int|null $vendorAddressId): array
+    static function getAddress(int|null $vendorAddressId): \stdClass
     {
-        if($vendorAddressId == null) return [];
+        if($vendorAddressId == null) return new \stdClass();
 
         global $database;
-
         $query = <<<STR
             SELECT
                 *,
@@ -74,7 +72,7 @@ class vendor
         STR;
 
         try {
-            return $database->query($query);
+            return $database->query($query)[0]??new \stdClass();
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }

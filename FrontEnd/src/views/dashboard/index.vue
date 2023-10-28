@@ -56,7 +56,9 @@
 </template>
 
 <script>
-import getNumberOfWeek from '@/utils/weekNumber'
+import Various from '@/api/various'
+const various = new Various()
+
 import requestBN from '@/utils/requestBN'
 
 export default {
@@ -72,7 +74,7 @@ export default {
   computed: {},
   created() { },
   mounted() {
-    this.weeknumber = getNumberOfWeek()
+    this.getWeekNumber()
     this.getStockNotification()
     this.getOrderStatus()
     this.$refs.searchInput.focus()
@@ -81,6 +83,18 @@ export default {
 
   },
   methods: {
+    getWeekNumber() {
+      various.WeekNumber().then(response => {
+        this.weeknumber = response.WeekNumber
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
     getStockNotification() {
       requestBN({
         url: '/productionPart/notification/summary',

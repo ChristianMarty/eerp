@@ -7,35 +7,32 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-	
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
+    $parameters = $api->getGetData();
 
     $query = <<<STR
-        SELECT *, 
-               vendor_address.Id AS Id, 
-               country.Name AS CountryName  
+        SELECT 
+           vendor_address.Id AS AddressId,
+           VendorId,
+           Street,
+           PostalCode,
+           City,
+           PhonePrefix,
+           country.Name AS CountryName,
+        country.CountryCode
         FROM vendor_address
         LEFT JOIN country ON country.Id = vendor_address.CountryId 
     STR;
 
-	if(isset($_GET["VendorId"])) $query .= "WHERE  VendorId = ".dbEscapeString($dbLink, $_GET["VendorId"]);
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$address = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$r['Id'] = intval($r['Id']);
-		$r['VendorId'] = intval($r['VendorId']);
-		$r['CountryId'] = intval($r['CountryId']);
-		$address[] = $r;
-	}
+    $queryParam= [];
+    if(isset($parameters->VendorId))$queryParam[] = "VendorId = ".intval($parameters->VendorId);
 
-	dbClose($dbLink);
-	sendResponse($address);
+    $addresses = $database->query($query,$queryParam);
+
+    $api->returnData($addresses);
 }
-?>

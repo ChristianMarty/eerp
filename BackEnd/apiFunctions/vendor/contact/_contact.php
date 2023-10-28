@@ -14,17 +14,17 @@ namespace vendor;
 class contact
 {
 
-    static function contactByVendor(int|null $vendorId = null): \stdClass
+    static function contactByVendor(int|null $vendorId = null): array
     {
         return self::query(null, $vendorId);
     }
 
     static function contact(int $contactId): \stdClass
     {
-        return self::query($contactId, null);
+        return (object)self::query($contactId, null)[0];
     }
 
-    private static function query(int|null $contactId, int|null $vendorId):\stdClass
+    private static function query(int|null $contactId, int|null $vendorId): array
     {
         global $database;
 
@@ -39,7 +39,7 @@ class contact
                 LastName,
                 Language,
                 Phone,
-                'E-Mail'
+                EMail
             FROM vendor_contact 
         QUERY;
 
@@ -53,7 +53,7 @@ class contact
 
         try {
             $data = $database->pdo()->query($query);
-            return $data->fetch();
+            return $data->fetchAll();
         }
         catch (\PDOException $e)
         {
@@ -96,7 +96,7 @@ class contact
         $outputData['JobTitle'] = $data->JobTitle;
         $outputData['Language'] = $data->Language;
         $outputData['Phone'] = $data->Phone;
-        $outputData['`E-Mail`'] = $data->EMail;
+        $outputData['EMail'] = $data->EMail;
 
         return $outputData;
     }

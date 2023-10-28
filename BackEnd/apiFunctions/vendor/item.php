@@ -60,7 +60,8 @@ if($api->isGet("vendor.view"))
     }
 	$output['FullName'] = $data['FullName'];
 	$output['CustomerNumber'] = $data['VendorCustomerNumber'];
-	$output['DisplayName'] = $data['VendorDisplayName'];
+    $output['DisplayName'] = $data['VendorDisplayName'];
+	$output['ShortName'] = $data['VendorShortName'];
     $output['AbbreviatedName'] = $data['AbbreviatedName'];
 	if($data['VendorIsSupplier'] != 0) $output['IsSupplier'] = true;
 	else $output['IsSupplier'] = false;
@@ -118,9 +119,20 @@ if($api->isGet("vendor.view"))
 	$output['Address'] = $address;
 	
 	// Get Contacts
-	$query  = "SELECT Id, Gender, FirstName, LastName, JobTitle, Language, Phone, `E-Mail` AS EMail FROM vendor_contact ";
-	$query .= "WHERE VendorId = {$vendorId} ";
-	
+    $query = <<< QUERY
+        SELECT 
+            Id, 
+            Gender, 
+            FirstName, 
+            LastName, 
+            JobTitle, 
+            Language, 
+            Phone, 
+            EMail 
+        FROM vendor_contact
+        WHERE VendorId = {$vendorId}
+    QUERY;
+
 	$result = dbRunQuery($dbLink,$query);
 	$contact = array();
 	while($r = dbGetResult($result))
@@ -143,7 +155,7 @@ else if($api->isPatch())
 	
 	$insertData = array();
     $insertData['FullName']  = dbEscapeString($dbLink,trim($data['FullName']));
-    $insertData['DisplayName']  = dbEscapeString($dbLink,trim($data['DisplayName']));
+    $insertData['ShortName']  = dbEscapeString($dbLink,trim($data['ShortName']));
     $insertData['AbbreviatedName']  = dbEscapeString($dbLink,trim($data['AbbreviatedName']));
     $insertData['CustomerNumber']  = dbEscapeString($dbLink,trim($data['CustomerNumber']));
 	
