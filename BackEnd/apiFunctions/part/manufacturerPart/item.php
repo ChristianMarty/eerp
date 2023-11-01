@@ -40,7 +40,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN manufacturerPart_class On manufacturerPart_class.Id = manufacturerPart_series.ClassId
         LEFT JOIN manufacturerPart_partPackage On manufacturerPart_partPackage.Id = manufacturerPart_item.PackageId
-        LEFT JOIN vendor On vendor.Id = manufacturerPart_series.VendorId OR vendor.Id = manufacturerPart_item.VendorId
+        LEFT JOIN vendor On vendor.Id <=> manufacturerPart_series.VendorId OR vendor.Id <=> manufacturerPart_item.VendorId
         WHERE manufacturerPart_item.Id = '$manufacturerPartItemId'
     STR;
     $result = dbRunQuery($dbLink,$query);

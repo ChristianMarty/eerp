@@ -7,15 +7,20 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../../../databaseConnector.php";
 require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../_function.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET['PartNumberId']))  sendResponse(null, "Part Number Id is not specified!");
-    $partNumber = intval($_GET['PartNumberId']);
+    $parameters = $api->getGetData();
+    if(!isset($parameters->PartNumberId))$api->returnParameterMissingError("PartNumberId");
+
+    $partNumber = intval($parameters->PartNumberId);
 
     $query = <<<STR
         SELECT *, 
@@ -35,39 +40,30 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN manufacturerPart_class ON manufacturerPart_class.Id = manufacturerPart_series.ClassId
         LEFT JOIN manufacturerPart_partPackage ON manufacturerPart_partPackage.Id = manufacturerPart_item.PackageId
-        LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId OR vendor.Id = manufacturerPart_item.VendorId
-        
+        LEFT JOIN vendor ON  vendor.Id <=> manufacturerPart_partNumber.VendorId OR vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
         WHERE manufacturerPart_partNumber.Id = '$partNumber'
     STR;
 
+    $output = $database->query($query)[0];
+
+    if($output->NumberTemplate === null) $output->NumberTemplate = $output->Number;
+
     $dbLink = dbConnect();
-    $result = dbRunQuery($dbLink,$query);
-    $output = dbGetResult($result);
-
-    if($output['NumberTemplate'] == null) $output['NumberTemplate'] = $output['Number'];
-    $output['PartNumberId'] = intval($output['PartNumberId']);
-    $output['ItemId'] = intval($output['ItemId']);
-    $output['SeriesId'] = intval($output['SeriesId']);
-    $output['PackageId'] = intval($output['PackageId']);
-    $output['ManufacturerId'] = intval($output['ManufacturerId']);
-    $output['PartId'] = intval($output['PartId']);
-
-    $parameter= getParameter($dbLink, $output['SeriesId']);
-    $output['PartNumberDescription'] = descriptionFromNumber($output['SeriesNumberTemplate'],$parameter,$output['PartNumber']);
-
+    $parameter= getParameter($dbLink, $output->SeriesId);
     dbClose($dbLink);
 
-    sendResponse($output);
+    $output->PartNumberDescription = descriptionFromNumber($output->SeriesNumberTemplate,$parameter,$output->PartNumber);
+    $api->returnData($output);
+
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
+    if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
+    if(!isset($data->PartNumber))$api->returnParameterMissingError("PartNumber");
 
-    if(!isset($data['VendorId']))  sendResponse(null, "VendorId is not specified!");
-    if(!isset($data['PartNumber']))  sendResponse(null, "PartNumber is not specified!");
-
-    $vendorId = intval($data['VendorId']);
-    $partNumber = $data['PartNumber'];//dbEscapeString($dbLink, $_GET["PartNumber"]);
+    $vendorId = intval($data->VendorId);
+    $partNumber = $data->PartNumber;//dbEscapeString($dbLink, $_GET["PartNumber"]);
 
     $dbLink = dbConnect();
 
@@ -93,5 +89,5 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 
     dbClose($dbLink);
 
-    sendResponse($manufacturerPartSeries);
+    $api->returnData($manufacturerPartSeries);
 }
