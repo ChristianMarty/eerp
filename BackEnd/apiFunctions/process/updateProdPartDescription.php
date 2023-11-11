@@ -28,19 +28,19 @@ function getParentTemplate($rows, $childId)
     return $temp;
 }
 
-function getParentName($rows, $childId, $output = ["Name" => null, "ShortName" => null, "Prefix" => null ])
+function getParentName($rows, $childId, $output = ["Name" => null, "DisplayName" => null, "Prefix" => null ])
 {
     $row = $rows[$childId];
 
     if($output['Name'] == null) $output['Name'] = $row['Name'];
-    if($output['ShortName'] == null) $output['ShortName'] = $row['ShortName'];
+    if($output['DisplayName'] == null) $output['DisplayName'] = $row['DisplayName'];
     if($output['Prefix'] == null) $output['Prefix'] = $row['Prefix'];
 
-    if($row['ParentId'] != 0 && ($row['Name'] == null || $output['ShortName']  == null || $output['Prefix']  == null))
+    if($row['ParentId'] != 0 && ($row['Name'] == null || $output['DisplayName']  == null || $output['Prefix']  == null))
     {
         $temp = getParentName($rows, $row['ParentId'], $output);
         if($output['Name'] == null) $output['Name'] = $temp['Name'];
-        if($output['ShortName'] == null) $output['ShortName'] = $temp['ShortName'];
+        if($output['DisplayName'] == null) $output['DisplayName'] = $temp['DisplayName'];
         if($output['Prefix'] == null) $output['Prefix'] = $temp['Prefix'];
     }
     return $output;
@@ -110,7 +110,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 
 // Get and process part class template
-    $query = "SELECT Id, ParentId, DescriptionTemplate, Name, ShortName, Prefix FROM manufacturerPart_class";
+    $query = "SELECT Id, ParentId, DescriptionTemplate, Name, DisplayName, Prefix FROM manufacturerPart_class";
     $result = dbRunQuery($dbLink, $query);
 
     $templateRaw = array();
@@ -136,7 +136,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $temp = getParentName($templateRaw, $item['Id']);
 
         $item['Name'] = $temp['Name'];
-        $item['ShortName'] = $temp['ShortName'];
+        $item['DisplayName'] = $temp['DisplayName'];
         $item['Prefix'] = $temp['Prefix'];
 
         $templateList[$item['Id']] = $item;
@@ -151,7 +151,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             manufacturerPart.PartClassId, 
             manufacturerPart.ManufacturerPartNumber, 
             manufacturerPart.PartData,
-            vendor.Name AS VendorName, 
+            vendor_displayName(vendor.Id) AS VendorName, 
             partPackage.Name AS PackageName
         FROM manufacturerPart 
         LEFT JOIN vendor ON manufacturerPart.VendorId = vendor.Id
@@ -181,7 +181,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
                     break;
 
                 case "ClassShort":
-                    $description .= $template['ShortName'];
+                    $description .= $template['DisplayName'];
                     break;
 
                 case "MPN":

@@ -75,7 +75,7 @@ export default {
   created() { },
   mounted() {
     this.getWeekNumber()
-    this.getStockNotification()
+    // this.getStockNotification()
     this.getOrderStatus()
     this.$refs.searchInput.focus()
   },
@@ -105,7 +105,7 @@ export default {
     },
     getOrderStatus() {
       requestBN({
-        url: '/PurchaseOrder',
+        url: '/purchaseOrder',
         methood: 'get',
         params: { Status: 'Confirmed' }
       }).then(response => {

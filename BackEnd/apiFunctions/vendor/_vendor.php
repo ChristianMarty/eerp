@@ -16,6 +16,25 @@ require_once __DIR__ . "/../../config.php";
 
 class vendor
 {
+    static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor): int
+    {
+        global $database;
+
+        $insertData = [];
+        $insertData['FullName'] = $fullName;
+        $insertData['IsSupplier']  = $isSupplier;
+        $insertData['IsManufacturer']  = $isManufacturer;
+        $insertData['IsContractor'] = $isContractor;
+
+        try {
+            return $database->insert("vendor", $insertData);
+        }
+        catch (\Exception $e)
+        {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     static function getIdByName(string $name): int|null
     {
         global $database;
@@ -23,7 +42,7 @@ class vendor
         $query = "CALL `vendor_idFromName`('$name');";
         try {
             $data = $database->pdo()->query($query);
-            return $data->fetch();
+            return $data->fetch()->Id;
         }
         catch (\PDOException $e)
         {

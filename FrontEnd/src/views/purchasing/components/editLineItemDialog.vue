@@ -174,7 +174,7 @@
             filterable
             style="min-width: 200px; margin-right: 10px;"
           >
-            <el-option v-for="item in partManufacturer" :key="item.Name" :label="item.Name" :value="item.Name" />
+            <el-option v-for="item in partManufacturer" :key="item.Id" :label="item.DisplayName" :value="item.FullName" />
           </el-select>
         </el-form-item>
 

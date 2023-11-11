@@ -10,6 +10,8 @@
 global $database;
 global $api;
 
+require_once __DIR__. "/_vendor.php";
+
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
@@ -18,12 +20,11 @@ require_once __DIR__. "/contact/_contact.php";
 
 if($api->isGet("vendor.view"))
 {
-	if(!isset($_GET["VendorId"]))sendResponse(null, "VendorId not specified");
-	
+    $parameters = $api->getGetData();
+    if(!isset($parameters->VendorId))$api->returnParameterMissingError('VendorId');
+
 	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$vendorId = dbEscapeString($dbLink, trim($_GET["VendorId"]));
+	$vendorId = dbEscapeString($dbLink, trim($parameters->VendorId));
 
     $query = <<< STR
         SELECT
@@ -182,49 +183,14 @@ else if($api->isPatch())
 	dbClose($dbLink);	
 	sendResponse(null, $error);
 }
-else if($api->isPost())
+else if($api->isPost("vendor.create"))
 {
     $data = $api->getPostData();
 
-    $dbLink = dbConnect();
+    $output =[];
+    $output['VendorId'] = \vendor\vendor::create($data->FullName, $data->IsSupplier, $data->IsManufacturer, $data->IsContractor);
 
-    $vendorName = dbEscapeString($dbLink,$data['FullName']);
-    $insertData['FullName']  = trim($vendorName);
-
-    if($data['IsSupplier']) $insertData['IsSupplier']['raw']  = "b'1'";
-    else $insertData['IsSupplier']['raw']  = "b'0'";
-    if($data['IsManufacturer']) $insertData['IsManufacturer']['raw']  = "b'1'";
-    else $insertData['IsManufacturer']['raw']  = "b'0'";
-    if($data['IsContractor']) $insertData['IsContractor']['raw']  = "b'1'";
-    else $insertData['IsContractor']['raw']  = "b'0'";
-
-    $query = dbBuildInsertQuery($dbLink, "vendor", $insertData);
-
-    $result = dbRunQuery($dbLink,$query);
-
-    $error = null;
-    $data = array();
-    if(!$result)
-    {
-        $error = "Error description: " . dbGetErrorString($dbLink);
-    }
-
-    $query = "SELECT Id FROM vendor WHERE Id = LAST_INSERT_ID();";
-    $result = dbRunQuery($dbLink,$query);
-
-    $result = dbGetResult($result);
-
-    if(isset($result['Id']))
-    {
-        $data['VendorId'] = $result['Id'];
-    }
-    else
-    {
-        $error = "Vendor creation failed! Maybe it already exists? ";
-    }
-
-    dbClose($dbLink);
-    sendResponse($data, $error);
+    $api->returnData($output);
 }
 	
 ?>

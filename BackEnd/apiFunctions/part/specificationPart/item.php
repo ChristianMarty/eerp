@@ -3,22 +3,22 @@
 // FileName : item.php
 // FilePath : apiFunctions/specificationPart
 // Author   : Christian Marty
-// Date		: 01.08.2023
+// Date		: 01.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["SpecificationPartBarcode"])) sendResponse(NULL, "Specification Part Barcode Undefined");
-    $specificationPartBarcode= barcodeParser_SpecificationPart($_GET["SpecificationPartBarcode"]);
+    $parameters = $api->getGetData();
+    if(!isset($parameters->SpecificationPartBarcode)) $api->returnParameterMissingError('SpecificationPartBarcode');
 
-    $dbLink = dbConnect();
+    $specificationPartBarcode= barcodeParser_SpecificationPart($parameters->SpecificationPartBarcode);
 
     $query = <<<STR
         SELECT 
@@ -28,53 +28,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         FROM specificationPart
         WHERE specificationPart.Id = $specificationPartBarcode
     STR;
-    $result = dbRunQuery($dbLink,$query);
 
-    $output = mysqli_fetch_assoc($result);
-    $output['Id'] = intval($output['Id']);
+    $output = $database->query($query)[0];
 
-    dbClose($dbLink);
-    sendResponse($output);
+    $api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
 
     $dbLink = dbConnect();
     $sqlData = array();
-    $sqlData['Type'] = $data['Type'];
-    $sqlData['Title'] = $data['Title'];
-    $query = dbBuildInsertQuery($dbLink,"specificationPart", $sqlData);
+    $sqlData['Type'] = $data->Type;
+    $sqlData['Title'] = $data->Title;
 
-    $query .= <<< STR
-        SELECT 
-            specificationPart.Id
-        FROM specificationPart
-        WHERE specificationPart.Id = LAST_INSERT_ID();
-    STR;
-
-    $error = null;
     $output = array();
-
-    if(mysqli_multi_query($dbLink,$query))
-    {
-        do {
-            if ($result = mysqli_store_result($dbLink)) {
-                while ($row = mysqli_fetch_row($result)) {
-                    $output['Id'] = intval($row[0]);
-                }
-                mysqli_free_result($result);
-            }
-            if(!mysqli_more_results($dbLink)) break;
-        } while (mysqli_next_result($dbLink));
-    }
-    else
-    {
-        $error = "Error description: " . mysqli_error($dbLink);
-    }
-
-    dbClose($dbLink);
-    sendResponse($output,$error);
+    $output['Id'] = $database->insert("specificationPart", $sqlData);
+    $api->returnData($output);
 }
-
-?>

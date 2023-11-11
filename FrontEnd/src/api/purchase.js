@@ -5,7 +5,7 @@ class Purchase {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'get',
-        url: '/PurchaseOrder',
+        url: '/purchaseOrder',
         params: {
           HideClosed: HideClosed,
           SupplierPartId: SupplierPartId
@@ -64,7 +64,7 @@ class Purchase {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'get',
-        url: '/PurchaseOrder',
+        url: '/purchaseOrder',
         params: { VendorId: VendorId }
       }).then(response => {
         if (response.error == null) {

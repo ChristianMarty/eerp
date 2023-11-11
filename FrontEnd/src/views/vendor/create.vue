@@ -6,7 +6,7 @@
     <el-form label-width="150px">
 
       <el-form-item label="Vendor Name:">
-        <el-input v-model="vendorData.Name" />
+        <el-input v-model="vendorData.FullName" />
       </el-form-item>
       <el-form-item label="Is Supplier:">
         <el-checkbox v-model="vendorData.IsSupplier" />

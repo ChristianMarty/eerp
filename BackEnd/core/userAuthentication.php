@@ -68,7 +68,7 @@ class userAuthentication
 
         $ldapDn =  "uid=".$username.",".$this->ldapBase ;
 
-        $bind = ldap_bind($ldap, $ldapDn, $password);
+        $bind = @ldap_bind($ldap, $ldapDn, $password);
 
         if (!$bind){
             $_SESSION['authenticated'] = false;
@@ -179,10 +179,10 @@ class userAuthentication
             unset($_SESSION["userSettings"]);
             return;
         }
-
+		
         $userid = $result->Id;
         $settings = json_decode($result->Settings,true);
-        $userRolesTree = json_decode($result->Roles);
+        $userRolesTree = json_decode($result->Roles,true);
 
         $_SESSION["authenticated"] = true;
         $_SESSION["userId"] = $userid;
@@ -193,11 +193,12 @@ class userAuthentication
 
     private function buildRolesForFrontend_recursive($rolesObject, &$roleStringArray, $roleStringPart): string
     {
+     
         $categoryStringPart = $roleStringPart;
 
         foreach($rolesObject as $key => $role)
         {
-            if(is_object($role))
+            if(is_object($role) || is_array($role))
             {
                 $roleStringPart = self::buildRolesForFrontend_recursive($role,$roleStringArray,$categoryStringPart.$key.".");
             }

@@ -41,7 +41,7 @@
             :props="{
               emitPath: false,
               value: 'Id',
-              label: 'Name',
+              label: 'DisplayName',
               children: 'Children',
               checkStrictly: true
             }"
@@ -82,7 +82,7 @@ export default {
     async onOpen() {
       this.vendorData = await vendor.item(this.$props.VendorId)
 
-      vendor.search().then(response => {
+      vendor.search(null, null, null, true).then(response => {
         this.suppliers = response
         this.parentId = this.vendorData.ParentId
         if (this.parentId == null) this.hasParent = false

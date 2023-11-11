@@ -24,7 +24,7 @@ function loadDatabaseData($purchaseOrderNo)
             purchaseOrder_itemOrder.Id AS OrderLineId, 
             LineNo, 
             purchaseOrder_itemOrder.Type, 
-            supplier.Name AS SupplierName,
+            vendor_displayName(supplier.Id) AS SupplierName,
             purchaseOrder_itemOrder.Sku AS SupplierPartNumber, 
             purchaseOrder_itemOrder.SupplierPartId AS SupplierPartId,
             purchaseOrder_itemOrder.ManufacturerName, 
@@ -38,7 +38,7 @@ function loadDatabaseData($purchaseOrderNo)
         LEFT JOIN vendor_names ON vendor_names.Name = purchaseOrder_itemOrder.ManufacturerName
         LEFT JOIN supplierPart ON supplierPart.VendorId = purchaseOrder.VendorId AND supplierPart.SupplierPartNumber =  purchaseOrder_itemOrder.Sku
         LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-        LEFT JOIN (SELECT Id, Name FROM vendor)supplier on supplier.Id = supplierPart.VendorId
+        LEFT JOIN (SELECT Id, vendor_displayName(Id) FROM vendor)supplier on supplier.Id = supplierPart.VendorId
         WHERE purchaseOrder.PoNo = $purchaseOrderNo
         ORDER BY LineNo
     STR;
@@ -164,7 +164,7 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
         if($result == null) continue;
         $orderLine = mysqli_fetch_assoc($result);
 
-        $manufacturerId = \vendor\getIdByName($orderLine['ManufacturerName']);
+        $manufacturerId = \vendor\vendor::getIdByName($orderLine['ManufacturerName']);
         $manufacturerPartNumber = dbEscapeString($dbLink, $orderLine['ManufacturerPartNumber']);
         $supplierPartNumber = dbEscapeString($dbLink, $orderLine['Sku']);
         dbClose($dbLink);

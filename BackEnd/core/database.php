@@ -98,6 +98,10 @@ class database
             {
                 $values .= $value['raw'].", ";
             }
+            else if(is_bool($value)){
+                if($value) $values .= "b'1',";
+                else $values .=  "b'0',";
+            }
             else
             {
                 if($value === null) $values .= "NULL, ";
@@ -108,7 +112,9 @@ class database
         $keys = rtrim($keys, ", ");
         $values = rtrim($values, ", ");
 
-        $query = "INSERT INTO $tableName ($keys) VALUES ($values);";
+        $query = <<< QUERY
+            INSERT INTO $tableName ($keys) VALUES ($values);
+        QUERY;
 
         try {
             $this->pdo->exec($query);

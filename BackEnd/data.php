@@ -14,7 +14,7 @@ global $serverDataPath;
 
 session_start();
 
-if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode))
+if (!((isset($_SESSION['authenticated']) && $_SESSION['authenticated'] == true)||$devMode))
 {
 	echo "<p>User Session Invalid. Please Log In.<p>";
 	exit;
@@ -29,7 +29,7 @@ $filePath .= $apiRequest;
 
 if(file_exists($filePath))
 {
-	if ((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode) 
+	if ((isset($_SESSION['authenticated']) && $_SESSION['authenticated'] == true)||$devMode) 
 	{
 		$filename = pathinfo($filePath)['filename'];
 		$extension = pathinfo($filePath, PATHINFO_EXTENSION);

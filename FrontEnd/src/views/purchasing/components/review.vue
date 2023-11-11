@@ -163,9 +163,9 @@ export default {
       })
     },
     tableAnalyzer({ row, column, rowIndex, columnIndex }) {
-      if (row.SupplierPartId === null && columnIndex === 2) return 'error-cell'
-      if (row.ManufacturerId === null && columnIndex === 3) return 'error-cell'
-      if (row.ManufacturerPartNumberId === null && columnIndex === 4) return 'error-cell'
+      if (row.SupplierPartId === null && columnIndex === 1) return 'error-cell'
+      if (row.ManufacturerId === null && columnIndex === 2) return 'error-cell'
+      if (row.ManufacturerPartNumberId === null && columnIndex === 3) return 'error-cell'
     }
   }
 }

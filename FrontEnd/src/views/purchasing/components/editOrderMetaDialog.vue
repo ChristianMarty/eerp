@@ -30,7 +30,7 @@
             :props="{
               emitPath: false,
               value: 'Id',
-              label: 'Name',
+              label: 'DisplayName',
               children: 'Children',
               checkStrictly: true
             }"
@@ -189,7 +189,7 @@ export default {
     }
   },
   async mounted() {
-    this.suppliers = await vendor.search(true, false, false)
+    this.suppliers = await vendor.search(true, false, false, true)
     this.currencies = await finance.currency.list()
   },
   methods: {
