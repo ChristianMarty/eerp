@@ -254,6 +254,7 @@ class Purchase {
         ExpectedReceiptDate: null,
         PartNo: null,
         OrderReference: null,
+        SpecificationPartNumber: null,
         SupplierSku: null,
         ManufacturerName: null,
         ManufacturerPartNumber: '',

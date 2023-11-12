@@ -77,6 +77,32 @@ function dbGetResult($result): bool|array|null
 	return mysqli_fetch_assoc($result);
 }
 
+function dbMultiQuery($dbLink, $query): bool|array|null
+{
+    $output = array();
+    if(mysqli_multi_query($dbLink,$query))
+    {
+        do
+        {
+            $temp = array();
+            if ($result = mysqli_store_result($dbLink))
+            {
+                $temp = mysqli_fetch_assoc($result);
+                mysqli_free_result($result);
+            }
+            $output[] = $temp;
+            if(!mysqli_more_results($dbLink)) break;
+        }
+        while (mysqli_next_result($dbLink));
+    }
+    else
+    {
+        return null;
+    }
+
+    return $output;
+}
+
 function dbRunQuery($dbLink, $query): mysqli_result|bool
 {
 	return mysqli_query($dbLink,$query);
@@ -146,12 +172,11 @@ function dbBuildInsertQuery($dbLink, $tableName, $data): string
 	$keys = rtrim($keys, ", ");
 	$values = rtrim($values, ", ");
 	
-	return "INSERT INTO ".$tableName." (".$keys.") VALUES (".$values.");";	
+	return "INSERT INTO $tableName ($keys) VALUES ($values);";
 }
 
 function dbBuildUpdateQuery($dbLink, $tableName, $data, $condition = NULL): string
 {
-
 	$pairs ="";
 		
 	foreach ($data as $key => $value) 
@@ -176,8 +201,6 @@ function dbBuildUpdateQuery($dbLink, $tableName, $data, $condition = NULL): stri
 	if($condition == NULL) $condition = "";
 	else $condition = " WHERE ".$condition;
 	
-	return "UPDATE ".$tableName." SET ".$pairs.$condition.";";	
+	return "UPDATE $tableName SET $pairs $condition;";
 }
-
-
 ?>

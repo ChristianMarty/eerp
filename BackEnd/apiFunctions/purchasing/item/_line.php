@@ -39,13 +39,15 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
         manufacturerPart_partNumber.Id AS  ManufacturerPartNumberId, 
         purchaseOrder_itemReceive.Id AS ReceiveId,
         purchaseOrder_itemReceive.QuantityReceived,
-        purchaseOrder_itemReceive.ReceivalDate
+        purchaseOrder_itemReceive.ReceivalDate,
+        specificationPart.Number AS SpecificationPartNumber
     FROM purchaseOrder_itemOrder 
     LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
     LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchaseOrder_itemOrder.UnitOfMeasurementId 
     LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_itemOrder.VatTaxId 
     LEFT JOIN supplierPart ON purchaseOrder_itemOrder.SupplierPartId = supplierPart.Id
     LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
+    LEFT JOIN specificationPart ON purchaseOrder_itemOrder.SpecificationPartId = specificationPart.Id
     STR;
 
     if($lineId == null) $query .= " WHERE PurchaseOrderId = $purchaseOrderId ";
@@ -121,9 +123,13 @@ function purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $data):?
     $output['Total'] = $output['LinePrice'] * intval($data['Quantity']);
     $output['FullTotal'] = round($output['Total'] *(1+($data['VatValue']/100)), 2, PHP_ROUND_HALF_UP);
 
-    $output['CostCenter'] = Array();
-    $output['CostCenter'][] =[ "Barcode" => "CC-00000", "Quota" => 1 ];
-    $output['CostCenter'][] =[ "Barcode" => "CC-00001", "Quota" => 1 ];
+    if($data['SpecificationPartNumber'] !== null){
+        $output['SpecificationPartNumber'] = intval($data['SpecificationPartNumber']);
+        $output['SpecificationPartBarcode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber']);
+    }else{
+        $output['SpecificationPartNumber'] = null;
+        $output['SpecificationPartBarcode'] = null;
+    }
 
     return $output;
 }

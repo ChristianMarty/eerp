@@ -38,6 +38,11 @@ function barcodeFormatter_ProductionPart(string|int $input): string
     return $input; // TODO: Fix this
 }
 
+function barcodeFormatter_SpecificationPart(string|int $input): string
+{
+    return "Spec-".$input;
+}
+
 function barcodeFormatter_WorkOrderNumber(string|int|null $input): string|null
 {
     if($input == null) return null;

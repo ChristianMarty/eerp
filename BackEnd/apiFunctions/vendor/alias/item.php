@@ -13,7 +13,6 @@ global $api;
 
 require_once __DIR__. "/_alias.php";
 
-$api->options(apiMethod::GET, apiMethod::POST, apiMethod::PATCH);
 if($api->isGet())
 {
     $data = $api->getGetData();

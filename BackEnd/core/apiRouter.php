@@ -226,7 +226,12 @@ class apiRouter
 
     #[NoReturn] function returnParameterMissingError(string $parameterName): void
     {
-        $this->returnData(null, $parameterName." not specified");
+        $this->returnData(null, $parameterName." is not specified");
+    }
+
+    #[NoReturn] function returnParameterError(string $parameterName): void
+    {
+        $this->returnData(null, $parameterName." is invalid");
     }
 
     #[NoReturn] function returnError(string|null $errorMessage = null): void

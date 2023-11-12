@@ -76,8 +76,21 @@ function barcodeParser_ProductionPart($input): bool|string
 
 function barcodeParser_SpecificationPart($input): bool|string
 {
-    // TODO: Fix this
-    return intval($input);
+    $specificationPartCode = trim($input);
+    $specificationPartCode = strtolower($specificationPartCode);
+
+    if( substr_count($specificationPartCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($specificationPartCode)) return false;
+        return intval($specificationPartCode);
+    }
+
+    $specificationPartNumberParts = explode('-',$specificationPartCode);
+
+    if($specificationPartNumberParts[0] != "spec") return false;
+    if(!is_numeric($specificationPartNumberParts[1])) return false;
+
+    return intval($specificationPartNumberParts[1]);
 }
 
 function barcodeParser_BillOfMaterial($input): bool|string

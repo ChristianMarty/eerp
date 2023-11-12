@@ -57,7 +57,7 @@ export default {
     },
     onCreate() {
       specificationPart.create(this.specificationPartCreateParameters).then(response => {
-        this.$router.push('/specificationPart/item/' + response['Id'])
+        this.$router.push('/specificationPart/item/' + response['SpecificationPartNumber'])
       }).catch(response => {
         this.$message({
           showClose: true,

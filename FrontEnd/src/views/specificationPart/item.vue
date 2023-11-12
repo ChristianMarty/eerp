@@ -1,6 +1,22 @@
 <template>
   <div class="app-container">
-    <h1>{{ partData.Type }} - {{ partData.Title }}</h1>
+    <h1>{{ partData.SpecificationPartBarcode }} - {{ partData.Type }} - {{ partData.Title }}</h1>
+    <p>{{ partData.Description }}</p>
+
+    <h3>Production Parts</h3>
+    <el-table :data="partData.ProductionParts" style="width: 100%">
+      <el-table-column prop="ProductionPartBarcode" label="Part Number" sortable width="150">
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/productionPart/item/' + row.ProductionPartBarcode"
+            class="link-type"
+          >
+            <span>{{ row.ProductionPartBarcode }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Description" label="Description" sortable />
+    </el-table>
   </div>
 </template>
 

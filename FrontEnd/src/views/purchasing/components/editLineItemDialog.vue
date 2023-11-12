@@ -131,6 +131,23 @@
             value-format="yyyy-MM-dd"
           />
         </el-form-item>
+        <el-form-item v-if="line.LineType == 'Specification Part'" label="Specification Part:">
+          <el-select
+            v-model="line.SpecificationPartNumber"
+            placeholder="Supplier Part"
+            filterable
+            style="min-width: 200px; margin-right: 10px;"
+          >
+            <el-option
+              v-for="item in specificationPart"
+              :key="item.SpecificationPartNumber"
+              :label="item.SpecificationPartBarcode+' - '+item.Title"
+              :value="item.SpecificationPartNumber"
+            />
+          </el-select>
+
+        </el-form-item>
+
         <el-form-item v-if="line.LineType == 'Part'" label="Part Number:">
 
           <el-popover placement="top" width="800" trigger="click">
@@ -161,13 +178,13 @@
           <el-checkbox v-model="line.StockPart" />
         </el-form-item>
 
-        <el-form-item label="Sku:">
+        <el-form-item v-if="line.LineType != 'Specification Part'" label="Sku:">
           <el-input v-model="line.SupplierSku" @keyup.enter.native="searchSku(line.SupplierSku)">
             <el-button v-if="purchaseOrder.SkuSearchSupported == true" slot="append" icon="el-icon-search" @click="searchSku(line.SupplierSku)">Import</el-button>
           </el-input>
         </el-form-item>
 
-        <el-form-item label="Manufacturer:">
+        <el-form-item v-if="line.LineType != 'Specification Part'" label="Manufacturer:">
           <el-select
             v-model="line.ManufacturerName"
             placeholder="Manufacturer"
@@ -178,7 +195,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="MPN:">
+        <el-form-item v-if="line.LineType != 'Specification Part'" label="MPN:">
           <el-input v-model="line.ManufacturerPartNumber" />
         </el-form-item>
         <el-form-item label="Description:">
@@ -207,6 +224,8 @@ import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 import SupplierPart from '@/api/supplierPart'
 const supplierPart = new SupplierPart()
+import SpecificationPart from '@/api/specificationPart'
+const specificationPart = new SpecificationPart()
 import UnitOfMeasurement from '@/api/unitOfMeasurement'
 const unitOfMeasurement = new UnitOfMeasurement()
 
@@ -229,6 +248,7 @@ export default {
       vat: [],
       costCenter: [],
       partManufacturer: [],
+      specificationPart: [],
       line: Object.assign({}, purchase.item.line.emptyLine)
     }
   },
@@ -247,7 +267,7 @@ export default {
     this.uom = await unitOfMeasurement.list(true)
     this.partManufacturer = await vendor.search(false, true, false)
     this.costCenter = await finance.costCenter.list()
-
+    this.specificationPart = await specificationPart.search()
     this.getType()
   },
   methods: {

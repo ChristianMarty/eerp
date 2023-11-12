@@ -123,7 +123,13 @@ class database
             throw new Exception($e->getMessage());
         }
 
-        return intval($this->pdo->lastInsertId());
+        $id = intval($this->pdo->lastInsertId());
+
+        $query = <<< QUERY
+            SELECT Number FROM specificationPart WHERE Id = $id;
+        QUERY;
+
+        return $this->query($query)[0];
     }
 
     public function update(string $tableName, array $data, string|null $condition = null): void

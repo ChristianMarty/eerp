@@ -7,11 +7,14 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $api;
+global $database;
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../_function.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 function save_line($dbLink, $purchaseOrderNumber, $line): int
 {
@@ -30,6 +33,13 @@ function save_line($dbLink, $purchaseOrderNumber, $line): int
 
     if($line['Price'] === null) $sqlData['Price'] = 0;
     else $sqlData['Price'] = $line['Price'];
+
+   if($line['SpecificationPartNumber'] !== null) {
+        $specificationPartNumber = barcodeParser_SpecificationPart($line['SpecificationPartNumber']);
+        $sqlData['SpecificationPartId']['raw'] = "(SELECT Id FROM specificationPart WHERE  Number = $specificationPartNumber)";
+    } else {
+        $sqlData['SpecificationPartId'] = null;
+    }
 
     $sqlData['Note'] = $line['Note'];
     $type = $line['LineType'];
@@ -96,7 +106,7 @@ function update_costCenter($dbLink, $lineId, $costCenterList): void
     }
 }
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
     if(!isset($_GET["LineId"])) sendResponse(NULL, "Line Id Undefined");
     $lineId = intval($_GET["LineId"]);
@@ -119,11 +129,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     sendResponse($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST' OR $_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPost() OR $api->isPatch())
 {
-    if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(NULL, "Purchase Order Number Undefined");
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
-    if(!$purchaseOrderNumber) sendResponse(NULL, "Purchase Order Number Parser Error");
+    $parameters = $api->getGetData();
+    if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError('PurchaseOrderNumber');
+    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
     $lines = json_decode(file_get_contents('php://input'),true);
 
@@ -135,28 +146,23 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST' OR $_SERVER['REQUEST_METHOD'] == 'P
     }
     dbClose($dbLink);
 
-    sendResponse(null);
+    $api->returnEmpty();
 }
-else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
+else if($api->isDelete())
 {
-    if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(NULL, "Purchase Order Number Undefined");
-    if(!isset($_GET["LineId"])) sendResponse(NULL, "Line Id Undefined");
+    $parameters = $api->getGetData();
+    if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError('PurchaseOrderNumber');
+    if(!isset($parameters->LineId)) $api->returnParameterMissingError('LineId');
 
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
-    $lineId = intval($_GET["LineId"]);
-    if(!$purchaseOrderNumber) sendResponse(NULL, "Purchase Order Number Parser Error");
-    if($lineId == 0)  sendResponse(null,"Line Id Invalid");
+    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $lineId = intval($parameters->LineId);
+    if(!$purchaseOrderNumber)  $api->returnParameterError('PurchaseOrderNumber');
+    if($lineId == 0)  $api->returnParameterError('LineId');
 
     $query = <<<STR
         DELETE FROM purchaseOrder_itemOrder 
                WHERE Id = $lineId AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' );
     STR;
-    $dbLink = dbConnect();
-    dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
-
-    sendResponse(null);
+    $database->query($query);
+    $api->returnEmpty();
 }
-
-
-?>
