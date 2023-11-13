@@ -7,25 +7,26 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_getDocuments.php";
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(null, "Purchase Order Number not defined!");
-	$purchaseOrderNumber =  barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
+	$parameters = $api->getGetData();
+	if(!isset($parameters->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
+	$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+	if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
+
+	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber';";
+	$result = $database->query($query)[0]->DocumentIds??null;
 
 	$dbLink = dbConnect();
+	$output = getDocumentsFromIds($dbLink, $result);
+	dbClose($dbLink);
 
-	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '".$purchaseOrderNumber."'";
-	$result = dbRunQuery($dbLink,$query);
-	if(!$result) sendResponse(null, "Error in document list");
-	$docIdList = mysqli_fetch_assoc($result)['DocumentIds'];
-	$output = getDocumentsFromIds($dbLink, $docIdList);
-
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($output);
 }
-?>

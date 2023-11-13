@@ -11,7 +11,7 @@
 include_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 
-function getDocumentsFromIds($dbLink, $documentIds): array
+function getDocumentsFromIds($dbLink, string|null $documentIds): array
 {
     if(empty($documentIds)) return [];
 
@@ -42,8 +42,10 @@ function getDocumentsFromIds($dbLink, $documentIds): array
     return $documents;
 }
 
-function getDocuments($documentIds): array
+function getDocuments(string|null $documentIds): array
 {
+    if(empty($documentIds)) return [];
+
 	$dbLink = dbConnect();
     $documents = getDocumentsFromIds($dbLink, $documentIds);
 	dbClose($dbLink);

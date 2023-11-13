@@ -7,30 +7,25 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
+if($api->isPatch())
 {
-	if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(NULL, "Purchase Order Number Undefined");
-	$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
-	if(!$purchaseOrderNumber) sendResponse(NULL, "Purchase Order Number Parser Error");
+	$parameters = $api->getGetData();
+	if(!isset($parameters->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
+	$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+	if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
+	$data = $api->getPostData();
 
 	$poData = array();
+	$poData['Status'] = $data->NewState;
+	$database->update('purchaseOrder',$poData,'PoNo = '.$purchaseOrderNumber );
 
-	$poData['Status'] = $data['NewState'];
-	$query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNumber);
-	
-	dbRunQuery($dbLink,$query);
-	
-	$output = array();
-	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnEmpty();
 }
-?>
+
