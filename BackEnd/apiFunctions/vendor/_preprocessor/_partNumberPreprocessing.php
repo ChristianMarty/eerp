@@ -29,17 +29,29 @@ class PartNumberPreprocess
 {
     private PartNumberPreprocessingBase $preprocessor;
 
-    public function __construct(string|null $partNumberPreprocessing = null)
+    public function __construct(string|int|null $partNumberPreprocessing = null)
     {
-        if($partNumberPreprocessing == null) {
+        $partNumberPreprocessingName = null;
+        if(is_integer($partNumberPreprocessing))
+        {
+            global $database;
+            $query = "SELECT PartNumberPreprocessor FROM vendor WHERE Id = '$partNumberPreprocessing';";
+            $return = $database->query($query);
+            if(!empty($return) && $return[0] !== null) $partNumberPreprocessingName = $return[0]->PartNumberPreprocessor;
+        }
+        else if(is_string($partNumberPreprocessing)){
+            $partNumberPreprocessingName = trim($partNumberPreprocessing);
+        }
+
+        if($partNumberPreprocessingName === null) {
             $this->preprocessor = new PartNumberPreprocessing();
         }else{
-            $filePath = __DIR__.'/'.$partNumberPreprocessing.'.php';
+            $filePath = __DIR__.'/'.$partNumberPreprocessingName.'.php';
             if (!file_exists($filePath)) {
                 throw new EerpException("The requested part number preprocessor does not exist");
             }
             require_once($filePath);
-            $this->preprocessor = new $partNumberPreprocessing();
+            $this->preprocessor = new $partNumberPreprocessingName();
         }
     }
 

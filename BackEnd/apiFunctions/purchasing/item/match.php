@@ -3,23 +3,24 @@
 // FileName : match.php
 // FilePath : apiFunctions/purchasing/item/
 // Author   : Christian Marty
-// Date		: 05.01.2022
+// Date		: 25.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../vendor/_vendor.php";
+require_once __DIR__ . "/../../vendor/_preprocessor/_partNumberPreprocessing.php";
 
-function loadDatabaseData($purchaseOrderNo)
+function loadDatabaseData(int $purchaseOrderNo):array
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-
-    $purchaseOrderNo = dbEscapeString($dbLink, $purchaseOrderNo);
-    $query = <<<STR
+    global $database;
+    $query = <<<QUERY
         SELECT 
             purchaseOrder_itemOrder.Id AS OrderLineId, 
             LineNo, 
@@ -39,15 +40,16 @@ function loadDatabaseData($purchaseOrderNo)
         LEFT JOIN supplierPart ON supplierPart.VendorId = purchaseOrder.VendorId AND supplierPart.SupplierPartNumber =  purchaseOrder_itemOrder.Sku
         LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
         LEFT JOIN (SELECT Id, vendor_displayName(Id) FROM vendor)supplier on supplier.Id = supplierPart.VendorId
-        WHERE purchaseOrder.PoNo = $purchaseOrderNo
+        WHERE purchaseOrder.PoNo = '$purchaseOrderNo'
         ORDER BY LineNo
-    STR;
-	
-	$result = dbRunQuery($dbLink,$query);
+    QUERY;
+
+	$result = $database->query($query);
+
 	$lines = array();
-	
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach($result as $line)
 	{
+        $r = (array)$line;
 		if($r['ManufacturerId'] != null) $r['ManufacturerName'] = $r['ManufacturerNameDatabase'];
 		unset($r['ManufacturerNameDatabase']);
 
@@ -58,16 +60,20 @@ function loadDatabaseData($purchaseOrderNo)
 		
 		$lines[] = $r;
 	}
-	
-	dbClose($dbLink);
 	return $lines;
 }
 
-function manufacturerPartNumberId($manufacturerId, $manufacturerPartNumber ): Null|int
+function manufacturerPartNumberId(int $manufacturerId, string $manufacturerPartNumber ): null|int
 {
-    $dbLink = dbConnect();
-    $query = <<<STR
-        SELECT manufacturerPart_partNumber.Id FROM manufacturerPart_partNumber 
+    global $database;
+
+    $partNumberPreprocess = new PartNumberPreprocess($manufacturerId);
+    $manufacturerPartNumber = $partNumberPreprocess->clean($manufacturerPartNumber);
+
+    $query = <<<QUERY
+        SELECT 
+            manufacturerPart_partNumber.Id 
+        FROM manufacturerPart_partNumber 
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_item.SeriesId = manufacturerPart_series.Id
         WHERE manufacturerPart_partNumber.Number = '$manufacturerPartNumber' AND (
@@ -75,13 +81,12 @@ function manufacturerPartNumberId($manufacturerId, $manufacturerPartNumber ): Nu
             manufacturerPart_item.VendorId = $manufacturerId OR 
             manufacturerPart_series.VendorId = $manufacturerId)
         LIMIT 1
-    STR;
-    $result = dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
-    if(!$result) return Null;
-    $r = mysqli_fetch_assoc($result);
-    if($r == null) return null;
-    return intval($r['Id']);
+    QUERY;
+
+    $result = $database->query($query);
+
+    if(empty($result[0])) return null;
+    return intval($result[0]->Id);
 }
 
 function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, $manufacturerPartNumber ): void
@@ -120,27 +125,27 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
     dbClose($dbLink);
 }
 
-if(!isset($_GET["PurchaseOrderNumber"])) sendResponse(null, "Purchase Order Number missing!");
-$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($_GET["PurchaseOrderNumber"]);
-if(!$purchaseOrderNumber) sendResponse(NULL, "Purchase Order Number Parser Error");
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+$parameters = $api->getGetData();
+if(!isset($parameters->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
+$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
+
+
+if($api->isGet())
 {
 	$output["Lines"] = array();
-	
 	$lines = loadDatabaseData($purchaseOrderNumber);
-	
 	foreach($lines as $line)
 	{
-		if($line['Type'] ==  "Part") // TODO: Add Generic -> make ui better
+		if($line['Type'] ==  "Part") // TODO: Add Generic and spec parts -> make ui better
 		{
 			$output["Lines"][] = $line;
 		}
 	}
-		
-	sendResponse($output);
+	$api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
     $data = json_decode(file_get_contents('php://input'),true);
 
