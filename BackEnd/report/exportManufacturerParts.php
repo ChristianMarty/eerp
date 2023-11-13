@@ -1,32 +1,22 @@
 <?php
 //*************************************************************************************************
-// FileName : exportManufacturerparts.php
+// FileName : exportManufacturerParts.php
 // FilePath : apiFunctions/report/
 // Author   : Christian Marty
-// Date		: 16.11.2021
+// Date		: 13.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
-
-global $devMode;
+declare(strict_types=1);
+global $database;
+global $api;
 
 $title = "Manufacturer Part List";
 $description = "Export Manufacturer Part List with Lifecycle Status.";
 
-if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode))
+if($api->isGet())
 {
-	echo "<p>User Session Invalid. Please Log In.<p>";
-	exit;
-}
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-	$dbLink = dbConnect();
-
-	$query = <<<STR
+	$query = <<<QUERY
 		SELECT 
 		    vendor_displayName(vendor.Id) AS Name, 
 		    manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
@@ -39,23 +29,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		LEFT JOIN productionPart ON  productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
 		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
 		GROUP BY manufacturerPart_partNumber.Id
-	STR;
-
-	$stockResult = dbRunQuery($dbLink,$query);
-
-	dbClose($dbLink);
+	QUERY;
+	$result = $database->query($query);
 
 	$filename = "Manufacturer Part Export ".date("Y-m-d H:i:s").".csv";
-	
-	$csvFile = tempnam("/tmp", $filename); 
-	$csvHandlee = fopen($csvFile, "w");
-	
-	
 	$header = "Manufacturer; ManufacturerPartNumber; PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
-	fwrite($csvHandlee, $header.PHP_EOL);
-	
-	while($r = mysqli_fetch_assoc($stockResult)) 
-	{	
+	$output = $header.PHP_EOL;
+
+	foreach($result as $line)
+	{
+		$r = (array)$line;
 		$line  = '"'.$r['Name'].'";';
 		$line .= '"'.$r['ManufacturerPartNumber'].'";';
 		if($r['PartNoList'] !== null) {
@@ -63,20 +46,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				$line .= '"'.$partNo.'";';
 			}
 		}
-		
-		fwrite($csvHandlee, $line.PHP_EOL);
+		$output .=$line.PHP_EOL;
 	}
-	
-	header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="'.$filename.'"');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-    header('Content-Length: ' . filesize($csvFile));
-    readfile($csvFile);
-	fclose($csvHandlee);
-	exit;
+
+	$api->returnCSV($output,$filename);
 }
 
-?>

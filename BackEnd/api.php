@@ -6,7 +6,6 @@
 // Date		: 01.08.2021
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
 use JetBrains\PhpStorm\NoReturn;
 
 require_once __DIR__ . "/core/entrypoint.php";

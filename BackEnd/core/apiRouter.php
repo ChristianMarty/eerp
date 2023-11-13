@@ -95,8 +95,9 @@ class apiRouter
             $this->runPath = $filePath;
         } else if ($user->loggedIn()) {
             $idempotencyToken = null;
-            if (isset(getallheaders()['Idempotency-Key'])) {
-                $idempotencyToken = getallheaders()['Idempotency-Key'];
+            $headers = array_change_key_case(getallheaders(),CASE_LOWER);
+            if (isset($headers['idempotency-key'])) {
+                $idempotencyToken = $headers['idempotency-key'];
             }
 
             global $devMode;
@@ -216,6 +217,19 @@ class apiRouter
         }
 
         echo $json_response;
+        exit;
+    }
+
+    #[NoReturn] function returnCSV(string $data, string $name): void
+    {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="'.$name.'"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        //header('Content-Length: ' . filesize($csvFile));
+        echo $data;
         exit;
     }
 

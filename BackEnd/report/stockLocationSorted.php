@@ -3,31 +3,22 @@
 // FileName : stockLocationSorted.php
 // FilePath : apiFunctions/report/
 // Author   : Christian Marty
-// Date		: 04.01.2023
+// Date		: 13.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/../apiFunctions/location/_location.php";
-
-global $devMode;
 
 $title = "Multiple Stock Location Export";
 $description = "Export stock list of Production Parts with multiple stock locations.";
 
-if (!((isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true)||$devMode))
+if($api->isGet())
 {
-	echo "<p>User Session Invalid. Please Log In.<p>";
-	exit;
-}
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-	$dbLink = dbConnect();
-
-	$query = <<<STR
+	$query = <<<QUERY
 		SELECT 
 			CONCAT(numbering.Prefix,'-',productionPart.Number) AS PartNo,
 			GROUP_CONCAT(StockNo) AS StockNoList, 
@@ -39,15 +30,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
 		WHERE productionPart.Number IS NOT NULL AND partStock.Cache_Quantity != 0
 		GROUP BY productionPart_manufacturerPart_mapping.ProductionPartId
-	STR;
-
-	$stockResult = dbRunQuery($dbLink,$query);
-	dbClose($dbLink);
+	QUERY;
+	$result = $database->query($query);
 
 	$filename = "Stock Location Export ".date("Y-m-d H:i:s").".csv";
-	$csvFile = tempnam("/tmp", $filename); 
-	$csvHandle = fopen($csvFile, "w");
-	
+
 	$maxParts = 20;
 	$header = "Part Number;";
 	foreach(range(1,$maxParts) as $i) 
@@ -56,11 +43,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$header.= "Quantity ".$i."; ";
 		$header.= "Location ".$i."; ";
 	}
-	
-	fwrite($csvHandle, $header.PHP_EOL);
+	$output = $header.PHP_EOL;
 
-	while($r = mysqli_fetch_assoc($stockResult)) 
+	foreach($result as $line)
 	{
+		$r = (array)$line;
 		$locationId = explode(",",$r['LocationIdList']);
 		$numberOfLocations = count(array_count_values($locationId));
 		
@@ -74,23 +61,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			{
 				$line .= '"'.$stockNo[$i].'";';
 				$line .= '"'.$quantity[$i].'";';
-				$line .= '"'.location_getName($locationId[$i]).'";';
+				$line .= '"'.location_getName(intval($locationId[$i])).'";';
 			}
-			$line .= PHP_EOL;
-			fwrite($csvHandle, $line);
+			$output .= $line.PHP_EOL;
 		}
 	}
-	fclose($csvHandle);
-
-	header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="'.$filename.'"');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-    header('Content-Length: ' . filesize($csvFile));
-    readfile($csvFile);
-	exit;
+	$api->returnCSV($output,$filename);
 }
-
-?>
