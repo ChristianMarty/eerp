@@ -7,17 +7,17 @@
         :data="locations"
         style="width: 100%;"
         :cell-style="{ padding: '0', height: '20px' }"
-        row-key="Id"
+        row-key="LocationNumber"
         border
         :tree-props="{ children: 'Children' }"
       >
-        <el-table-column prop="LocNr" label="Location Nr" width="150px">
+        <el-table-column prop="LocationBarcode" label="Location Nr" width="150px">
           <template slot-scope="{ row }">
             <router-link
-              :to="'/location/item/' + row.LocNr"
+              :to="'/location/item/' + row.LocationBarcode"
               class="link-type"
             >
-              <span>{{ row.LocNr }}</span>
+              <span>{{ row.LocationBarcode }}</span>
             </router-link>
           </template>
         </el-table-column>

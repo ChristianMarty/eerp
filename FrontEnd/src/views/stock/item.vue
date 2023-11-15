@@ -26,7 +26,6 @@
           {{ partData.ManufacturerName }}
         </router-link>
       </p>
-
       <p><b>Part Number: </b>
         <router-link :to="'/manufacturerPart/item/' + partData.ManufacturerPartItemId" class="link-type">
           {{ partData.ManufacturerPartNumber }}
@@ -35,16 +34,15 @@
       <el-divider />
       <h4>Production Parts:</h4>
       <el-table :data="productionPartData" style="width: 100%">
-        <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
+        <el-table-column prop="ProductionPartBarcode" label="Part Number" sortable width="150">
           <template slot-scope="{ row }">
-            <router-link :to="'/productionPart/item/' + row.ProductionPartNumber" class="link-type">
-              <span>{{ row.ProductionPartNumber }}</span>
+            <router-link :to="'/productionPart/item/' + row.ProductionPartBarcode" class="link-type">
+              <span>{{ row.ProductionPartBarcode }}</span>
             </router-link>
           </template>
         </el-table-column>
         <el-table-column prop="Description" label="Description" sortable />
       </el-table>
-
     </el-card>
 
     <el-card v-if="showItem">

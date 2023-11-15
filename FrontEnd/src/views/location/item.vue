@@ -4,9 +4,21 @@
     <el-divider />
 
     <p><b>Name:</b> {{ itemList.Name }}</p>
+    <p><b>Title:</b> {{ itemList.Title }}</p>
     <p><b>Description:</b> {{ itemList.Description }}</p>
     <p><b>Movable:</b> {{ itemList.Movable }}</p>
     <p><b>ESD:</b> {{ itemList.ESD }}</p>
+
+    <template v-if="checkPermission(['location.edit'])">
+      <el-button
+        size="mini"
+        type="primary"
+        icon="el-icon-edit"
+        circle
+        style="margin-top: 00px; margin-bottom: 00px"
+        @click="showEditDialog()"
+      />
+    </template>
 
     <el-divider />
     <h2>Relationships</h2>
@@ -59,20 +71,32 @@
       />
     </el-table>
 
+    <editDialog
+      :location-number="Number(itemList.LocationNumber)"
+      :visible.sync="editDialogVisible"
+      @change="update()"
+    />
+
   </div>
 </template>
 
 <script>
+import checkPermission from '@/utils/permission'
+
+import editDialog from './components/editDialog'
+
 import Location from '@/api/location'
 const location = new Location()
 
 export default {
   name: 'LocationItem',
+  components: { editDialog },
   data() {
     return {
       loading: true,
       itemList: [],
-      LocationBarcode: ''
+      LocationBarcode: '',
+      editDialogVisible: false
     }
   },
   mounted() {
@@ -87,6 +111,7 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    checkPermission,
     setTitle() {
       const route = Object.assign({}, this.tempRoute, {
         title: this.LocationBarcode
@@ -108,6 +133,12 @@ export default {
         })
       })
       this.inputItemNr = null
+    },
+    update() {
+      this.getLocationItems()
+    },
+    showEditDialog() {
+      this.editDialogVisible = true
     }
   }
 }

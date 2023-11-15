@@ -41,7 +41,7 @@ class userRoles
         "productionPart":{"create": true,"edit": true},
         "specificationPart":{"view": true, "create": true, "edit": true},
         "stock":{"create": true, "add": true, "remove":true, "count":true, "delete":true}, 
-        "location":{"transfer":true, "bulkTransfer":true, "print": true},
+        "location":{"transfer":true, "bulkTransfer":true, "print": true, "edit": true},
         "finance":{"view":true, "costCenter":true},
         "bom":{"print":true},
         "workOrder":{"create": true, "edit": true}

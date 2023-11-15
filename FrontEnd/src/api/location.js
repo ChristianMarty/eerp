@@ -34,12 +34,38 @@ class Location {
   }
 
   item = {
-    get(LocationNumber) {
+    get(LocationNumber, Items = true) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/location/item',
           methood: 'get',
-          params: { LocationNumber: LocationNumber }
+          params: { LocationNumber: LocationNumber, Items: Items }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    /* Save *************************************************
+    Save Location data
+    **********************************************************/
+    saveParameters: {
+      LocationNumber: null,
+      Name: '',
+      Title: '',
+      Description: '',
+      Movable: false,
+      ESD: false
+    },
+    save(saveParameters) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'patch',
+          url: '/location/item',
+          data: saveParameters
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)

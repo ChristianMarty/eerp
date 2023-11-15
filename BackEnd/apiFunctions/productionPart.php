@@ -60,7 +60,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
         $r['Cache_BillOfMaterial_TotalQuantityUsed'] = intval($r['Cache_BillOfMaterial_TotalQuantityUsed']);
         $r['Cache_BillOfMaterial_NumberOfOccurence'] = intval($r['Cache_BillOfMaterial_NumberOfOccurrence']);
-        $r['ProductionPartNumber'] = $r['Prefix']."-".$r['Number'];
+        $r['ProductionPartNumber'] = $r['Prefix']."-".$r['Number']; // TODO: ProductionPartNumber is Legacy -> Remove
+        $r['ProductionPartBarcode'] = $r['ProductionPartNumber'];
 		unset($r['Id']);
 		$rows[] = $r;
 	}
