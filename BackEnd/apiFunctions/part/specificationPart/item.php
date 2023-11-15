@@ -70,6 +70,12 @@ if($api->isPost())
     $sqlData['Title'] = $data->Title;
 
     $output = array();
-    $output['SpecificationPartNumber'] = $database->insert("specificationPart", $sqlData);
+
+    $id = $database->insert("specificationPart", $sqlData);
+    $query = <<< QUERY
+        SELECT Number FROM specificationPart WHERE Id = $id;
+    QUERY;
+
+    $output['SpecificationPartNumber'] = $this->query($query)[0]->Number;
     $api->returnData($output);
 }

@@ -132,7 +132,17 @@ class apiRouter
 
     function getPostData():stdClass
     {
-        return json_decode(file_get_contents('php://input'));
+        $data = json_decode(file_get_contents('php://input'));
+        foreach($data as &$item)
+        {
+            if(!is_string($item)) continue;
+            $str = strtolower($item);
+            if($str === "true" || $str === "false")
+            {
+                $item = filter_var($str, FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+        return $data;
     }
     function getGetData():stdClass
     {

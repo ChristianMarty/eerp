@@ -123,13 +123,7 @@ class database
             throw new Exception($e->getMessage());
         }
 
-        $id = intval($this->pdo->lastInsertId());
-
-        $query = <<< QUERY
-            SELECT Number FROM specificationPart WHERE Id = $id;
-        QUERY;
-
-        return $this->query($query)[0];
+        return intval($this->pdo->lastInsertId());
     }
 
     public function update(string $tableName, array $data, string|null $condition = null): void
@@ -143,6 +137,10 @@ class database
             if(is_array($value))
             {
                 $val .= $value['raw'];
+            }
+            else if(is_bool($value)){
+                if($value) $val .= "b'1'";
+                else $val .=  "b'0'";
             }
             else
             {
