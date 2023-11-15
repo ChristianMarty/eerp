@@ -14,7 +14,8 @@ class molex extends PartNumberPreprocessingBase
 {
     static public function clean(string $input) : string
     {
-        return preg_replace('/[^0-9.]/', '', $input); // Removes all non-numeric characters
+        $str = preg_replace('/[^0-9.]/', '', $input); // Removes all non-numeric characters
+		return ltrim($str, "0"); // remove leading zeros
     }
 
     static public function format(string $input) : string

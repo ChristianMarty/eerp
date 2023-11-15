@@ -7,14 +7,19 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../vendor/_preprocessor/_partNumberPreprocessing.php";
+
 
 $title = "Match Parts";
 $description = "Match Manufacturer Part against PartLookup and production parts.";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
     $dbLink = dbConnect();
 
@@ -59,14 +64,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 // Get Manufacturer Part Numbers
     $query = <<<STR
         SELECT
-            vendor.Id AS Id,
             vendor.Id AS VendorId, 
+            vendor.PartNumberPreprocessor AS Preprocessor,
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
             manufacturerPart_partNumber.Id AS ManufacturerPartNumberId
         FROM manufacturerPart_partNumber
         LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-        LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId OR vendor.Id = manufacturerPart_partNumber.VendorId OR vendor.Id = manufacturerPart_series.VendorId
+        LEFT JOIN vendor ON vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_partNumber.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
         WHERE vendor.Id IS NOT NULL
     STR;
     $queryResult = dbRunQuery($dbLink,$query);
@@ -95,12 +100,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $mfrId = $partLookupMfr[0]['VendorId'];
 
         if(!array_key_exists($mfrId, $mfrParts)) continue;
+
+        $preprocessorName = $partLookupMfr[0]['Preprocessor'];
+        $preprocessor = new PartNumberPreprocess($preprocessorName);
         
         foreach($mfrParts[$mfrId] as $mfrPart)
         {
             foreach($partLookupMfr as $lookupPart)
             {
-                $temp = findMatch($lookupPart, $mfrPart);
+                $temp = findMatch($lookupPart, $mfrPart, $preprocessor);
                 
                 if(!is_null($temp))
                 {
@@ -134,10 +142,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         addProdPart($part['OrderReference'],$part['ManufacturerPartId'],"5");
         $matches[] = $part;
     }*/
-    sendResponse($matches);
+
+    $api->returnData($matches);
 }
 
-function findMatch($lookup, $part)
+function findMatch($lookup, $part, $preprocessor)
 {
     set_time_limit(20);
     
@@ -163,8 +172,6 @@ function findMatch($lookup, $part)
         $temp['ManufacturerPartNumberId'] = $part['ManufacturerPartNumberId'];
         $temp['MatchCertainty'] = "2";
         return $temp;
-        
-        return $temp;
     }
 
     if(str_replace('-','',$mfrPartNr) == str_replace('-','',$lookupPartNr )) 
@@ -174,23 +181,17 @@ function findMatch($lookup, $part)
         $temp['ManufacturerPartNumberId'] = $part['ManufacturerPartNumberId'];
         $temp['MatchCertainty'] = "3";
         return $temp;
-        
-        return $temp;
     }
-    
-    $tempMfrPartNr = str_replace('-','',$mfrPartNr);
-    $templookupPartNr = str_replace('-','',$lookupPartNr);
-    
-    if(is_numeric($tempMfrPartNr) AND is_numeric($templookupPartNr))
+
+    $tempMfrPartNr = $preprocessor->clean($mfrPartNr);
+    $templookupPartNr = $preprocessor->clean($lookupPartNr);
+    if($tempMfrPartNr == $templookupPartNr) 
     {
-        if( intval($tempMfrPartNr) == intval($templookupPartNr)) 
-        {
-            $temp = array();
-            $temp['ProductionPartId'] = $lookup['ProductionPartId'];
-            $temp['ManufacturerPartNumberId'] = $part['ManufacturerPartNumberId'];
-            $temp['MatchCertainty'] = "4";
-            return $temp;
-        }
+        $temp = array();
+        $temp['ProductionPartId'] = $lookup['ProductionPartId'];
+        $temp['ManufacturerPartNumberId'] = $part['ManufacturerPartNumberId'];
+        $temp['MatchCertainty'] = "4";
+        return $temp;
     }
     return null;
 }

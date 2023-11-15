@@ -23,7 +23,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $query = <<<STR
         WITH recursive manufacturerPart_classWithChildren AS 
-        {}
+        (
         select Id, ParentId, Name, AttributeList from manufacturerPart_class where Id = 2
         union all
         select child.Id,child.ParentId, child.Name, child.AttributeList from manufacturerPart_class as child
@@ -36,7 +36,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $attributes  = array();
     $query = <<<STR
-    SELECT *
+    SELECT *,
+    vendor_displayName(Id) AS Name
     FROM vendor
     ORDER BY Name
     STR;

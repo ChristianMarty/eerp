@@ -43,7 +43,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
     {
         if ($part['OctopartId'] == null) continue;
 
-        $data = octopart_getPartData($part['OctopartId']);
+        $dbLink = dbConnect();
+        $data = octopart_getPartData($dbLink, $part['OctopartId']);
+        dbClose($dbLink);
+
         $rowId = 0;
         foreach ($data->data->parts[0]->sellers as $seller) {
             if (isset($includeBrokers)) {
