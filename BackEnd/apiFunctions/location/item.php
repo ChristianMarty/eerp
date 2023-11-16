@@ -36,8 +36,12 @@ if($api->isGet())
 			Title,
 			Description,
 			Movable,
+			Virtual,
 			ESD,
-			RecursionDepth
+			RecursionDepth,
+			Cache_DisplayName,
+			Cache_DisplayLocation,
+			Cache_DisplayPath
 		FROM location 
 		WHERE LocNr = '$locationNumber'
 		LIMIT 1;
@@ -54,7 +58,12 @@ if($api->isGet())
 	$output['Title'] = $locationData->Title;
 	$output['Description'] = $locationData->Description;
 	$output['Movable'] = boolval($locationData->Movable);
+    $output['Virtual'] = boolval($locationData->Virtual);
 	$output['ESD'] = boolval($locationData->ESD);
+
+    $output['DisplayName'] = $locationData->Cache_DisplayName;
+    $output['DisplayLocation'] = $locationData->Cache_DisplayLocation;
+    $output['DisplayPath'] = $locationData->Cache_DisplayPath;
 
 	// get parent
 	$parent= array();

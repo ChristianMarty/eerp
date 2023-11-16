@@ -7,6 +7,7 @@
     <p><b>Title:</b> {{ itemList.Title }}</p>
     <p><b>Description:</b> {{ itemList.Description }}</p>
     <p><b>Movable:</b> {{ itemList.Movable }}</p>
+    <p><b>Virtual:</b> {{ itemList.Virtual }}</p>
     <p><b>ESD:</b> {{ itemList.ESD }}</p>
 
     <template v-if="checkPermission(['location.edit'])">
@@ -21,6 +22,12 @@
     </template>
 
     <el-divider />
+    <h2>Display</h2>
+    <p><b>Name:</b> {{ itemList.DisplayName }}</p>
+    <p><b>Location:</b> {{ itemList.DisplayLocation }}</p>
+    <p><b>Path:</b> {{ itemList.DisplayPath }}</p>
+    <el-divider />
+
     <h2>Relationships</h2>
     <h3>Parent</h3>
     <p><router-link
