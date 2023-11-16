@@ -93,23 +93,27 @@ class apiRouter
         if ($request == "user/login" || $request == "user/logout")
         {
             $this->runPath = $filePath;
-        } else if ($user->loggedIn()) {
+        } 
+		else if ($user->loggedIn()) 
+		{
             $idempotencyToken = null;
             $headers = array_change_key_case(getallheaders(),CASE_LOWER);
             if (isset($headers['idempotency-key'])) {
                 $idempotencyToken = $headers['idempotency-key'];
             }
 
-            global $devMode;
-            if ($this->method === apiMethod::POST && !$devMode && $filePath != 'apiFunctions/document/ingest/upload.php') {
+            if ($this->method === apiMethod::POST && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php') 
+			{
                 if ($idempotencyToken !== $_SESSION['idempotency']) {
-                    $this->returnError("Idempotency Key Expired.");
+                    $this->returnError("Idempotency key expired.");
                 }
                 $_SESSION['idempotency'] = self::generateIdempotenceToken();
             }
 
             $this->runPath = $filePath;
-        } else {
+        } 
+		else 
+		{
             $this->returnUnauthorizedError("User Session Invalid. Please Log In.");
         }
     }
