@@ -158,6 +158,7 @@
                           </router-link>
                         </template>
                       </el-table-column>
+                      <el-table-column prop="PurchaseDate" label="Purchase Date" width="150" sortable />
                       <el-table-column prop="Title" label="PO Title" sortable />
                       <el-table-column prop="Sku" label="Sku" sortable />
                       <el-table-column prop="Quantity" label="Quantity" sortable width="120" />

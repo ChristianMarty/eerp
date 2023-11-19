@@ -101,8 +101,8 @@ class apiRouter
             if (isset($headers['idempotency-key'])) {
                 $idempotencyToken = $headers['idempotency-key'];
             }
-
-            if ($this->method === apiMethod::POST && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php') 
+            global $devMode;
+            if ($this->method === apiMethod::POST && !$devMode && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php')
 			{
                 if ($idempotencyToken !== $_SESSION['idempotency']) {
                     $this->returnError("Idempotency key expired.");
