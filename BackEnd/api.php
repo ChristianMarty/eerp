@@ -29,7 +29,7 @@ if($api->isOptions()) {
 }
 
 // legacy
-#[NoReturn] function sendResponse(array|null $data, string|null $error = null): void
+#[NoReturn] function sendResponse(array|null|string $data, string|null $error = null): void
 {
 	global $api;
 	$api->returnData($data,$error);

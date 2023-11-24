@@ -10,7 +10,7 @@
 global $database;
 global $api;
 
-if($api->isGet())
+if($api->isGet("vendor.view"))
 {
     $parameter = $api->getGetData();
 
@@ -81,5 +81,3 @@ function buildTree(array $rows, int $parentId): array
 	
 	return $treeItem;
 }
-	
-?>

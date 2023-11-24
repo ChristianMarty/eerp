@@ -120,14 +120,17 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	}
 
     $query = <<< STR
-        DELETE FROM inventory_purchaseOrderReference WHERE InventoryId = $id;
+        DELETE FROM inventory_purchaseOrderReference WHERE InventoryId = $id
     STR;
 
     if(!empty($receivalIdList))
     {
         $temp = implode(", ", $receivalIdList);
-        $query .= "AND NOT ReceivalId IN({$temp});";
+        $query .= " AND NOT ReceivalId IN({$temp});";
     }
+
+    echo  $query;
+    exit;
 
 	$result = dbRunQuery($dbLink,$query);
 

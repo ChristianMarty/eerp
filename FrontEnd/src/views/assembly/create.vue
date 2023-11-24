@@ -36,7 +36,7 @@ export default {
   methods: {
     save() {
       assembly.create(this.assemblyData).then(response => {
-        this.$router.push('/assembly/item/' + response)
+        this.$router.push('/assembly/item/' + response.AssemblyBarcode)
       }).catch(response => {
         this.$message({
           showClose: true,

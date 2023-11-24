@@ -50,6 +50,11 @@ function barcodeFormatter_WorkOrderNumber(string|int|null $input): string|null
     return "WO-".$input;
 }
 
+function barcodeFormatter_BillOfMaterial(string|int $input): string|null
+{
+    return "BOM-".$input;
+}
+
 function barcodeFormatter_AssemblyNumber(string|int $input): string
 {
     return "ASM-".$input;

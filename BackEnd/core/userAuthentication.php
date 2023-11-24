@@ -120,6 +120,21 @@ class userAuthentication
         else return "WTF";
     }
 
+    function userId():int
+    {
+        global $devMode;
+        if($devMode) return 1;
+
+        return $_SESSION["userId"];
+    }
+
+    function vatIdDefault(): int
+    {
+        global $devMode;
+        if($devMode) return 1;
+        else return $_SESSION["userSettings"]->Default->PurchaseOrder->VAT??1;
+    }
+
     function info(): array
     {
         global $devMode;
@@ -181,7 +196,7 @@ class userAuthentication
         }
 		
         $userid = $result->Id;
-        $settings = json_decode($result->Settings,true);
+        $settings = json_decode($result->Settings);
         $userRolesTree = json_decode($result->Roles,true);
 
         $_SESSION["authenticated"] = true;

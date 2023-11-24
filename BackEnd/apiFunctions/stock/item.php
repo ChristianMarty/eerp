@@ -9,12 +9,12 @@
 //*************************************************************************************************
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_user.php";
 
 function _stockPartQuery(string $stockNo): string
 {
@@ -120,7 +120,7 @@ if($api->isPost("stock.create"))
 		$query .= dbStringNull($date).", ";
 		$query .= dbStringNull($orderReference).", ";
 		$query .= dbStringNull($lotNumber).", ";
-		$query .= dbIntegerNull(user_getId())." ";
+		$query .= dbIntegerNull($user->userId())." ";
 		$query .= ") AS StockNo; ";
 		
 	}
@@ -142,7 +142,7 @@ if($api->isPost("stock.create"))
 		$query .= dbStringNull($supplierId).", ";
 		$query .= dbStringNull($supplierPartNumber).", ";
 		$query .= dbStringNull($lotNumber).", ";
-		$query .= dbIntegerNull(user_getId())." ";
+		$query .= dbIntegerNull($user->userId())." ";
 		$query .= ") AS StockNo; ";
 	}
 	$result = dbRunQuery($dbLink,$query);
@@ -190,7 +190,7 @@ if($api->isDelete("stock.delete"))
 
 	$dbLink = dbConnect();
 
-	$sqlData['DeleteRequestUserId'] = user_getId();
+	$sqlData['DeleteRequestUserId'] = $user->userId();;
 	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
 	$sqlData['DeleteRequestNote'] = $data["Note"];
 

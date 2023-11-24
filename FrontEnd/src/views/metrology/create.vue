@@ -38,7 +38,7 @@ export default {
   methods: {
     save() {
       metrology.create(this.testSystemData).then(response => {
-        this.$router.push('/metrology/item/' + response)
+        this.$router.push('/metrology/item/' + response.TestSystemBarcode)
       }).catch(response => {
         this.$message({
           showClose: true,

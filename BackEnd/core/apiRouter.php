@@ -196,7 +196,7 @@ class apiRouter
         else return false;
     }
 
-    #[NoReturn] function returnData(array|stdClass|null $data, string|null $errorMessage = null): void
+    #[NoReturn] function returnData(array|stdClass|null|string $data, string|null $errorMessage = null): void
     {
         header("Content-Type:application/json; charset=UTF-8");
 

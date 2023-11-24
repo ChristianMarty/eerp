@@ -3,40 +3,26 @@
 // FileName : country.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
-require __DIR__ . "/../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-	
-	$query = "SELECT * FROM country ";	
-	
-	$queryParam = array();
-	
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	
-	$query .= " ORDER BY `Name` ASC ";
-	
+    $query = <<< QUERY
+        SELECT 
+            Id,
+            PhonePrefix,
+            CountryCode,
+            Name
+        FROM country
+        ORDER BY Name ASC
+    QUERY;
+    $result = $database->query($query);
 
-	$result = dbRunQuery($dbLink,$query);
-	
-	$country = array();
-	
-	while($r = mysqli_fetch_assoc($result))
-	{
-		$r['Id'] = intval($r['Id']);
-		$country[] = $r;
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($country);
+    $api->returnData($result);
 }
-
-	
-?>

@@ -7,10 +7,10 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $user;
 
 require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_user.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
 {
@@ -76,7 +76,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$sqlData['WorkOrderId'] = $workOrder['Id'];
 		}
 
-		$sqlData['UserId'] = user_getId();
+		$sqlData['UserId'] = $user->userId();;
 		
 		$query = dbBuildInsertQuery($dbLink,"partStock_history", $sqlData);
 

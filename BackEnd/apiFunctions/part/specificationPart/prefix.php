@@ -7,9 +7,11 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $api;
+
+$api->returnDeprecatedError();
 
 require_once __DIR__ . "/../../databaseConnector.php";
-
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     $dbLink = dbConnect();

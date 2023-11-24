@@ -40,7 +40,7 @@ class Assembly {
 
   assemblyCreateParameters = {
     Name: '',
-    Description: ''
+    Description: null
   }
   create(assemblyCreateParameters) {
     return new Promise((resolve, reject) => {

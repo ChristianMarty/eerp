@@ -4,9 +4,9 @@
 // FilePath : /
 // Author   : Christian Marty
 // Date		: 01.08.2021
+// License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
 require_once __DIR__ . "/config.php";
 
 global $devMode;

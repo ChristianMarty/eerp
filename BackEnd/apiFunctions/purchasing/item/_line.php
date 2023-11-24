@@ -40,7 +40,8 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
         purchaseOrder_itemReceive.Id AS ReceiveId,
         purchaseOrder_itemReceive.QuantityReceived,
         purchaseOrder_itemReceive.ReceivalDate,
-        specificationPart.Number AS SpecificationPartNumber
+        specificationPart.Number AS SpecificationPartNumber,
+        partStock.AddedStockQuantity
     FROM purchaseOrder_itemOrder 
     LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
     LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = purchaseOrder_itemOrder.UnitOfMeasurementId 
@@ -48,6 +49,13 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
     LEFT JOIN supplierPart ON purchaseOrder_itemOrder.SupplierPartId = supplierPart.Id
     LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
     LEFT JOIN specificationPart ON purchaseOrder_itemOrder.SpecificationPartId = specificationPart.Id
+    LEFT JOIN (
+        SELECT SUM(Quantity) AS AddedStockQuantity, partStock.ReceivalId
+        FROM partStock
+        LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id
+        WHERE partStock_history.ChangeType = 'Create'
+        GROUP BY partStock.ReceivalId
+    )partStock ON partStock.ReceivalId = purchaseOrder_itemReceive.Id
     STR;
 
     if($lineId == null) $query .= " WHERE PurchaseOrderId = $purchaseOrderId ";

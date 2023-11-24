@@ -19,6 +19,7 @@
         width="140"
         sortable
       />
+      <el-table-column prop="AddedStockQuantity" label="Add Stock Qty" width="120" />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="150" sortable />
       <el-table-column prop="ExpectedReceiptDate" label="Expected" width="150" sortable />
       <el-table-column prop="SupplierSku" label="Supplier SKU" width="220" sortable />
@@ -133,6 +134,7 @@ export default {
           if (line.Received.length === 1) {
             line.ReceivalDate = line.Received[0].ReceivalDate
             line.ReceivalId = line.Received[0].ReceivalId
+            line.AddedStockQuantity = line.Received[0].AddedStockQuantity
             delete line.Received
           } else {
             let i = 0

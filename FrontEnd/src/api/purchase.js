@@ -181,19 +181,17 @@ class Purchase {
           })
         })
       },
-      addToStockParameters: {
+      confirmParameters: {
         ReceivedQuantity: 0,
         ReceivedDate: 0,
-        LineId: 0,
-        LineNo: 0,
-        PurchaseOrderId: 0
+        LineId: 0
       },
-      addToStock(addToStockParameters) {
+      confirm(confirmParameters) {
         return new Promise((resolve, reject) => {
           eerpApi({
             method: 'post',
             url: '/purchasing/item/received',
-            data: addToStockParameters
+            data: confirmParameters
           }).then(response => {
             if (response.error == null) {
               resolve(response.data)

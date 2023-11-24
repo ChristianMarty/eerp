@@ -3,38 +3,28 @@
 // FileName : label.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet("label.view"))
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT * FROM label ";	
-	
-	$param = array();
-	if(isset($_GET["Id"])) $param[] = "Id = " . dbEscapeString($dbLink, $_GET["Id"]);
-	if(isset($_GET["Tag"])) $param[] = "Tag = '" . dbEscapeString($dbLink, $_GET["Tag"]) . "'";
-	
-	$query = dbBuildQuery($dbLink, $query, $param);
-	$query .= " ORDER BY `Name` ASC";
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$labels = array();
-	while($r = dbGetResult($result)) 
-	{
-		$labels[] = $r;
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($labels);
-}
+    $parameter = $api->getGetData();
 
-?>
+    $queryParameters = [];
+    if(isset($parameter->Id)) $queryParameters[] = 'Id = '.$database->escape($parameter->Id);
+    if(isset($parameter->Tag)) $queryParameters[] = 'Tag = '.$database->escape($parameter->Tag);
+
+    $query = <<< QUERY
+        SELECT 
+            *
+        FROM label
+    QUERY;
+    $result = $database->query($query, $queryParameters, "ORDER BY Name ASC");
+
+    $api->returnData($result);
+}

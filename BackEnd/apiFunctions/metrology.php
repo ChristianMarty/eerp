@@ -3,81 +3,45 @@
 // FileName : metrology.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/util/_barcodeFormatter.php";
-require_once __DIR__ . "/util/_barcodeParser.php";
 
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet("metrology.view"))
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT TestSystemNumber, Name, Description  FROM testSystem ";
-
-	$result = dbRunQuery($dbLink,$query);
-	$output = array();
-	
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$r['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($r['TestSystemNumber']);
-		$output[] = $r;
+	$query = <<< QUERY
+        SELECT 
+            TestSystemNumber,
+            Name,
+            Description
+        FROM testSystem
+    QUERY;
+	$result = $database->query($query);
+	foreach($result as &$item) {
+		$item->TestSystemBarcode = barcodeFormatter_TestSystemNumber($item->TestSystemNumber);
 	}
-
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($result);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost("metrology.create"))
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data['Name'])) sendResponse(null,"Name missing");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+	$data = $api->getPostData();
+	if(!isset($data->Name)) $api->returnParameterMissingError("Name");
+	if(empty($data->Name)) $api->returnParameterError("Name");
 
-	$name = dbEscapeString($dbLink,$data['Name']);
-	$description = dbEscapeString($dbLink,$data['Description']);
-	
-	
 	$sqlData = array();
-	$sqlData['Name'] = $name;
-	$sqlData['Description']  = $description;
+	$sqlData['Name'] = $data->Name;
+	$sqlData['Description']  = $data->Description;
 	$sqlData['TestSystemNumber']['raw'] = "(SELECT generateItemNumber())";
-	
-	$query = dbBuildInsertQuery($dbLink,"testSystem", $sqlData);
-	
-	$query .= " SELECT TestSystemNumber FROM testSystem WHERE Id = LAST_INSERT_ID();";
+	$id = $database->insert("testSystem", $sqlData);
 
-	$error = null;
-	$output = null;
-	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$output = barcodeFormatter_TestSystemNumber($row[0]);
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-		} while (mysqli_next_result($dbLink));
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($output, $error);
+	$query ="SELECT TestSystemNumber AS Number  FROM testSystem WHERE Id = $id;";
+	$output = [];
+	$output['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($database->query($query)[0]->Number);
+	$api->returnData($output);
 }
-
-
-?>

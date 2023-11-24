@@ -21,7 +21,7 @@ class Metrology {
 
   testingCreateParameters = {
     Name: '',
-    Description: ''
+    Description: null
   }
   create(testingCreateParameters) {
     return new Promise((resolve, reject) => {

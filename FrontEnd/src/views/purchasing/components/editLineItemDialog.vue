@@ -174,7 +174,7 @@
         <el-form-item label="Order Reference:">
           <el-input v-model="line.OrderReference" />
         </el-form-item>
-        <el-form-item v-if="line.LineType == 'Part'" label="Stock Part:">
+        <el-form-item v-if="line.LineType !== 'Generic'" label="Stock Part:">
           <el-checkbox v-model="line.StockPart" />
         </el-form-item>
 

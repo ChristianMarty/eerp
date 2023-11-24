@@ -3,36 +3,34 @@
 // FileName : tax.php
 // FilePath : apiFunctions/finance/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	if(!isset($_GET["Type"]))$type = dbEscapeString($dbLink,$_GET["Type"]);
-	
-	$query = "SELECT * FROM finance_tax ";
-	
-	if(isset($type))
-	{
-		$query .= "WHERE Type = '".$type."'";
-	}
-	
-	$result = dbRunQuery($dbLink,$query);
-	$output = array();
-	while($r = mysqli_fetch_assoc($result))
-	{
-		$r['Id'] = intval($r['Id']);
-		$output[] = $r;
-	}
+    $parameter = $api->getGetData();
 
-	dbClose($dbLink);	
-	sendResponse($output);
+    $queryParameters = [];
+    if(isset($parameter->Type)) $queryParameters[] = 'Type = '.$database->escape($parameter->Type);
+    if(isset($parameter->Active)) {
+        if($parameter->Active) $queryParameters[] = "Active = b'1'";
+        else $queryParameters[] = "Active = b'0'";
+    }
+
+	$query = <<< QUERY
+        SELECT 
+            Id,
+            Type,
+            Value,
+            Description
+        FROM finance_tax
+    QUERY;
+    $result = $database->query($query, $queryParameters);
+
+    $api->returnData($result);
 }
-?>

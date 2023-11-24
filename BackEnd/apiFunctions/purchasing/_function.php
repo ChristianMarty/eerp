@@ -119,7 +119,8 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 			if(!array_key_exists("Received",$lines[$r['OrderLineId']])) $lines[$r['OrderLineId']]['Received'] = array();
 			
 			$received = array();
-			$received['QuantityReceived'] = intval($r['QuantityReceived']);
+			$received['AddedStockQuantity'] = intval($r['AddedStockQuantity']);
+            $received['QuantityReceived'] = intval($r['QuantityReceived']);
 			$lines[$r['OrderLineId']]['QuantityReceived'] += $received['QuantityReceived'];
 			$received['ReceivalDate'] = $r['ReceivalDate'];
 			$received['ReceivalId'] = intval($r['ReceiveId']);

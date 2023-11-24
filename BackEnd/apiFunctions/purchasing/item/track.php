@@ -3,24 +3,23 @@
 // FileName : track.php
 // FilePath : apiFunctions/purchasing/item/
 // Author   : Christian Marty
-// Date		: 05.01.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["ReceivalId"]))sendResponse(null, "ReceivalId not specified");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$receivalId = intval(dbEscapeString($dbLink, $_GET["ReceivalId"]));
-	$output = array();
+    $parameter = $api->getGetData();
+    if(!isset($parameter->ReceivalId)) $api->returnParameterMissingError("ReceivalId");
+    $receivalId = intval($parameter->ReceivalId);
 
+	$output = array();
     $query = <<< STR
         SELECT 
             StockNo,
@@ -30,17 +29,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE ReceivalId = $receivalId AND partStock_history.ChangeType = 'Create'
     STR;
 	
-	$result = dbRunQuery($dbLink,$query);
-
-	while($r = mysqli_fetch_assoc($result)) 
+	$result = $database->query($query);
+    foreach($result as $r)
 	{
         $temp = array();
-        $temp['Barcode'] = 'Stk-'.$r['StockNo'];
+        $temp['Barcode'] = barcodeFormatter_StockNumber($r->StockNo);
         $temp['Type'] = "Part Stock";
         $temp['Description'] = null;
-        $temp['CreateQuantity'] = $r['CreateQuantity'];;
+        $temp['CreateQuantity'] = $r->CreateQuantity;
 		$output[] = $temp;
 	}
+
 
     $query = <<< STR
         SELECT InvNo, Title FROM inventory
@@ -48,19 +47,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE ReceivalId = $receivalId
     STR;
 
-	$result = dbRunQuery($dbLink,$query);
-
-	while($r = mysqli_fetch_assoc($result)) 
-	{
+    $result = $database->query($query);
+    foreach($result as $r)
+    {
         $temp = array();
-        $temp['Barcode'] = 'Inv-'.$r['InvNo'];
+        $temp['Barcode'] = barcodeFormatter_InventoryNumber($r->InvNo);
         $temp['Type'] = "Inventory";
         $temp['CreateQuantity'] = null;
-        $temp['Description'] = $r['Title'];
+        $temp['Description'] = $r->Title;
 		$output[] = $temp;
 	}
 
-	dbClose($dbLink);	
-	sendResponse($output);
+    $api->returnData($output);
 }
-?>

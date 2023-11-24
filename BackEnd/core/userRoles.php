@@ -33,8 +33,8 @@ class userRoles
         "purchasing":{"create": true, "edit": true, "confirm": true},
         "vendor":{"view": true, "create": true, "edit": true},
         "supplierPart":{"create": true},
-        "process":{"run": true},
-        "document":{"upload": true, "create": true, "ingest": true},
+        "process":{"view": true, "run": true},
+        "document":{"view": true, "upload": true, "create": true, "ingest": true},
         "manufacturerPartSeries":{"create": true,"edit": true},
         "manufacturerPart":{"create": true,"edit": true},
         "manufacturerPartNumber":{"create": true,"edit": true},
@@ -44,7 +44,9 @@ class userRoles
         "location":{"transfer":true, "bulkTransfer":true, "print": true, "edit": true},
         "finance":{"view":true, "costCenter":true},
         "bom":{"print":true},
-        "workOrder":{"create": true, "edit": true}
+        "billOfMaterial":{"view": true, "create": true},
+        "workOrder":{"create": true, "edit": true},
+        "label":{"view": true}
     }
     ROLES;
 }
