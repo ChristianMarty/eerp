@@ -93,6 +93,10 @@ export default {
   watch: {},
   created() {},
   mounted() {
+    if (this.$route.query.user) this.loginForm.username = this.$route.query.user
+    if (this.$route.query.password) this.loginForm.password = this.$route.query.password
+    if (this.$route.query.autologin) this.handleLogin()
+
     if (this.loginForm.username === '') {
       this.$refs.username.focus()
     } else {
