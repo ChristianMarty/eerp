@@ -192,5 +192,3 @@ else if($api->isPost("vendor.create"))
 
     $api->returnData($output);
 }
-	
-?>

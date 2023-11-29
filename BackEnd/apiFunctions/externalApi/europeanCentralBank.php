@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../config.php";
 
-function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode): float
+function ecb_getExchangeRate(string $sourceCurrencyCode, string $targetCurrencyCode): float
 {
 	$euroRate = ecb_getEcdData($sourceCurrencyCode, "EUR");
 	

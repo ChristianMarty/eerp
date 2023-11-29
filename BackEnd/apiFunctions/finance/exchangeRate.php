@@ -3,64 +3,44 @@
 // FileName : exchangeRate.php
 // FilePath : apiFunctions/finance
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 29.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ ."/../externalApi/europeanCentralBank.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-	if(!isset($_GET["CurrencyCode"]) AND !isset($_GET["CurrencyId"]))sendResponse(null, "CurrencyCode or CurrencyId not specified");
-	
-	$dbLink = dbConnect();
-	
-	global $accountingCurrencyId;
+if($api->isGet()) {
+    $parameter = $api->getGetData();
+    if (!isset($parameter->CurrencyCode)) $api->returnParameterMissingError("CurrencyCode");
+    if (!isset($parameter->CurrencyId)) $api->returnParameterMissingError("CurrencyId");
 
-	$error = null;
-	
-	$query = "SELECT CurrencyCode FROM finance_currency WHERE Id = ".intval($accountingCurrencyId);
-	$result = dbRunQuery($dbLink,$query);
-	$sourceCurrencyCode = mysqli_fetch_assoc($result)['CurrencyCode'];
+    global $accountingCurrencyId;
+
+    $query = "SELECT CurrencyCode FROM finance_currency WHERE Id = " . intval($accountingCurrencyId) . " LIMIT 1;";
+    $sourceCurrencyCode = $database->query($query)[0]->CurrencyCode;
 
     $targetCurrencyCode = null;
-	if(isset($_GET["CurrencyCode"]))
-	{
-		$targetCurrencyCode = $_GET["CurrencyCode"];
-	}
-	else if(isset($_GET["CurrencyId"]))
-	{
-		$query = "SELECT CurrencyCode FROM finance_currency WHERE Id = ".intval($_GET["CurrencyId"]);
-		$result = dbRunQuery($dbLink,$query);
-		$targetCurrencyCode = mysqli_fetch_assoc($result)['CurrencyCode'];
-	}
-	else
-	{
-		$error =  "CurrencyCode Error";
-	}
-	dbClose($dbLink);
-	
-	if($error == null)
-	{
-		$data = array();
-		if($targetCurrencyCode == $sourceCurrencyCode) $data['ExchangeRate']= 1.0;
-		else $data['ExchangeRate'] = ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
+    if (isset($parameter->CurrencyCode)) {
+        $targetCurrencyCode = $parameter->CurrencyCode;
+    } else if (isset($parameter->CurrencyId)) {
+        $query = "SELECT CurrencyCode FROM finance_currency WHERE Id = " . intval($parameter->CurrencyId) . " LIMIT 1;";
+        $targetCurrencyCode = $database->query($query)[0]->CurrencyCode;
+    } else {
+        $api->returnError("CurrencyCode Error");
+    }
 
-		if( $data['ExchangeRate'] == null) $error = "Unable to retrieve exchange rate";
+    $data = array();
+    if ($targetCurrencyCode == $sourceCurrencyCode) $data['ExchangeRate'] = 1.0;
+    else $data['ExchangeRate'] = ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
 
-		$data['From'] = $sourceCurrencyCode;
-		$data['To'] = $targetCurrencyCode;
-	}
-	else
-	{
-	    $data = null;
-	}
-	
-	sendResponse($data, $error);
+    if ($data['ExchangeRate'] == null) $api->returnError("Unable to retrieve exchange rate");
+
+    $data['From'] = $sourceCurrencyCode;
+    $data['To'] = $targetCurrencyCode;
+    $api->returnData($data);
 }
-
-	
-?>

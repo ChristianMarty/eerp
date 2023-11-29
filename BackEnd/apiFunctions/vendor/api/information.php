@@ -45,4 +45,3 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	sendResponse($data);
 }
-?>

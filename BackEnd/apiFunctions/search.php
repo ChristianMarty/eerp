@@ -3,20 +3,23 @@
 // FileName : search.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/location/_location.php";
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["search"])) sendResponse(null,"Search term not specified");
-	
-	$search = trim(strtolower($_GET["search"]));
+	$parameter = $api->getGetData();
+	if(!isset($parameter->search)) $api->returnParameterMissingError("search");
+
+	$search = trim(strtolower($parameter->search));
 	$parts = explode('-',$search);
 	
 	$data = array();
@@ -27,23 +30,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		$category = "";	
 		$prefix = "";
-		
-		$dbLink = dbConnect();
-		
+
 		$query = "SELECT * FROM numbering ";
-		$result = dbRunQuery($dbLink,$query);
-		
-		while($r = mysqli_fetch_assoc($result)) 
+
+		$result = $database->query($query);
+		foreach($result as $item)
 		{
-			if(strtolower($r['Prefix']) == $parts[0])
+			if(strtolower($item->Prefix) == $parts[0])
 			{
-				$category = $r['Category'];
-				$prefix = $r['Prefix'];
+				$category = $item->Category;
+				$prefix = $item->Prefix;
 				$found = true;
 				break;
 			}
 		}
-		dbClose($dbLink);
 
 		if($found)
 		{
@@ -51,29 +51,28 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			$data["Item"] = $prefix . "-" . $parts[1];
 			$data["RedirectCode"] = $prefix . "-" . $parts[1];
 
-			$output = array();
-			$output[] = $data;
-			sendResponse($output);
+			$api->returnData([$data]);
 		}
 	}
 
-	$dbLink = dbConnect();
 	// Search everywhere else
 	$output = array_merge(
-		search_manufacturerPartNumber($dbLink, $search),
-		search_assemblySerialNumber($dbLink, $search),
-		search_manufacturerPartItem($dbLink, $search),
-		manufacturerPartSeries($dbLink, $search),
-		search_vendor($dbLink, $search)
+		search_manufacturerPartNumber($search),
+		search_assemblySerialNumber($search),
+		search_manufacturerPartItem($search),
+		manufacturerPartSeries($search),
+		search_vendor($search)
 	);
-	dbClose($dbLink);
-	sendResponse($output);
+
+	$api->returnData($output);
 }
 
 
-function manufacturerPartSeries($dbLink, $input): array
+function manufacturerPartSeries(string $input): array
 {
-	$input = dbEscapeString($dbLink,$input);
+	global $database;
+
+	$input = $database->escape($input);
 
 	$query = <<<STR
 		SELECT
@@ -83,18 +82,18 @@ function manufacturerPartSeries($dbLink, $input): array
 			vendor_displayName(vendor.Id) AS VendorName
 		FROM manufacturerPart_series 
 		LEFT JOIN vendor on manufacturerPart_series.VendorId = vendor.Id
-		WHERE Title LIKE '$input' OR  Description LIKE '$input'
+		WHERE Title LIKE $input OR  Description LIKE $input
 	STR;
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 
 	$output = array();
-	while($r = mysqli_fetch_assoc($result))
+	foreach($result as $item)
 	{
 		$temp = array();
 		$temp["Category"] = 'ManufacturerPartItem';
-		$temp["Item"] = $r['VendorName']." - ".$r['Title'];
-		$temp["RedirectCode"] = $r['Id'];
-		$temp["Description"] = $r['Description'];
+		$temp["Item"] = $item->VendorName." - ".$item->Title;
+		$temp["RedirectCode"] = $item->Id;
+		$temp["Description"] = $item->Description;
 		$temp["LocationPath"] = '';
 
 		$output[] = $temp;
@@ -102,10 +101,10 @@ function manufacturerPartSeries($dbLink, $input): array
 	return $output;
 }
 
-function search_vendor($dbLink, $input): array
+function search_vendor(string $input): array
 {
-
-	$input = dbEscapeString($dbLink,$input);
+	global $database;
+	$input = $database->escape($input);
 
 	$query = <<<STR
 		SELECT 
@@ -115,18 +114,17 @@ function search_vendor($dbLink, $input): array
 			AbbreviatedName,
 			vendor_displayName(vendor.Id) AS VendorName
 		FROM vendor 
-		WHERE FullName LIKE '$input' OR ShortName LIKE '$input' OR AbbreviatedName LIKE '$input'
+		WHERE FullName LIKE $input OR ShortName LIKE $input OR AbbreviatedName LIKE $input
 	STR;
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 
 	$output = array();
-
-	while($r = mysqli_fetch_assoc($result))
+	foreach($result as $item)
 	{
 		$temp = array();
 		$temp["Category"] = 'Vendor';
-		$temp["Item"] = $r['VendorName'];
-		$temp["RedirectCode"] = $r['Id'];
+		$temp["Item"] = $item->VendorName;
+		$temp["RedirectCode"] = $item->Id;
 		$temp["Description"] = '';
 		$temp["LocationPath"] = '';
 
@@ -135,26 +133,26 @@ function search_vendor($dbLink, $input): array
 	return $output;
 }
 
-function search_manufacturerPartItem($dbLink, $input): array
+function search_manufacturerPartItem(string $input): array
 {
-	$input = dbEscapeString($dbLink,$input);
+	global $database;
+	$input = $database->escape($input);
 
 	$query = <<<STR
 		SELECT manufacturerPart_item.Id, Number, vendor_displayName(vendor.Id) AS VendorName
 		FROM manufacturerPart_item 
 		LEFT JOIN vendor on manufacturerPart_item.VendorId = vendor.Id
-		WHERE Number LIKE '$input'
+		WHERE Number LIKE $input
 	STR;
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 
 	$output = array();
-
-	while($r = mysqli_fetch_assoc($result))
+	foreach($result as $item)
 	{
 		$temp = array();
 		$temp["Category"] = 'ManufacturerPartItem';
-		$temp["Item"] = $r['VendorName']." - ".$r['Number'];
-		$temp["RedirectCode"] = $r['Id'];
+		$temp["Item"] = $item->VendorName." - ".$item->Number;
+		$temp["RedirectCode"] = $item->Id;
 		$temp["Description"] = '';
 		$temp["LocationPath"] = '';
 
@@ -163,21 +161,22 @@ function search_manufacturerPartItem($dbLink, $input): array
 	return $output;
 }
 
-function search_manufacturerPartNumber($dbLink, $input): array
+function search_manufacturerPartNumber(string $input): array
 {
-	$input = dbEscapeString($dbLink,$input);
+	global $database;
+	$input = $database->escape($input);
 
-	$query = "SELECT Id, Number FROM manufacturerPart_partNumber WHERE Number LIKE '$input'";
-	$result = dbRunQuery($dbLink,$query);
+	$query = "SELECT Id, Number FROM manufacturerPart_partNumber WHERE Number LIKE $input";
+
+	$result = $database->query($query);
 
 	$output = array();
-
-	while($r = mysqli_fetch_assoc($result))
+	foreach($result as $item)
 	{
 		$temp = array();
 		$temp["Category"] = 'ManufacturerPartNumber';
-		$temp["Item"] = $r['Number'];
-		$temp["RedirectCode"] = $r['Id'];
+		$temp["Item"] = $item->Number;
+		$temp["RedirectCode"] = $item->Id;
 		$temp["Description"] = '';
 		$temp["LocationPath"] = '';
 
@@ -186,22 +185,22 @@ function search_manufacturerPartNumber($dbLink, $input): array
 	return $output;
 }
 
-
-function search_assemblySerialNumber($dbLink, $input): array
+function search_assemblySerialNumber(string $input): array
 {
-	$input = dbEscapeString($dbLink,$input);
+	global $database;
+	$input = $database->escape($input);
 
-	$query = "SELECT Id, AssemblyUnitNumber, SerialNumber FROM assembly_unit WHERE SerialNumber LIKE '$input'";
-	$result = dbRunQuery($dbLink,$query);
+	$query = "SELECT Id, AssemblyUnitNumber, SerialNumber FROM assembly_unit WHERE SerialNumber LIKE $input";
+
+	$result = $database->query($query);
 
 	$output = array();
-
-	while($r = mysqli_fetch_assoc($result))
+	foreach($result as $item)
 	{
 		$temp = array();
 		$temp["Category"] = 'AssemblyUnit';
-		$temp["Item"] = $r['SerialNumber'];
-		$temp["RedirectCode"] = barcodeFormatter_AssemblyUnitNumber($r['AssemblyUnitNumber']);
+		$temp["Item"] = $item->SerialNumber;
+		$temp["RedirectCode"] = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
 		$temp["Description"] = '';
 		$temp["LocationPath"] = '';
 
@@ -209,4 +208,3 @@ function search_assemblySerialNumber($dbLink, $input): array
 	}
 	return $output;
 }
-?>

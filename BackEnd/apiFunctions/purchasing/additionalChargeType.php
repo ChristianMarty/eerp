@@ -3,21 +3,23 @@
 // FileName : additionalChargeType.php
 // FilePath : apiFunctions/purchasing/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 23.10.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
-    $output = dbGetEnumOptions($dbLink, 'purchaseOrder_additionalCharges','Type');
-    dbClose($dbLink);
-
-    if(!$output) sendResponse(null, "Database error for purchaseOrder_additionalCharges Type");
-
-    sendResponse($output);
+    $options = $database->getEnumOptions('purchaseOrder_additionalCharges','Type');
+    if($options === null)
+    {
+        $api->returnError('Database error for purchaseOrder_additionalCharges Type');
+    }
+    else
+    {
+        $api->returnData($options);
+    }
 }
-?>

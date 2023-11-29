@@ -27,7 +27,7 @@ class Metrology {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/metrology ',
+        url: '/metrology/item',
         data: testingCreateParameters
       }).then(response => {
         if (response.error == null) {

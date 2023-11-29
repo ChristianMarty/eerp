@@ -3,65 +3,59 @@
 // FileName : category.php
 // FilePath : apiFunctions/inventory/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../databaseConnector.php";
 
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
+    $query = <<< QUERY
+        SELECT 
+            Id,
+            ParentId,
+            Name
+        FROM inventory_category
+        ORDER BY Name ASC
+    QUERY;
 
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT * FROM inventory_categorie ORDER BY `Name` ASC";	
-	
-	$classId = 0;
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$locations = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$locations[] = $r;
-	}
-	
-	$locationsTree = array();
+    $locations = $database->query($query);
 
-	$locationsTree = buildTree($locations,$classId);
-	
-	dbClose($dbLink);	
-	sendResponse($locationsTree);
+    $classId = 0;
+    $locationsTree = array();
+    $locationsTree = buildTree($locations, $classId);
+    $api->returnData($locationsTree);
 }
 
-function hasChild($rows,$id)
+function hasChild(array $rows, int $id):bool
 {
 	foreach ($rows as $row) 
 	{
-		if ($row['ParentId'] == $id)return true;
+		if ($row->ParentId == $id)return true;
 	}
 	return false;
 }
 
-function buildTree($rows, $parentId)
+function buildTree(array $rows, int $parentId): array
 {  
 	$treeItem = array();
 	foreach ($rows as $row)
 	{
-		if ($row['ParentId'] == $parentId)
+		if ($row->ParentId == $parentId)
 		{
 			$temp = array();
 			
-			$temp['Name'] = $row['Name'];
-			$temp['Id'] = $row['Id'];
+			$temp['Name'] = $row->Name;
+			$temp['Id'] = $row->Id;
 		
-			if (hasChild($rows,$row['Id']))
+			if (hasChild($rows,$row->Id))
 			{
-				$temp['Children'] = array();
-				$temp['Children'] =  buildTree($rows,$row['Id']);
+				$temp['Children'] =  buildTree($rows,$row->Id);
 			}
 			$treeItem[] = $temp;
 		}
@@ -69,5 +63,3 @@ function buildTree($rows, $parentId)
 	
 	return $treeItem;
 }
-	
-?>

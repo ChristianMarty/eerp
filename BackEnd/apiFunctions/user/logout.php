@@ -12,4 +12,3 @@ global $user;
 global $api;
 $user->logout();
 $api->returnEmpty();
-?>

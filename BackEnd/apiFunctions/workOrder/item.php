@@ -3,42 +3,55 @@
 // FileName : item.php
 // FilePath : apiFunctions/workOrder/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["WorkOrderNumber"])) sendResponse(NULL, "Work Order Number Undefined");
-    $workOrderNumber = barcodeParser_WorkOrderNumber($_GET["WorkOrderNumber"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+	if(!isset($parameter->WorkOrderNumber)) $api->returnParameterMissingError("WorkOrderNumber");
+    $workOrderNumber = barcodeParser_WorkOrderNumber($parameter->WorkOrderNumber);
+    if($workOrderNumber === false) $api->returnParameterError("WorkOrderNumber");
 
     $query = <<< STR
-        SELECT workOrder.Id AS WorkOrderId, project.Title AS ProjectTitle, workOrder.Title, Quantity, WorkOrderNumber, Status 
+        SELECT 
+            workOrder.Id AS WorkOrderId, 
+            project.Title AS ProjectTitle, 
+            workOrder.Title, 
+            Quantity, 
+            WorkOrderNumber, 
+            Status 
         FROM workOrder
         LEFT JOIN project On project.Id = workOrder.ProjectId
         WHERE workOrder.WorkOrderNumber = $workOrderNumber
+        LIMIT 1;
     STR;
 
-	$result = mysqli_query($dbLink,$query);
-    $workOrderData = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$workOrderData = $r;
-	}
+    $workOrderData = $database->query($query);
+    if(count($workOrderData) === 0) $api->returnError("WorkOrderNumber not found");
 
-    $workOrderData['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($workOrderNumber);
-	$workOrderId = $workOrderData['WorkOrderId'];
-	
+    $workOrderId = $workOrderData[0]->WorkOrderId;
+
+    $output = array();
+    $output['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($workOrderData[0]->WorkOrderNumber);
+    $output['WorkOrderNumber'] = $workOrderData[0]->WorkOrderNumber;
+    $output['Title'] = $workOrderData[0]->Title;
+    $output['ProjectTitle'] = $workOrderData[0]->ProjectTitle;
+    $output['Quantity'] = $workOrderData[0]->Quantity;
+    $output['Status'] = $workOrderData[0]->Status;
+
 	$partUsed = array();
-
 
     $query = <<<STR
     SELECT  
@@ -64,33 +77,62 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     WHERE partStock_history.workOrderId = $workOrderId
     STR;
 
-	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
+	$result = $database->query($query);
+	foreach($result as $item)
 	{
-        if($r['ProductionPartNumber'] != null) $r['ProductionPartNumber'] = explode(",", $r['ProductionPartNumber']);
-		$partUsed[] = $r;
+        if($item->ProductionPartNumber != null) $item->ProductionPartNumber = explode(",", $item->ProductionPartNumber);
 	}
 
-	$workOrderData['PartsUsed'] = $partUsed;
-	dbClose($dbLink);	
-	sendResponse($workOrderData);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
-{
-    $data = json_decode(file_get_contents('php://input'),true);
+    $output['PartsUsed'] = $result;
 
-    if(!isset($data["WorkOrderNumber"])) sendResponse(NULL, "Work Order Number Undefined");
-    $workOrderNumber = barcodeParser_WorkOrderNumber($data["WorkOrderNumber"]);
+    $api->returnData($output);
+}
+else if($api->isPost())
+{
+    $data = $api->getPostData();
+
+    if(!isset($data->ProjectId)) $api->returnParameterMissingError("ProjectId");
+    if(!isset($data->Quantity)) $api->returnParameterMissingError("Quantity");
+    if(!isset($data->Title)) $api->returnParameterMissingError("Title");
+
+    $projectId = intval($data->ProjectId);
+    $quantity = intval($data->Quantity);
+    $title = $database->escape($data->Title);
+
+    $query = "INSERT INTO workOrder (Title, Quantity, ProjectId, WorkOrderNumber) VALUES ( $title, $quantity, $projectId, workOrder_generateWorkOrderNumber());";
+
+    $insertData = [];
+    $insertData['Title'] = $data->Title;
+    $insertData['Quantity'] = intval($data->Quantity);
+    $insertData['ProjectId'] = intval($data->ProjectId);
+    $insertData['WorkOrderNumber']['raw'] = "(SELECT workOrder_generateWorkOrderNumber())";
+
+    $workOrderId = $database->insert("workOrder", $insertData);
+
+    $query = "SELECT Id, WorkOrderNumber FROM workOrder WHERE Id = $workOrderId;";
+    $result = $database->query($query);
+
+    $result = dbGetResult($result);
+
+    $workOrder = [];
+    $workOrder['WorkOrderId'] = $result[0]->Id;
+    $workOrder['WorkOrderNumber'] = $result[0]->WorkOrderNumber;
+
+    $api->returnData($workOrder);
+}
+else if($api->isPatch())
+{
+    $data = $api->getPostData();
+    if(!isset($data->WorkOrderNumber)) $api->returnParameterMissingError("WorkOrderNumber");
+    if(!isset($data->Status)) $api->returnParameterMissingError("Status");
+
+    $workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
+    if($workOrderNumber === false)$api->returnParameterError("WorkOrderNumber");
 
     $woData = array();
-    $woData['Status'] = $data['Status'];
+    $woData['Status'] = $data->Status;
 
-    $dbLink = dbConnect();
-    $query = dbBuildUpdateQuery($dbLink, "workOrder", $woData, "WorkOrderNumber = ".$workOrderNumber);
-    $result = dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
+    $database->update("workOrder", $woData);
 
-    sendResponse(null);
+    $api->returnEmpty();
 }
-
-?>

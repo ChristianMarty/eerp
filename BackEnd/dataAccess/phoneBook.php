@@ -54,7 +54,7 @@ $query = <<< QUERY
         Phone, 
         Gender, 
         Language, 
-        `E-Mail` AS EMail  
+        EMail  
     FROM vendor
     LEFT JOIN vendor_contact ON vendor_contact.VendorId = vendor.Id
 QUERY;

@@ -3,20 +3,20 @@
 // FileName : productionPart.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-	
-	$hideNoManufacturerPart = false;
-	if(isset($_GET["HideNoManufacturerPart"])) $hideNoManufacturerPart = filter_var($_GET["HideNoManufacturerPart"], FILTER_VALIDATE_BOOLEAN);
+    $parameter = $api->getGetData();
+
+    $hideNoManufacturerPart = false;
+    if(isset($parameter->HideNoManufacturerPart)) $hideNoManufacturerPart = $parameter->HideNoManufacturerPart;
 
     $query = <<<STR
         SELECT 
@@ -32,42 +32,28 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$queryParam = array();
 	
-	if(isset($_GET["ManufacturerPartNumberId"]))
+	if(isset($parameter->ManufacturerPartNumberId))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
-		$queryParam[] = "productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = '" . $temp . "'";
+		$temp = $database->escape($parameter->ManufacturerPartNumberId);
+		$queryParam[] = "productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = $temp";
 	}
-	else if(isset($_GET["ProductionPartNumber"]))
+	else if(isset($parameter->ProductionPartNumber))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ProductionPartNumber"]);
-		$queryParam[] = " CONCAT(numbering.Prefix,'-',productionPart.Number) LIKE '" . $temp . "'";
+        $temp = $database->escape($parameter->ProductionPartNumber);
+		$queryParam[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) LIKE $temp";
 	}
 	
 	if($hideNoManufacturerPart)
 	{
 		$queryParam[] = "ManufacturerPartNumberId IS NOT NULL";
 	}
-	
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	
-	$query .= " GROUP BY productionPart.Id";
-	
-	$result = mysqli_query($dbLink,$query);
-	
-	$rows = array();
-	$rowcount = mysqli_num_rows($result);
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-        $r['Cache_BillOfMaterial_TotalQuantityUsed'] = intval($r['Cache_BillOfMaterial_TotalQuantityUsed']);
-        $r['Cache_BillOfMaterial_NumberOfOccurence'] = intval($r['Cache_BillOfMaterial_NumberOfOccurrence']);
-        $r['ProductionPartNumber'] = $r['Prefix']."-".$r['Number']; // TODO: ProductionPartNumber is Legacy -> Remove
-        $r['ProductionPartBarcode'] = $r['ProductionPartNumber'];
-		unset($r['Id']);
-		$rows[] = $r;
-	}
 
-	dbClose($dbLink);	
-	sendResponse($rows);
+    $result = $database->query($query,$queryParam,"GROUP BY productionPart.Id");
+
+    foreach($result as $item) {
+        $item->ProductionPartNumber = $item->Prefix."-".$item->Number; // TODO: ProductionPartNumber is Legacy -> Remove
+        $item->ProductionPartBarcode = $item->ProductionPartNumber;
+    }
+
+    $api->returnData($result);
 }
-
-?>

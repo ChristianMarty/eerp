@@ -3,35 +3,32 @@
 // FileName : item.php
 // FilePath : apiFunctions/finance/costCenter/
 // Author   : Christian Marty
-// Date		: 15.06.2023
+// Date		: 29.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-
-    if(!isset($_GET["CostCenterNumber"])) sendResponse(NULL, "Cost Center Number Undefined");
-
-    $costCenterNumber = barcodeParser_CostCenter($_GET["CostCenterNumber"]);
+    $parameter = $api->getGetData();
+    if(!isset($parameter->CostCenterNumber)) $api->returnParameterMissingError("CostCenterNumber");
+    $costCenterNumber = barcodeParser_CostCenter($parameter->CostCenterNumber);
+    if(empty($costCenterNumber)) $api->returnParameterError("CostCenterNumber");
 
     $query = <<<STR
         SELECT * FROM finance_costCenter
         WHERE CostCenterNumber = '$costCenterNumber'
     STR;
 
-	$result = dbRunQuery($dbLink,$query);
-
-	$costCenterData = mysqli_fetch_assoc($result);
-    $costCenterData['Barcode'] = barcodeFormatter_CostCenter($costCenterData['CostCenterNumber']);
-    $costCenterData['Id'] = intval($costCenterData['Id']);
-
-    $costCenterDataId =  $costCenterData['Id'];
+	$costCenterData = $database->query($query)[0];
+    $costCenterData->Barcode = barcodeFormatter_CostCenter($costCenterData->CostCenterNumber);
+    $costCenterDataId =  $costCenterData->Id;
 
     $query = <<<STR
         SELECT 
@@ -68,19 +65,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         GROUP BY purchaseOrder_itemOrder.Id
     STR;
 
-    $output = array();
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
-    {
-        $r['PurchaseOrderBarcode']  = barcodeFormatter_PurchaseOrderNumber($r['PoNo'], $r['LineNo']);
-        $r['LineTotal'] = round($r['Price']*$r['Quantity'],6);
-        $r['ProductionPartNumber'] = $r['ProductionPartNumberList'];
-        $output[] = $r;
+    $result = $database->query($query);
+    foreach($result as $item) {
+        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PoNo, $item->LineNo);
+        $item->LineTotal = round($item->Price*$item->Quantity,6);
+        $item->ProductionPartNumber = $item->ProductionPartNumberList;
     }
 
-    $costCenterData['PurchaseItem'] = $output;
-
-	dbClose($dbLink);	
-	sendResponse($costCenterData);
+    $costCenterData->PurchaseItem = $result;
+    $api->returnData($costCenterData);
 }
-?>

@@ -61,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		FROM `inventory`
 		LEFT JOIN `vendor` On vendor.Id = inventory.VendorId 
 		LEFT JOIN `location` On location.Id = inventory.LocationId 
-		LEFT JOIN `inventory_categorie` On inventory_categorie.Id = inventory.InventoryCategoryId 
+		LEFT JOIN `inventory_category` On inventory_category.Id = inventory.InventoryCategoryId 
 	STR;
 
 	if(isset($InvNo)) $baseQuery .="WHERE `InvNo` = '".$InvNo."'";

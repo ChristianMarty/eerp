@@ -7,6 +7,7 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 global $database;
 global $api;
 
@@ -27,13 +28,10 @@ if($api->isGet())
     STR;
 
     $output = $database->query($query);
-    foreach($output as &$item)
+    foreach($output as $item)
     {
         $item->SpecificationPartNumber = intval($item->SpecificationPartNumber);
         $item->SpecificationPartBarcode = barcodeFormatter_SpecificationPart($item->SpecificationPartNumber);
     }
-
     $api->returnData($output);
 }
-
-?>

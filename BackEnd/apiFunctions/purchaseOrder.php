@@ -3,19 +3,20 @@
 // FileName : PurchaseOrder.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/databaseConnector.php";
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 require_once __DIR__ . "/util/_barcodeParser.php";
 
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
+	$parameter = $api->getGetData();
 
 	$baseQuery = <<<STR
 		SELECT 
@@ -47,140 +48,52 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$queryParam = array();
 	
-	if(isset($_GET["PurchaseOrderNo"]))
+	if(isset($parameter->PurchaseOrderNo))
 	{
-		$purchaseOrderNo = dbEscapeString($dbLink, $_GET["PurchaseOrderNo"]);
+		$purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameter->PurchaseOrderNo);
+		if($purchaseOrderNo === false) $api->returnParameterError("PurchaseOrderNo");
 		$queryParam[] = "PoNo = " . $purchaseOrderNo;
 	}
 	
-	if(isset($_GET["VendorId"]))
+	if(isset($parameter->VendorId))
 	{
-		$vendorId = dbEscapeString($dbLink, $_GET["VendorId"]);
-		$queryParam[] = "VendorId = " . $vendorId;
+		$vendorId = intval($parameter->SupplierPartId);
+		if($vendorId === 0) $api->returnParameterError("VendorId");
+		$queryParam[] = "VendorId = $vendorId";
 	}
 
-	if(isset($_GET["SupplierPartId"]))
+	if(isset($parameter->SupplierPartId))
 	{
-		$supplierPartId = dbEscapeString($dbLink, $_GET["SupplierPartId"]);
-		$queryParam[] = "SupplierPartId = " . $supplierPartId;
-	}
-	
-	if(isset($_GET["HideClosed"]))
-	{
-		if(filter_var($_GET["HideClosed"], FILTER_VALIDATE_BOOLEAN)) $queryParam[] = "Status != 'Closed'";
-	}
-	else if(isset($_GET["Status"]))
-	{
-		$status = dbEscapeString($dbLink, $_GET["Status"]);
-		$queryParam[] = "Status = '" . $status . "'";
+		$supplierPartId = intval($parameter->SupplierPartId);
+		if($supplierPartId === 0) $api->returnParameterError("SupplierPartId");
+		$queryParam[] = "SupplierPartId = $supplierPartId";
 	}
 	
-	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	$query.= " GROUP BY purchaseOrder.Id ORDER BY purchaseOrder.PoNo DESC";
-
-	$result = dbRunQuery($dbLink,$query);
-	$output = array();
-	
-	while($r = mysqli_fetch_assoc($result)) 
+	if(isset($parameter->HideClosed) && $parameter->HideClosed)
 	{
-		$r['CurrencyId'] = intval($r['CurrencyId']);
-		if($r['Title'] == null) $r['Title'] = $r['SupplierName']." - ".$r['PurchaseDate'];
-
-		$totalQuantityOrdered =  intval($r['TotalQuantityOrdered']);
-		$totalQuantityReceived =  intval($r['TotalQuantityReceived']);
-
-		$r['TotalQuantityOrdered'] = $totalQuantityOrdered;
-		$r['TotalQuantityReceived'] = $totalQuantityReceived;
-
-		if($totalQuantityOrdered != 0) $r['ReceiveProgress'] = intval($totalQuantityReceived/$totalQuantityOrdered*100);
-		else $r['ReceiveProgress'] = 0;
-
-
-		$output[] = $r;
+		$queryParam[] = "Status != 'Closed'";
+	}
+	else if(isset($parameter->Status))
+	{
+		$status = $database->escape($parameter->Status);
+		$queryParam[] = "Status = $status";
 	}
 
-	dbClose($dbLink);	
-	sendResponse($output);
+	$result = $database->query($baseQuery,$queryParam,"GROUP BY purchaseOrder.Id ORDER BY purchaseOrder.PoNo DESC");
+
+	foreach ($result as $item)
+	{
+		if($item->Title == null) $item->Title = $item->SupplierName." - ".$item->PurchaseDate;
+
+		$totalQuantityOrdered =  intval($item->TotalQuantityOrdered);
+		$totalQuantityReceived =  intval($item->TotalQuantityReceived);
+
+		$item->TotalQuantityOrdered = $totalQuantityOrdered;
+		$item->TotalQuantityReceived = $totalQuantityReceived;
+
+		if($totalQuantityOrdered != 0) $item->ReceiveProgress = intval($totalQuantityReceived/$totalQuantityOrdered*100);
+		else $item->ReceiveProgress = 0;
+	}
+
+	$api->returnData($result);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$data = json_decode(file_get_contents('php://input'),true);
-
-	$poCreate = array();
-	$poCreate['VendorId'] = intval($data['SupplierId']);
-	$poCreate['PurchaseDate'] = $data['PurchaseDate'];
-	
-	if($data['Title'] != "") $poCreate['Title'] = $data['Title'];
-	if($data['Description'] != "") $poCreate['Description'] = $data['Description'];
-	
-	$poCreate['PoNo']['raw'] = "purchaseOrder_generatePoNo()";
-	
-	$query = dbBuildInsertQuery($dbLink, "purchaseOrder", $poCreate);
-	
-	$query .= "SELECT PoNo FROM purchaseOrder WHERE Id = LAST_INSERT_ID();";
-	
-	$output = array();
-	$error = null;
-	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$output["PurchaseOrderNo"] = $row[0];
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-		} while (mysqli_next_result($dbLink));
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	
-
-	dbClose($dbLink);	
-	sendResponse($output,$error);
-	
-}
-else if ($_SERVER['REQUEST_METHOD'] == 'PATCH')
-{
-	$data = json_decode(file_get_contents('php://input'),true);
-	if(!isset($_GET["PurchaseOrderNo"])) sendResponse(null,"PO Number not defined!");
-	$poNo = barcodeParser_PurchaseOrderNumber($_GET['PurchaseOrderNo']);
-
-	$dbLink = dbConnect();
-
-	$poData = array();
-	$poData['VendorId'] = intval($data['data']['SupplierId']);
-	$poData['Title'] = $data['data']['Title'];
-	$poData['PurchaseDate'] = $data['data']['PurchaseDate'];
-	$poData['AcknowledgementNumber'] = $data['data']['AcknowledgementNumber'];
-	$poData['QuotationNumber'] = $data['data']['QuotationNumber'];
-	$poData['OrderNumber'] = $data['data']['OrderNumber'];
-	$poData['Description'] = $data['data']['Description'];
-	$poData['Carrier'] = $data['data']['Carrier'];
-	$poData['PaymentTerms'] = $data['data']['PaymentTerms'];
-	$poData['InternationalCommercialTerms'] = $data['data']['InternationalCommercialTerms'];
-	$poData['HeadNote'] = $data['data']['HeadNote'];
-	$poData['FootNote'] = $data['data']['FootNote'];
-	$poData['CurrencyId'] = intval($data['data']['CurrencyId']);
-	$poData['ExchangeRate'] = $data['data']['ExchangeRate'];
-	$poData['VendorAddressId'] = intval($data['data']['VendorAddressId']);
-	$poData['VendorContactId'] = intval($data['data']['VendorContactId']);
-	
-	$poData['Status'] = $data['data']['Status'];
-	$query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$poNo);
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$output = array();
-	
-	dbClose($dbLink);	
-	sendResponse($output);
-}
-?>

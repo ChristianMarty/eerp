@@ -3,20 +3,19 @@
 // FileName : purchaseOrder.php
 // FilePath : apiFunctions/finance/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 29.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["Year"])) sendResponse(Null,"Year not set");
-
-    $dbLink = dbConnect();
-
-    $year = dbEscapeString($dbLink,$_GET["Year"]);
+    $parameter = $api->getGetData();
+    if(!isset($parameter->Year)) $api->returnParameterMissingError("Year");
+    $year = $database->escape($parameter->Year);
 
     $query = <<<STR
         SELECT  MONTH(PurchaseDate) AS Month, SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price) AS Merchandise,
@@ -42,7 +41,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         GROUP BY MONTH(PurchaseDate)
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
     $month = array();
     for($i = 1; $i<=12; $i++)
     {
@@ -57,25 +55,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $totalShipping = 0;
     $totalVAT = 0;
     $totalTotal = 0;
-    while($r = mysqli_fetch_assoc($result)) {
 
-        $r['Month'] = intval($r['Month']);
-        $r['Merchandise'] = round(floatval($r['Merchandise']),4);
-        $r['Shipping'] = round(floatval($r['Shipping']),4);
-        $r['VAT'] = round(floatval($r['VAT']),4);
+    $result = $database->query($query);
+    foreach($result as $item) {
+        $item->Merchandise = round(floatval($item->Merchandise),4);
+        $item->Shipping = round(floatval($item->Shipping),4);
+        $item->VAT = round(floatval($item->VAT),4);
 
-        if($r['Merchandise'] == null) $r['Merchandise'] = 0;
-        if($r['Shipping'] == null) $r['Shipping'] = 0;
-        if($r['VAT'] == null) $r['VAT'] = 0;
+        if($item->Merchandise == null) $item->Merchandise = 0;
+        if($item->Shipping == null) $item->Shipping = 0;
+        if($item->VAT == null) $item->VAT = 0;
 
-        $r['Total'] = round($r['Merchandise'] + $r['Shipping'] + $r['VAT'],4);
+        $item->Total = round($item->Merchandise + $item->Shipping + $item->VAT,4);
 
-        $totalMerchandise += $r['Merchandise'];
-        $totalShipping += $r['Shipping'];
-        $totalVAT += $r['VAT'];
-        $totalTotal += $r['Total'];
+        $totalMerchandise += $item->Merchandise;
+        $totalShipping += $item->Shipping;
+        $totalVAT += $item->VAT;
+        $totalTotal += $item->Total;
 
-       $month[$r['Month']] = $r;
+        $month[$item->Month] = $item;
     }
 
     $output['TotalMerchandise'] = $totalMerchandise;
@@ -85,10 +83,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $output['MonthTotal'] = $month;
 
-    dbClose($dbLink);
-    sendResponse($output);
+    $api->returnData($output);
 }
-
-
-
-?>

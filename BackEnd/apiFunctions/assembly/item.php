@@ -3,10 +3,13 @@
 // FileName : item.php
 // FilePath : apiFunctions/assembly/
 // Author   : Christian Marty
-// Date		: 16.08.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
@@ -14,7 +17,7 @@ require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../location/_location.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
 	if(!isset($_GET["AssemblyNumber"])) sendResponse(Null,"Assembly Number not set");
 	$assemblyNumber = barcodeParser_AssemblyNumber($_GET["AssemblyNumber"]);
@@ -106,5 +109,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($output);
 }
-?>
+else if($api->isPost("assembly.create"))
+{
+	$data = $api->getPostData();
+	if(!isset($data->Name)) $api->returnParameterMissingError("Name");
+	if(empty($data->Name)) $api->returnParameterError("Name");
+
+	$sqlData = array();
+	$sqlData['Name'] = $data->Name;
+	$sqlData['Description']  = $data->Description;
+	$sqlData['AssemblyNumber']['raw'] = "(SELECT generateItemNumber())";
+	$id = $database->insert("assembly", $sqlData);
+
+	$query ="SELECT AssemblyNumber AS Number  FROM assembly WHERE Id = $id;";
+	$output = [];
+	$output['AssemblyBarcode'] = barcodeFormatter_AssemblyNumber($database->query($query)[0]->Number);
+	$api->returnData($output);
+}
+
 

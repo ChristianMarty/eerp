@@ -10,6 +10,7 @@
 declare(strict_types=1);
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
 
 class Location
 {
@@ -51,6 +52,19 @@ class Location
 
 		if($output == null) $output = "";
 		return $output;
+	}
+
+	public function idsWithChildren(string|int|null $locationNumber): array
+	{
+		if($locationNumber === null) return [];
+		$locationNumber = barcodeFormatter_LocationNumber($locationNumber);
+
+		foreach (self::$locationData  as $row) {
+			if ($row->LocNr == $locationNumber) {
+				return $this->getChildren($row->Id);
+			}
+		}
+		return [];
 	}
 
 	public function tree(int|null $parentId = null): array
@@ -98,6 +112,20 @@ class Location
 		return false;
 	}
 
+	private function getChildren(int|null $parentId): array
+	{
+		if($parentId === null) return [];
+
+		$id = null;
+		foreach (self::$locationData  as $row)
+		{
+			if ($row->ParentId == $parentId){
+				$id = $row->Id;
+				break;
+			}
+		}
+		return [$id,...$this->getChildren($id)];
+	}
 }
 
 function location_getItems(int|null $locationId) : array

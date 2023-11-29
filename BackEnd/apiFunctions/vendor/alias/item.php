@@ -51,6 +51,3 @@ else if($api->isPatch())
     }
     $api->returnEmpty();
 }
-
-	
-?>

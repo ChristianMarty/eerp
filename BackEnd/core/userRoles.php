@@ -28,12 +28,14 @@ class userRoles
     static private string $fullAccessRoles = <<< ROLES
     { 
         "assembly":{"view": true, "create": true, "unit" : {"add": true, "history" : {"add": true, "edit": true}}},
-        "inventory":{"print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}, "purchase": {"edit": true}},
+        "inventory":{"view": true, "print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}, "purchase": {"view": true,"edit": true}},
         "metrology":{"view": true, "create": true},
         "purchasing":{"create": true, "edit": true, "confirm": true},
         "vendor":{"view": true, "create": true, "edit": true},
         "supplierPart":{"create": true},
         "process":{"view": true, "run": true},
+        "report":{"view": true},
+        "project":{"view": true},
         "document":{"view": true, "upload": true, "create": true, "ingest": true},
         "manufacturerPartSeries":{"create": true,"edit": true},
         "manufacturerPart":{"create": true,"edit": true},

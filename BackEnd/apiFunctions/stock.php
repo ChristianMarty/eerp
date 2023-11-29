@@ -7,6 +7,7 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 global $database;
 global $api;
 
@@ -55,9 +56,8 @@ if($api->isGet("stock.view"))
 		$queryParam[] = "partStock.Cache_Quantity != '0'";
 	}
 
-
 	$data = $database->query($baseQuery,$queryParam);
-	foreach ($data as &$line)
+	foreach ($data as $line)
 	{
 		$line->StockBarcode = barcodeFormatter_StockNumber($line->StockNumber);
 		$line->Location = location_getName(intval($line->LocationId));

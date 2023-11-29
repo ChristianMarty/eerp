@@ -7,6 +7,7 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 global $database;
 global $api;
 

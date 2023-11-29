@@ -57,9 +57,9 @@ class database
         return explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result->Type));
     }
 
-    public function escape(string $input):string
+    public function escape(string|int|float $input):string
     {
-        return $this->pdo->quote($input);
+        return $this->pdo->quote(strval($input));
     }
 
     function query(string $baseQuery, array|null $queryParameters = null, string|null $postFix = null ):array
@@ -72,13 +72,16 @@ class database
             $query .= $queryParameters[0];
             unset($queryParameters[0]);
 
-            foreach ($queryParameters as &$param)
+            foreach ($queryParameters as $param)
             {
                 $query .= " AND ".$param;
             }
         }
 
         $query .= " ".$postFix??"";
+
+        //echo $query;
+        //exit;
 
         try {
             $data = $this->pdo->query($query);

@@ -10,7 +10,7 @@ class WorkOrder {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/workOrder',
+        url: '/workOrder/item',
         data: createParameters
       }).then(response => {
         if (response.error == null) {

@@ -3,10 +3,13 @@
 // FileName : item.php
 // FilePath : apiFunctions/metrology/
 // Author   : Christian Marty
-// Date		: 16.08.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
@@ -99,4 +102,20 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	dbClose($dbLink);	
 	sendResponse($output);
 }
-?>
+else if($api->isPost("metrology.create"))
+{
+    $data = $api->getPostData();
+    if(!isset($data->Name)) $api->returnParameterMissingError("Name");
+    if(empty($data->Name)) $api->returnParameterError("Name");
+
+    $sqlData = array();
+    $sqlData['Name'] = $data->Name;
+    $sqlData['Description']  = $data->Description;
+    $sqlData['TestSystemNumber']['raw'] = "(SELECT generateItemNumber())";
+    $id = $database->insert("testSystem", $sqlData);
+
+    $query ="SELECT TestSystemNumber AS Number  FROM testSystem WHERE Id = $id;";
+    $output = [];
+    $output['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($database->query($query)[0]->Number);
+    $api->returnData($output);
+}

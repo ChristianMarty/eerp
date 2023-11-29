@@ -46,7 +46,7 @@ class Assembly {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/assembly ',
+        url: '/assembly/item',
         data: assemblyCreateParameters
       }).then(response => {
         if (response.error == null) {

@@ -3,28 +3,24 @@
 // FileName : item.php
 // FilePath : apiFunctions/inventory/purchase/
 // Author   : Christian Marty
-// Date		: 25.09.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../util/_json.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet("inventory.purchase.view"))
 {
-	if(!isset($_GET["InventoryNumber"]) ) sendResponse(Null,"Inventory Number not set");
-	
-	$inventoryNumber = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
-	if(!$inventoryNumber)sendResponse(Null,"Inventory Number invalid");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	// Get Purchase Information
+    $parameter = $api->getGetData();
+    if(!isset($parameter->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
+    $inventoryNumber = barcodeParser_InventoryNumber($parameter->InventoryNumber);
+    if(empty($inventoryNumber)) $api->returnParameterError("InventoryNumber");
+
     $query = <<< STR
         SELECT 
             PoNo, 
@@ -47,76 +43,50 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN vendor ON purchaseOrder.VendorId = vendor.Id
         LEFT JOIN finance_currency ON purchaseOrder.CurrencyId = finance_currency.Id
         WHERE inventory_purchaseOrderReference.InventoryId = (SELECT Id from inventory WHERE InvNo = $inventoryNumber)
-    
     STR;
 
-	$purchase = array();
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	
-	if(!$result)
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	else
-	{
-		while($por = mysqli_fetch_assoc($result))
-		{	
-			$por["ReceivalId"] = intval($por['ReceivalId']);
-			$por["Quantity"] = floatval($por['Quantity']);
-			$por["PurchaseOrderNumber"] = $por['PoNo'];
-			$por["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($por['PoNo'],$por['LineNumber']);
-			$por['PoNo'] = barcodeFormatter_PurchaseOrderNumber($por['PoNo']);
-			
-			//$totalPrice += ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']; 
-			
-			$purchase[] = $por;
-		}
-	}
+    $result = $database->query($query);
+    foreach($result as &$item)
+    {
+        $item->PurchaseOrderNumber = $item->PoNo;
+        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PoNo, $item->LineNumber);
+        $item->PoNo = barcodeFormatter_PurchaseOrderNumber($item->PoNo);
+    }
 
-	dbClose($dbLink);	
-	sendResponse($purchase,$error);
+    $api->returnData($result);
 }
-
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPatch("inventory.purchase.edit"))
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["InventoryNumber"]) ) sendResponse(Null,"Inventory Number not set");
-    $inventoryNumber = barcodeParser_InventoryNumber($data["InventoryNumber"]);
-	$purchaseOrderItems =  $data["PurchaseOrderItems"];
-	
-	$dbLink = dbConnect();
-	
-	$query  = "SELECT Id FROM inventory ";
-	$query .= "WHERE InvNo = {$inventoryNumber}";	
-	$result = dbRunQuery($dbLink,$query);
-	$id = mysqli_fetch_assoc($result)['Id'];
+    $data = $api->getPostData();
+    if(!isset($data->InventoryNumber)) $api->returnParameterMissingError('InventoryNumber');
+    if(!isset($data->PurchaseOrderItems)) $api->returnParameterMissingError('PurchaseOrderItems');
+    $inventoryNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
+    if(empty($inventoryNumber)) $api->returnParameterError("InventoryNumber");
 
-	// Add elements
-	$error = null;
+	$purchaseOrderItems =  $data->PurchaseOrderItems;
+
+    $query = <<< STR
+        SELECT 
+            Id 
+        FROM inventory 
+        WHERE InvNo = {$inventoryNumber};
+    STR;
+    $id = $database->query($query)[0]->Id;
+
 	$receivalIdList = array();
 	foreach($purchaseOrderItems as $item)
 	{
-        $costType = dbEscapeString($dbLink,$item['CostType']);
-		$quantity = dbEscapeString($dbLink,$item['Quantity']);
-		$receivalId = dbEscapeString($dbLink,$item['ReceivalId']);
+        $costType = $database->escape($item->CostType);
+		$quantity = $database->escape($item->Quantity);
+		$receivalId = $database->escape($item->ReceivalId);
 		$receivalIdList[] = $receivalId;
 
         $query = <<< STR
             INSERT IGNORE INTO inventory_purchaseOrderReference 
-            SET InventoryId = $id, Quantity = $quantity, ReceivalId = $receivalId, Type = '$costType';
+            SET InventoryId = $id, Quantity = $quantity, ReceivalId = $receivalId, Type = $costType;
         STR;
 
-		$result = dbRunQuery($dbLink,$query);
-		
-		if(!$result)
-		{
-			$error = "Error description: " . mysqli_error($dbLink);
-			break;
-		}
-
+		$database->query($query);
 	}
 
     $query = <<< STR
@@ -129,14 +99,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
         $query .= " AND NOT ReceivalId IN({$temp});";
     }
 
-    echo  $query;
-    exit;
-
-	$result = dbRunQuery($dbLink,$query);
-
-	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
-	
-	dbClose($dbLink);	
-	sendResponse(null,$error);
+    $database->query($query);
+    $api->returnEmpty();
 }
-?>
