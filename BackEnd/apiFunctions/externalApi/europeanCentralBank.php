@@ -10,7 +10,7 @@
 
 require_once __DIR__ . "/../../config.php";
 
-function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode)
+function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode): float
 {
 	$euroRate = ecb_getEcdData($sourceCurrencyCode, "EUR");
 	
@@ -26,9 +26,9 @@ function ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode)
 	}
 }
 
-function ecb_getEcdData($sourceCurrencyCode, $targetCurrencyCode)
+function ecb_getEcdData(string $sourceCurrencyCode, string $targetCurrencyCode): float|null
 {
-	$url = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/D.".$sourceCurrencyCode.".".$targetCurrencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
+    $url = "https://data-api.ecb.europa.eu/service/data/EXR/D.".$sourceCurrencyCode.".".$targetCurrencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
@@ -47,7 +47,5 @@ function ecb_getEcdData($sourceCurrencyCode, $targetCurrencyCode)
 		$exchangeRate = $ecbData['dataSets'][0]['series']['0:0:0:0:0']['observations'][0][0];
 	}
 
-    return $exchangeRate ;
+    return $exchangeRate;
 }
-
-?>
