@@ -32,6 +32,7 @@ function description_generateSummary($locationNr): array
 	{
 		$query = <<< STR
 		SELECT
+		    StockNo AS StockNumber,
 			vendor_displayName(vendor.Id) AS ManufacturerName,
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
 			Date, 
@@ -58,7 +59,7 @@ function description_generateSummary($locationNr): array
 		
 		$locationId = $itemData->LocationId;
 		
-		$data["Item"] =  barcodeFormatter_StockNumber($itemNr);
+		$data["Item"] =  barcodeFormatter_StockNumber($itemData->StockNumber);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
@@ -67,6 +68,7 @@ function description_generateSummary($locationNr): array
 	{
         $query = <<< STR
 		SELECT
+		    InvNo AS InventoryNumber,
 			Title, 
 			Manufacturer, 
 			Type, 
@@ -89,7 +91,7 @@ function description_generateSummary($locationNr): array
 		
 		$locationId = $itemData->LocationId;
 		
-		$data["Item"] = barcodeFormatter_InventoryNumber($itemNr);
+		$data["Item"] = barcodeFormatter_InventoryNumber($itemData->InventoryNumber);
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
@@ -98,6 +100,7 @@ function description_generateSummary($locationNr): array
 	{
 		$query = <<<STR
 			SELECT 
+			    AssemblyUnitNumber,
 				Name, 
 				Description, 
 				SerialNumber, 
@@ -121,7 +124,7 @@ function description_generateSummary($locationNr): array
 		
 		$locationId = $itemData->LocationId;
 		
-		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($itemNr);
+		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($itemData->AssemblyUnitNumber);
 		$data["Category"] = "Assembly Item";
 		$data["Description"] = $descriptor; 
 		$data["Movable"] = true;
@@ -130,8 +133,8 @@ function description_generateSummary($locationNr): array
 	{
 		$query = <<<STR
 			SELECT 
+			    LocNr as LocationNumber,
 			    Id,
-			    LocNr, 
 			    Movable, 
 			    LocationId
 			FROM location 
@@ -149,10 +152,10 @@ function description_generateSummary($locationNr): array
 
 		$location = new Location();
 		
-		$data["Item"] = barcodeFormatter_LocationNumber($itemNr);
+		$data["Item"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = $location->name($itemData->Id);
-		$data["LocationNr"] = barcodeFormatter_LocationNumber($itemData->LocNr);
+		$data["LocationNr"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
 		$data["Location"] = $location->name($itemData->LocationId);
 		if($itemData->Movable == "1") $data["Movable"] = true;
 		else $data["Movable"] = false;

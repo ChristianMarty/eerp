@@ -26,8 +26,8 @@ if($api->isGet())
 	$output = getPurchaseOrderData($purchaseOrderNo);
 	
 	// Get Documents
-    $DocIds = $output['MetaData']['DocumentIds'] ?? null;
-    unset($output['MetaData']['DocumentIds']);
+    $DocIds = $output['MetaData']->DocumentIds ?? null;
+    unset($output['MetaData']->DocumentIds);
 	
 	$output["Documents"] = getDocuments($DocIds);
 

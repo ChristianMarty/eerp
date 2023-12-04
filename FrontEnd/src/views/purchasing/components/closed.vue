@@ -111,7 +111,7 @@ export default {
       this.viewLine = row
     },
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PoNo).then(response => {
+      purchase.item.search(this.$props.orderData.PurchaseOrderBarcode).then(response => {
         this.lines = response.Lines
         this.total = response.Total
         this.additionalCharges = response.AdditionalCharges

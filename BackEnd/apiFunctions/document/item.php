@@ -39,7 +39,7 @@ if($api->isGet())
 
 	$output = $database->query($query);
 
-	if(count($output)) $api->returnEmpty();
+	if(count($output)== 0) $api->returnEmpty();
 	$output = $output[0];
 
 	global $documentRootPath;

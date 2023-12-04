@@ -361,7 +361,7 @@ export default {
       this.getOrderLines()
     },
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PoNo).then(response => {
+      purchase.item.search(this.$props.orderData.PurchaseOrderBarcode).then(response => {
         this.poData = response
         this.itemLineIndex = this.poData.Lines.length
         this.additionalChargesLineIndex = this.poData.AdditionalCharges.length

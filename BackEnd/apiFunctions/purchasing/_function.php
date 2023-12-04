@@ -107,7 +107,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 			$received = array();
 			$received['AddedStockQuantity'] = intval($r->AddedStockQuantity);
             $received['QuantityReceived'] = intval($r->QuantityReceived);
-			$lines[$r['OrderLineId']]['QuantityReceived'] += $received['QuantityReceived'];
+			$lines[$r->OrderLineId]['QuantityReceived'] += $received['QuantityReceived'];
 			$received['ReceivalDate'] = $r->ReceivalDate;
 			$received['ReceivalId'] = intval($r->ReceiveId);
 			
@@ -135,7 +135,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
     $additionalCharges = $database->query($query);
 	foreach ($result as $r)
 	{
-		$r->Total = floatval($r->Price * intval($r->Quantity));
+		$r->Total = floatval($r->Price??0 * intval($r->Quantity??0));
 	}
 
 	$output['AdditionalCharges'] = $additionalCharges;
@@ -159,8 +159,8 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	
 	foreach( $additionalCharges as $line)
 	{
-		$lineTotal = $line['Quantity']*$line['Price'];
-		$vat = $lineTotal*($line['VatValue']/100);
+		$lineTotal = $line->Quantity*$line->Price;
+		$vat = $lineTotal*($line->VatValue/100);
 		
 		$totalVat += $vat;
 		$totalAdditionalCharges += $lineTotal;
@@ -168,14 +168,14 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	
 	$total = ($totalNet - $totalDiscount) + $totalVat + $totalAdditionalCharges;
 	
-	$digits = $output['MetaData']['CurrencyDigits'];
+	$digits = $output['MetaData']->CurrencyDigits;
 	
 	$output['Total'] = array(	"Net"=> round($totalNet, $digits, PHP_ROUND_HALF_UP),
 								"Vat"=> round($totalVat, $digits, PHP_ROUND_HALF_UP),
 								"AdditionalCharges"=> round($totalAdditionalCharges, $digits, PHP_ROUND_HALF_UP),								
 								"Discount"=> round(-1*$totalDiscount, $digits, PHP_ROUND_HALF_UP), 
 								"Total"=> round($total, $digits, PHP_ROUND_HALF_UP),
-								"CurrencyCode"=> $output['MetaData']['CurrencyCode']
+								"CurrencyCode"=> $output['MetaData']->CurrencyCode
 								);
 	
 	return $output;

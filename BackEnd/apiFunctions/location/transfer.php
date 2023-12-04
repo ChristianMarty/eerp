@@ -11,6 +11,9 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+
 function filterInv($var): int
 {
 	if(explode("-",strtolower($var))[0] == "inv") return 1;
@@ -42,19 +45,18 @@ function moveItems($itemList, $locationNr, string $category, string $idName): st
 	foreach($itemList as &$item)
 	{
 		$item = explode("-", $item)[1];
-		$item = $database->escape($item);
 	}
-	$itemListStr = implode("', '",$itemList);
+	$itemListStr = $database->escape(implode("', '",$itemList));
 
 	$baseQuery = <<<STR
 		UPDATE $category
 		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$locationNr')
-		WHERE $idName IN('$itemListStr')
+		WHERE $idName IN($itemListStr)
 	STR;
 
 	$database->execute($baseQuery);
 
-	return $database->getErrorMessage();
+	return $database->getErrorMessage()??"";
 }
 
 
@@ -69,7 +71,6 @@ if($api->isPost())
 	if(!isset($data->TransferList)) $api->returnParameterMissingError("TransferList");
 
 	$itemList =  $data->TransferList;
-	
 
 	// Split into different categories
 	$invList = array_filter($itemList, "filterInv");

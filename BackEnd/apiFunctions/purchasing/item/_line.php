@@ -79,11 +79,11 @@ function purchaseOrderItem_getCostCenterQuery($lineId):string
 function purchaseOrderItem_getCostCenterData($result):array
 {
     $output = array();
-    while($r = mysqli_fetch_assoc($result))
+    foreach ($result as $r)
     {
         $temp = array();
-        $temp['Barcode'] = barcodeFormatter_CostCenter($r['CostCenterNumber']);
-        $temp['Quota'] = floatval($r['Quota']);
+        $temp['Barcode'] = barcodeFormatter_CostCenter($r->CostCenterNumber);
+        $temp['Quota'] = floatval($r->Quota);
 
         $output[] = $temp;
     }

@@ -195,7 +195,7 @@ export default {
       this.trackDialogVisible = true
     },
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PoNo).then(response => {
+      purchase.item.search(this.$props.orderData.PurchaseOrderBarcode).then(response => {
         this.lines = response.Lines
         this.prepairLines(this.lines)
       }).catch(response => {

@@ -25,7 +25,7 @@ $poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title><?php echo $poData["MetaData"]["PurchaseOrderBarcode"]." - ".$poData["MetaData"]["SupplierName"]; ?> </title>
+<title><?php echo $poData["MetaData"]->PurchaseOrderBarcode." - ".$poData["MetaData"]->SupplierName; ?> </title>
 <link  media="print" />
  <link rel="stylesheet" href="../assets/documentTemplate_A4.css">
 </head>
@@ -175,17 +175,17 @@ $poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
 
 global $addressId;
 
-$vendor = \vendor\vendor::getContact($poData["MetaData"]["VendorContactId"]);
-$shipping = \vendor\vendor::getContact($poData["MetaData"]["ShippingContactId"]);
-$billing = \vendor\vendor::getContact($poData["MetaData"]["BillingContactId"]);
-$buyer = \vendor\vendor::getContact($poData["MetaData"]["PurchaseContactId"]);
+$vendor = \vendor\vendor::getContact($poData["MetaData"]->VendorContactId);
+$shipping = \vendor\vendor::getContact($poData["MetaData"]->ShippingContactId);
+$billing = \vendor\vendor::getContact($poData["MetaData"]->BillingContactId);
+$buyer = \vendor\vendor::getContact($poData["MetaData"]->PurchaseContactId);
 
 
 $footer = \vendor\vendor::getAddress($addressId);
 
 $meta = new stdClass;
 
-$meta->PurchaseOrderBarcode = $poData["MetaData"]["PurchaseOrderBarcode"];
+$meta->PurchaseOrderBarcode = $poData["MetaData"]->PurchaseOrderBarcode;
 
 $buyerName = $buyer->LastName;
 if(isset($buyer->FirstName))
@@ -193,12 +193,12 @@ if(isset($buyer->FirstName))
 	$buyerName = $buyer->FirstName." ".$buyer->LastName;
 }
 
-$meta->date = $poData["MetaData"]["PurchaseDate"];
-$meta->paymentTerms= $poData["MetaData"]["PaymentTerms"];
-$meta->note = $poData["MetaData"]["HeadNote"];
-$meta->footNote = $poData["MetaData"]["FootNote"];
-$meta->carrier = $poData["MetaData"]["Carrier"];
-$meta->incoterms = $poData["MetaData"]["InternationalCommercialTerms"];
+$meta->date = $poData["MetaData"]->PurchaseDate;
+$meta->paymentTerms= $poData["MetaData"]->PaymentTerms;
+$meta->note = $poData["MetaData"]->HeadNote;
+$meta->footNote = $poData["MetaData"]->FootNote;
+$meta->carrier = $poData["MetaData"]->Carrier;
+$meta->incoterms = $poData["MetaData"]->InternationalCommercialTerms;
 $meta->name = $buyerName;
 $meta->phone = $buyer->Phone;
 $meta->email = $buyer->EMail;
@@ -282,6 +282,8 @@ $alphabet = range('A', 'Z');
 foreach( $poData['AdditionalCharges'] AS $srcLine)
 {
 	$line = new stdClass;
+
+    $srcLine = (array)$srcLine;
 	
 	$line->lineNo = $alphabet[intval($srcLine['LineNo'])-1];
 	$line->type = $srcLine['Type'];
