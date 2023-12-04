@@ -7,15 +7,18 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["ManufacturerPartSeriesId"])) sendResponse(null,"ManufacturerPartSeriesId not set");
-    $manufacturerPartSeriesId = intval($_GET["ManufacturerPartSeriesId"]);
+    $parameters = $api->getGetData();
 
-    $dbLink = dbConnect();
+    if(!isset($parameters->ManufacturerPartSeriesId)) $api->returnParameterMissingError("ManufacturerPartSeriesId");
+    $manufacturerPartSeriesId = intval($parameters->ManufacturerPartSeriesId);
+    if($manufacturerPartSeriesId == 0) $api->returnParameterError("ManufacturerPartSeriesId");
+
     $query = <<<STR
         SELECT
             manufacturerPart_series.Id AS ManufacturerPartSeriesId, 
@@ -24,39 +27,31 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             manufacturerPart_series.Parameter
         FROM manufacturerPart_series
         WHERE manufacturerPart_series.Id = '$manufacturerPartSeriesId'
+        LIMIT 1
     STR;
 
-    $result = mysqli_query($dbLink,$query);
-    $output =  mysqli_fetch_assoc($result);
+    $output = $database->query($query)[0];
 
-    $output['ManufacturerPartSeriesId'] = intval($output['ManufacturerPartSeriesId']);
-    if($output['Parameter'] !== null) $output['Parameter'] = json_decode($output['Parameter']);
-    else $output['Parameter'] = array();
+    $output->ManufacturerPartSeriesId = intval($output->ManufacturerPartSeriesId);
+    if($output->Parameter !== null) $output->Parameter = json_decode($output->Parameter);
+    else $output->Parameter = array();
 
-    dbClose($dbLink);
-    sendResponse($output);
+    $api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
 
-    if(!isset($data['ManufacturerPartSeriesId']))  sendResponse(null, "ManufacturerPartSeriesId is not specified!");
-    $manufacturerPartSeriesId = intval($data["ManufacturerPartSeriesId"]);
-
-    $dbLink = dbConnect();
+    if(!isset($data->ManufacturerPartSeriesId)) $api->returnParameterMissingError("ManufacturerPartSeriesId");
+    $manufacturerPartSeriesId = intval($data->ManufacturerPartSeriesId);
+    if($manufacturerPartSeriesId == 0) $api->returnParameterError("ManufacturerPartSeriesId");
 
     $seriesCreate = array();
     $seriesCreate['NumberTemplate'] = trim($data['NumberTemplate']);
     $seriesCreate['SeriesNameMatch'] = trim($data['SeriesNameMatch']);
     $seriesCreate['Parameter'] = json_encode($data['Parameter']);
 
-    $query = dbBuildUpdateQuery($dbLink, "manufacturerPart_series", $seriesCreate, "Id = ".$manufacturerPartSeriesId);
-    $result = mysqli_query($dbLink,$query);
-    dbClose($dbLink);
+    $database->update("manufacturerPart_series", $seriesCreate, "Id = ".$manufacturerPartSeriesId);
 
-    if(!$result) sendResponse(null, "Update failed");
-
-    sendResponse(null);
+    $api->returnEmpty();
 }
-
-?>

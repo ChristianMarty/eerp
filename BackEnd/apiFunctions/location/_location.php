@@ -8,7 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 
@@ -32,22 +31,22 @@ class Location
 		}
 	}
 
-	public static function name(int|null $locationId): string
+	public function name(int|null $locationId): string
 	{
 		if($locationId === null) return "";
 
-		if(array_key_exists($locationId, self::$locationData)) $output = self::$locationData[$locationId]['Cache_DisplayName'];
+		if(array_key_exists($locationId, self::$locationData)) $output = self::$locationData[$locationId]->Cache_DisplayName;
 		else $output = "Error: Location dose not exist";
 
 		if($output == null) $output = "";
 		return $output;
 	}
 
-	public static function path(int|null $locationId): string
+	public function path(int|null $locationId): string
 	{
 		if($locationId === null) return "";
 
-		if(array_key_exists($locationId, self::$locationData)) $output = self::$locationData[$locationId]['Cache_DisplayPath'];
+		if(array_key_exists($locationId, self::$locationData)) $output = self::$locationData[$locationId]->Cache_DisplayPath;
 		else $output = "Error: Location dose not exist";
 
 		if($output == null) $output = "";
@@ -222,34 +221,6 @@ function location_getItems(int|null $locationId) : array
 	return $items;
 }
 
-function location_getName(int|null $locationId) : string
-{
-	if($locationId === null)return "";
-
-	global $locations;
-	if($locations == null) $locations = location_getLocations();
-
-	if(array_key_exists($locationId, $locations)) $output = $locations[$locationId]['Cache_DisplayName'];
-	else $output = "Error: Location dose not exist";
-
-	if($output == null) $output = "";
-	return $output;
-}
-
-function location_getPath(int|null $locationId) : string
-{
-	if($locationId === null)return "";
-
-	global $locations;
-	if($locations == null) $locations = location_getLocations();
-
-	if(array_key_exists($locationId, $locations)) $output = $locations[$locationId]['Cache_DisplayPath'];
-	else $output = "Error: Location dose not exist";
-
-	if($output == null) $output = "";
-	return $output;
-}
-
 function location_getLocations() : array
 {
 	$query = <<<STR
@@ -258,20 +229,15 @@ function location_getLocations() : array
 		ORDER BY `Name` ASC
 	STR;
 
-	$dbLink = dbConnect();
-	$result = dbRunQuery($dbLink,$query);
+	global $database;
+
+	$result = $database->query($query);
 
 	$locationList = array();
-	while($itemData = mysqli_fetch_assoc($result))
+	foreach ($result as $r)
 	{
-		$itemData['Id'] = intval($itemData['Id']);
-		$itemData['ParentId'] = intval($itemData['ParentId']);
-		$itemData['LocationId'] = intval($itemData['LocationId']);
-		$itemData['RecursionDepth'] = intval($itemData['RecursionDepth']);
-
-		$locationList[$itemData['Id']] = $itemData;
+		$locationList[$r->Id] = $r;
 	}
-	dbClose($dbLink);
 
 	return $locationList;
 }

@@ -7,13 +7,12 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-require_once __DIR__ . "/../../../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
     $query = <<<STR
         SELECT 
             productionPart_getQuantity(numbering.Id, productionPart.Number) as StockQuantity, 
@@ -25,33 +24,31 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null
     STR;
 
-	$result = mysqli_query($dbLink,$query);
+	$result = $database->query($query);
 
 	$warningNotifications = 0;
 	$minimumNotifications = 0;
 	$maximumNotifications = 0;
 	
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach ($result as $r)
 	{
-		$quantity = intval($r['StockQuantity']);
-		$minimum = intval($r['StockMinimum']);
-		$maximum = intval($r['StockMaximum']);
-		$warning = intval($r['StockWarning']);
+		$quantity = intval($r->StockQuantity);
+		$minimum = intval($r->StockMinimum);
+		$maximum = intval($r->StockMaximum);
+		$warning = intval($r->StockWarning);
 		
 		if( $quantity < $minimum and $minimum != Null) $minimumNotifications ++;
 		else if( $quantity < $warning and $warning != Null) $warningNotifications ++;
 		else if( $quantity > $maximum  and $maximum != Null ) $maximumNotifications ++;	
 	}
 
-	dbClose($dbLink);
-	
 	$output = array();
 	
 	$output['Warning'] = $warningNotifications;
 	$output['Minimum'] = $minimumNotifications;
 	$output['Maximum'] = $maximumNotifications;
 	
-	sendResponse($output);
+	$api->returnData($output);
 }
 
 ?>

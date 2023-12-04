@@ -7,11 +7,11 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../_function.php";
-
 
 function generateItemNumberTemplate($numberTemplate, $parameter, $number) :string
 {
@@ -69,20 +69,20 @@ function generateItemNumberTemplate($numberTemplate, $parameter, $number) :strin
     return $output;
 }
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["VendorId"])) sendResponse(NULL, "VendorId not specified");
-    if(!is_numeric($_GET["VendorId"])) sendResponse(NULL, "VendorId not numeric");
-    if(!isset($_GET["PartNumber"])) sendResponse(NULL, " PartNumber not specified");
+    $parameters = $api->getGetData();
 
-    $output = array();
-    $dbLink = dbConnect();
+    if (!isset($parameters->VendorId)) $api->returnParameterMissingError('VendorId');
+    if (!isset($parameters->PartNumber)) $api->returnParameterMissingError('PartNumber');
 
-    $vendorId = intval($_GET["VendorId"]);
-    $partNumber = dbEscapeString($dbLink, trim($_GET["PartNumber"]));
+    $vendorId = intval($parameters->VendorId);
+    if($vendorId == 0) $api->returnParameterError('VendorId');
+
+    $partNumber = $database->escape($parameters->PartNumber);
 
     // Try to match manufacturer part series
-    $manufacturerPartSeries = seriesDataFromNumber($dbLink, $vendorId, $partNumber);
+    $manufacturerPartSeries = seriesDataFromNumber($vendorId, $partNumber);
     $partParameter = array();
     if($manufacturerPartSeries == null)
     {
@@ -91,7 +91,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
     else
     {
-        $partParameter = getParameter($dbLink, $manufacturerPartSeries['SeriesId']);
+        $partParameter = getParameter($manufacturerPartSeries['SeriesId']);
         $manufacturerPartSeries['PartNumberDescription'] = descriptionFromNumber( $manufacturerPartSeries['NumberTemplate'], $partParameter, $partNumber);
 
         $output['SeriesMatch'] = true;
@@ -99,7 +99,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 
     // Try to match manufacturer part number
-    $manufacturerPartNumberData = partNumberDataFromNumber($dbLink, $vendorId, $partNumber);
+    $manufacturerPartNumberData = partNumberDataFromNumber($vendorId, $partNumber);
 
     if($manufacturerPartNumberData == null)
     {
@@ -115,7 +115,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $output['PartNumberData'] = $manufacturerPartNumberData;
         $output['ItemId'] = $manufacturerPartNumberData['ItemId'];
         $output['ItemMatch'] = true;
-        $output['ItemData'] = itemDataFromItemId($dbLink, $output['ItemId']);
+        $output['ItemData'] = itemDataFromItemId($output['ItemId']);
     }
 
 
@@ -127,6 +127,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $output['ItemData'] = $temp;
     }
 
-    dbClose($dbLink);
-    sendResponse($output);
+    $api->returnData($output);
 }

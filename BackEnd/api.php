@@ -24,13 +24,6 @@ if($api->isOptions()) {
     header("Allow: ".$api->optionsString());
     exit;
 } else {
-    // this point should not be reached. The above line should terminate the program.
+    // this point should not be reached. The above lines should terminate the program.
     $api->returnMethodNotAllowedError();
-}
-
-// legacy
-#[NoReturn] function sendResponse(array|null|string $data, string|null $error = null): void
-{
-	global $api;
-	$api->returnData($data,$error);
 }

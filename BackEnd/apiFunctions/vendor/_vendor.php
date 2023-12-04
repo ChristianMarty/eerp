@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace vendor;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
 class vendor
 {
     static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor): int

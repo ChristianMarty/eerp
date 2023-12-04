@@ -3,21 +3,23 @@
 // FileName : type.php
 // FilePath : apiFunctions/assembly/unit/history/
 // Author   : Christian Marty
-// Date		: 25.09.2022
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-    $output = dbGetEnumOptions($dbLink, 'assembly_unit_history','Type');
-    dbClose($dbLink);
-
-    if(!$output) sendResponse(null, "Database error for assembly_unit_history Type");
-
-	sendResponse($output);
+    $options = $database->getEnumOptions('assembly_unit_history','Type');
+    if($options === null)
+    {
+        $api->returnError('Database error for assembly_unit_history Type');
+    }
+    else
+    {
+        $api->returnData($options);
+    }
 }
-?>

@@ -3,14 +3,15 @@
 // FileName : list.php
 // FilePath : apiFunctions/document/ingest/
 // Author   : Christian Marty
-// Date		: 25.09.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
 	global $serverDataPath;
 	global $dataRootPath;
@@ -19,7 +20,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$docs = scandir($serverDataPath.$ingestPath);
 	
 	$output = array();
-	
 	foreach($docs as $key => $line)
 	{
 		if($line == "." or $line == "..") continue;
@@ -34,7 +34,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		
 		$output[] = $tmp;
 	}
-	
-	sendResponse($output);
+
+    $api->returnData($output);
 }
-?>

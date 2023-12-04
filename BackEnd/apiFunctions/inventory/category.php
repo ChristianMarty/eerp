@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-
 if($api->isGet())
 {
     $query = <<< QUERY

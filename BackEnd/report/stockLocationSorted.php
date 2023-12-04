@@ -45,6 +45,8 @@ if($api->isGet())
 	}
 	$output = $header.PHP_EOL;
 
+    $location = new Location();
+
 	foreach($result as $line)
 	{
 		$r = (array)$line;
@@ -61,7 +63,7 @@ if($api->isGet())
 			{
 				$line .= '"'.$stockNo[$i].'";';
 				$line .= '"'.$quantity[$i].'";';
-				$line .= '"'.location_getName(intval($locationId[$i])).'";';
+				$line .= '"'.$location->name(intval($locationId[$i])).'";';
 			}
 			$output .= $line.PHP_EOL;
 		}

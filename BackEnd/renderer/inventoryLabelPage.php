@@ -3,10 +3,19 @@
 // FileName : labelPage.php
 // FilePath : apiFunctions/inventory/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
+
+require_once __DIR__ . "/../apiFunctions/util/_barcodeParser.php";
+require_once __DIR__ . "/../apiFunctions/util/_barcodeFormatter.php";
+
+require_once __DIR__ . "/../config.php";
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -57,75 +66,55 @@
 <div style="width:193mm;height:254mm;border: none;margin-top:14.5mm;margin-left:2mm;">
 
 <?php
+if($api->isGet())
+{
+    $parameter = $api->getGetData();
 
-	require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
-
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
 	$invNo = array();
+	if (isset($parameter->invNo)) {
+        $invNo = explode(",", $parameter->invNo);
 
-	if(isset($_GET["invNo"]))
-	{
-		$temp =$_GET["invNo"];
-		$temp = dbEscapeString($dbLink, $temp );
-		$invNo = explode(",",$temp);
-		
-		foreach($invNo as &$item) 
-		{
-			$item = str_replace("Inv","",$item);
-			$item = str_replace("-","",$item);
-		}
-		
+        foreach ($invNo as &$item) {
+            $item = barcodeParser_InventoryNumber($item);
+        }
+    }
 
-	}
-
-    $invNoList = implode(", ",$invNo);
+    $invNoList = implode(", ", $invNo);
     $query = <<< STR
         SELECT `InvNo`,`Title`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN( $invNoList );
     STR;
 
-	$result = dbRunQuery($dbLink,$query);
-
-	if(!$result)
-	{
-		exit;
-	}
-
-	$rows = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$rows[] = $r;
-	}
+    $rows = $database->query($query);
 
 	$field_offset = 0;
-	if(isset($_GET["offset"]))
-	{
-		$field_offset = $_GET["offset"];
-	}
+	if (isset($parameter->offset)) {
+        $field_offset = $parameter->offset;
+    }
 	
-	for($i = 0; $i<$field_offset; $i++)
-	{
-		echo"<div>";
-		echo"</div>";
-	}
+	for ($i = 0; $i < $field_offset; $i++) {
+        echo "<div>";
+        echo "</div>";
+    }
 
-	foreach ($rows as $row) 
-	{
-		$category = $row['Manufacturer']." ".$row['Type'];
-		$invNo = $row['InvNo']." ";
-		$title = $row['Title']." ";
+    global $companyName;
+    global $rendererRootPath;
 
-		$content  = "<h1>".$companyName."</h1>";
-		$content .= "<p>".$title." </p>";
-		$content .= "<p>".$category." </p>";
-		$content .= "<p>Inv Nr. ".$invNo." </p>";
-		$content .="<img src='".$rendererRootPath."/barcode/barcode?text=Inv-".$invNo."'/>";
-		
-		echo"<div>";
-		echo $content;
-		echo"</div>";
-	}
+	foreach ($rows as $row)
+    {
+        $category = $row->Manufacturer . " " . $row->Type;
+        $invNo = $row->InvNo . " ";
+        $title = $row->Title . " ";
+
+        $content = "<h1>" . $companyName . "</h1>";
+        $content .= "<p>" . $title . " </p>";
+        $content .= "<p>" . $category . " </p>";
+        $content .= "<p>Inv Nr. " . $invNo . " </p>";
+        $content .= "<img src='" . $rendererRootPath . "/barcode/barcode?text=Inv-" . $invNo . "'/>";
+
+        echo "<div>";
+        echo $content;
+        echo "</div>";
+    }
+}
 ?>
-  
 </div>

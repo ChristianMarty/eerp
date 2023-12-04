@@ -3,23 +3,25 @@
 // FileName : item.php.php
 // FilePath : apiFunctions/manufacturerPart/
 // Author   : Christian Marty
-// Date		: 25.04.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once  "_function.php";
 require_once __DIR__ . "/../_part.php";
 require_once __DIR__ . "/../../util/_getDocuments.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["ManufacturerPartItemId"])) sendResponse(null,"ManufacturerPartItemId not set");
-    $manufacturerPartItemId = intval($_GET["ManufacturerPartItemId"]);
+    $parameters = $api->getGetData();
 
-    $dbLink = dbConnect();
+    if(!isset($parameters->ManufacturerPartItemId)) $api->returnParameterMissingError("ManufacturerPartItemId");
+    $manufacturerPartItemId = intval($parameters->ManufacturerPartItemId);
+    if($manufacturerPartItemId == 0) $api->returnParameterError("ManufacturerPartItemId");
 
     $query = <<<STR
         SELECT 
@@ -42,31 +44,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_partPackage On manufacturerPart_partPackage.Id = manufacturerPart_item.PackageId
         LEFT JOIN vendor On vendor.Id <=> manufacturerPart_series.VendorId OR vendor.Id <=> manufacturerPart_item.VendorId
         WHERE manufacturerPart_item.Id = '$manufacturerPartItemId'
+        LIMIT 1
     STR;
-    $result = dbRunQuery($dbLink,$query);
+    $output = $database->query($query)[0];
 
-    $output = array();
-    while($r = mysqli_fetch_assoc($result))
-    {
-        $output = $r;
-    }
 
     $parameter = array();
-    if(isset($output['SeriesId'])) {
-        $parameter = getParameter($dbLink, $output['SeriesId']);
+    if(isset($output->SeriesId)) {
+        $parameter = getParameter($output->SeriesId);
 
-        $output['PartNumberWithoutParameters'] = manufacturerPart_numberWithoutParameters($output['PartNumber']);
-        $output['PartNumberDescription'] = descriptionFromNumber($output['SeriesNumberTemplate'], $parameter, $output['PartNumber']);
+        $output->PartNumberWithoutParameters = manufacturerPart_numberWithoutParameters($output->PartNumber);
+        $output->PartNumberDescription = descriptionFromNumber($output->SeriesNumberTemplate, $parameter, $output->PartNumber);
     }
     else{
-        $output['PartNumberWithoutParameters'] = "";
-        $output['PartNumberDescription'] = "";
+        $output->PartNumberWithoutParameters = "";
+        $output->PartNumberDescription = "";
     }
 
-    if($output['PartNumberWithoutParameters'] !== ""){
-        $output['DisplayPartNumber'] = $output['PartNumberWithoutParameters'];
+    if($output->PartNumberWithoutParameters !== ""){
+        $output->DisplayPartNumber = $output->PartNumberWithoutParameters;
     }else{
-        $output['DisplayPartNumber'] = $output['PartNumber'];
+        $output->DisplayPartNumber = $output->PartNumber;
     }
 
 
@@ -82,13 +80,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         WHERE manufacturerPart_partNumber.ItemId = '$manufacturerPartItemId'
     STR;
-    $result = dbRunQuery($dbLink,$query);
+    $result =  $database->query($query);
 
     $partNumbers = array();
-    while($r = mysqli_fetch_assoc($result))
+    foreach ($result as $r)
     {
-        $manufacturerPartNumber = $r["ManufacturerPartNumber"];
-        unset($r["ManufacturerPartNumber"]);
+        $manufacturerPartNumber = $r->ManufacturerPartNumber;
+        unset($r->ManufacturerPartNumber);
 
         //$r['Description'] = descriptionFromNumber($output['PartNumber'],getParameter($dbLink,$output['SeriesId']), $r['Number']);
 
@@ -96,28 +94,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         {
             $temp = array();
             $temp['ProductionPart'] = array();
-            $temp['ManufacturerPartNumberId'] = intval($r["ManufacturerPartNumberId"]);
+            $temp['ManufacturerPartNumberId'] = intval($r->ManufacturerPartNumberId);
             $temp['ManufacturerPartNumber'] = $manufacturerPartNumber;
-            $temp['ManufacturerPartNumberDescription'] = descriptionFromNumber($output['PartNumber'],$parameter,$manufacturerPartNumber);
+            $temp['ManufacturerPartNumberDescription'] = descriptionFromNumber($output->PartNumber,$parameter,$manufacturerPartNumber);
             $partNumbers[$manufacturerPartNumber] = $temp;
         }
 
-        $r['ProductionPartBarcode'] = $r['ProductionPartNumberPrefix']."-".$r['ProductionPartNumber'];
+        $r->ProductionPartBarcode = barcodeFormatter_ProductionPart($r->ProductionPartNumberPrefix."-".$r->ProductionPartNumber);
         $partNumbers[$manufacturerPartNumber]['ProductionPart'][] = $r;
     }
-    $output['PartNumberItem'] = array_values($partNumbers);
+    $output->PartNumberItem = array_values($partNumbers);
 
-    if(isset($output['Attribute'])) $output['Attribute'] = decodeAttributes(getAttributes($dbLink),$output['Attribute']);
-    else $output['Attribute'] = array();
+    if(isset($output->Attribute)) $output->Attribute = decodeAttributes(getAttributes(),$output->Attribute);
+    else $output->Attribute = array();
 
     $documentIds = array();
-    if(isset($output['SeriesDocumentIds'])) $documentIds += explode(",",$output['SeriesDocumentIds']);
-    if(isset($output['ItemDocumentIds'])) $documentIds += explode(",",$output['ItemDocumentIds']);
+    if(isset($output->SeriesDocumentIds)) $documentIds += explode(",",$output->SeriesDocumentIds);
+    if(isset($output->ItemDocumentIds)) $documentIds += explode(",",$output->ItemDocumentIds);
     $documentIdsStr = implode(",", $documentIds);
-    $output["Documents"] = getDocumentsFromIds($dbLink, $documentIdsStr);
+    $output->Documents = getDocumentsFromIds($documentIdsStr);
 
-    dbClose($dbLink);
-    sendResponse($output);
+    $api->returnData($output);
 }
-
-?>

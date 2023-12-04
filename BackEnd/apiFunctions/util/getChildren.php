@@ -8,22 +8,13 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-include_once __DIR__ . "/../databaseConnector.php";
-
-function getChildren($tableName, $parentId)
+function getChildren(string $tableName, int $parentId)
 {
-	$dbLink = dbConnect();
+	global $database;
 	
 	$query = "SELECT Id, ParentId FROM ".$tableName." ORDER BY `Name` ASC";
-	$result = dbRunQuery($dbLink,$query);
-	dbClose($dbLink);
-	
-	$data = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$data[] = $r;
-	}	
-	
+    $data = $database->query($query);
+
 	return $parentId.getChild($data, $parentId); 
 }
 

@@ -7,17 +7,19 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["ProductionPartNumber"])) sendResponse(NULL, "Production Part Number Undefined");
-	
-	$dbLink = dbConnect();
-	$partNo = barcodeParser_ProductionPart($_GET["ProductionPartNumber"]);
+    $parameters = $api->getGetData();
+
+    if(!isset($parameters->ProductionPartNumber)) $api->returnParameterMissingError('ProductionPartNumber');
+    $productionPartNumber = barcodeParser_ProductionPart($parameters->ProductionPartNumber);
+    if($productionPartNumber == null) $api->returnParameterError('ProductionPartNumber');
 
     $query = <<<STR
         SELECT 
@@ -26,19 +28,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
             Description
         FROM partLookup
         LEFT JOIN vendor ON vendor.Id = partLookup.VendorId
-        WHERE CONCAT('GCT-',partLookup.PartNo) = '$partNo'
+        WHERE CONCAT('GCT-',partLookup.PartNo) = '$productionPartNumber'
     STR;
 
-	$result = mysqli_query($dbLink,$query);
-    $rows = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$rows[] = $r;
-	}
-	
-	dbClose($dbLink);
-
-	sendResponse($rows);
+    $api->returnData($database->query($query));
 }
-
-?>

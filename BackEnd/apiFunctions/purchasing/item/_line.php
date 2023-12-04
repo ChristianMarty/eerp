@@ -93,11 +93,13 @@ function purchaseOrderItem_getCostCenterData($result):array
 
 function purchaseOrderItem_getLineIdFromQueryResult($data):?int
 {
-    return intval( $data['OrderLineId'], 10);
+    return intval( $data->OrderLineId, 10);
 }
 
-function purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $data):?array
+function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumber, stdClass $data):?array
 {
+    $data = (array)$data;
+
     $output = array();
 
     $lineNumber = intval($data['LineNo']);
@@ -141,5 +143,3 @@ function purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $data):?
 
     return $output;
 }
-
-?>

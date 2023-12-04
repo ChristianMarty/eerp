@@ -71,7 +71,7 @@ export default {
     },
     getHistoryData() {
       assembly.unit.history.item(this.$props.assemblyUnitHistoryNumber).then(response => {
-        this.data = response
+        this.data = response[0]
         this.tableData = []
         if (this.data.Data === null) return
 

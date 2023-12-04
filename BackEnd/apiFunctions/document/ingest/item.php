@@ -3,42 +3,37 @@
 // FileName : item.php
 // FilePath : apiFunctions/document/ingest/
 // Author   : Christian Marty
-// Date		: 25.09.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../_functions.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
+	$data = $api->getPostData();
 
     $result = ingest($data);
 
-    if(is_int($result)) sendResponse($result,null);
-    else sendResponse(null,$result['error']);
+    if(is_int($result)) $api->returnEmpty();
+    else $api->returnError($result['error']);
 }
 
-else if($_SERVER['REQUEST_METHOD'] == 'DELETE')
+else if($api->isDelete())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
+    global $serverDataPath;
+    global $ingestPath;
+
+    $data = $api->getPostData();
+	if(!isset($data->FileName) OR $data->FileName == "" OR $data->FileName == null) $api->returnError("File name is not set.");
 	
-	global $serverDataPath;
-	global $ingestPath;
+	$src = $serverDataPath.$ingestPath."/".$data->FileName;
 	
-	if(!isset($data['FileName']) OR $data['FileName'] == "" OR $data['FileName'] == null) sendResponse(null,"File name is not set.");
-	
-	$src = $serverDataPath.$ingestPath."/".$data['FileName'];
-	
-	if (unlink($src)) 
-	{
-	  sendResponse(null,null);
-	} 
-	else 
-	{
-	  sendResponse(null,"File delete failed.");
-	}	
+	if (unlink($src))  $api->returnEmpty();
+	else  $api->returnError("File delete failed.");
 }
 ?>

@@ -11,7 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
@@ -19,10 +18,11 @@ require_once __DIR__ . "/../location/_location.php";
 
 if($api->isGet())
 {
-	if(!isset($_GET["AssemblyNumber"])) sendResponse(Null,"Assembly Number not set");
-	$assemblyNumber = barcodeParser_AssemblyNumber($_GET["AssemblyNumber"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+	if(!isset($parameter->AssemblyNumber)) $api->returnParameterMissingError("AssemblyNumber");
+	$assemblyNumber = barcodeParser_AssemblyNumber($parameter->AssemblyNumber);
+    if($assemblyNumber === null) $api->returnParameterError("AssemblyNumber");
 
 	$query = <<<STR
 		SELECT 
@@ -48,66 +48,49 @@ if($api->isGet())
 	STR;
 
 	$queryParam = array();
-	$queryParam[] = "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '" . $assemblyNumber . "')";
+	$queryParam[] = "AssemblyId = (SELECT Id FROM assembly WHERE AssemblyNumber = '$assemblyNumber')";
 	
-	if(isset($_GET['SerialNumber']))
+	if(isset($parameter->SerialNumber))
 	{
-		$serialNumber = dbEscapeString($dbLink, $_GET['SerialNumber']);
-		$queryParam[] = "SerialNumber = '" . $serialNumber . "'";
-	}
-	
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	$query .= " ORDER BY assembly_unit.SerialNumber ASC";
-
-	$result = dbRunQuery($dbLink,$query);
-	
-	$output = array();
-	$output['Unit'] = array();
-	
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$temp = array();
-		$temp['AssemblyUnitNumber'] = $r['AssemblyUnitNumber'];
-		$temp['AssemblyUnitBarcode'] = barcodeFormatter_AssemblyUnitNumber($r['AssemblyUnitNumber']);
-		$temp['Note'] = $r['Note'];
-		$temp['LocationName'] = location_getName($r['LocationId']);
-		$temp['SerialNumber'] = $r['SerialNumber'];
-
-		$temp['WorkOrderNumber'] = $r['WorkOrderNumber'];
-		if($r['WorkOrderNumber'] != null) $temp['WorkOrderBarcode'] = "WO-".$r['WorkOrderNumber'];
-		else $temp['WorkOrderBarcode'] = null;
-		$temp['WorkOrderTitle'] = $r['WorkOrderTitle'];
-
-		$temp['ShippingClearance'] = filter_var($r['ShippingClearance'], FILTER_VALIDATE_BOOLEAN);
-		$temp['ShippingProhibited'] = filter_var($r['ShippingProhibited'], FILTER_VALIDATE_BOOLEAN);
-
-		if($temp['ShippingProhibited']) $temp['ShippingClearance'] = false;
-		
-		if($r['Test'] == 'Test Pass') $temp['LastTestPass'] = true;
-		else if($r['Test'] == 'Test Fail') $temp['LastTestPass'] = false;
-		else $temp['LastTestPass'] = null;
-		
-		if($r['Inspection'] == 'Inspection Pass') $temp['LastInspectionPass'] = true;
-		else if($r['Inspection'] == 'Inspection Fail') $temp['LastInspectionPass'] = false;
-		else $temp['LastInspectionPass'] = null;
-
-		$temp['LastHistoryTitle'] = $r['LastHistoryTitle'];
-		$temp['LastHistoryType'] = $r['LastHistoryType'];
-		
-		$output['Unit'][] = $temp;
+		$queryParam[] = "SerialNumber = '" . $database->escape($parameter->SerialNumber) . "'";
 	}
 
-	$query  = "SELECT * FROM assembly WHERE AssemblyNumber = ".$assemblyNumber;
-	$result = dbRunQuery($dbLink,$query);
-	
-	$r = mysqli_fetch_assoc($result);
-	$output['AssemblyNumber'] = $r['AssemblyNumber'];
-	$output['AssemblyBarcode'] = barcodeFormatter_AssemblyNumber($r['AssemblyNumber']);
-	$output['Name'] = $r['Name'];
-	$output['Description'] = $r['Description'];
+	$result = $database->query($query,$queryParam,"ORDER BY assembly_unit.SerialNumber ASC");
 
-	dbClose($dbLink);	
-	sendResponse($output);
+    $location = new Location();
+
+	foreach($result as $item)
+    {
+        $item->AssemblyUnitBarcode = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
+        $item->LocationName = $location->name($item->LocationId);
+        $item->WorkOrderBarcode = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+
+        $item->ShippingClearance = filter_var($item->ShippingClearance, FILTER_VALIDATE_BOOLEAN);
+        $item->ShippingProhibited = filter_var($item->ShippingProhibited, FILTER_VALIDATE_BOOLEAN);
+
+        if($item->ShippingProhibited) $item->ShippingClearance = false;
+
+        if($item->Test == 'Test Pass') $item->LastTestPass = true;
+        else if($item->Test == 'Test Fail') $item->LastTestPass = false;
+        else $item->LastTestPass = null;
+
+        if($item->Inspection == 'Inspection Pass') $item->LastInspectionPass = true;
+        else if($item->Inspection == 'Inspection Fail') $item->LastInspectionPass = false;
+        else $item->LastInspectionPass = null;
+	}
+
+    $output = array();
+    $output['Unit'] = $result;
+
+	$query  = "SELECT * FROM assembly WHERE AssemblyNumber = '$assemblyNumber' LIMIT 1";
+	$result = $database->query($query)[0];
+
+	$output['AssemblyNumber'] = $result->AssemblyNumber;
+	$output['AssemblyBarcode'] = barcodeFormatter_AssemblyNumber($result->AssemblyNumber);
+	$output['Name'] = $result->Name;
+	$output['Description'] = $result->Description;
+
+    $api->returnData($output);
 }
 else if($api->isPost("assembly.create"))
 {

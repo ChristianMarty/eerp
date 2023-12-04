@@ -3,21 +3,23 @@
 // FileName : placement.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 25.09.2023
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
+    $parameter = $api->getGetData();
 
-    if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
-    $revisionId = intval($_GET["RevisionId"]);
+    if(!isset($parameter->RevisionId)) $api->returnParameterMissingError("RevisionId");
+    $revisionId = intval($parameter->RevisionId);
 
-    $dbLink = dbConnect();
     $query = <<<STR
         SELECT 
                billOfMaterial_item.ReferenceDesignator,
@@ -34,17 +36,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE BillOfMaterialRevisionId = $revisionId
     STR;
 
-    $bom = array();
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result = $database->query($query);
+    foreach ($result as $r)
     {
-        $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
-        $bom[] = $r;
+        $r->ProductionPartNumber = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
     }
 
-    dbClose($dbLink);
-
-    sendResponse($bom);
+    $api->returnData($result);
 }
-
-?>

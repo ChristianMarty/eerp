@@ -7,53 +7,51 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_siFormatter.php";
 
 $title = "Match Part Series";
 $description = "Add Manufacturer Part Items to Part Series";
 $parameter = null;
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
-
 // Get Series
     echo "Get Part Series Data \n";
     $query = <<<STR
-        SELECT * FROM manufacturerPart_series
+        SELECT 
+            * 
+        FROM manufacturerPart_series
     STR;
-    $seriesResult = dbRunQuery($dbLink, $query);
+    $seriesResult = $database->query($query);
 
-    while($seriesData = mysqli_fetch_assoc($seriesResult))
+    foreach ($seriesResult as $seriesData)
     {
-        $vendorId = $seriesData['VendorId'];
+        $vendorId = $seriesData->VendorId;
         echo "Get Parts for VendorId: {$vendorId}\n";
         $query = <<<STR
             SELECT * FROM manufacturerPart_item 
             WHERE manufacturerPart_item.VendorId = $vendorId and SeriesId IS null
         STR;
-        $partResult = dbRunQuery($dbLink, $query);
-        while($part = mysqli_fetch_assoc($partResult))
+        $partResult = $database->query($query);
+        foreach ($seriesResult as $part)
         {
-            if($seriesData['SeriesNameMatch'] == null) continue;
+            if($seriesData->SeriesNameMatch == null) continue;
 
-            $seriesId = $seriesData['Id'];
-            $partItemId = $part['Id'];
+            $seriesId = $seriesData->Id;
+            $partItemId = $part->Id;
 
-            if( preg_match($seriesData['SeriesNameMatch'], trim($part['Number']))) {
+            if( preg_match($seriesData->SeriesNameMatch, trim($part->Number))) {
                 $query = <<<STR
                     UPDATE manufacturerPart_item SET SeriesId = $seriesId WHERE manufacturerPart_item.Id = $partItemId
                 STR;
-
-                dbRunQuery($dbLink, $query);
+                $database->execute($query);
             }
         }
 
     }
-    dbClose($dbLink);
     exit;
 }
-?>

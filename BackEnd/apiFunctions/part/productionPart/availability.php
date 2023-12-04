@@ -3,27 +3,27 @@
 // FileName : availability.php
 // FilePath : apiFunctions/part/productionPart/
 // Author   : Christian Marty
-// Date		: 31.07.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../externalApi/octopart.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
+if($api->isGet())
+{
+    $parameter = $api->getGetData();
+    if(!isset($parameter->ProductionPartBarcode)) $api->returnParameterMissingError("ProductionPartBarcode");
+    $productionPartBarcode = barcodeParser_ProductionPart($parameter->ProductionPartBarcode);
+    if($productionPartBarcode == null) $api->returnParameterError('ProductionPartBarcode');
 
-if($_SERVER['REQUEST_METHOD'] == 'GET') {
-    if (!isset($_GET["ProductionPartBarcode"])) sendResponse(NULL, "Production Part Barcode Undefined");
-    $productionPartBarcode = barcodeParser_ProductionPart($_GET["ProductionPartBarcode"]);
-
-    if (isset($_GET["AuthorizedOnly"])) $authorizedOnly = filter_var($_GET["AuthorizedOnly"], FILTER_VALIDATE_BOOLEAN);
-    if (isset($_GET["Brokers"])) $includeBrokers = filter_var($_GET["Brokers"], FILTER_VALIDATE_BOOLEAN);
-
-    $dbLink = dbConnect();
-    $productionPartBarcode = dbEscapeString($dbLink, $productionPartBarcode);
+    $authorizedOnly = $parameter->AuthorizedOnly;
+    $includeBrokers = $parameter->Brokers;
 
     $query = <<<STR
         SELECT 
@@ -35,20 +35,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId      
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
     STR;
-    $results = dbRunQuery($dbLink, $query);
-    dbClose($dbLink);
+    $results = $database->query($query);
 
     $availability = array();
-    while($part = mysqli_fetch_assoc($results))
+    foreach ($results as $part)
     {
-        if ($part['OctopartId'] == null) continue;
+        if ($part->OctopartId == null) continue;
 
-        $dbLink = dbConnect();
-        $data = octopart_getPartData($dbLink, $part['OctopartId']);
-        dbClose($dbLink);
+        $data = octopart_getPartData($part->OctopartId);
 
         $rowId = 0;
-        foreach ($data->data->parts[0]->sellers as $seller) {
+        foreach ($data->data->parts[0]->sellers as $seller)
+        {
             if (isset($includeBrokers)) {
                 if (!$includeBrokers && $seller->is_broker) continue;
             }
@@ -57,32 +55,30 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
                 if ($authorizedOnly && $seller->is_authorized === false) continue;
             }
 
-            $dbLink = dbConnect();
-            $vendorName = dbEscapeString($dbLink, $seller->company->name);
+            $vendorName = $database->escape($seller->company->name);
             $query = <<<STR
                 SELECT Id, vendor_displayName(Id) AS Name
                 FROM vendor_names 
-                WHERE Name = '$vendorName'
+                WHERE Name = $vendorName
             STR;
-
-            $queryResult = dbRunQuery($dbLink, $query);
-            dbClose($dbLink);
+            $queryResult = $database->query($query);
 
             $vendorId = null;
-            if (mysqli_num_rows($queryResult)) {
-                $vendor = mysqli_fetch_assoc($queryResult);
-                $vendorName = $vendor['Name'];
-                $vendorId = intval($vendor['Id']);
+            if (count($queryResult))
+            {
+                $vendorName = $queryResult[0]->Name;
+                $vendorId = $queryResult[0]->Id;
             }
 
             $line = array();
             $line['VendorName'] = $vendorName;
-            $line['ManufacturerPartNumber'] = $part['Number'];
+            $line['ManufacturerPartNumber'] = $part->Number;
             $line['VendorId'] = $vendorId;
             $line['RowId'] = $rowId;
             $rowId++;
 
-            foreach ($seller->offers as $offer) {
+            foreach ($seller->offers as $offer)
+            {
                 $line['IsBroker'] = $seller->is_broker;
                 $line['IsAuthorized'] = $seller->is_authorized;
                 $line['SKU'] = $offer->sku;
@@ -107,8 +103,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
 	
 	$output = array();
 	$output['Data'] = $availability;
-	$output['Timestamp'] = date("d.m.Y - H:i", time()); //*/
+	$output['Timestamp'] = date("d.m.Y - H:i", time());
 
-	sendResponse($output);
+	$api->returnData($output);
 }
-?>

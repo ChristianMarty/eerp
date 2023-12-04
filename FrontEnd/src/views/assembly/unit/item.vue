@@ -208,7 +208,7 @@ export default {
     },
     getHistoryData(AssemblyUnitHistoryNumber) {
       assembly.unit.history.item(AssemblyUnitHistoryNumber).then(response => {
-        this.editHistoryData = response
+        this.editHistoryData = response[0]
         var data = this.editHistoryData.Data
         if (data === null) this.editHistoryData.Data = ''
         else this.editHistoryData.Data = JSON.stringify(data)

@@ -32,6 +32,7 @@ if($api->isGet())
 	$filename = "Stock Export ".date("Y-m-d H:i:s").".csv";
 	$header = "Order Reference;Stock No;Manufacturer;Manufacturer Part Number;Date;Quantity;Create Quantity;Stocktaking Date;Create Data;Location;Supplier;Supplier Part Number;PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
 	$output = $header.PHP_EOL;
+    $location = new Location();
 	foreach($result as $line)
 	{
 		$r = (array)$line;
@@ -44,7 +45,7 @@ if($api->isGet())
 		$line .= '"'.$r['CreateQuantity'].'";';
 		$line .= '"'.$r['LastCountDate'].'";';
 		$line .= '"'.$r['CreateData'].'";';
-		$line .= '"'.location_getName($r['LocationId']).'";';
+		$line .= '"'.$location->name($r['LocationId']).'";';
 		$line .= '"'.$r['SupplierName'].'";';
 		$line .= '"'.$r['SupplierPartNumber'].'";';
 		if($r['PartNoList'] !== null) {

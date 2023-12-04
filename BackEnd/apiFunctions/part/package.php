@@ -3,72 +3,55 @@
 // FileName : package.php
 // FilePath : apiFunctions/part/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
 
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
 	$query = "SELECT * FROM manufacturerPart_partPackage ORDER BY `Name` ASC";	
-	
-	$classId = 0;
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$locations = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$locations[] = $r;
-	}
-	
-	$locationsTree = array();
 
-	$locationsTree = buildTree($locations,$classId);
-	
-	dbClose($dbLink);	
-	sendResponse($locationsTree);
+	$packages = $database->query($query);
+
+    $api->returnData(buildTree($packages,0));
 }
 
-function hasChild($rows,$id): bool
+function hasChild(array $rows,int $id): bool
 {
-	foreach ($rows as $row) 
-	{
-		if ($row['ParentId'] == $id)return true;
-	}
-	return false;
+    foreach ($rows as $row)
+    {
+        if ($row->ParentId == $id)return true;
+    }
+    return false;
 }
 
-function buildTree($rows, $parentId): array
+function buildTree(array $rows, int $parentId): array
 {  
 	$treeItem = array();
 	foreach ($rows as $row)
 	{
-		if ($row['ParentId'] == $parentId)
+		if ($row->ParentId == $parentId)
 		{
 			$temp = array();
 			
-			$temp['Name'] = $row['Name'];
-			$temp['Id'] = $row['Id'];
+			$temp['Name'] = $row->Name;
+			$temp['Id'] = $row->Id;
 			
-			if($row['SMD'] == 1) $temp['SMD'] = true;
-			elseif ($row['SMD'] == null) $temp['SMD'] = null;
+			if($row->SMD == 1) $temp['SMD'] = true;
+			elseif ($row->SMD == null) $temp['SMD'] = null;
 			else $temp['SMD'] = false;
 			
 			
-			$temp['PinCount'] = $row['PinCount'];
+			$temp['PinCount'] = $row->PinCount;
 		
-			if (hasChild($rows,$row['Id']))
-			{
-				$temp['Children'] = array();
-				$temp['Children'] =  buildTree($rows,$row['Id']);
+			if (hasChild($rows,$row->Id))
+            {
+				$temp['Children'] =  buildTree($rows,$row->Id);
 			}
 			$treeItem[] = $temp;
 		}
@@ -76,4 +59,3 @@ function buildTree($rows, $parentId): array
 	
 	return $treeItem;
 }
-?>

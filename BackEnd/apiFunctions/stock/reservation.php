@@ -3,20 +3,24 @@
 // FileName : reservation.php
 // FilePath : apiFunctions/stock/
 // Author   : Christian Marty
-// Date		: 05.01.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
-	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
-	if(!$stockNumber) sendResponse(null, "StockNo invalid");
+	$parameter = $api->getGetData();
+
+	if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
+	$stockNumber = barcodeParser_StockNumber($parameter->StockNo);
+	if($stockNumber === null) $api->returnParameterError("StockNo");
 
 	$query = <<<STR
 		SELECT 
@@ -28,16 +32,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '$stockNumber') 
 	STR;
 
-	$dbLink = dbConnect();
-	$result = dbRunQuery($dbLink,$query);
-	$output = array();
-	
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$output[] = $r;
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$output = $database->query($query);
+	$api->returnData($output);
 }
-?>

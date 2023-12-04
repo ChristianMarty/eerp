@@ -7,22 +7,22 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../_part.php";
 require_once __DIR__ . "/../../location/_location.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["ProductionPartBarcode"])) sendResponse(NULL, "Production Part Barcode Undefined");
-    $productionPartBarcode= barcodeParser_ProductionPart($_GET["ProductionPartBarcode"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
-
-    $productionPartBarcode = dbEscapeString($dbLink, $productionPartBarcode);
+    if(!isset($parameter->ProductionPartBarcode)) $api->returnParameterMissingError("ProductionPartBarcode");
+    $productionPartBarcode = barcodeParser_ProductionPart($parameter->ProductionPartBarcode);
+    if($productionPartBarcode == null) $api->returnParameterError("ProductionPartBarcode");
 
     $query = <<<STR
         SELECT 
@@ -49,28 +49,29 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
     STR;
 
-	$result = dbRunQuery($dbLink,$query);
+    $result = $database->query($query);
 
 	$output = array();
-    while($r = mysqli_fetch_assoc($result)) {
+    foreach ($result as $r)
+    {
         if (!isset($output['ProductionPartBarcode'])) // First row
         {
-            $output['ProductionPartBarcode'] = $r['ProductionPartBarcode'];
-            $output['Description'] = $r['ProductionPartDescription'];
-            $output['StockMinimum'] = $r['StockMinimum'];
-            $output['StockMaximum'] = $r['StockMaximum'];
-            $output['StockWarning'] = $r['StockWarning'];
+            $output['ProductionPartBarcode'] = $r->ProductionPartBarcode;
+            $output['Description'] = $r->ProductionPartDescription;
+            $output['StockMinimum'] = $r->StockMinimum;
+            $output['StockMaximum'] = $r->StockMaximum;
+            $output['StockWarning'] = $r->StockWarning;
             $output['Stock'] = array();
             $output['ManufacturerPart'] = array();
         }
 
         $manufacturerRow = array();
-        $manufacturerRow['ManufacturerPartNumber'] = $r['ManufacturerPartNumber'];
-        $manufacturerRow['ManufacturerPartNumberId'] = intval($r['ManufacturerPartNumberId']);
-        $manufacturerRow['ManufacturerPartNumberTemplate'] = manufacturerPart_numberWithoutParameters($r['ManufacturerPart']);
-        $manufacturerRow['ManufacturerPartId'] = intval($r['ManufacturerPartId']);
-        $manufacturerRow['ManufacturerName'] = $r['ManufacturerName'];
-        $manufacturerRow['ManufacturerId'] = intval($r['ManufacturerId']);
+        $manufacturerRow['ManufacturerPartNumber'] = $r->ManufacturerPartNumber;
+        $manufacturerRow['ManufacturerPartNumberId'] = intval($r->ManufacturerPartNumberId);
+        $manufacturerRow['ManufacturerPartNumberTemplate'] = manufacturerPart_numberWithoutParameters($r->ManufacturerPart);
+        $manufacturerRow['ManufacturerPartId'] = intval($r->ManufacturerPartId);
+        $manufacturerRow['ManufacturerName'] = $r->ManufacturerName;
+        $manufacturerRow['ManufacturerId'] = intval($r->ManufacturerId);
         $output['ManufacturerPart'][] = $manufacturerRow;
     }
 
@@ -88,23 +89,24 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
     STR;
-
-    $result = dbRunQuery($dbLink,$query);
+    $result = $database->query($query);
 
     $stock = array();
     $totalStockQuantity = 0;
-    while($r = mysqli_fetch_assoc($result)) {
+    $location = new Location();
+    foreach ($result as $r)
+    {
         $stockRow = array();
-        $stockRow['StockNumber'] = $r['StockNo'];
-        $stockRow['StockBarcode'] = barcodeFormatter_StockNumber($r['StockNo']);
-        $stockRow['Date'] = $r['Date'];
-        $stockRow['Lot'] = $r['LotNumber'];
-        $stockRow['Quantity'] = intval($r['Quantity']);
+        $stockRow['StockNumber'] = $r->StockNo;
+        $stockRow['StockBarcode'] = barcodeFormatter_StockNumber($r->StockNo);
+        $stockRow['Date'] = $r->Date;
+        $stockRow['Lot'] = $r->LotNumber;
+        $stockRow['Quantity'] = intval($r->Quantity);
         $totalStockQuantity += $stockRow['Quantity'];
-        $stockRow['LocationName'] = location_getName($r['LocationId']);
+        $stockRow['LocationName'] = $location->name($r->LocationId);
 
-        if(isset($_GET["HideEmptyStock"]) && $stockRow['Quantity'] == 0) {
-            if (filter_var($_GET["HideEmptyStock"], FILTER_VALIDATE_BOOLEAN)) {
+        if(isset($parameter->HideEmptyStock) && $stockRow['Quantity'] == 0) {
+            if (filter_var($parameter->HideEmptyStock, FILTER_VALIDATE_BOOLEAN)) {
                 continue;
             }
         }
@@ -131,17 +133,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE manufacturerPart_partNumber.Id IN ($manufacturerPartNumberIdStr)
         GROUP BY manufacturerPart_item.Id
     STR;
-    $result = dbRunQuery($dbLink,$query);
+    $result = $database->query($query);
+
     $characteristics = array();
     $attributeIds = array();
-    while($r = mysqli_fetch_assoc($result)) {
-        if($r['Attribute'] !== null)
+    foreach ($result as $r)
+    {
+        if($r->Attribute !== null)
         {
-            $r['Attribute'] = json_decode($r['Attribute']);
-            $attributeIds = array_merge($attributeIds, array_keys((array)$r['Attribute']));
+            $r->Attribute = json_decode($r->Attribute);
+            $attributeIds = array_merge($attributeIds, array_keys((array)$r->Attribute));
         }
         else{
-            $r['Attribute'] = array();
+            $r->Attribute = array();
         }
 
         $characteristics[] = $r;
@@ -169,11 +173,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			WHERE manufacturerPart_attribute.Id IN ($attributeIdString)
 
 		STR;
-		$result = dbRunQuery($dbLink,$query);
-		
-		while($r = mysqli_fetch_assoc($result)) {
-			$r['Id'] = intval($r['Id']);
-			$attributes[$r['Id']] = $r;
+        $result = $database->query($query);
+
+        foreach ($result as $r)
+        {
+			$attributes[$r->Id] = $r;
 		}
 	}
     $output['Characteristics']["Attributes"] = $attributes;
@@ -192,54 +196,33 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $output['Characteristics']["Data"] = $dataWithAttribute;
 
-	dbClose($dbLink);
-
-	sendResponse($output);
+	$api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
 
-    $dbLink = dbConnect();
-
-    $prefixId = intval($data['PrefixId']);
+    $prefixId = intval($data->PrefixId);
 
     $sqlData = array();
     $sqlData['NumberingPrefixId'] = $prefixId;
     $sqlData['Number']['raw'] = "productionPart_generateNumber($prefixId)";
-    $sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
+    $sqlData['Description'] = $data->Description;
 
-    $query = dbBuildInsertQuery($dbLink,"productionPart", $sqlData);
+    $productionPartId = $database->insert("productionPart", $sqlData);
 
-    $query .= <<< STR
-        SELECT CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartNumber
+    $query = <<< STR
+        SELECT 
+            CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartNumber
         FROM productionPart
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId 
-        WHERE productionPart.Id = LAST_INSERT_ID();
+        WHERE productionPart.Id = $productionPartId;
     STR;
 
-    $error = null;
-    $output = array();
+    $result = $database->query($query);
 
-    if(mysqli_multi_query($dbLink,$query))
-    {
-        do {
-            if ($result = mysqli_store_result($dbLink)) {
-                while ($row = mysqli_fetch_row($result)) {
-                    $output['ProductionPartNumber'] = $row[0];
-                }
-                mysqli_free_result($result);
-            }
-            if(!mysqli_more_results($dbLink)) break;
-        } while (mysqli_next_result($dbLink));
-    }
-    else
-    {
-        $error = "Error description: " . mysqli_error($dbLink);
-    }
+    $output = [];
+    $output['ProductionPartNumber'] = $result[0]->ProductionPartNumber;
 
-    dbClose($dbLink);
-    sendResponse($output,$error);
+    $api->returnData($output);
 }
-
-?>

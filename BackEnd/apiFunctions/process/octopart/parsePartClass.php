@@ -8,9 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../databaseConnector.php";
-
 $title = "Octopart Parse Part Class";
 $description = "Parse Octopart Class and converts it to BlueNova Part Class.";
 

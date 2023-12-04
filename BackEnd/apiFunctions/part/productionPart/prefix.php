@@ -3,17 +3,16 @@
 // FileName : prefix.php
 // FilePath : apiFunctions/part/productionPart/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
-
     $query = <<< STR
         SELECT
             Id,
@@ -24,15 +23,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE Category = 'ProductionPart'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    $output = array();
-    while($r = mysqli_fetch_assoc($result))
-    {
-        $r['Id'] = intval( $r['Id'] );
-        $output[] = $r;
-    }
-    dbClose($dbLink);
-
-    sendResponse($output);
+    $api->returnData($database->query($query));
 }
-?>

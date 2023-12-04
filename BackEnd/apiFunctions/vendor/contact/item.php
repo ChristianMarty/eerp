@@ -21,8 +21,8 @@ if($api->isGet())
 	{
 		require_once __DIR__ . "/../_vendor.php";
 		// legacy behavior
-		$vendor = getVendorContact($_GET["VendorAddressId"]);
-		sendResponse($vendor);
+		$vendor = getVendorContact($parameters->VendorAddressId);
+        $api->returnData($vendor);
 	}
 	else if(isset($parameters->ContactId))
 	{

@@ -3,38 +3,35 @@
 // FileName : item.php
 // FilePath : apiFunctions/inventory/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/getPurchaseInformation.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(isset($_GET["InventoryNumber"]))
-	{
-		$InvNo = barcodeParser_InventoryNumber($_GET["InventoryNumber"]);
-	}
-	elseif(isset($_GET["SerialNumber"]))
-	{
-		$SerNo = $_GET["SerialNumber"];
-	}
-	else
-	{
-		sendResponse(null,"No inventory item specified");
-	}
+	$parameter = $api->getGetData();
+	if(!isset($parameter->InventoryNumber) and !isset($parameter->SerialNumber)) $api->returnParameterMissingError("InventoryNumber and SerialNumber");
 
-	$dbLink = dbConnect();
-	
-	if(isset($InvNo)) $InvNo = dbEscapeString($dbLink, $InvNo );
-	if(isset($SerNo)) $SerNo = dbEscapeString($dbLink, $SerNo );
+
+	if(isset($parameter->InventoryNumber))
+	{
+		$InvNo = barcodeParser_InventoryNumber($parameter->InventoryNumber);
+		if($InvNo == null) $api->returnParameterError('InventoryNumber');
+	}
+	elseif(isset($parameter->SerialNumber))
+	{
+		$SerNo = $database->escape($parameter->SerialNumber);
+	}
 
 	$baseQuery = <<<STR
 		SELECT 
@@ -42,7 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    PicturePath, 
 		    InvNo, 
 		    inventory.Title, 
-		    inventory.Manufacturer, 
+		    inventory.Manufacturer AS ManufacturerName, 
 		    inventory.Type, 
 		    SerialNumber, 
 		    PurchaseDate, 
@@ -55,8 +52,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    Status,  
 			vendor_displayName(vendor.Id) AS SupplierName, 
 			HomeLocationId, 
-			location.LocNr, 
-			InventoryCategoryId, 
+			location.LocNr AS LocationNumber, 
+			InventoryCategoryId AS CategoryId, 
 			inventory.LocationId 
 		FROM `inventory`
 		LEFT JOIN `vendor` On vendor.Id = inventory.VendorId 
@@ -64,37 +61,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		LEFT JOIN `inventory_category` On inventory_category.Id = inventory.InventoryCategoryId 
 	STR;
 
-	if(isset($InvNo)) $baseQuery .="WHERE `InvNo` = '".$InvNo."'";
-	if(isset($SerNo)) $baseQuery .="WHERE `SerialNumber` = '".$SerNo."'";
+	if(isset($InvNo)) $baseQuery .=" WHERE `InvNo` = $InvNo";
+	if(isset($SerNo)) $baseQuery .=" WHERE `SerialNumber` = $SerNo";
 	
 	global $dataRootPath;
 	global $picturePath;
 
 	$pictureRootPath = $dataRootPath.$picturePath."/";
-	
-	$result = dbRunQuery($dbLink,$baseQuery);
-	$r = mysqli_fetch_assoc($result);
-	$id = $r['Id'];
-	
-	$output = array();
-	$output['PicturePath'] = $pictureRootPath.$r['PicturePath'];
-	$output['InventoryNumber'] = $r['InvNo'];
-	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($r['InvNo']);
-	$output['Title'] = $r['Title'];
-	$output['ManufacturerName'] = $r['Manufacturer'];
-	$output['Type'] = $r['Type'];
-	$output['SerialNumber'] = $r['SerialNumber'];
-	$output['Description'] = $r['Description'];
-	$output['Note'] = $r['Note'];
-	$output['MacAddressWired'] = $r['MacAddressWired'];
-	$output['MacAddressWireless'] = $r['MacAddressWireless'];
-	$output['Status'] = $r['Status'];
-	$output['LocationNumber'] = $r['LocNr'];
-	$output['CategoryId'] = $r['InventoryCategoryId'];
-	$output['LocationName'] = location_getName( $r['LocationId']);
-	$output['LocationPath'] = location_getPath( $r['LocationId']);
-	$output['HomeLocationName'] = location_getName( $r['HomeLocationId']);
-	$output['HomeLocationPath'] = location_getPath( $r['HomeLocationId']);
+
+	$output = $database->query($baseQuery)[0];
+
+	$id = $output->Id;
+
+	$output->PicturePath = $pictureRootPath.$output->PicturePath;
+	$output->InventoryNumber = $output->InvNo;
+	$output->InventoryBarcode = barcodeFormatter_InventoryNumber($output->InvNo);
+
+	$location = new Location();
+	$output->LocationName = $location->name($output->LocationId);
+	$output->LocationPath = $location->path($output->LocationId);
+	$output->HomeLocationName = $location->name($output->HomeLocationId);
+	$output->HomeLocationPath = $location->path($output->HomeLocationId);
 
 	// Get Purchase Information
 	$query = <<<STR
@@ -118,39 +105,36 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		LEFT JOIN purchaseOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
 		LEFT JOIN vendor ON purchaseOrder.VendorId = vendor.Id
 		LEFT JOIN finance_currency ON purchaseOrder.CurrencyId = finance_currency.Id
-		WHERE inventory_purchaseOrderReference.InventoryId = {$id}
+		WHERE inventory_purchaseOrderReference.InventoryId = $id
 		ORDER BY PurchaseDate
 	STR;
-	
-	$purchase = array();
-	$result = dbRunQuery($dbLink,$query);
+	$purchase = $database->query($query);
+
 	$totalPurchase = 0;
 	$totalMaintenance = 0;
-	while($por = mysqli_fetch_assoc($result))
+	foreach ($purchase as $r)
 	{
-		$por["PurchaseOrderNumber"] = $por['PoNo'];
-		$por["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($por['PoNo'], $por['LineNumber']);
-		$por['PoNo'] = barcodeFormatter_PurchaseOrderNumber($por['PoNo']);
+		$r->PurchaseOrderNumber = $r->PoNo;
+		$r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($r->PoNo, $r->LineNumber);
+		$r->PoNo = barcodeFormatter_PurchaseOrderNumber($r->PoNo);
 
-		$price = ($por["Price"]*$por["ExchangeRate"])*$por['Quantity']*((100 - intval($por['Discount']))/100);
-		$por["Price"] = $price;
-		if($por['CostType'] == 'Purchase')  $totalPurchase += $price;
+		$price = ($r->Price*$r->ExchangeRate)*$r->Quantity*((100 - intval($r->Discount))/100);
+		$r->Price = $price;
+		if($r->CostType == 'Purchase')  $totalPurchase += $price;
 		else $totalMaintenance += $price;
-
-		$purchase[] = $por;
 	}
 	
 	if(count($purchase) == 0) // Fallback to legacy data
 	{
-		$row = array();
+		$row = [];
 		$row["PoNo"] = null;
 		$row["LineNumber"] = null;
-		$row["Price"] = $r["PurchasePrice"];
+		$row["Price"] = $output->PurchasePrice;
 		$row["Currency"] = "CHF"; // TODO: Fix this
 		$row["SupplierPartNumber"] = null;
-		$row["SupplierName"] = $r["SupplierName"];
-		$row["SupplierId"] = NULL;
-		$row["PurchaseDate"] = $r["PurchaseDate"];
+		$row["SupplierName"] = $output->SupplierName;
+		$row["SupplierId"] = null;
+		$row["PurchaseDate"] = $output->PurchaseDate;
 		$row["OrderReference"] = null;
 		$row["VendorId"] = 0;
 		$row["Quantity"] = 1;
@@ -162,118 +146,97 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$purchase[] = $row;
 	}
 	
-	$output["PurchaseInformation"] = $purchase;
+	$output->PurchaseInformation = $purchase;
 
-	$output["TotalPurchaseCost"] =  round($totalPurchase, 2);
-	$output["TotalMaintenanceCost"] =  round($totalMaintenance, 2);
-	$output["TotalCostOfOwnership"] =  round($totalPurchase+$totalMaintenance, 2);
-	$output["TotalCurrency"] = "CHF"; //TODO: Fix  $purchase[0]["Currency"];
+	$output->TotalPurchaseCost =  round($totalPurchase, 2);
+	$output->TotalMaintenanceCost =  round($totalMaintenance, 2);
+	$output->TotalCostOfOwnership =  round($totalPurchase+$totalMaintenance, 2);
+	$output->TotalCurrency = "CHF"; //TODO: Fix  $purchase[0]["Currency"];
 	
 	// Get Accessory
-	
-	$query  = "SELECT AccessoryNumber, Description, Note, Labeled FROM inventory_accessory ";
-	$query .= "WHERE InventoryId = ".$id;
-	$query .= " ORDER BY AccessoryNumber ASC";
-	
-	$accessory = array();
-	$result = dbRunQuery($dbLink,$query);
-	while($acs = mysqli_fetch_assoc($result))
+	$query = <<<STR
+		SELECT  
+		    AccessoryNumber, 
+		    Description,
+		    Note,
+		    Labeled
+		FROM inventory_accessory
+		WHERE InventoryId = $id
+		ORDER BY AccessoryNumber ASC
+	STR;
+
+	$accessory = $database->query($query);
+	foreach ($accessory as $r)
 	{
-		$acs["AccessoryBarcode"] = $output['InventoryBarcode']."-".$acs["AccessoryNumber"];
-		if($acs["Labeled"] == "0") $acs["Labeled"] = false;
-		else $acs["Labeled"] = true;
-		$accessory[] = $acs;
+		$r->AccessoryBarcode = $output->InventoryBarcode."-".$r->AccessoryNumber;
+		if($r->Labeled == "0") $r->Labeled = false;
+		else $r->Labeled = true;
 	}
 	
-	$output["Accessory"] = $accessory;
+	$output->Accessory = $accessory;
 	
 	// Get Documents
-	if(isset($r['DocumentIds'])) $DocIds = $r['DocumentIds'];
-	else $DocIds = null;
-	unset($r['DocumentIds']);
-	$output["Documents"] = getDocuments($DocIds);
+	$output->Documents = getDocuments($output->DocumentIds ?? null);
+	unset($output->DocumentIds);
 	
 	// Get History
-	$History = array();
+	$query = <<<STR
+		SELECT  
+		    *
+		FROM inventory_history
+		WHERE InventoryId = $id
+		ORDER BY Date ASC
+	STR;
+	$history = $database->query($query);
+
 	global $documentRootPath;
-
-	$baseQuery = "SELECT * FROM `inventory_history` WHERE InventoryId = ".$id." ORDER BY `Date` ASC";
-		
-	$result = dbRunQuery($dbLink,$baseQuery);
-	while($r = mysqli_fetch_assoc($result))
+	foreach ($history as $r)
 	{
-		$Documents = array();
+		$documents = array();
 
-		if(isset($r['DocumentIds'])) $DocIds = explode(",",$r['DocumentIds']);
+		if(isset($r->DocumentIds)) $DocIds = explode(",",$r->DocumentIds);
 		else $DocIds = null;
 		
 		if(!empty($DocIds))
 		{
 			$baseQuery = "SELECT * FROM `document` WHERE Id IN(".implode(", ",$DocIds).")";
-	
-			$result2 = dbRunQuery($dbLink,$baseQuery);
-			while($j = mysqli_fetch_assoc($result2))
+			$documents = $database->query($baseQuery);
+			foreach ($documents as $doc)
 			{
-				$j['Path'] = $documentRootPath."/".$j['Type']."/".$j['Path'];
-				$Documents[] = $j;
+				$doc->Path = $documentRootPath."/".$doc->Type."/".$doc->Path;
 			}
 		}
-		$r['Documents'] = $Documents;
+		$r->Documents = $documents;
 		
-		unset($r['DocumentIds']);
-		unset($r['Id']);
-		unset($r['InventoryId']);
-		
-		$History[] = $r;
+		unset($r->DocumentIds);
+		unset($r->Id);
+		unset($r->InventoryId);
 	}
 	
-	$output["History"] = $History;
+	$output->History = $history;
 	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+	$data = $api->getPostData();
 
 	$sqlData = array();
 	$sqlData['InvNo']['raw'] = "(SELECT generateItemNumber())";
-	$sqlData['Title'] = $data['Title'];
-	$sqlData['Manufacturer'] = $data['ManufacturerName'];
-	$sqlData['Type'] = $data['Type'];
+	$sqlData['Title'] = $data->Title;
+	$sqlData['Manufacturer'] = $data->ManufacturerName;
+	$sqlData['Type'] = $data->Type;
 	$sqlData['SerialNumber'] = $data['SerialNumber'];
-	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocNr = ".dbEscapeString($dbLink,$data['LocationNumber']).")";
-	$sqlData['InventoryCategoryId'] = intval($data['CategoryId']);
+	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocNr = ".$database->escape($data->LocationNumber).")";
+	$sqlData['InventoryCategoryId'] = intval($data->CategoryId);
 
-	$query = dbBuildInsertQuery($dbLink,"inventory", $sqlData);
+	$Id = $database->insert("inventory", $sqlData);
 
-	$query .= " SELECT `InvNo` FROM `inventory` WHERE `Id` = LAST_INSERT_ID();";
-	
-	$error = null;
-	$output = null;
-	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$output = $row[0];
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-		} while (mysqli_next_result($dbLink));
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($output,$error);
+	$inventoryNumber = " SELECT `InvNo` FROM `inventory` WHERE `Id` = $Id;";
+
+	$output = [];
+	$output['InventoryNumber'] = $inventoryNumber;
+	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($inventoryNumber);
+
+	$api->returnData($output);
 }
-
-?>

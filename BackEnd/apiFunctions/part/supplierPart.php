@@ -3,22 +3,21 @@
 // FileName : supplierPart.php
 // FilePath : apiFunctions/supplier/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+    $parameter = $api->getGetData();
 	
-	if(isset($_GET["ManufacturerPartNumberId"])) $manufacturerPartNumberId =  dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
-	if(isset($_GET["SupplierId"])) $supplierId =  dbEscapeString($dbLink, $_GET["SupplierId"]);
-	if(isset($_GET["ProductionPartNo"])) $productionPartNo =  dbEscapeString($dbLink, $_GET["ProductionPartNo"]);
+	if(isset($parameter->ManufacturerPartNumberId)) $manufacturerPartNumberId = intval($parameter->ManufacturerPartNumberId);
+	if(isset($parameter->SupplierId)) $supplierId =  intval($parameter->SupplierId);
+	if(isset($parameter->ProductionPartNo)) $productionPartNo =  $database->escape($parameter->ProductionPartNo);
 	
 	$supplierData = array();
     $query = <<<STR
@@ -35,61 +34,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     STR;
 
 	$parameters = array();
-	if(isset($manufacturerPartNumberId)) $parameters[] = " supplierPart.ManufacturerPartNumberId = " . $manufacturerPartNumberId;
-	if(isset($supplierId)) $parameters[] = " supplierPart.VendorId = " . $supplierId;
-	if(isset($productionPartNo)) $parameters[] = " productionPart.PartNo = '" . $productionPartNo . "'";
-	
-	$query = dbBuildQuery($dbLink, $query, $parameters);
-	
-	$supplierParts = dbRunQuery($dbLink,$query);
-	
-	while($supplier = mysqli_fetch_assoc($supplierParts)) 
-	{
-		$supplierData[] = $supplier;
-	}
+	if(isset($manufacturerPartNumberId)) $parameters[] = " supplierPart.ManufacturerPartNumberId = $manufacturerPartNumberId";
+	if(isset($supplierId)) $parameters[] = " supplierPart.VendorId = $supplierId";
+	if(isset($productionPartNo)) $parameters[] = " productionPart.PartNo = '$productionPartNo'";
 
-	dbClose($dbLink);	
-	sendResponse($supplierData);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+    $supplierData = $database->query($query,$parameters);
 	
-	$data = json_decode(file_get_contents('php://input'),true);
+	$api->returnData($supplierData);
+}
+else if($api->isPost())
+{
+	$data = $api->getPostData()->data;
 
 	$supplierPartCreate = array();
-	$supplierPartCreate['ManufacturerPartNumberId'] = intval($data['data']['ManufacturerPartNumberId']);
-	$supplierPartCreate['VendorId'] = intval($data['data']['SupplierId']);
-	$supplierPartCreate['SupplierPartNumber'] = $data['data']['SupplierPartNumber'];
-	$supplierPartCreate['SupplierPartLink'] = $data['data']['SupplierPartLink'];
-	$supplierPartCreate['Note'] = $data['data']['Note'];
+	$supplierPartCreate['ManufacturerPartNumberId'] = intval($data->ManufacturerPartNumberId);
+	$supplierPartCreate['VendorId'] = intval($data->SupplierId);
+	$supplierPartCreate['SupplierPartNumber'] = $data->SupplierPartNumber;
+	$supplierPartCreate['SupplierPartLink'] = $data->SupplierPartLink;
+	$supplierPartCreate['Note'] = $data->Note;
 
-	$query = dbBuildInsertQuery($dbLink, "supplierPart", $supplierPartCreate);
+    $database->insert("supplierPart", $supplierPartCreate);
 	
-	$query .= "SELECT Id FROM supplierPart WHERE Id = LAST_INSERT_ID();";
-	
-	$output = array();
-	$error = null;
-	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$output["PurchaseOrderNo"] = $row[0];
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-		} while (mysqli_next_result($dbLink));
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-
-	dbClose($dbLink);	
-	sendResponse($output,$error);
+	$api->returnEmpty();
 }
-?>

@@ -11,18 +11,13 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../vendor/_preprocessor/_partNumberPreprocessing.php";
-
 
 $title = "Match Parts";
 $description = "Match Manufacturer Part against PartLookup and production parts.";
 
 if($api->isGet())
 {
-    $dbLink = dbConnect();
-
 // Add already found Manufacrurer Part Ids to mapping list 
     $query = <<<STR
         INSERT IGNORE
@@ -33,10 +28,8 @@ if($api->isGet())
             0 AS MatchCertainty
         FROM partLookup WHERE ManufacturerPartNumberId IS NOT NULL AND ProductionPartId IS NOT NULL;
     STR;
-    $queryResult = dbRunQuery($dbLink,$query);
-    $partLookup = array();
+    $database->execute($query);
 
-    
 // Get Part Lookup Data
     $query = <<<STR
     SELECT
@@ -46,13 +39,13 @@ if($api->isGet())
     FROM partLookup
     WHERE VendorId IS NOT NULL AND ManufacturerPartNumberId IS NULL;
     STR;
-    $queryResult = dbRunQuery($dbLink,$query);
+    $queryResult = $database->query($query);
     $partLookup = array();
     
     // Sort by ManufacturerId
-    while($part = mysqli_fetch_assoc($queryResult))
+    foreach ($queryResult as $part)
     {
-        $mfrId = $part['VendorId'];
+        $mfrId = $part->VendorId;
         
         if( !isset($partLookup[$mfrId]) || !is_array($partLookup[$mfrId]))
         {
@@ -74,13 +67,13 @@ if($api->isGet())
         LEFT JOIN vendor ON vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_partNumber.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
         WHERE vendor.Id IS NOT NULL
     STR;
-    $queryResult = dbRunQuery($dbLink,$query);
-    $mfrParts = array();
+    $queryResult = $database->query($query);
 
+    $mfrParts = array();
     // Sort by ManufacturerId
-    while($part = mysqli_fetch_assoc($queryResult))
+    foreach ($queryResult as $part)
     {
-        $mfrId = $part['VendorId'];
+        $mfrId = $part->VendorId;
         
         if( !isset($mfrParts[$mfrId]) || !is_array($mfrParts[$mfrId]))
         {
@@ -89,7 +82,6 @@ if($api->isGet())
         
         $mfrParts[$mfrId][] = $part;
     }
-    dbClose($dbLink);
     
     
 // Match parts
@@ -204,16 +196,12 @@ function like_match($pattern, $subject): bool
 
 function addProdPart($productionPartId, $manufacturerPartNumberId, $matchCertainty)
 {
+    global $database;
     $query = <<<STR
         INSERT IGNORE 
         INTO productionPart_manufacturerPart_mapping(ProductionPartId, ManufacturerPartNumberId, MatchCertainty) 
         VALUES("$productionPartId","$manufacturerPartNumberId","$matchCertainty");
     STR;
-        
-    $dbLink = dbConnect();
-    if($dbLink == null) return null;
-    dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
-}
 
-?>
+    $database->execute($query);
+}

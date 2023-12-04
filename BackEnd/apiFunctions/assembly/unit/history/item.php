@@ -3,25 +3,26 @@
 // FileName : item.php
 // FilePath : apiFunctions/assembly/unit/history/
 // Author   : Christian Marty
-// Date		: 21.08.2022
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
 require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../../../util/_json.php";
 require_once __DIR__ . "/../../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["AssemblyUnitHistoryNumber"])) sendResponse(Null,"Assembly Unit History Number not set");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$assemblyHistoryNumber= barcodeParser_AssemblyUnitHistoryNumber($_GET["AssemblyUnitHistoryNumber"]);
+    $parameter = $api->getGetData();
+    if(!isset($parameter->AssemblyUnitHistoryNumber)) $api->returnParameterMissingError("AssemblyUnitHistoryNumber");
+
+	$assemblyHistoryNumber = barcodeParser_AssemblyUnitHistoryNumber($parameter->AssemblyUnitHistoryNumber);
+    if($assemblyHistoryNumber === null) $api->returnParameterError("AssemblyUnitHistoryNumber");
 
     $query  = <<< STR
         SELECT * FROM assembly_unit_history
@@ -30,134 +31,99 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         ORDER BY Date
     STR;
 
-	$result = dbRunQuery($dbLink,$query);
-	
-	$history = array();
-	
-	while($r = mysqli_fetch_assoc($result)) 
+    $history = $database->query($query);
+	foreach ($history as $item)
 	{
-		$assembly = $r;
-		$temp = array();
-		$temp['Title'] = $r['Title'];
-		$temp['Description'] = $r['Description'];
-		$temp['SerialNumber'] = $r['SerialNumber'];
-		$temp['Barcode'] = "ASU-".$r['AssemblyUnitNumber'];
-		$temp['Type'] = $r['Type'];
-		if($r['ShippingClearance'] != 0) $temp['ShippingClearance'] = true;
+        $item->AssemblyUnitBarcode = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
+        $item->AssemblyUnitHistoryBarcode = barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
+
+        $item->Barcode =$item->AssemblyUnitBarcode; // TODO: Legacy -> remove
+
+		if($item->ShippingClearance != 0) $item->ShippingClearance = true;
 		else $temp['ShippingClearance'] = false;
-		if($r['ShippingProhibited'] != 0) $temp['ShippingProhibited'] = true;
-		else $temp['ShippingProhibited'] = false;
-		$temp['EditToken'] = $r['EditToken'];
-		if($r['Data'] != NULL) $temp['Data'] = json_decode($r['Data']);
-		else $temp['Data'] = NULL;
-		$temp['Date'] = $r['Date'];
-
-        $temp['AssemblyUnitHistoryBarcode'] = barcodeFormatter_AssemblyUnitHistoryNumber($r['AssemblyUnitHistoryNumber']);
-
-		$history = $temp;
+		if($item->ShippingProhibited != 0) $item->ShippingProhibited = true;
+		else $item->ShippingProhibited = false;
+		if($item->Data != NULL) $item->Data = json_decode($item->Data);
+		else $item->Data = NULL;
 	}
-	
-	dbClose($dbLink);	
-	sendResponse($history);
+
+    $api->returnData($history);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+else if($api->isPatch())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["EditToken"])) sendResponse(Null,"EditToken not set");
-	
+	$data = $api->getPostData();
+    if(!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
+    $token = $database->escape($data->EditToken);
+
 	$jsonData = null;
-	if(isset($data['Data']))
+	if(isset($data->Data))
 	{
-		$jsonData = json_validateString($data['Data']);
-		if($jsonData === false) sendResponse(null,"Data is not valid JSON");
+		$jsonData = json_validateString($data->Data);
+		if($jsonData === false) $api->returnError("Data is not valid JSON");
 	}
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$token = dbEscapeString($dbLink,$data["EditToken"]);
 
 	$sqlData = array();
-	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
-	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
-	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
-    if(isset($data['Date'])) $sqlData['Date'] = dbEscapeString($dbLink,$data['Date']);
+	$sqlData['Title'] = $data->Title;
+	$sqlData['Description'] = $data->Description;
+	$sqlData['Type'] = $data->Type;
+    if(isset($data->Date)) $sqlData['Date'] = $data->Date;
 
-	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";
+	if(isset($data->ShippingClearance) AND $data->ShippingClearance) $sqlData['ShippingClearance']['raw']  = "b'1'";
 	else $sqlData['ShippingClearance']['raw']  = "b'0'";
-	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited']) $sqlData['ShippingProhibited']['raw']  = "b'1'";
+
+	if(isset($data->ShippingProhibited) AND $data->ShippingProhibited) $sqlData['ShippingProhibited']['raw']  = "b'1'";
 	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
 	
-	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	$query = dbBuildUpdateQuery($dbLink,"assembly_unit_history", $sqlData, 'EditToken = "'.$token.'"');
+	$sqlData['Data']['raw'] = "JSON_UNQUOTE(". $database->escape($jsonData).")";
 
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
-	
-	dbClose($dbLink);	
-	sendResponse(null,$error);
+	$database->update("assembly_unit_history", $sqlData, "EditToken = $token");
+
+    $api->returnEmpty();
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["AssemblyUnitNumber"])) sendResponse(Null,"AssemblyUnitNumber not set");
-	
-	$jsonData = null;
-	if(isset($data['Data']))
-	{
-		$jsonData = json_validateString($data['Data']);
-		if($jsonData === false) sendResponse(null,"Data is not valid JSON");
-	}
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+    $data = $api->getPostData();
+    if(!isset($data->AssemblyUnitNumber)) $api->returnParameterMissingError("AssemblyUnitNumber");
+    $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($data->AssemblyUnitNumber);
+    if($assemblyUnitNumber === null) $api->returnParameterError("AssemblyUnitNumber");
 
-    $assemblyNo = barcodeParser_AssemblyUnitNumber($data['AssemblyUnitNumber']);
-	
+	$jsonData = null;
+	if(isset($data->Data))
+	{
+        $jsonData = json_validateString($data->Data);
+        if($jsonData === false) $api->returnError("Data is not valid JSON");
+	}
+
 	$sqlData = array();
     $sqlData['AssemblyUnitHistoryNumber']['raw'] = "(SELECT generateItemNumber())";
-	$sqlData['Title'] = dbEscapeString($dbLink,$data['Title']);
-	$sqlData['Description'] = dbEscapeString($dbLink,$data['Description']);
-	$sqlData['Type'] = dbEscapeString($dbLink,$data['Type']);
-    if(isset($data['Date'])) $sqlData['Date'] = dbEscapeString($dbLink,$data['Date']);
-	$sqlData['Data']['raw'] = "JSON_UNQUOTE('".dbEscapeString($dbLink,$jsonData)."')";
-	
-	if(isset($data['ShippingClearance']) AND $data['ShippingClearance']) $sqlData['ShippingClearance']['raw']  = "b'1'";
-	else $sqlData['ShippingClearance']['raw']  = "b'0'";
-	if(isset($data['ShippingProhibited']) AND $data['ShippingProhibited']) $sqlData['ShippingProhibited']['raw']  = "b'1'";
-	else $sqlData['ShippingProhibited']['raw']  = "b'0'";
 
-	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '".$assemblyNo."' )";
+	$sqlData['Title'] =  $data->Title;
+	$sqlData['Description'] = $data->Description;
+	$sqlData['Type'] = $data->Type;
+    if(isset($data->Date)) $sqlData['Date'] = $data->Date;
+
+	if(isset($data->ShippingClearance) AND $data->ShippingClearance) $sqlData['ShippingClearance']['raw']  = "b'1'";
+    else $sqlData['ShippingClearance']['raw']  = "b'0'";
+
+	if(isset($data->ShippingProhibited) AND $data->ShippingProhibited) $sqlData['ShippingProhibited']['raw']  = "b'1'";
+    else $sqlData['ShippingProhibited']['raw']  = "b'0'";
+
+    $sqlData['Data']['raw'] = "JSON_UNQUOTE(". $database->escape($jsonData).")";
+	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '$assemblyUnitNumber' )";
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$query = dbBuildInsertQuery($dbLink,"assembly_unit_history", $sqlData);
+
+
+	$id = $database->insert("assembly_unit_history", $sqlData);
 	
-	$query .= " SELECT EditToken, AssemblyUnitHistoryNumber FROM assembly_unit_history WHERE Id = LAST_INSERT_ID();";
-	
+	$query = "SELECT EditToken, AssemblyUnitHistoryNumber FROM assembly_unit_history WHERE Id = $id LIMIT 1;";
+
+    $result = $database->query($query)[0];
+
 	$error = null;
 	$output = array();
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$output['EditToken'] = $row[0];
-                    $output['Barcode'] = barcodeFormatter_AssemblyUnitHistoryNumber($row[1]);
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-		} while (mysqli_next_result($dbLink));
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($output,$error);
+    $output['EditToken'] = $result->EditToken;
+    $output['AssemblyUnitHistoryBarcode'] = barcodeFormatter_AssemblyUnitHistoryNumber($result->AssemblyUnitHistoryNumber);
+    $output['Barcode'] = $output['AssemblyUnitHistoryBarcode']; // TODO: Legacy -> Remove
+
+    $api->returnData($output);
 }
-?>

@@ -3,19 +3,18 @@
 // FileName : upload.php
 // FilePath : apiFunctions/document/ingest/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
 	$output = array();
 	$error = null;
 	
@@ -29,18 +28,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	// Check if file already exists
 	$fileMd5 = md5_file ($file);
 	
-	$query = "SELECT * FROM `document` WHERE `Hash`='".$fileMd5."'";
-	$result = dbRunQuery($dbLink,$query);
-	
-	if($result) 
-	{
-		$result = mysqli_fetch_assoc($result);
-	}
-	
-	if(!isset($result))
+	$query = "SELECT * FROM `document` WHERE `Hash`='$fileMd5'";
+	$result = $database->query($query);
+
+    if(count($result) == 0)
 	{
 		move_uploaded_file($file, $serverDataPath.$ingestPath."/".$fileName);
-
 		$output["message"]= "File uploaded successfully.";
 	}
 	else
@@ -51,7 +44,5 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 	$output["fileInfo"]= $result;
 	
-	dbClose($dbLink);	
-	sendResponse($output,$error);
+	$api->returnData($output);
 }
-?>

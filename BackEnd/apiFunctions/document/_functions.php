@@ -8,38 +8,30 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 
 function checkFileNotDuplicate($path): ?array
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+    global $database;
 	
 	// Check if file already exists
 	$fileMd5 = md5_file($path);
 	
-	$query = "SELECT * FROM document WHERE Hash='".$fileMd5."'";
+	$query = "SELECT * FROM document WHERE Hash='$fileMd5';";
 
-	$result = dbRunQuery($dbLink,$query);
-	$existingFile = null;
-	if($result) 
-	{
-		$existingFile = mysqli_fetch_assoc($result);
-	}
-	dbClose($dbLink);
-	
+	$result = $database->query($query);
+
 	$retuning = array();
-	
-	if($existingFile != null)
+	if(count($result))
 	{
+        $existingFile = $result[0];
 		$retuning['preexisting'] = true;
-		$retuning['hash'] = $existingFile['Hash'];
-		$retuning['path'] = $existingFile['Path'];
-		$retuning['type'] = $existingFile['Type'];
-		$retuning['description'] = $existingFile['Description'];
+		$retuning['hash'] = $existingFile->Hash;
+		$retuning['path'] = $existingFile->Path;
+		$retuning['type'] = $existingFile->Type;
+		$retuning['description'] = $existingFile->Description;
 	}
 	else 
 	{
@@ -50,8 +42,9 @@ function checkFileNotDuplicate($path): ?array
 	return $retuning;
 }
 
-function getCitations($dbLink, $documentId): array
+function getCitations($documentId): array
 {
+    global $database;
     $output = array();
 
 // Get documents from inventory
@@ -65,13 +58,13 @@ function getCitations($dbLink, $documentId): array
         WHERE replace(json_array(DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result =  $database->query($query);
+    foreach ($result as $r)
     {
         $temp = array();
         $temp['Category']= 'Inventory';
-        $temp['Barcode']= barcodeFormatter_InventoryNumber($r['InvNo']);
-        $temp['Description']= $r['Title']." - ".$r['Manufacturer']." ".$r['Type'];
+        $temp['Barcode']= barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['Description']= $r->Title." - ".$r->Manufacturer." ".$r->Type;
         $output[] = $temp;
     }
 
@@ -90,13 +83,13 @@ function getCitations($dbLink, $documentId): array
         WHERE replace(json_array(inventory_history.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result =  $database->query($query);
+    foreach ($result as $r)
     {
         $temp = array();
         $temp['Category']= 'Inventory History';
-        $temp['Barcode']= barcodeFormatter_InventoryNumber($r['InvNo']);
-        $temp['Description']= $r['HistoryType']." - ".$r['Description']." - ".$r['Manufacturer']." ".$r['Type'];
+        $temp['Barcode']= barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['Description']= $r->HistoryType." - ".$r->Description." - ".$r->Manufacturer." ".$r->Type;
         $output[] = $temp;
     }
 
@@ -111,13 +104,13 @@ function getCitations($dbLink, $documentId): array
         WHERE replace(json_array(manufacturerPart_series.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result =  $database->query($query);
+    foreach ($result as $r)
     {
         $temp = array();
         $temp['Category']= 'Manufacturer Part Series';
         $temp['Barcode']= 'TBD';
-        $temp['Description']= $r['VendorName']." ".$r['Title']." - ".$r['Description'];
+        $temp['Description']= $r->VendorName." ".$r->Title." - ".$r->Description;
         $output[] = $temp;
     }
 
@@ -132,13 +125,13 @@ function getCitations($dbLink, $documentId): array
         WHERE replace(json_array(manufacturerPart_item.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result =  $database->query($query);
+    foreach ($result as $r)
     {
         $temp = array();
         $temp['Category']= 'Manufacturer Part Item';
         $temp['Barcode']= 'TBD';
-        $temp['Description']= $r['VendorName']." ".$r['Number']." - ".$r['Description'];
+        $temp['Description']= $r->VendorName." ".$r->Number." - ".$r->Description;
         $output[] = $temp;
     }
 
@@ -153,13 +146,13 @@ function getCitations($dbLink, $documentId): array
         WHERE replace(json_array(purchaseOrder.DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result =  $database->query($query);
+    foreach ($result as $r)
     {
         $temp = array();
         $temp['Category'] = 'Purchase Order';
-        $temp['Barcode'] = barcodeFormatter_PurchaseOrderNumber($r['PoNo']);
-        $temp['Description'] = $r['VendorName']." - ".$r['Description'];
+        $temp['Barcode'] = barcodeFormatter_PurchaseOrderNumber($r->PoNo);
+        $temp['Description'] = $r->VendorName." - ".$r->Description;
         $output[] = $temp;
     }
 
@@ -174,13 +167,13 @@ function getCitations($dbLink, $documentId): array
         WHERE replace(json_array(DocumentIds), ',', '","') LIKE '%"$documentId"%'
     STR;
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $result =  $database->query($query);
+    foreach ($result as $r)
     {
         $temp = array();
         $temp['Category'] = 'Shipment';
-        $temp['Barcode'] = barcodeFormatter_ShipmentNumber($r['ShipmentNumber']);
-        $temp['Description'] = $r['Direction']." - ".$r['Description'];
+        $temp['Barcode'] = barcodeFormatter_ShipmentNumber($r->ShipmentNumber);
+        $temp['Description'] = $r->Direction." - ".$r->Description;
         $output[] = $temp;
     }
 
@@ -198,10 +191,10 @@ function getCitations($dbLink, $documentId): array
     $ingestData['Description'] = null;
     $ingestData['Note'] = null;
 */
-function ingest($data): int|array
+function ingest(array $data): null|int|array
 {
 
-    $dbLink = dbConnect();
+    global $database;
 
     $fileNameIllegalCharactersRegex = '/[ %:"*?<>|\\/]+/';
 
@@ -234,40 +227,11 @@ function ingest($data): int|array
     $sqlData = array();
     $sqlData['Path'] = $dstFileName;
     $sqlData['Type'] = $data['Type'];
-    $sqlData['Description']['raw'] = dbStringNull(dbEscapeString($dbLink,$data['Description']));
+    $sqlData['Description'] = $data['Description'] ?? null;
     $sqlData['LinkType'] = "Internal";
     $sqlData['Note'] = $data['Note'];
     $sqlData['Hash'] = $fileHashCheck['hash'];
     $sqlData['DocumentNumber']['raw'] = "(SELECT generateItemNumber())";
 
-    $query = dbBuildInsertQuery($dbLink,"document", $sqlData);
-
-    $query .= " SELECT `Id` FROM `document` WHERE `Id` = LAST_INSERT_ID();";
-
-    $output = null;
-    $error = null;
-
-    if(mysqli_multi_query($dbLink,$query))
-    {
-        do {
-            if ($result = mysqli_store_result($dbLink)) {
-                while ($row = mysqli_fetch_row($result)) {
-                    $output = intval($row[0]);
-                }
-                mysqli_free_result($result);
-            }
-            if(!mysqli_more_results($dbLink)) break;
-        } while (mysqli_next_result($dbLink));
-    }
-    else
-    {
-        $error = "Error description: " . mysqli_error($dbLink);
-    }
-
-
-    dbClose($dbLink);
-
-    if($output != null) return $output;
-    return array('error' => $error);
+    return $database->insert("document", $sqlData);
 }
-?>

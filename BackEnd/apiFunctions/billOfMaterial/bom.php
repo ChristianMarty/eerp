@@ -3,20 +3,24 @@
 // FileName : bom.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 13.11.2022
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
-    $revisionId = intval($_GET["RevisionId"]);
+    $parameter = $api->getGetData();
 
-    $dbLink = dbConnect();
+    if(!isset($parameter->RevisionId)) $api->returnParameterMissingError("RevisionId");
+    $revisionId = intval($parameter->RevisionId);
+
     $query = <<<STR
         SELECT 
                billOfMaterial_item.ReferenceDesignator,
@@ -32,64 +36,51 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         WHERE BillOfMaterialRevisionId = $revisionId
     STR;
-	
-	$bom = array();
 
-	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
+	$result = $database->query($query);
+	foreach ($result as $r)
 	{
-        $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
-		$bom[] = $r;
+        $r->ProductionPartBarcode = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartNumber = $r->ProductionPartBarcode; // TODO: Legacy->remove
 	}
 	
-	dbClose($dbLink);
-	
-	sendResponse($bom);
+	$api->returnData($result);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-    $revisionId = intval($data["RevisionId"]);
+	$data = $api->getPostData();
+    if(!isset($data->RevisionId)) $api->returnParameterMissingError("RevisionId");
+    if(!isset($data->Bom)) $api->returnParameterMissingError("Bom");
+    $revisionId = intval($data->RevisionId);
 
-	if(!isset($data["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
-	if(!isset($data["Bom"])) sendResponse(NULL, "Bom Undefined");
-
-    $dbLink = dbConnect();
-
-	$bom = $data['Bom'];
-	foreach ( $bom as $line)
+	foreach ( $data->Bom as $line)
 	{
 		$sqlData = array();
-
-       // $temp = explode("-", $line['ProductionPartNumber']);
-       // $productionPartPrefix = dbEscapeString($dbLink,$line['ProductionPartNumber']);
-       // $productionPartNumber = dbEscapeString($dbLink,$temp[1]);
-
 		$sqlData['BillOfMaterialRevisionId'] = $revisionId;
 
-        $sqlData['ProductionPartId']['raw'] = "(SELECT productionPart.Id FROM productionPart LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId WHERE CONCAT (numbering.Prefix,'-',productionPart.Number) = '".dbEscapeString($dbLink,$line['ProductionPartBarcode'])."')";
-		//$sqlData["ProductionPartId']['raw'] = '(SELECT Id FROM productionPart WHERE Number = "'.$productionPartNumber.'" AND NumberingPrefixId = ( SELECT Id FROM numbering WHERE Prefix = "'.$productionPartPrefix.'") )';
-		$sqlData['ReferenceDesignator'] = trim(dbEscapeString($dbLink,$line['ReferenceDesignator']));
-		$sqlData['PositionX'] = trim(dbEscapeString($dbLink,$line['XPosition']));
-		$sqlData['PositionY'] = trim(dbEscapeString($dbLink,$line['YPosition']));
-		$sqlData['Rotation'] = trim(dbEscapeString($dbLink,$line['Rotation']));
-		$sqlData['Layer'] = trim(dbEscapeString($dbLink,$line['Layer']));
-		$sqlData['Description'] = trim(dbEscapeString($dbLink,$line['Description']));
-		
-		$query = dbBuildInsertQuery($dbLink,"billOfMaterial_item", $sqlData);
+        $productionPartBarcode = barcodeParser_ProductionPart($line->ProductionPartBarcode);
+        $productionPartBarcode = $database->escape($productionPartBarcode);
 
-       // echo $query;
-       // exit;
+        $getProductionPartIdQuery = <<<STR
+            (
+            SELECT productionPart.Id 
+            FROM productionPart 
+            LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId 
+            WHERE CONCAT (numbering.Prefix,'-',productionPart.Number) = $productionPartBarcode
+            )
+        STR;
 
-		dbRunQuery($dbLink,$query);
+        $sqlData['ProductionPartId']['raw'] = $getProductionPartIdQuery;
+
+		$sqlData['ReferenceDesignator'] = trim($line->ReferenceDesignator);
+		$sqlData['PositionX'] = trim($line->XPosition);
+		$sqlData['PositionY'] = trim($line->YPosition);
+		$sqlData['Rotation'] = trim($line->Rotation);
+		$sqlData['Layer'] = trim($line->Layer);
+		$sqlData['Description'] = trim($line->Description);
+
+        $database->insert("billOfMaterial_item", $sqlData);
 	}
 	
-	dbClose($dbLink);	
-	
-	
-	$projectData = array();
-	
-	sendResponse($projectData);
+    $api->returnEmpty();
 }
-
-?>

@@ -9,7 +9,6 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../databaseConnector.php";
 
 function octopart_getPartId($manufacturerName, $manufacturerPartNumber )
 {
@@ -36,22 +35,19 @@ function octopart_getPartId($manufacturerName, $manufacturerPartNumber )
 }
 function octopart_getVendorList(): array
 {
+    global $database;
+
     // Get vendor list
-    $dbLink = dbConnect();
     $query = <<<STR
         SELECT Id, Name, vendor_displayName(Id) AS DisplayName
         FROM vendor_names 
     STR;
-    $result = dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
+    $result = $database->query($query);
 
     $vendorList = array();
-    while($r = mysqli_fetch_assoc($result))
+    foreach ($result as $r)
     {
-        $temp = array();
-        $temp['Id'] = intval($r['Id']);
-        $temp['DisplayName'] = $r['DisplayName'];
-        $vendorList[$r['Name']] = $temp;
+        $vendorList[$r->Name] = $r;
     }
     return $vendorList;
 }
@@ -115,35 +111,32 @@ function octopart_formatAvailabilityData(object|null $data, array $vendorList, b
 }
 
 
-function octopart_getPartData($dbLink, $octopartId)
+function octopart_getPartData($octopartId)
 {
     $octopartId = intval($octopartId);
 
     if($octopartId === 0) return null;
 
+    global $database;
+
     
     $query = <<<STR
         SELECT Id, OctopartId, Timestamp, Data FROM octopart_cache WHERE OctopartId = $octopartId
     STR;
-    $result = dbRunQuery($dbLink, $query);
+    $output = $database->query($query)[0];
 
-    $output = dbGetResult($result);
-
-    if($output  === null ||  (date("Y-m-d",strtotime($output['Timestamp'])) !== date("Y-m-d")))
+    if($output  === null ||  (date("Y-m-d",strtotime($output->Timestamp)) !== date("Y-m-d")))
     {
-        $octopartData = octopart_queryApiPartData($octopartId);
-
-
-        $escaped_data = dbEscapeString($dbLink, $octopartData);
+        $escaped_data = $database->escape(octopart_queryApiPartData($octopartId));
         $query = <<<STR
-            REPLACE INTO octopart_cache(OctopartId, Data) VALUES($octopartId, '$escaped_data');
+            REPLACE INTO octopart_cache(OctopartId, Data) VALUES($octopartId, $escaped_data);
         STR;
-        dbRunQuery($dbLink, $query);
+        $database->query($query);
 
     }
     else
     {
-        $octopartData = $output['Data'];
+        $octopartData = $output->Data;
     }
 
     return json_decode($octopartData);

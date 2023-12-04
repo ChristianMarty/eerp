@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../vendor/_vendor.php";
 require_once __DIR__ . "/../../vendor/_preprocessor/_partNumberPreprocessing.php";
@@ -91,38 +89,33 @@ function manufacturerPartNumberId(int $manufacturerId, string $manufacturerPartN
 
 function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, $manufacturerPartNumber ): void
 {
+    global $database;
     $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
 
     if($partNumberId == NULL)
     {
-        $dbLink = dbConnect();
         $query = <<<STR
             INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number)  
             VALUES ('$manufacturerId', '$manufacturerPartNumber')
         STR;
-        dbRunQuery($dbLink,$query);
-        dbClose($dbLink);
+        $database->execute($query);
 
         $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
     }
 
-    $dbLink = dbConnect();
     $query = <<<STR
         INSERT IGNORE INTO supplierPart (VendorId, SupplierPartNumber, ManufacturerPartNumberId)  
         VALUES ( '$supplierId', '$supplierPartNumber', '$partNumberId')
     STR;
-    dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
+    $database->execute($query);
 
-    $dbLink = dbConnect();
     $query = <<<STR
         UPDATE supplierPart SET ManufacturerPartNumberId = $partNumberId 
         WHERE ManufacturerPartNumberId IS NULL AND
               VendorId = $supplierId AND 
               SupplierPartNumber = '$supplierPartNumber'
     STR;
-    dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
+    $database->execute($query);
 }
 
 
@@ -147,36 +140,31 @@ if($api->isGet())
 }
 else if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
 
-    $dbLink = dbConnect();
     $query = <<<STR
-        SELECT VendorId FROM purchaseOrder WHERE PoNo = $purchaseOrderNumber
+        SELECT 
+            VendorId 
+        FROM purchaseOrder 
+        WHERE PoNo = $purchaseOrderNumber
     STR;
-    $supplierId = intval( mysqli_fetch_assoc(dbRunQuery($dbLink,$query))['VendorId'] );
-    dbClose($dbLink);
+    $supplierId = $database->query($query)[0]->VendorId;
 
     foreach($data as $itemOrderId)
     {
         $itemOrderId = intval($itemOrderId);
 
-        $dbLink = dbConnect();
         $query = <<<STR
             SELECT * FROM purchaseOrder_itemOrder WHERE Id = $itemOrderId
         STR;
-        $result = dbRunQuery($dbLink,$query);
+        $orderLine = $database->query($query)[0];
 
-        if($result == null) continue;
-        $orderLine = mysqli_fetch_assoc($result);
-
-        $manufacturerId = \vendor\vendor::getIdByName($orderLine['ManufacturerName']);
-        $manufacturerPartNumber = dbEscapeString($dbLink, $orderLine['ManufacturerPartNumber']);
-        $supplierPartNumber = dbEscapeString($dbLink, $orderLine['Sku']);
-        dbClose($dbLink);
+        $manufacturerId = \vendor\vendor::getIdByName($orderLine->ManufacturerName);
+        $manufacturerPartNumber = $database->escape($orderLine->ManufacturerPartNumber);
+        $supplierPartNumber = $database->escape( $orderLine->Sku);
 
         supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, $manufacturerPartNumber);
 
-        $dbLink = dbConnect();
         $query = <<<STR
             UPDATE purchaseOrder_itemOrder 
             LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId 
@@ -186,9 +174,8 @@ else if($api->isPost())
             )
             WHERE purchaseOrder_itemOrder.Type = 'Part' AND purchaseOrder.PoNo = $purchaseOrderNumber;
         STR;
-        dbRunQuery($dbLink,$query);
-        dbClose($dbLink);
+        $database->execute($query);
     }
-    sendResponse(null);
+
+    $api->returnEmpty();
 }
-?>

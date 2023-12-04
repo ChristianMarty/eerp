@@ -3,26 +3,28 @@
 // FileName : analysis.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 31.07.2023
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
-    $revisionId = intval($_GET["RevisionId"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+    if(!isset($parameter->RevisionId)) $api->returnParameterMissingError("RevisionId");
+    $revisionId = intval($parameter->RevisionId);
+
     $query = <<<STR
-        SELECT * ,
-               COUNT(*) AS Quantity, 
-               productionPart.Number AS ProductionPartNumber, 
-               numbering.Prefix AS ProductionPartPrefix, 
-               productionPart.Description 
+        SELECT 
+            * ,
+           COUNT(*) AS Quantity, 
+           productionPart.Number AS ProductionPartNumber, 
+           numbering.Prefix AS ProductionPartPrefix, 
+           productionPart.Description 
         FROM billOfMaterial_item
         LEFT JOIN productionPart ON productionPart.Id = billOfMaterial_item.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
@@ -30,53 +32,44 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         GROUP BY ProductionPartId
     STR;
 
+    $bom = $database->query($query);
+
 	$bomStock = array();
-	$bom = array();
 	
 	$numberOfLines = 0;
 	$numberOfLinesAvailable = 0;
 	$totalComponents = 0;
 
     $totalAveragePurchasePrice = 0;
-	
-	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
+
+	foreach ($bom as $line)
 	{
-		$bomLine = array();
-		$bomLine["ProductionPartNumber"] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
-		$bomLine["Description"] = $r['Description'];
-		$bomLine["Quantity"] = $r['Quantity'];
+        $line->ProductionPartBarcode = barcodeFormatter_ProductionPart($line->ProductionPartPrefix . "-" . $line->ProductionPartNumber);
+        $line->ProductionPartNumber = $line->ProductionPartBarcode; // TODO: Legacy -> remove
 
         $referencePrice = array();
-        $referencePrice['Minimum'] = $r['Cache_ReferencePrice_Minimum'];
-        $referencePrice['Average'] = $r['Cache_ReferencePrice_WeightedAverage'];
-        $referencePrice['Maximum'] = $r['Cache_ReferencePrice_Maximum'];
+        $referencePrice['Minimum'] = $line->Cache_ReferencePrice_Minimum;
+        $referencePrice['Average'] = $line->Cache_ReferencePrice_WeightedAverage;
+        $referencePrice['Maximum'] = $line->Cache_ReferencePrice_Maximum;
 
         $referenceLeadTime = array();
         $referenceLeadTime['Minimum'] = null;
-        $referenceLeadTime['Average'] = $r['Cache_ReferenceLeadTime_WeightedAverage'];
+        $referenceLeadTime['Average'] = $line->Cache_ReferenceLeadTime_WeightedAverage;
         $referenceLeadTime['Maximum'] = null;
 
         $purchasePrice = array();
         $purchasePrice['Minimum'] = null;
-        $purchasePrice['Average'] = $r['Cache_PurchasePrice_WeightedAverage'];
+        $purchasePrice['Average'] = $line->Cache_PurchasePrice_WeightedAverage;
         $purchasePrice['Maximum'] = null;
 
-        $totalAveragePurchasePrice += $purchasePrice['Average']*$bomLine["Quantity"];
+        $totalAveragePurchasePrice += $purchasePrice['Average']*$line->Quantity;
 
-        $bomLine["PurchasePrice"] = $purchasePrice;
-        $bomLine["ReferencePrice"] = $referencePrice;
-        $bomLine["ReferenceLeadTime"] = $referenceLeadTime;
-        $bomLine["NumberOfManufacturers"] = $r['Cache_Sourcing_NumberOfManufacturers'];
-        $bomLine["NumberOfParts"] = $r['Cache_Sourcing_NumberOfParts'];
-
-		$bom[] = $bomLine;
+        $line->NumberOfManufacturers = $line->Cache_Sourcing_NumberOfManufacturers;
+        $line->NumberOfParts = $line->Cache_Sourcing_NumberOfParts;
 		
 		$numberOfLines ++;
-		$totalComponents+= $r['Quantity'];
+		$totalComponents += $line->Quantity;
 	}
-	
-	dbClose($dbLink);
 
     $cost = array();
     $cost['TotalAveragePurchasePrice'] = $totalAveragePurchasePrice;
@@ -86,7 +79,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$bomStock['TotalNumberOfComponents'] = $totalComponents;
 	$bomStock['NumberOfUniqueComponents'] = $numberOfLines;
 	
-	sendResponse($bomStock);
+	$api->returnData($bomStock);
 }
-
-?>

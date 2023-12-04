@@ -3,48 +3,46 @@
 // FileName : partReceipt.php
 // FilePath : apiFunctions/print/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/escpos/autoload.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
+require_once __DIR__ . "/../util/escpos/autoload.php";
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\Printer;
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	
-	global $companyName;
+    $data = $api->getPostData();
+    if(!isset($data->Items)) $api->returnParameterMissingError("Items");
+    if(!isset($data->PrinterId)) $api->returnParameterMissingError("PrinterId");
+    $printerId = intval($data->PrinterId);
+    if($printerId == 0) $api->returnParameterError("PrinterId");
 
-    $items = $data['Items'];
-    $printerId = intval($data['PrinterId']);
-	
-	$query = "SELECT * FROM printer WHERE Id =".$printerId;
-	$result = dbRunQuery($dbLink,$query);	
-	$printer = mysqli_fetch_assoc($result);
-		
+    $query = "SELECT * FROM printer WHERE Id ='$printerId' LIMIT 1;";
+    $printer = $database->query($query)[0];
+
 	$workOrder = null;
-	if($data['WorkOrderNumber'])
+	if($data->WorkOrderNumber)
 	{
-		$workOrderNumber =  barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
-		if($workOrderNumber != 0)
+		$workOrderNumber =  barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
+		if($workOrderNumber !== null)
 		{
 			$query = "SELECT * FROM workOrder WHERE WorkOrderNumber =".$workOrderNumber;
-			$result = dbRunQuery($dbLink,$query);	
-			$workOrder = mysqli_fetch_assoc($result);
+			$workOrder = $database->query($query)[0] ?? null;
 		}
 	}
-	
-	$connector = new NetworkPrintConnector($printer['Ip'], $printer['Port']);
+
+    global $companyName;
+
+	$connector = new NetworkPrintConnector($printer->Ip, $printer->Port);
 	$printer = new Printer($connector);
 	
 	$printer -> initialize();
@@ -60,19 +58,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$printer -> setTextSize(1, 1);
 		$printer -> text("Work Order: ");
 		$printer -> selectPrintMode(Printer::MODE_FONT_A);
-		$printer -> text(barcodeFormatter_WorkOrderNumber($workOrder['WorkOrderNumber'])." - ".$workOrder['Title']."\n");
+		$printer -> text(barcodeFormatter_WorkOrderNumber($workOrder->WorkOrderNumber)." - ".$workOrder->Title."\n");
 		$printer -> feed(1);
 	}
 	
 	$lineLength = 42;
 	
-	if($items != null)
+	if($data->Items != null)
 	{
-		foreach($items as $key => $line)
+		foreach($data->Items as $key => $line)
 		{
-			$str1 = $line['Barcode']." ";
+			$str1 = $line->Barcode." ";
 			$len1 = strlen($str1);
-			$str2 = " ".number_format($line['RemoveQuantity']);
+			$str2 = " ".number_format($line->RemoveQuantity);
 			$len2 = " ".strlen($str2);
 			
 			$str = str_repeat("-",$lineLength-($len1+$len2)).$str2;
@@ -84,14 +82,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$printer -> selectPrintMode(Printer::MODE_FONT_A);
 			$printer -> text($str."\n");
 			
-			if(isset($line['Note']))$line['Note'] = trim($line['Note']);
-			else $line['Note'] = null;
+			if(isset($line->Note))$line->Note = trim($line->Note);
+			else $line->Note = null;
 			
-			if($line['Note'] != null && $line['Note'] != "")
+			if($line->Note != null && $line->Note != "")
 			{
 				$printer -> selectPrintMode(Printer::MODE_FONT_A);
 				$printer -> setJustification(Printer::JUSTIFY_LEFT);
-				$printer -> text("-> ".$line['Note']."\n");
+				$printer -> text("-> ".$line->Note."\n");
 			}
 		}
 	}
@@ -107,7 +105,5 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$output = array();
 	
-	dbClose($dbLink);
-	sendResponse($output);
+	$api->returnEmpty();
 }
-?>

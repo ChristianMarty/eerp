@@ -11,47 +11,36 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["TestSystemNumber"])) sendResponse(Null,"Test System Number not set");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
+    $parameter = $api->getGetData();
+
+	if(!isset($parameter->TestSystemNumber)) $api->returnParameterMissingError("TestSystemNumber");
+    $testSystemNumber = barcodeParser_TestSystemNumber($parameter->TestSystemNumber);
+    if($testSystemNumber == null) $api->returnParameterError("TestSystemNumber");
+
 	$testDate = null;
-	if(isset($_GET["TestDate"])) 
-	{
-		$testDate = dbEscapeString($dbLink, $_GET["TestDate"]);
-	}
+	if(isset($parameter->TestDate)) $testDate = $database->escape($parameter->TestDate);
 
-    $testSystemNumber = barcodeParser_TestSystemNumber($_GET["TestSystemNumber"]);
-
-    $query = <<<STR
-        SELECT * FROM testSystem
-        WHERE TestSystemNumber = '$testSystemNumber' LIMIT 1
-    STR;
-
-
-	$result = dbRunQuery($dbLink,$query);
-	
-	$testSystem = mysqli_fetch_assoc($result);
-	
-	$output = array();
-	$output['TestSystemNumber'] = $testSystem['TestSystemNumber'];
-	$output['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($testSystem['TestSystemNumber']);
-	$output['Name'] = $testSystem['Name'];
-	$output['Description'] = $testSystem['Description'];
-    $output['Item'] = array();
-
-    $testSystemId = $testSystem['Id'];
     $query = <<<STR
         SELECT 
-            inventory.InvNo, 
+            * 
+        FROM testSystem
+        WHERE TestSystemNumber = '$testSystemNumber' 
+        LIMIT 1
+    STR;
+
+    $output = $database->query($query)[0];
+
+	$output->TestSystemBarcode = barcodeFormatter_TestSystemNumber($output->TestSystemNumber);
+
+    $testSystemId = $output->Id;
+    $query = <<<STR
+        SELECT 
+            inventory.InvNo AS InventoryNumber, 
             inventory.Title, 
             inventory.Manufacturer, 
             inventory.SerialNumber, 
@@ -68,39 +57,33 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         ) 
         WHERE testSystem_item.TestSystemId = $testSystemId
     STR;
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 
-	while($r = mysqli_fetch_assoc($result)) 
+    $output->Item = array();
+	foreach ($result as $r)
 	{
-		$invNo = $r['InvNo'];
-		unset($r['InvNo']);
-		$temp = array();
-		
-		$temp = $r;
-		$temp['InventoryNumber'] = $invNo;
-		$temp['InventoryBarcode'] = barcodeFormatter_InventoryNumber($invNo);
-		
-		if($r['CalibrationRequired'] == 0) 
+        $r->InventoryBarcode = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+
+		if($r->CalibrationRequired == 0)
 		{
-			$temp['CalibrationRequired'] = false;
-			$temp['CalibrationDate'] = "N/A";
-			$temp['NextCalibrationDate'] = "N/A";
+            $r->CalibrationRequired = false;
+			$r->CalibrationDate = "N/A";
+			$r->NextCalibrationDate = "N/A";
 		}
 		else 
 		{
-			$temp['CalibrationRequired'] = true;
-			$temp['CalibrationDate'] = $r['Date'];
-			$temp['NextCalibrationDate'] = $r['NextDate'];
+            $r->CalibrationRequired = true;
+			$r->CalibrationDate = $r->Date;
+			$r->NextCalibrationDate = $r->NextDate;
 		}
 		
-		unset($temp['Date']);
-		unset($temp['NextDate']);
+		unset($r->Date);
+		unset($r->NextDate);
 		
-		$output['Item'][] = $temp;
+		$output->Item[] = $r;
 	}
 	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($output);
 }
 else if($api->isPost("metrology.create"))
 {

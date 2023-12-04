@@ -9,7 +9,7 @@
 //*************************************************************************************************
 
 
-function barcodeParser_StockNumber(string|int $input): bool|string
+function barcodeParser_StockNumber(string|int $input): null|string
 {
     if(is_int($input)) $input = strval($input);
 
@@ -18,52 +18,71 @@ function barcodeParser_StockNumber(string|int $input): bool|string
 
     if( substr_count($stockNumber, '-') == 0) // if only number is given
     {
-        if(strlen($stockNumber) != 4) return false;
+        if(strlen($stockNumber) != 4) return null;
         return $stockNumber;
     }
 
     $stockNumberParts = explode('-',$stockNumber);
 
-    if($stockNumberParts[0] != "stk") return false;
-    if(strlen($stockNumberParts[1]) != 4) return false;
+    if($stockNumberParts[0] != "stk") return null;
+    if(strlen($stockNumberParts[1]) != 4) return null;
 
     return $stockNumberParts[1];
 }
 
-function barcodeParser_InventoryNumber($input): bool|int
+function barcodeParser_InventoryNumber($input): null|int
 {
 	$inventoryCode = trim($input);
 	$inventoryCode = strtolower($inventoryCode);
 	
 	if( substr_count($inventoryCode, '-') == 0) // if only number is given
 	{
-		if(!is_numeric($inventoryCode)) return false;
+		if(!is_numeric($inventoryCode)) return null;
 		return intval($inventoryCode);
 	}
 	
 	$inventoryNumberParts = explode('-',$inventoryCode);
 
-	if($inventoryNumberParts[0] != "inv") return false;
-	if(!is_numeric($inventoryNumberParts[1])) return false;
+	if($inventoryNumberParts[0] != "inv") return null;
+	if(!is_numeric($inventoryNumberParts[1])) return null;
 	
 	return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_PurchaseOrderNumber($input): bool|int
+function barcodeParser_InventoryAccessoryNumber($input): null|int
+{
+    $inventoryCode = strtolower(trim($input));
+
+    if( substr_count($inventoryCode, '-') == 0) // if only number is given
+    {
+        if(!is_numeric($inventoryCode)) return null;
+        return intval($inventoryCode);
+    }
+
+    $inventoryNumberParts = explode('-',$inventoryCode);
+
+    if($inventoryNumberParts[0] != "inv") return null;
+    if(!is_numeric($inventoryNumberParts[1])) return null;
+    if(!is_numeric($inventoryNumberParts[2])) return null;
+
+    return intval($inventoryNumberParts[2]);
+}
+
+function barcodeParser_PurchaseOrderNumber($input): null|int
 {
     $poCode = trim($input);
     $poCode = strtolower($poCode);
 
     if( substr_count($poCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($poCode)) return false;
+        if(!is_numeric($poCode)) return null;
         return intval($poCode);
     }
 
     $poCodeParts = explode('-',$poCode);
 
-    if($poCodeParts[0] != "po") return false;
-    if(!is_numeric($poCodeParts[1])) return false;
+    if($poCodeParts[0] != "po") return null;
+    if(!is_numeric($poCodeParts[1])) return null;
 
     return intval($poCodeParts[1]);
 }
@@ -74,27 +93,29 @@ function barcodeParser_ProductionPart($input): bool|string
     return trim($input);
 }
 
-function barcodeParser_SpecificationPart($input): bool|string
+function barcodeParser_SpecificationPart($input): null|string
 {
     $specificationPartCode = trim($input);
     $specificationPartCode = strtolower($specificationPartCode);
 
     if( substr_count($specificationPartCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($specificationPartCode)) return false;
+        if(!is_numeric($specificationPartCode)) return null;
         return intval($specificationPartCode);
     }
 
     $specificationPartNumberParts = explode('-',$specificationPartCode);
 
-    if($specificationPartNumberParts[0] != "spec") return false;
-    if(!is_numeric($specificationPartNumberParts[1])) return false;
+    if($specificationPartNumberParts[0] != "spec") return null;
+    if(!is_numeric($specificationPartNumberParts[1])) return null;
 
     return intval($specificationPartNumberParts[1]);
 }
 
-function barcodeParser_BillOfMaterial($input): bool|string
+function barcodeParser_BillOfMaterial(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $bomCode = trim($input);
@@ -102,20 +123,22 @@ function barcodeParser_BillOfMaterial($input): bool|string
 
     if( substr_count($bomCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($bomCode)) return false;
+        if(!is_numeric($bomCode)) return null;
         return intval($bomCode);
     }
 
     $bomCodeParts = explode('-',$bomCode);
 
-    if($bomCodeParts[0] != "bom") return false;
-    if(!is_numeric($bomCodeParts[1])) return false;
+    if($bomCodeParts[0] != "bom") return null;
+    if(!is_numeric($bomCodeParts[1])) return null;
 
     return intval($bomCodeParts[1]);
 }
 
-function barcodeParser_WorkOrderNumber(string|int $input): bool|int
+function barcodeParser_WorkOrderNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $woCode = trim($input);
@@ -123,19 +146,19 @@ function barcodeParser_WorkOrderNumber(string|int $input): bool|int
 
     if( substr_count($woCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($woCode)) return false;
+        if(!is_numeric($woCode)) return null;
         return intval($woCode);
     }
 
     $woCodeParts = explode('-',$woCode);
 
-    if($woCodeParts[0] != "wo") return false;
-    if(!is_numeric($woCodeParts[1])) return false;
+    if($woCodeParts[0] != "wo") return null;
+    if(!is_numeric($woCodeParts[1])) return null;
 
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_AssemblyNumber(string|int $input): bool|string
+function barcodeParser_AssemblyNumber(string|int $input): null|string
 {
     if(is_int($input)) $input = strval($input);
 
@@ -144,19 +167,19 @@ function barcodeParser_AssemblyNumber(string|int $input): bool|string
 
     if( substr_count($ashCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($ashCode)) return false;
+        if(!is_numeric($ashCode)) return null;
         return intval($ashCode);
     }
 
     $ashCodeParts = explode('-',$ashCode);
 
-    if($ashCodeParts[0] != "asm") return false;
-    if(!is_numeric($ashCodeParts[1])) return false;
+    if($ashCodeParts[0] != "asm") return null;
+    if(!is_numeric($ashCodeParts[1])) return null;
 
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_AssemblyUnitNumber(string|int $input): bool|string
+function barcodeParser_AssemblyUnitNumber(string|int $input): null|string
 {
     if(is_int($input)) $input = strval($input);
 
@@ -165,19 +188,19 @@ function barcodeParser_AssemblyUnitNumber(string|int $input): bool|string
 
     if( substr_count($ashCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($ashCode)) return false;
+        if(!is_numeric($ashCode)) return null;
         return intval($ashCode);
     }
 
     $ashCodeParts = explode('-',$ashCode);
 
-    if($ashCodeParts[0] != "asu") return false;
-    if(!is_numeric($ashCodeParts[1])) return false;
+    if($ashCodeParts[0] != "asu") return null;
+    if(!is_numeric($ashCodeParts[1])) return null;
 
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): bool|string
+function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): null|string
 {
     if(is_int($input)) $input = strval($input);
 
@@ -186,19 +209,19 @@ function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): bool|string
 
     if( substr_count($ashCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($ashCode)) return false;
+        if(!is_numeric($ashCode)) return null;
         return intval($ashCode);
     }
 
     $ashCodeParts = explode('-',$ashCode);
 
-    if($ashCodeParts[0] != "ash") return false;
-    if(!is_numeric($ashCodeParts[1])) return false;
+    if($ashCodeParts[0] != "ash") return null;
+    if(!is_numeric($ashCodeParts[1])) return null;
 
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_DocumentNumber(string|int $input): bool|int
+function barcodeParser_DocumentNumber(string|int $input): null|int
 {
     if(is_int($input)) $input = strval($input);
 
@@ -207,19 +230,19 @@ function barcodeParser_DocumentNumber(string|int $input): bool|int
 
     if( substr_count($woCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($woCode)) return false;
+        if(!is_numeric($woCode)) return null;
         return intval($woCode);
     }
 
     $woCodeParts = explode('-',$woCode);
 
-    if($woCodeParts[0] != "doc") return false;
-    if(!is_numeric($woCodeParts[1])) return false;
+    if($woCodeParts[0] != "doc") return null;
+    if(!is_numeric($woCodeParts[1])) return null;
 
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_LocationNumber(string|int $input): bool|int
+function barcodeParser_LocationNumber(string|int $input): null|int
 {
     if(is_int($input)) $input = strval($input);
 
@@ -228,57 +251,57 @@ function barcodeParser_LocationNumber(string|int $input): bool|int
 
     if( substr_count($woCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($woCode)) return false;
+        if(!is_numeric($woCode)) return null;
         return intval($woCode);
     }
 
     $woCodeParts = explode('-',$woCode);
 
-    if($woCodeParts[0] != "loc") return false;
-    if(!is_numeric($woCodeParts[1])) return false;
+    if($woCodeParts[0] != "loc") return null;
+    if(!is_numeric($woCodeParts[1])) return null;
 
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_CostCenter(string|int $input): bool|string
+function barcodeParser_CostCenter(string|int $input): null|string
 {
     $inventoryCode = trim($input);
     $inventoryCode = strtolower($inventoryCode);
 
     if( substr_count($inventoryCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($inventoryCode)) return false;
+        if(!is_numeric($inventoryCode)) return null;
         return intval($inventoryCode);
     }
 
     $inventoryNumberParts = explode('-',$inventoryCode);
 
-    if($inventoryNumberParts[0] != "cc") return false;
-    if(!is_numeric($inventoryNumberParts[1])) return false;
+    if($inventoryNumberParts[0] != "cc") return null;
+    if(!is_numeric($inventoryNumberParts[1])) return null;
 
     return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_Project(string|int $input): bool|string
+function barcodeParser_Project(string|int $input): null|string
 {
     $inventoryCode = trim($input);
     $inventoryCode = strtolower($inventoryCode);
 
     if( substr_count($inventoryCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($inventoryCode)) return false;
+        if(!is_numeric($inventoryCode)) return null;
         return intval($inventoryCode);
     }
 
     $inventoryNumberParts = explode('-',$inventoryCode);
 
-    if($inventoryNumberParts[0] != "pcjt") return false;
-    if(!is_numeric($inventoryNumberParts[1])) return false;
+    if($inventoryNumberParts[0] != "pcjt") return null;
+    if(!is_numeric($inventoryNumberParts[1])) return null;
 
     return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_TestSystemNumber(string|int $input): bool|int
+function barcodeParser_TestSystemNumber(string|int $input): null|int
 {
     if(is_int($input)) $input = strval($input);
 
@@ -287,14 +310,14 @@ function barcodeParser_TestSystemNumber(string|int $input): bool|int
 
     if( substr_count($woCode, '-') == 0) // if only number is given
     {
-        if(!is_numeric($woCode)) return false;
+        if(!is_numeric($woCode)) return null;
         return intval($woCode);
     }
 
     $woCodeParts = explode('-',$woCode);
 
-    if($woCodeParts[0] != "tsy") return false;
-    if(!is_numeric($woCodeParts[1])) return false;
+    if($woCodeParts[0] != "tsy") return null;
+    if(!is_numeric($woCodeParts[1])) return null;
 
     return intval($woCodeParts[1]);
 }

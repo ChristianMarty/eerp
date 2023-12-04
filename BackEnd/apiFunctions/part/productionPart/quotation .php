@@ -1,27 +1,30 @@
 <?php
 //*************************************************************************************************
-// FileName : leadTime.php
+// FileName : quotation.php
 // FilePath : apiFunctions/productionPart
 // Author   : Christian Marty
 // Date		: 01.02.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["ProductionPartNumber"])) sendResponse(NULL, "Production Part Number Undefined");
+    $parameters = $api->getGetData();
 
-    $partNumber = barcodeParser_ProductionPart($_GET["ProductionPartNumber"]);
+    $api->returnError("Not Implemented");
 
-    if(!$partNumber) sendResponse(NULL, "Part Number Invalid");
+    if (!isset($parameters->ProductionPartNumber)) $api->returnParameterMissingError('ProductionPartNumber');
+    $productionPartNumber = barcodeParser_ProductionPart($parameters->ProductionPartNumber);
+    if($productionPartNumber == 0) $api->returnParameterError( "ProductionPartNumber");
 
-	$dbLink = dbConnect();
 
+    /*
     $query = <<< STR
         SELECT 
             LeadTime, 
@@ -76,7 +79,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         $weightSum += $r['Weight'];
     }
 
-	dbClose($dbLink);
 	
 	if(count($output['Data']))
 	{
@@ -93,7 +95,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$output['Statistics']['WeightedAverage'] =  null;
 	}
 
-	sendResponse($output);
+	$api->returnData($output);
+    */
 }
-
-?>

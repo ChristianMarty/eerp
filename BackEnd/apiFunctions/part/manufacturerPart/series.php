@@ -3,19 +3,16 @@
 // FileName : series.php
 // FilePath : apiFunctions/manufacturerPart/
 // Author   : Christian Marty
-// Date		: 25.04.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
-
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
-
     $query = <<<STR
         SELECT 
             manufacturerPart_series.Id AS ManufacturerPartSeriesId, 
@@ -28,17 +25,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN vendor on vendor.Id = manufacturerPart_series.VendorId
     STR;
 
-    $result = mysqli_query($dbLink,$query);
-
-    $output = array();
-    while($r = mysqli_fetch_assoc($result))
-    {
-        $r['ManufacturerPartSeriesId'] = intval($r['ManufacturerPartSeriesId']);
-        $output[] = $r;
-    }
-
-    dbClose($dbLink);
-
-    sendResponse($output);
+    $output = $database->query($query);
+    $api->returnData($output);
 }
-?>

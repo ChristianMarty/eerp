@@ -7,11 +7,11 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
@@ -68,138 +68,119 @@ function _stockPartQuery(string $stockNo): string
 
 if($api->isGet("stock.view"))
 {
-	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
-	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
-	if(!$stockNumber) sendResponse(null, "StockNo invalid");
+    $parameter = $api->getGetData();
+    if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
+    $stockNumber = barcodeParser_StockNumber($parameter->StockNo);
+    if($stockNumber === null) $api->returnParameterError("StockNumber");
 
-	$dbLink = dbConnect();
-	$result = dbRunQuery($dbLink,_stockPartQuery($stockNumber));
-	dbClose($dbLink);	
+	$r = $database->query(_stockPartQuery($stockNumber))[0];
 
-	$r = dbGetResult($result);
-
-	$r['Barcode'] = barcodeFormatter_StockNumber($r['StockNo']);
-	if($r['Date']) {
-		$date = new DateTime($r['Date']);
-		$r['DateCode'] = $date->format("yW");
+	$r->Barcode = barcodeFormatter_StockNumber($r->StockNo);
+	if($r->Date) {
+		$date = new DateTime($r->Date);
+		$r->DateCode = $date->format("yW");
 	}else{
-		$r['DateCode'] = "";
+		$r->DateCode = "";
 	}
-	$r['Location'] = location_getName($r['LocationId']);
-	$r['HomeLocation'] = location_getName($r['HomeLocationId']);
-	$r['LocationPath'] = location_getPath($r['LocationId'], 100);
-	$r['HomeLocationPath'] = location_getPath($r['HomeLocationId'], 100);
 
-	if($r['DeleteRequestUserId'] !== null)$r['Deleted'] = true;
-	else $r['Deleted'] = false;
-	unset($r['DeleteRequestUserId'] );
+    $location = new Location();
 
-	sendResponse($r);
+    $r->Location = $location->name($r->LocationId);
+	$r->HomeLocation = $location->name($r->HomeLocationId);
+	$r->LocationPath = $location->name($r->LocationId, 100);
+	$r->HomeLocationPath = $location->name($r->HomeLocationId, 100);
+
+	if($r->DeleteRequestUserId !== null)$r->Deleted = true;
+	else $r->Deleted = false;
+	unset($r->DeleteRequestUserId);
+
+    $api->returnData($r);
 }
-if($api->isPost("stock.create"))
+else if($api->isPost("stock.create"))
 {
-	$data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
+
+
+	$orderReference = $database->escape($data->OrderReference);
+	$date = $database->escape($data->Date);
+	$quantity = intval($data->Quantity);
+	$location = barcodeParser_LocationNumber($data->LocationCode);
+    $userId = $user->userId();
 	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-		
-	$orderReference = dbEscapeString($dbLink,$data['OrderReference']);
-	$date = dbEscapeString($dbLink,$data['Date']);
-	$quantity = dbEscapeString($dbLink,$data['Quantity']);
-	$location = barcodeParser_LocationNumber($data['LocationCode']);
-	
-	if(isset($data['ReceivalId']))  // If part is created based on purchase receival id
+	if(isset($data->ReceivalId))  // If part is created based on purchase receival id
 	{
-		$receivalId = dbEscapeString($dbLink,$data['ReceivalId']);
-		$lotNumber = dbEscapeString($dbLink,$data['LotNumber']);
-		
-		$query  = "SELECT partStock_create_onReceival(";
-		$query .= $receivalId.", ";
-		$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
-		$query .= $quantity.",";
-		$query .= dbStringNull($date).", ";
-		$query .= dbStringNull($orderReference).", ";
-		$query .= dbStringNull($lotNumber).", ";
-		$query .= dbIntegerNull($user->userId())." ";
-		$query .= ") AS StockNo; ";
-		
+		$receivalId = intval($data->ReceivalId);
+		$lotNumber = $database->escape($data->LotNumber);
+
+        $query = <<<STR
+            SELECT partStock_create_onReceival(
+                $receivalId,
+                (SELECT `Id` FROM `location` WHERE `LocNr`= '$location'),
+                $quantity, 
+                $date, 
+                $orderReference, 
+                $lotNumber, 
+                $userId
+            ) AS StockNo;
+        STR;
 	}
 	else // If new part is created
 	{
-		$manufacturerId = dbEscapeString($dbLink,$data['ManufacturerId']);
-		$manufacturerPartNumber = dbEscapeString($dbLink,$data['ManufacturerPartNumber']);
-		$supplierId = dbEscapeString($dbLink,$data['SupplierId']);
-		$supplierPartNumber = dbEscapeString($dbLink,$data['SupplierPartNumber']);
-		$lotNumber = dbEscapeString($dbLink,$data['LotNumber']);
+		$manufacturerId = intval($data->ManufacturerId);
+		$manufacturerPartNumber = $database->escape($data->ManufacturerPartNumber);
+		$supplierId = intval($data->SupplierId);
+		$supplierPartNumber = $database->escape($data->SupplierPartNumber);
+		$lotNumber = $database->escape($data->LotNumber);
 
-		$query  = "SELECT partStock_create(";
-		$query .= "'".$manufacturerId."',";
-		$query .= "'".$manufacturerPartNumber."',";
-		$query .= "(SELECT `Id` FROM `location` WHERE `LocNr`= '".$location."'),";
-		$query .= $quantity.",";
-		$query .= "'".$date."', ";
-		$query .= dbStringNull($orderReference).", ";
-		$query .= dbStringNull($supplierId).", ";
-		$query .= dbStringNull($supplierPartNumber).", ";
-		$query .= dbStringNull($lotNumber).", ";
-		$query .= dbIntegerNull($user->userId())." ";
-		$query .= ") AS StockNo; ";
+        $query = <<<STR
+            SELECT partStock_create(
+                $manufacturerId,
+                $manufacturerPartNumber,
+                (SELECT `Id` FROM `location` WHERE `LocNr`= '$location'),
+                $quantity, 
+                $date, 
+                $orderReference, 
+                $supplierId,
+                $supplierPartNumber,
+                $lotNumber, 
+                $userId
+            ) AS StockNo;
+        STR;
 	}
-	$result = dbRunQuery($dbLink,$query);
 
-	$stockNo = dbGetResult($result)['StockNo'];
+    $stockNo = $database->query($query)['StockNo'];
+	$stockPart = $database->query(_stockPartQuery($stockNo))[0];
 
-	$query = _stockPartQuery($stockNo);
-	
-	$result = dbRunQuery($dbLink,$query);
-	$stockPart = dbGetResult($result);
-	
-	$error = null;
-	if($stockPart)
-	{
-		$orderReference = $stockPart['OrderReference'];
-		$stockPart['Barcode'] = barcodeFormatter_StockNumber($stockPart['StockNo']);
-		$stockPart['Description'] = "";
+    $orderReference = $stockPart->OrderReference;
+    $stockPart->Barcode = barcodeFormatter_StockNumber($stockPart->StockNo);
+    $stockPart->Description = "";
 
-		if(!empty($orderReference) )  //TODO: Fix
-		{
-			// Get Description -> Still a hack
-			$descriptionQuery = "SELECT Description FROM `partLookup` WHERE PartNo = '".$orderReference."' LIMIT 1";
-			$descriptionResult = dbRunQuery($dbLink,$descriptionQuery);
-			if(!is_bool($descriptionResult))
-			{
-				$temp = mysqli_fetch_assoc($descriptionResult);
-				if($temp) $stockPart['Description'] = $temp['Description'];
-			}
-		}
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	
-	sendResponse($stockPart, $error);
+    if(!empty($orderReference) )  //TODO: Fix
+    {
+        // Get Description -> Still a hack
+        $descriptionQuery = "SELECT Description FROM `partLookup` WHERE PartNo = '$orderReference' LIMIT 1";
+        $descriptionResult = $database->query($descriptionQuery);
+
+        if(count($descriptionResult) !== 0)
+        {
+            $stockPart->Description = $descriptionResult[0]->Description;
+        }
+    }
+
+    $api->returnData($stockPart);
 }
-if($api->isDelete("stock.delete"))
+else if($api->isDelete("stock.delete"))
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	$stockNumber = barcodeParser_StockNumber($data['StockNumber']);
-	if(!$stockNumber)sendResponse(null, "Stock number format incorrect");
-
-	$dbLink = dbConnect();
+	$data = $api->getPostData();
+    if(!isset($data->StockNumber)) $api->returnParameterMissingError("StockNumber");
+	$stockNumber = barcodeParser_StockNumber($data->StockNumber);
+	if($stockNumber === false) $api->returnParameterError("StockNumber");
 
 	$sqlData['DeleteRequestUserId'] = $user->userId();;
 	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
-	$sqlData['DeleteRequestNote'] = $data["Note"];
+	$sqlData['DeleteRequestNote'] = $database->escape($data->Note);
 
-	$query = dbBuildUpdateQuery($dbLink,"partStock", $sqlData, 'StockNo = "'.$stockNumber.'"');
+    $database->update("partStock", $sqlData, "StockNo = '$stockNumber");
 
-	dbRunQuery($dbLink,$query);
-	dbClose($dbLink);
-
-	sendResponse(null);
+    $api->returnEmpty();
 }
-
-?>

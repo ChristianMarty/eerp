@@ -7,8 +7,9 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../databaseConnector.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
 function filterInv($var): int
 {
@@ -34,12 +35,14 @@ function filterAsu($var): int
 	else return 0;
 }
 
-function moveItems($dbLink, $itemList, $locationNr, $category, $idName)
+function moveItems($itemList, $locationNr, string $category, string $idName): string
 {
+	global $database;
+
 	foreach($itemList as &$item)
 	{
 		$item = explode("-", $item)[1];
-		$item = dbEscapeString($dbLink,$item);
+		$item = $database->escape($item);
 	}
 	$itemListStr = implode("', '",$itemList);
 
@@ -49,24 +52,25 @@ function moveItems($dbLink, $itemList, $locationNr, $category, $idName)
 		WHERE $idName IN('$itemListStr')
 	STR;
 
-	if(!mysqli_multi_query($dbLink,$baseQuery))
-	{
-		return "Error description: " . mysqli_error($dbLink);
-	}
+	$database->execute($baseQuery);
+
+	return $database->getErrorMessage();
 }
 
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	$dbLink = dbConnect();
+	$data = $api->getPostData();
+
+	if(!isset($data->DestinationLocationNumber)) $api->returnParameterMissingError("DestinationLocationNumber");
+	$locationNr = barcodeParser_LocationNumber($data->DestinationLocationNumber);
+	if($locationNr == null)  $api->returnParameterError("DestinationLocationNumber");
+
+	if(!isset($data->TransferList)) $api->returnParameterMissingError("TransferList");
+
+	$itemList =  $data->TransferList;
 	
-	$locationNr = strtolower(dbEscapeString($dbLink, $data['DestinationLocationNumber']));
-	$itemList =  $data['TransferList'];
-	
-	if(!str_starts_with($locationNr, "loc-"))  sendResponse(null,"Invalid destination location");
-	$locationNr = str_replace("loc-","",$locationNr);
-	
+
 	// Split into different categories
 	$invList = array_filter($itemList, "filterInv");
 	$stkList = array_filter($itemList, "filterStk");
@@ -74,14 +78,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$asuList = array_filter($itemList, "filterAsu");
 	
 	$error = "";
-	if(!empty($invList)) $error .= moveItems($dbLink, $invList, $locationNr, "inventory", "InvNo");
-	if(!empty($stkList)) $error .= moveItems($dbLink, $stkList, $locationNr, "partStock", "StockNo");
-	if(!empty($locList)) $error .= moveItems($dbLink, $locList, $locationNr, "location", "LocNr");
-	if(!empty($asuList)) $error .= moveItems($dbLink, $asuList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
+	if(!empty($invList)) $error .= moveItems( $invList, $locationNr, "inventory", "InvNo");
+	if(!empty($stkList)) $error .= moveItems( $stkList, $locationNr, "partStock", "StockNo");
+	if(!empty($locList)) $error .= moveItems( $locList, $locationNr, "location", "LocNr");
+	if(!empty($asuList)) $error .= moveItems( $asuList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
 	
-	if(empty($error)) $error = null;
-	
-	dbClose($dbLink);	
-	sendResponse(null,$error);
+	if(empty($error)) $api->returnEmpty();
+	else $api->returnError($error);
 }
-?>

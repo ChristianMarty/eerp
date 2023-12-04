@@ -3,21 +3,21 @@
 // FileName : filterOption.php
 // FilePath : apiFunctions/manufacturerPart/
 // Author   : Christian Marty
-// Date     : 19.05.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if (!isset($_GET["ClassId"]))  sendResponse(null, "ClassId is not specified");
+    $parameters = $api->getGetData();
+
+    if (!isset($parameters->ClassId)) $api->returnParameterMissingError('ClassId');
 
     $output = array();
-
-    $dbLink = dbConnect();
 
 // Get applicable classes
 
@@ -33,27 +33,24 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     STR;
 
 
-
     $attributes  = array();
     $query = <<<STR
-    SELECT *,
-    vendor_displayName(Id) AS Name
-    FROM vendor
-    ORDER BY Name
+        SELECT *,
+        vendor_displayName(Id) AS Name
+        FROM vendor
+        ORDER BY Name
     STR;
 
     $manufacturerOptions = array();
     $manufacturerOptions['Name'] = 'Manufacturer';
 
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result)) 
+    $result = $database->query($query);
+    foreach ($result as $r)
     {
         $manufacturerOptions['Options'][] =  $r;
     }
 
     $output[] = $manufacturerOptions;
 
-    dbClose($dbLink);    
-    sendResponse($output);
+    $api->returnData($output);
 }
-?>

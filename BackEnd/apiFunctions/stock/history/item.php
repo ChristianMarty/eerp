@@ -3,44 +3,43 @@
 // FileName : item.php
 // FilePath : apiFunctions/stock/history/
 // Author   : Christian Marty
-// Date		: 27.08.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 global $user;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'PATCH')
+if($api->isPatch())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["EditToken"])) sendResponse(Null,"EditToken not set");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$token = dbEscapeString($dbLink,$data["EditToken"]);
+	$data = $api->getPostData();
+	if(!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
+	if(!isset($data->Quantity)) $api->returnParameterMissingError("Quantity");
+
+	$token = $database->escape(trim($data->EditToken));
 	
 	$workOrderNumber = null;
-	if(isset($data['WorkOrderNumber']) and $data['WorkOrderNumber'] !== null)
+	if(isset($data->WorkOrderNumber))
 	{
-		$workOrderNumber = barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
+		$workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 	}
 	
 	$note = null;
-	if(isset($data['Note']) and $data['Note'] !== null)
+	if(isset($data->Note))
 	{
-		$note = dbEscapeString($dbLink,$data['Note']);
-		$note = trim($note);
+		$note = trim($data->Note);
 		if($note == "") $note = null;
+		else $note = $database->escape($note);
 	}
 	
-	$type = strtolower($data['Type']);
+	$type = strtolower($data->Type);
 
-	if(!is_numeric($data['Quantity']))sendResponse(null,"Quantity is not numeric");
-	$quantity = intval($data['Quantity']);
+	if(!is_numeric($data->Quantity)) $api->returnParameterError("Quantity");
+	$quantity = intval($data->Quantity);
 	
 	if($type == "remove") $quantity = abs($quantity)*-1;
 	else if ($type == "add") $quantity = abs($quantity);
@@ -48,104 +47,78 @@ if($_SERVER['REQUEST_METHOD'] == 'PATCH')
 	
 	$sqlData = array();
 	$sqlData['Quantity'] = $quantity;
-	
 	$sqlData['Note'] = $note;
-	if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = ".$workOrderNumber.")";
-	$query = dbBuildUpdateQuery($dbLink,"partStock_history", $sqlData, 'EditToken = "'.$token.'"');
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	if(!$result) $error = "Error description: " . mysqli_error($dbLink);
-	
-	dbClose($dbLink);	
-	sendResponse(null,$error);
+	if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = $workOrderNumber)";
+
+	$database->update("partStock_history", $sqlData, "EditToken = $token");
+
+	$api->returnEmpty();
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data["StockNo"])) sendResponse(Null,"StockNo not set");
-	
-	$output = array();
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+	$data = $api->getPostData();
+	if(!isset($data->StockNo)) $api->returnParameterMissingError("StockNo");
+	$stockNo = barcodeParser_StockNumber($data->StockNo);
+    if($stockNo === null) $api->returnParameterError("StockNo");
 
-	$stockNo = barcodeParser_StockNumber($data["StockNo"]);
-
-	$query = 'SELECT Id FROM partStock WHERE StockNo = "'.$stockNo.'"';
-	$result = dbRunQuery($dbLink,$query);
-	$stockId = dbGetResult($result)['Id'];
+	$query = "SELECT Id FROM partStock WHERE StockNo = '$stockNo'";
+	$stockId = $database->query($query)[0]->Id;
 
 	$workOrderNumber = null;
-	if(isset($data['WorkOrderNumber']))
+	if(isset($data->WorkOrderNumber))
 	{
-		$workOrderNumber = barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
+		$workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 	}
 
-	$sqlData = array();
+    $note = $data->Note??null;
+    if($note !== null){
+        $note = trim($note);
+        if($note == "") $note = null;
+        else $note = $database->escape($note);
+    }
 
-	$note = dbEscapeString($dbLink, $data["Note"]);
-	if($note != null)$note = trim($note);
-	if($note == "") $note = null;
-	
+    $output = array();
+
+	$sqlData = array();
 	$sqlData['Note'] = $note;
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
 	$sqlData['StockId']['raw'] = $stockId;
 	
-	if(isset($data["RemoveQuantity"]))
+	if(isset($data->RemoveQuantity))
 	{
-		$removeQuantity = dbEscapeString($dbLink, $data["RemoveQuantity"]);
-	
-		if(!is_numeric($removeQuantity))sendResponse($output,"Quantity is not numeric");
-		$removeQuantity = intval($removeQuantity);
+		if(!is_numeric($data->RemoveQuantity)) $api->returnParameterError("RemoveQuantity");
+		$removeQuantity = intval($data->RemoveQuantity);
 
 		$sqlData['Quantity'] = abs($removeQuantity)*-1;
-		if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = ".$workOrderNumber.")";
+		if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = $workOrderNumber)";
 		$sqlData['ChangeType']['raw'] = '"Relative"';
 	}
-	else if(isset($data["AddQuantity"]))
+	else if(isset($data->AddQuantity))
 	{
-		$addQuantity = dbEscapeString($dbLink, $data["AddQuantity"]);
-		
-		if(!is_numeric($addQuantity))sendResponse($output,"Quantity is not numeric");
-		$addQuantity = intval($addQuantity);
+		if(!is_numeric($data->AddQuantity)) $api->returnParameterError("AddQuantity");
+		$addQuantity = intval($data->AddQuantity);
 
 		$sqlData['Quantity'] = abs($addQuantity);
 		$sqlData['ChangeType']['raw'] = '"Relative"';
 	}
-	else if(isset($data["Quantity"]))
+	else if(isset($data->Quantity))
 	{
-		$quantity = dbEscapeString($dbLink, $data["Quantity"]);
-		if(!is_numeric($quantity))sendResponse($output,"Quantity is not numeric");
-		
-		$quantity = intval($quantity);
-		
-		if($quantity <0) sendResponse(null, "Quantity can not by below 0");
+        if(!is_numeric($data->Quantity)) $api->returnParameterError("RemoveQuantity");
+        $quantity = intval($data->Quantity);
+
+		if($quantity <0) $api->returnError("Quantity can not by below 0");
 		
 		$sqlData['Quantity'] = abs($quantity);
 		$sqlData['ChangeType']['raw'] = '"Absolute"';
 	}
 	else
 	{
-		sendResponse($output,"Parameter Error");
+        $api->returnParameterError("Parameter combination");
 	}
 
 	$sqlData['UserId'] = $user->userId();
 
-	$query = dbBuildInsertQuery($dbLink,"partStock_history", $sqlData);
+    $database->insert("partStock_history", $sqlData);
 
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	$msg = mysqli_error($dbLink);
-	if($msg != "")
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-
-	dbClose($dbLink);	
-	sendResponse($output, $error);
+    $api->returnEmpty();
 }
-?>

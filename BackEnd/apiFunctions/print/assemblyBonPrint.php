@@ -3,37 +3,36 @@
 // FileName : assemblyBonPrint.php
 // FilePath : apiFunctions/print/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/escpos/autoload.php";
-
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\Printer;
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	global $companyName;
-	
-	$printData = $data['Data'];
-	$printerId = intval($data['PrinterId']);
-	
-	$query = "SELECT * FROM printer WHERE Id =".$printerId;
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$r = mysqli_fetch_assoc($result);
+	$data = $api->getPostData();
+    if(!isset($data->Data)) $api->returnParameterMissingError("Data");
+    if(!isset($data->PrinterId)) $api->returnParameterMissingError("PrinterId");
+    $printerId = intval($data->PrinterId);
+    if($printerId == 0) $api->returnParameterError("PrinterId");
 
-	$connector = new NetworkPrintConnector($r['Ip'], $r['Port']);
+	global $companyName;
+
+    $data = $data->Data[0];
+	
+	$printData = $data->Data;
+
+	$query = "SELECT * FROM printer WHERE Id = '$printerId' LIMIT 1";
+	$printer = $database->query($query)[0];
+
+	$connector = new NetworkPrintConnector($printer->Ip, $printer->Port);
 	$printer = new Printer($connector);
 	
 	$printer -> initialize();
@@ -45,31 +44,31 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> setTextSize(1, 1);
-	$printer -> text($printData['Title']."\n");
+	$printer -> text($data->Title."\n");
 	$printer -> selectPrintMode(Printer::MODE_FONT_A);
-	$printer -> text($printData['Description']."\n");
+	$printer -> text($data->Description."\n");
 	$printer -> feed(1);
 
     $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
-    $printer -> text($printData['Type']."\n");
+    $printer -> text($data->Type."\n");
 
 	$printer -> setJustification(Printer::JUSTIFY_LEFT);
 
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> text("SN: ");
 	$printer -> selectPrintMode(Printer::MODE_FONT_A);
-	$printer -> text($printData['SerialNumber']."\n");
+	$printer -> text($data->SerialNumber."\n");
 	
 	$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 	$printer -> text("Date: ");
 	$printer -> selectPrintMode(Printer::MODE_FONT_A);
-	$printer -> text($printData['Date']."\n");
+	$printer -> text($data->Date."\n");
 	
 	$printer -> feed(1);
 	
-	if($printData['Data'] != NULL)
+	if($data->Data != NULL)
 	{
-		foreach($printData['Data'] as $key => $line)
+		foreach($data->Data as $key => $line)
 		{
 			$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 			$printer -> text($key.": ");
@@ -98,14 +97,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> feed(1);
 	$printer -> setBarcodeHeight(80);
 	$printer->setBarcodeTextPosition(Printer::BARCODE_TEXT_BELOW);
-	$printer -> barcode($printData['AssemblyUnitHistoryBarcode']);
+	$printer -> barcode($data->AssemblyUnitHistoryBarcode);
 
 	$printer -> cut();
 	$printer -> close();
-	
-	$output = array();
-	
-	dbClose($dbLink);
-	sendResponse($output);
+
+	$api->returnEmpty();
 }
-?>

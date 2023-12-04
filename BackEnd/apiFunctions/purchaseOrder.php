@@ -57,7 +57,7 @@ if($api->isGet())
 	
 	if(isset($parameter->VendorId))
 	{
-		$vendorId = intval($parameter->SupplierPartId);
+		$vendorId = intval($parameter->VendorId);
 		if($vendorId === 0) $api->returnParameterError("VendorId");
 		$queryParam[] = "VendorId = $vendorId";
 	}

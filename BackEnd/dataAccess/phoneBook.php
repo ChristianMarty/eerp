@@ -3,13 +3,13 @@
 // FileName : purchaseOrder.php
 // FilePath : renderer/
 // Author   : Christian Marty
-// Date		: 17.01.2023
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../core/userAuthentication.php";
 
@@ -41,8 +41,6 @@ function escape($input):string
     return str_replace('>', '&gt;', $input);
 }
 
-$dbLink = dbConnect();
-
 $query = <<< QUERY
     SELECT 
         FullName, 
@@ -59,44 +57,42 @@ $query = <<< QUERY
     LEFT JOIN vendor_contact ON vendor_contact.VendorId = vendor.Id
 QUERY;
 
-$result = dbRunQuery($dbLink,$query);
+$result = $database->query($query);
 
 header("Content-type: text/xml");
 
 echo "<YealinkIPPhoneDirectory>";
 
-while($r = mysqli_fetch_assoc($result))
+foreach ($result AS $r)
 {
-	if(!$r['Phone']) continue;
+	if(!$r->Phone) continue;
 	
-	$number = $r['Phone'];
+	$number = $r->Phone;
 	$number = str_replace(' ', '', $number);
 	$number = str_replace('-', '', $number);
 
 	if(str_starts_with($number, "+")) $number = "00".substr($number, 1);
 	if(str_starts_with($number, "0041")) $number = "0".substr($number, 4);
 	
-	if($r['DisplayName']) $name = $r['DisplayName'];	
-    else $name = $r['Name'];
+	if($r->DisplayName) $name = $r->DisplayName;
+    else $name = $r->Name;
 	
-	if($r['FirstName'] || $r['LastName']) $name .=";";
+	if($r->FirstName || $r->LastName) $name .=";";
 	
-    if($r['FirstName']) $name .= " ".$r['FirstName'];
-    if($r['LastName']) $name .= " ".$r['LastName'];
+    if($r->FirstName) $name .= " ".$r->FirstName;
+    if($r->LastName) $name .= " ".$r->LastName;
 
     echo "<DirectoryEntry>";
     echo "<Name>".escape($name)."</Name>";
     echo "<Telephone>".$number."</Telephone>";
-    if($r['CustomerNumber']) echo '<Extra label="Customer Number">'.escape($r['CustomerNumber'])."</Extra>";
-	if($r['Name']) echo '<Extra label="Company">'.escape($r['Name'])."</Extra>";
-    if($r['Gender']) echo '<Extra label="Gender">'.escape($r['Gender'])."</Extra>";
-    if($r['Language']) echo '<Extra label="Language">'.escape($r['Language'])."</Extra>";
-    if($r['EMail'])  echo '<Extra label="E-Mail">'.escape($r['EMail'])."</Extra>";
+    if($r->CustomerNumber) echo '<Extra label="Customer Number">'.escape($r->CustomerNumber)."</Extra>";
+	if($r->Name) echo '<Extra label="Company">'.escape($r->Name)."</Extra>";
+    if($r->Gender) echo '<Extra label="Gender">'.escape($r->Gender)."</Extra>";
+    if($r->Language) echo '<Extra label="Language">'.escape($r->Language)."</Extra>";
+    if($r->EMail)  echo '<Extra label="E-Mail">'.escape($r->EMail)."</Extra>";
     echo "</DirectoryEntry>";
 }
 
 echo "</YealinkIPPhoneDirectory>";
-
-dbClose($dbLink);
 
 ?>

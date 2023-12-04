@@ -7,8 +7,10 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../externalApi/mouser/mouser.php";
 require_once __DIR__ . "/../../externalApi/digikey/digikey.php";
@@ -19,12 +21,15 @@ global $mouserSupplierId;
 global $digikeySupplierId;
 global $distrelecSupplierId;
 	
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["SupplierId"]) || !isset($_GET["SKU"])) sendResponse(null, "SupplierId or SKU missing!");
-	
-	$supplierId = $_GET["SupplierId"];
-	$sku = $_GET["SKU"];
+    $parameters = $api->getGetData();
+
+    if(!isset($parameters->SupplierId)) $api->returnParameterMissingError("SupplierId");
+    if(!isset($parameters->SKU)) $api->returnParameterMissingError("SKU");
+
+	$supplierId = $parameters->SupplierId;
+	$sku = $parameters->SKU;
 
     $data = null;
 	if($supplierId == $mouserSupplierId)
@@ -41,11 +46,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     }
 	else
 	{
-		sendResponse(null, "Supplier not supported!");
+		$api->returnError("Supplier not supported!");
 	}
 		
-	sendResponse($data);
+	$api->returnData($data);
 }
-
-
-?>

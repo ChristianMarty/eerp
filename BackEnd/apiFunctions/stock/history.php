@@ -3,22 +3,24 @@
 // FileName : history.php
 // FilePath : apiFunctions/stock/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
-	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
-	if(!$stockNumber) sendResponse(null, "StockNo invalid");
-		
-	$dbLink = dbConnect();
+	$parameter = $api->getGetData();
+
+	if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
+	$stockNumber = barcodeParser_StockNumber($parameter->StockNo);
+	if($stockNumber === null) $api->returnParameterError("StockNo");
 
 	$query = <<<STR
 		SELECT 
@@ -35,55 +37,52 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		ORDER BY partStock_history.Id ASC
 	STR;
 
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
+
 	$output = array();
-	$gctNr = null;
-	
 	$quantity = 0;
-	
-	while($r = mysqli_fetch_assoc($result)) 
+
+	foreach ($result as $item)
 	{
 		$description = "";
 		$type = null;
 		
-		
-		if($r["ChangeType"] == 'Relative')
+		if($item->ChangeType == 'Relative')
 		{
-			if($r['Quantity'] >0 ) 
+			if($item->Quantity >0 )
 			{
-				$description = "Add ".$r['Quantity']."pcs"; 
+				$description = "Add ".$item->Quantity."pcs";
 				$type = "add";
-				$quantity += intval($r['Quantity'],10);
+				$quantity += intval($item->Quantity,10);
 			}
 			else 
 			{
-				$description = "Remove ".abs($r['Quantity'])."pcs";
+				$description = "Remove ".abs($item->Quantity)."pcs";
 				$type = "remove";	
-				$quantity += intval($r['Quantity'],10);		
+				$quantity += intval($item->Quantity,10);
 			}	
 		}
-		else if($r["ChangeType"] == 'Absolute')
+		else if($item->ChangeType == 'Absolute')
 		{
 			$description = "Stocktaking"; 
 			$type = "count";	
-			$quantity = intval($r['Quantity'],10);
+			$quantity = intval($item->Quantity,10);
 		}
-		else if($r["ChangeType"] == 'Create')
+		else if($item->ChangeType == 'Create')
 		{
 			$description = "Create"; 
 			$type = "create";	
-			$quantity = intval($r['Quantity'],10);
+			$quantity = intval($item->Quantity,10);
 		}
 		
 		$description .= ", New Quantity: ".$quantity;
 		
 		$r['Type'] = $type;
+        $r['Note'] = $item->Note;
 		$r['Description'] = trim($description);
-		$r['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($r['WorkOrderNumber']);
+		$r['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
 		$output[] = $r;
 	}
-	
-	dbClose($dbLink);	
-	sendResponse($output);
+
+	$api->returnData($output);
 }
-?>

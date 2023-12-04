@@ -3,94 +3,60 @@
 // FileName : bulkRemove.php
 // FilePath : apiFunctions/stock/history/
 // Author   : Christian Marty
-// Date		: 11.09.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 global $user;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
+	$data = $api->getPostData();
 
 	$workOrderNumber = null;
-	if(isset($data['WorkOrderNumber'])) $workOrderNumber= barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
+	if(isset($data->WorkOrderNumber)) $workOrderNumber= barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 	
 	$workOrder = null;
-	if($workOrderNumber != null)
+	if($workOrderNumber !== null)
 	{
 		$query = <<<STR
-			SELECT * FROM workOrder WHERE WorkOrderNumber = '$workOrderNumber'";
+			SELECT * FROM workOrder WHERE WorkOrderNumber = '$workOrderNumber';
 		STR;
-
-		$result = dbRunQuery($dbLink,$query);	
-		$workOrder = mysqli_fetch_assoc($result);
+		$workOrder = $database->query($query)[0];
 	}
 
-	$partList = $data['Items'];
-	
-	dbClose($dbLink);
-	
-	$error = null;
 	// validate data
-	foreach($partList as $key => $line)
-	{
-		$dbLink = dbConnect();
-		
-		$note = null;
-		if(isset($line['Note']))
-		{
-			$note = dbEscapeString($dbLink,$line['Note']);
-			$note = trim($note);
-			if($note == "") $note = null;
-		}
+	foreach($data->Items as $key => $line)
+    {
+        $note = null;
+        if (isset($line->Note)) {
+            $note = trim($line->Note);
+            if ($note == "") $note = null;
+            $note = $database->escape($note);
+        }
 
+        $stockNo = barcodeParser_StockNumber($line->Barcode);
 
-		$stockNo = barcodeParser_StockNumber($line["Barcode"]);
-		$stockNo = dbEscapeString($dbLink, $stockNo);
-
-		$query = <<<STR
+        $query = <<<STR
 			SELECT Id FROM partStock WHERE StockNo = '$stockNo';
 		STR;
+        $stockId = $database->query($query)[0]->Id;
+        $removeQuantity = intval($line->RemoveQuantity);
+        $sqlData = array();
+        $sqlData['Note'] = $note;
+        $sqlData['EditToken']['raw'] = "history_generateEditToken()";
+        $sqlData['StockId'] = $stockId;
+        $sqlData['Quantity'] = abs($removeQuantity) * -1;
+        $sqlData['ChangeType']['raw'] = '"Relative"';
+        $sqlData['UserId'] = $user->userId();;
+        if ($workOrder !== null) $sqlData['WorkOrderId'] = $workOrder->Id;
 
-		$result = dbRunQuery($dbLink,$query);
-		$stockId = dbGetResult($result)['Id'];
-		
-		$removeQuantity = dbEscapeString($dbLink, $line["RemoveQuantity"]);
-		
-		$sqlData = array();
-
-		$sqlData['Note'] = $note;
-		$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-		$sqlData['StockId'] = $stockId;
-		$sqlData['Quantity'] = abs($removeQuantity)*-1;
-		$sqlData['ChangeType']['raw'] = '"Relative"';
-		
-		if($workOrder != null)
-		{
-			$sqlData['WorkOrderId'] = $workOrder['Id'];
-		}
-
-		$sqlData['UserId'] = $user->userId();;
-		
-		$query = dbBuildInsertQuery($dbLink,"partStock_history", $sqlData);
-
-		$result = dbRunQuery($dbLink,$query);
-		
-		$msg = mysqli_error($dbLink);
-		if($msg != "")
-		{
-			$error = "Error description: " . mysqli_error($dbLink);
-			break;
-		}
-		
-		dbClose($dbLink);
-	}
-	sendResponse(null,$error);
+        $database->insert("partStock_history", $sqlData);
+    }
+    $api->returnEmpty();
 }
-?>

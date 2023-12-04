@@ -3,43 +3,36 @@
 // FileName : print.php
 // FilePath : apiFunctions/print
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data['PrinterId'])) sendResponse(null, "Printer ID missing");
-	
-	$printerId = intval($data['PrinterId']);
-	
-	if(isset($data['Driver']))$driver = $data['Driver'];
-	else $driver = "raw";
-	
-	if(isset($data['Language'])) $language = $data['Language'];
-	else $language = "";
-	
-	$data = $data['Data'];
-	
-	$query = "SELECT * FROM printer WHERE Id =".$printerId;
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$printer = mysqli_fetch_assoc($result);
-	
+    $data = $api->getPostData();
+    if(!isset($data->Data)) $api->returnParameterMissingError("Data");
+    if(!isset($data->PrinterId)) $api->returnParameterMissingError("PrinterId");
+    $printerId = intval($data->PrinterId);
+    if($printerId == 0) $api->returnParameterError("PrinterId");
+
+    if(isset($data->Driver))$driver = $data->Driver;
+    else $driver = "raw";
+
+    if(isset($data->Language)) $language = $data->Language;
+    else $language = "";
+
+
+    $query = "SELECT * FROM printer WHERE Id ='$printerId' LIMIT 1;";
+    $printer = $database->query($query)[0];
+
+
 	$output = array();
 	$output['Printer'] = $printer;
-
+    $data = $data->Data;
 
 	if(strtoupper($language) == 'ESCPOS')
 	{	
@@ -65,18 +58,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	if($driver == 'raw')
 	{
 		$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		if ($socket === false) sendResponse($output, "Printer connection failed: ".socket_strerror(socket_last_error()) );
+		if ($socket === false) $api->returnError( "Printer connection failed: ".socket_strerror(socket_last_error()) );
 		
-		$connection = socket_connect($socket, $printer['Ip'], $printer['Port']);
-		if ($connection === false) sendResponse($output, "Printer connection failed: ".socket_strerror(socket_last_error($socket)) );
+		$connection = socket_connect($socket, $printer->Ip, $printer->Port);
+		if ($connection === false) $api->returnError( "Printer connection failed: ".socket_strerror(socket_last_error($socket)) );
 		
 		socket_write($socket, $data, strlen($data));
 		
 		socket_close($socket);	
 	}
 	
-	dbClose($dbLink);
-	sendResponse($output);
-
+	$api->returnData($output);
 }
-?>

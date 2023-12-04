@@ -24,9 +24,5 @@ if($api->isGet())
 	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber';";
 	$result = $database->query($query)[0]->DocumentIds??null;
 
-	$dbLink = dbConnect();
-	$output = getDocumentsFromIds($dbLink, $result);
-	dbClose($dbLink);
-
-	$api->returnData($output);
+	$api->returnData(getDocumentsFromIds($result));
 }

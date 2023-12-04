@@ -3,28 +3,27 @@
 // FileName : summery.php
 // FilePath : apiFunctions/location/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../location/_location.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["LocationNumber"])) sendResponse(null,"LocationNumber not specified");
-	$locationNr = strtolower($_GET["LocationNumber"]);
-	
-	if(!str_starts_with($locationNr, "loc-"))  sendResponse(null,"Invalid Location Number");
-	$locationNr = str_replace("loc-","",$locationNr);
-	
-	$dbLink = dbConnect();
-	$locationNr = dbEscapeString($dbLink,$locationNr);
-	
-	$response = array();
+	$parameter = $api->getGetData();
+
+	if(!isset($parameter->LocationNumber)) $api->returnParameterMissingError("LocationNumber");
+	$locationNumber = barcodeParser_LocationNumber($parameter->LocationNumber);
+	if($locationNumber == null) $api->returnParameterError("LocationNumber");
+
+	$response = [];
 
 	$query = <<<STR
 		SELECT 
@@ -35,17 +34,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			Cache_Quantity 
 		FROM partStock
 		LEFT JOIN manufacturerPart_partNumber on partStock.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
 	STR;
-
-	$result = dbRunQuery($dbLink,$query);
-	while($itemData = mysqli_fetch_assoc($result))
+	$result = $database->query($query);
+	foreach ($result as $r)
 	{
-		$descriptor = $itemData["ManufacturerName"]." ".$itemData["ManufacturerPartNumber"];
-		$descriptor .= ", ".$itemData["Date"].", Qty: ".$itemData["Cache_Quantity"];
+		$descriptor = $r->ManufacturerName." ".$r->ManufacturerPartNumber;
+		$descriptor .= ", ".$r->Date.", Qty: ".$r->Cache_Quantity;
 		
 		$data = array();
-		$data["Item"] =  barcodeFormatter_StockNumber($itemData["StockNo"]);
+		$data["Item"] =  barcodeFormatter_StockNumber($r->StockNo);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor; 
 		
@@ -60,18 +58,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    Type, 
 		    LocationId 
 		FROM inventory
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
 	STR;
-
-	$result = dbRunQuery($dbLink,$query);
-		
-	while($itemData = mysqli_fetch_assoc($result))
+	$result = $database->query($query);
+	foreach ($result as $r)
 	{
-		$descriptor = $itemData["Title"];
-		$descriptor .= " - ".$itemData["Manufacturer"]." ".$itemData["Type"];
+		$descriptor = $r->Title;
+		$descriptor .= " - ".$r->Manufacturer." ".$r->Type;
 		
 		$data = array();
-		$data["Item"] = "Inv-".$itemData["InvNo"];
+		$data["Item"] =  barcodeFormatter_InventoryNumber($r->InvNo);
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor; 
 		
@@ -87,18 +83,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    LocationId 
 		FROM assembly_unit
 		LEFT JOIN assembly on assembly.Id =  assembly_unit.AssemblyId
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
 	STR;
-
-	$result = dbRunQuery($dbLink,$query);
-		
-	while($itemData = mysqli_fetch_assoc($result))
+	$result = $database->query($query);
+	foreach ($result as $r)
 	{
-		$descriptor = $itemData["Name"];
-		$descriptor .= " - ".$itemData["Description"]." SN:".$itemData["SerialNumber"];
+		$descriptor = $r->Name;
+		$descriptor .= " - ".$r->Description." SN:".$r->SerialNumber;
 		
 		$data = array();
-		$data["Item"] = "Asu-".$itemData["AssemblyUnitNumber"];
+		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($r->AssemblyUnitNumber);
 		$data["Category"] = "Assembly Unit";
 		$data["Description"] = $descriptor; 
 		
@@ -110,22 +104,19 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		    Id,
 			LocNr
 		FROM location
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNr')
+		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
 	STR;
-
-	$result = dbRunQuery($dbLink,$query);
-		
-	while($itemData = mysqli_fetch_assoc($result))
+	$result = $database->query($query);
+    $location = new Location();
+	foreach ($result as $r)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_LocationNumber($itemData["LocNr"]);
+		$data["Item"] = barcodeFormatter_LocationNumber($r->LocNr);
 		$data["Category"] = "Location";
-		$data["Description"] = location_getName(intval($itemData["Id"]));
+		$data["Description"] = $location->name(intval($r->Id));
 		
 		$response[] = $data;
 	}
-	
-	dbClose($dbLink);	
-	sendResponse($response);
+
+	$api->returnData($response);
 }
-?>

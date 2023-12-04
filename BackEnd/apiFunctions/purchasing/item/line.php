@@ -7,17 +7,19 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-global $api;
+declare(strict_types=1);
 global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../_function.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-function save_line($dbLink, $purchaseOrderNumber, $line): int
+function save_line($purchaseOrderNumber, $line): int
 {
+    $line = (array)$line;
+    global $database;
+
     $sqlData = array();
 
     $lineId = intval($line['OrderLineId']);
@@ -28,7 +30,7 @@ function save_line($dbLink, $purchaseOrderNumber, $line): int
     $sqlData['VatTaxId'] = intval($line['VatTaxId']);
     $sqlData['UnitOfMeasurementId'] = intval($line['UnitOfMeasurementId']);
     $sqlData['Discount'] = $line['Discount'];
-    $sqlData['StockPart']['raw'] = dbToBit($line['StockPart']);
+    $sqlData['StockPart']['raw'] = $database::dbToBit($line['StockPart']);
     $sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
 
     if($line['Price'] === null) $sqlData['Price'] = 0;
@@ -50,36 +52,34 @@ function save_line($dbLink, $purchaseOrderNumber, $line): int
     $sqlData['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
 
     if($sqlData['Type'] == 'Generic'){
-        $sqlData['StockPart']['raw'] = dbToBit(false);
+        $sqlData['StockPart']['raw'] = $database::dbToBit(false);
     }
 
     if($lineId != 0)// Update row
     {
         $condition = "Id = ".$lineId;
         $sqlData['LineNo'] = $line['LineNo'];
-        $query = dbBuildUpdateQuery($dbLink,"purchaseOrder_itemOrder", $sqlData, $condition);
-        dbRunQuery($dbLink,$query);
+        $database->update("purchaseOrder_itemOrder", $sqlData, $condition);
+
     }
     else // Insert new row
     {
         $sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PoNo = '".$purchaseOrderNumber."' )";
         $sqlData['LineNo'] = 0;
-        $query = dbBuildInsertQuery($dbLink,"purchaseOrder_itemOrder", $sqlData);
-        dbRunQuery($dbLink,$query);
+        $database->update("purchaseOrder_itemOrder", $sqlData);
 
         $query = <<<STR
             UPDATE purchaseOrder_itemOrder SET 
             LineNo = (SELECT MAX(LineNo)+1 FROM purchaseOrder_itemOrder WHERE PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' )) 
             WHERE LineNo = 0 AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' )
         STR;
-        dbRunQuery($dbLink,$query);
+        $database->execute($query);
 
         $query = <<<STR
             SELECT Id FROM purchaseOrder_itemOrder WHERE Id = LAST_INSERT_ID()
         STR;
 
-        $result = dbRunQuery($dbLink,$query);
-        $lineId = mysqli_fetch_assoc($result)['Id'];
+        $lineId = $database->query($query)[0]->Id;
     }
 
     return $lineId;
@@ -108,26 +108,24 @@ function update_costCenter($dbLink, $lineId, $costCenterList): void
 
 if($api->isGet())
 {
-    if(!isset($_GET["LineId"])) sendResponse(NULL, "Line Id Undefined");
-    $lineId = intval($_GET["LineId"]);
-    if($lineId == 0)  sendResponse(null,"Line Id Invalid");
+    $parameters = $api->getGetData();
 
-    $dbLink = dbConnect();
+    if(!isset($parameters->LineId)) $api->returnParameterMissingError("LineId");
+    $lineId = intval($parameters->LineId);
+    if($lineId == 0) $api->returnParameterError("LineId");
+
 
     $query = purchaseOrderItem_getLineQuery(null, $lineId);
-    $result =  dbRunQuery($dbLink,$query);
-    $r = mysqli_fetch_assoc($result);
+    $result =  $database->query($query)[0];
 
-    $output = purchaseOrderItem_getDataFromQueryResult("po",$r);
+    $output = purchaseOrderItem_getDataFromQueryResult("po",$result);
 
     $query = purchaseOrderItem_getCostCenterQuery($output['OrderLineId']);
-    $result =  dbRunQuery($dbLink,$query);
+    $result =  $database->query($query)[0];
 
     $output['CostCenter'] = purchaseOrderItem_getCostCenterData($result);
 
-    dbClose($dbLink);
-
-    sendResponse($output);
+    $api->returnData($output);
 }
 else if($api->isPost() OR $api->isPatch())
 {
@@ -136,15 +134,13 @@ else if($api->isPost() OR $api->isPatch())
     $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
     if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
-    $lines = json_decode(file_get_contents('php://input'),true);
+    $lines = $api->getPostData();
 
-    $dbLink = dbConnect();
-    foreach ($lines['Lines'] as $line)
+    foreach ($lines->Lines as $line)
     {
-        $lineId = save_line($dbLink, $purchaseOrderNumber, $line);
-        update_costCenter($dbLink, $lineId, $line['CostCenter']);
+        $lineId = save_line($purchaseOrderNumber, $line);
+        update_costCenter($lineId, $line['CostCenter']);
     }
-    dbClose($dbLink);
 
     $api->returnEmpty();
 }

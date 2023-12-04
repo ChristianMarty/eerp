@@ -33,10 +33,12 @@ class database
         return $this->pdo;
     }
 
-    public function getErrorMessage():string
+    public function getErrorMessage():null|string
     {
         $info = $this->pdo->errorInfo();
-        return $info[0]."-".$info[1]."-".$info[2];
+
+        if($info[0] == 0) return null;
+        else return $info[0]."-".$info[1]."-".$info[2];
     }
 
     public function getEnumOptions(string $table, string$column):array|null
@@ -57,9 +59,10 @@ class database
         return explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result->Type));
     }
 
-    public function escape(string|int|float $input):string
+    public function escape(string|int|float|null $input):string
     {
-        return $this->pdo->quote(strval($input));
+        if($input === null) return "NULL";
+        else return $this->pdo->quote(strval($input));
     }
 
     function query(string $baseQuery, array|null $queryParameters = null, string|null $postFix = null ):array
@@ -93,6 +96,17 @@ class database
         }
 
         return $result;
+    }
+
+    function execute(string $query)
+    {
+        try {
+            $this->pdo->exec($query);
+        }
+        catch (\PDOException $e)
+        {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function insert(string $tableName, array $data): int
@@ -178,6 +192,12 @@ class database
     {
         if($value != 0) $value = true;
         else $value = false;
+    }
+
+    static public function dbToBit($value): string
+    {
+        if($value) return "b'1'";
+        else return "b'0'";
     }
 }
 

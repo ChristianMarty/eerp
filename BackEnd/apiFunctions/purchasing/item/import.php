@@ -7,69 +7,61 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 global $user;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
-	
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["SupplierId"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "SupplierId or OrderNumber missing!");
+    $parameters = $api->getGetData();
 
-    $dbLink = dbConnect();
-	
-    $supplierId = dbEscapeString($dbLink, $_GET["SupplierId"]);
-    $query = "SELECT * FROM vendor WHERE Id = ".$supplierId.";";
-    $result = dbRunQuery($dbLink,$query);
-    $supplierData = mysqli_fetch_assoc($result);
-    dbClose($dbLink);
+    if(!isset($parameters->SupplierId)) $api->returnParameterMissingError("SupplierId");
+    $supplierId = intval($parameters->SupplierId);
+    if($supplierId == 0) $api->returnParameterError("SupplierId");
 
-	$orderNumber = $_GET["OrderNumber"];
+    if(!isset($parameters->OrderNumber)) $api->returnParameterMissingError("OrderNumber");
 
-    $name = $supplierData['API'];
-    if($name === null) sendResponse(null, "Supplier not supported!");
+    $query = "SELECT * FROM vendor WHERE Id = $supplierId;";
+
+    $supplierData = $database->query($query)[0];
+
+	$orderNumber = $parameters->OrderNumber;
+
+    $name = $supplierData->API;
+    if($name === null) $api->returnError( "Supplier not supported!");
 
     require_once __DIR__ . "/../../externalApi/".$name."/".$name.".php";
 
     $data = call_user_func($name."_getOrderInformation", $orderNumber);
 
-
-	sendResponse($data);
+    $api->returnData($data);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($_GET["PurchaseOrderNo"]) || !isset($_GET["OrderNumber"])) sendResponse(null, "PurchaseOrder or OrderNumber missing!");
-	
+    $parameters = $api->getGetData();
 
-	$purchaseOrderNo = strtolower($_GET["PurchaseOrderNo"]);
-	$purchaseOrderNo = str_replace("po-","",$purchaseOrderNo);
+    if(!isset($parameters->PurchaseOrderNo)) $api->returnParameterMissingError("PurchaseOrderNo");
+    $purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNo);
+    if($purchaseOrderNo == null) $api->returnParameterError("PurchaseOrderNo");
+
+    if(!isset($parameters->OrderNumber)) $api->returnParameterMissingError("OrderNumber");
+    $orderNumber = $parameters->OrderNumber;
+
+	$data = $api->getPostData();
+
+	$query = "SELECT Id, VendorId FROM purchaseOrder WHERE PoNo = $purchaseOrderNo;";
 	
-	$orderNumber = $_GET["OrderNumber"];
+	$result = $database->query($query)[0];
 	
-	$query = "SELECT Id, VendorId FROM purchaseOrder WHERE PoNo = ".$purchaseOrderNo.";";
+	$vendorId = $result->VendorId;
+	$id = $result->Id;
 	
-	$result = dbRunQuery($dbLink,$query);
+	$query = "SELECT * FROM vendor WHERE Id = $vendorId;";
+    $vendorMetaData = $database->query($query)[0];
 	
-	$vendorId = 0;
-	$id = 0;
-	
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$vendorId = $r['VendorId'];
-		$id = $r['Id'];
-	}
-	
-	$query = "SELECT * FROM vendor WHERE Id = ".$vendorId.";";
-    $result = dbRunQuery($dbLink,$query);
-    $vendorMetaData = mysqli_fetch_assoc($result);
-	
-	$name = $vendorMetaData['API'];
-    if($name === null) sendResponse(null, "Supplier not supported!");
+	$name = $vendorMetaData->API;
+    if($name === null) $api->returnError("Supplier not supported!");
 
     require_once __DIR__ . "/../../externalApi/".$name."/".$name.".php";
 
@@ -81,9 +73,8 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$poData['PurchaseDate'] = $supplierData['OrderDate'];
 	$poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$supplierData['CurrencyCode']."')";
 	
-	$query = dbBuildUpdateQuery($dbLink, "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNo);
-	
-	dbRunQuery($dbLink,$query);
+	$database->update("purchaseOrder", $poData, "PoNo = ".$purchaseOrderNo);
+
 	
 	/*$poCreate = array();
 	$poCreate['VendorId'] = $supplierId;
@@ -129,8 +120,6 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 	foreach($supplierData["Lines"] as $line) 
 	{
-		$dbLink = dbConnect();
-		if($dbLink == null) return null;
 		
 		$sqlData = array();
 		
@@ -148,15 +137,9 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
         $sqlData['Discount'] = 0;
 		
 		$sqlData['PurchaseOrderId'] = $id;
-		$query = dbBuildInsertQuery($dbLink,"purchaseOrder_itemOrder", $sqlData);
-		
-		
-		dbRunQuery($dbLink,$query);
-		dbClose($dbLink);	
+		$database->insert("purchaseOrder_itemOrder", $sqlData);
 	}
 	$output = array();
 	$output["PurchaseOrderNo"] = $purchaseOrderNo;
-	sendResponse($output);
+	$api->returnData($output);
 }
-
-?>

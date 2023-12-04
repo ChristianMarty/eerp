@@ -3,20 +3,24 @@
 // FileName : availability.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
-    $revisionId = intval($_GET["RevisionId"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+    if(!isset($parameter->RevisionId)) $api->returnParameterMissingError("RevisionId");
+    $revisionId = intval($parameter->RevisionId);
+
     $query = <<<STR
         SELECT * ,
                COUNT(*) AS Quantity, 
@@ -31,43 +35,35 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         GROUP BY ProductionPartId
     STR;
 
-	$bomStock = array();
-	$bom = array();
-	
+    $bom = $database->query($query);
+
 	$numberOfLines = 0;
 	$numberOfLinesAvailable = 0;
 	$totalComponents = 0;
-	
-	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$bomLine = array();
-		$bomLine["ProductionPartNumber"] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
-		$bomLine["Description"] = $r['Description'];
-		$bomLine["Quantity"] = $r['Quantity'];
-		$bomLine["StockQuantity"] = $r["Stock"];
-		$bomLine["Availability"] = $r["Stock"]/$r['Quantity']*100;
-		if($bomLine["Availability"] > 100) $bomLine["Availability"] = 100;
-		
-		$bomLine["StockCertaintyFactor"] = 0;  // TODO: Add real value
-		
-		array_push($bom, $bomLine);
-		
-		$numberOfLines ++;
-		if($r["Stock"] >= $r['Quantity']) $numberOfLinesAvailable++;
-		
-		$totalComponents+= $r['Quantity'];
-	}
-	
-	dbClose($dbLink);
-	
+
+	foreach($bom as $line)
+    {
+        $line->ProductionPartBarcode = barcodeFormatter_ProductionPart($line->ProductionPartPrefix . "-" . $line->ProductionPartNumber);
+        $line->ProductionPartNumber = $line->ProductionPartBarcode; // TODO: Legacy -> remove
+
+        $line->StockQuantity = $line->Stock;
+        $line->Availability = $line->Stock / $line->Quantity * 100;
+        if ($line->Availability > 100) $line->Availability = 100;
+
+        $line->StockCertaintyFactor = 0;  // TODO: Add real value
+
+        $numberOfLines++;
+        if ($line->Stock >= $line->Quantity) $numberOfLinesAvailable++;
+
+        $totalComponents += $line->Quantity;
+    }
+
+    $bomStock = array();
 	$bomStock['Bom'] = $bom;
 	if($numberOfLines != 0)$bomStock['StockItemsAvailability'] = $numberOfLinesAvailable/$numberOfLines*100;
 	else $bomStock['StockItemsAvailability'] = 0;
 	$bomStock['TotalNumberOfComponents'] = $totalComponents;
 	$bomStock['NumberOfUniqueComponents'] = $numberOfLines;
-	
-	sendResponse($bomStock);
-}
 
-?>
+    $api->returnData($bomStock);
+}

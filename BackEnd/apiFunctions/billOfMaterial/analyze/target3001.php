@@ -7,14 +7,16 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
 require_once __DIR__ . "/../../../config.php";
 
 $title = "Target 3001!";
 $description = "";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
 	$output = array();
 	$bom = array();
@@ -99,14 +101,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
         }
     }
 
-	sendResponse($output);
+	$api->returnData($output);
 }
 
 function getStockData($productionPartNumber)
 {
-    $dbLink = dbConnect();
+    global $database;
+    $productionPartNumber = $database->escape($productionPartNumber);
 
-    $productionPartNumber = dbEscapeString($dbLink, $productionPartNumber);
     $query = <<<STR
         SELECT 
             CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartBarcode,
@@ -119,14 +121,16 @@ function getStockData($productionPartNumber)
             Cache_PurchasePrice_WeightedAverage AS PurchasePriceWeightedAverage
         FROM productionPart
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
-        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartNumber'
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = $productionPartNumber
+        LIMIT 1
     STR;
 
-    $result = dbRunQuery($dbLink, $query);
+    $result = $database->query($query);
+
     $output = array();
 
-    if ($r = mysqli_fetch_assoc($result)) {
-        $output = $r;
+    if (count($result)) {
+        $output = $result[0];
     }
     else
     {
@@ -134,9 +138,6 @@ function getStockData($productionPartNumber)
         $output["ManufacturerPartNumber"] = "";
         $output["StockQuantity"] = 0;
     }
-
-    dbClose($dbLink);
     return $output;
 }
-
 ?>

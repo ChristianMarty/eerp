@@ -8,37 +8,32 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-include_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../../config.php";
+include_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-function getDocumentsFromIds($dbLink, string|null $documentIds): array
+function getDocumentsFromIds(string|null $documentIds): array
 {
     if(empty($documentIds)) return [];
+
+    global $database;
 
     global $dataRootPath;
     global $documentPath;
 
-    $documents = array();
+    $DocIds = explode(",",$documentIds);
+    if(empty($DocIds))  return [];
 
-    if(isset($documentIds)) $DocIds = explode(",",$documentIds);
-    else $DocIds = null;
+    $baseQuery = "SELECT * FROM `document` WHERE Id IN(".implode(", ",$DocIds).")";
 
-    if(!empty($DocIds))
+    $documents = $database->query($baseQuery);
+    foreach ($documents as $r)
     {
-        $baseQuery = "SELECT * FROM `document` WHERE Id IN(".implode(", ",$DocIds).")";
+        $r->FileName = $r->Path;
+        $r->Path = $dataRootPath.$documentPath."/".$r->Type."/".$r->Path;
 
-        $result = dbRunQuery($dbLink,$baseQuery);
-        while($r = mysqli_fetch_assoc($result))
-        {
-            $r["FileName"] = $r['Path'];
-            $r['Path'] = $dataRootPath.$documentPath."/".$r['Type']."/".$r['Path'];
-            $r['Barcode'] = "Doc-".$r['DocumentNumber'];
-            if($r['Barcode'] === null) $r['Barcode'] = "";
-            $r['Note'] = $r['Note'];
-            $documents[] = $r;
-        }
+        if($r->DocumentNumber === null) $r->Barcode = "";
+        else $r->Barcode = barcodeFormatter_DocumentNumber($r->DocumentNumber);
     }
-
     return $documents;
 }
 
@@ -46,10 +41,5 @@ function getDocuments(string|null $documentIds): array
 {
     if(empty($documentIds)) return [];
 
-	$dbLink = dbConnect();
-    $documents = getDocumentsFromIds($dbLink, $documentIds);
-	dbClose($dbLink);
-
-	return $documents;
+    return getDocumentsFromIds( $documentIds);
 }
-?>

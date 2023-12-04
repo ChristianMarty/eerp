@@ -3,23 +3,25 @@
 // FileName : unit.php
 // FilePath : apiFunctions/assembly/
 // Author   : Christian Marty
-// Date		: 16.08.2022
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../location/_location.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET['AssemblyUnitNumber'])) sendResponse(null,"AssemblyUnitNumber missing");
-    $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($_GET["AssemblyUnitNumber"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+    if(!isset($parameter->AssemblyUnitNumber)) $api->returnParameterMissingError("AssemblyUnitNumber");
+    $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($parameter->AssemblyUnitNumber);
+    if($assemblyUnitNumber === null) $api->returnParameterError("AssemblyUnitNumber");
 
 	// Get History Data
     $query = <<<STR
@@ -28,26 +30,23 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         ORDER BY Date DESC
     STR;
 
-	$result = dbRunQuery($dbLink,$query);
+    $history = $database->query($query);
+
 	$assembly = array();
-	
 	$shippingProhibited = false;
 	$shippingClearance = false;
-	
-	$history = array();
-	while($r = mysqli_fetch_assoc($result)) 
+
+	foreach ($history as $item)
 	{	
-		if($r['ShippingClearance'] != 0) $r['ShippingClearance'] = true;
-		else $r['ShippingClearance'] = false;
-		if($r['ShippingProhibited'] != 0) $r['ShippingProhibited'] = true;
-		else $r['ShippingProhibited'] = false;
+		if($item->ShippingClearance != 0) $item->ShippingClearance = true;
+		else $item->ShippingClearance = false;
+		if($item->ShippingProhibited != 0) $item->ShippingProhibited = true;
+		else $item->ShippingProhibited = false;
 		
-		if($r['ShippingClearance']) $shippingClearance = true;
-		if($r['ShippingProhibited']) $shippingProhibited = true;
+		if($item->ShippingClearance) $shippingClearance = true;
+		if($item->ShippingProhibited) $shippingProhibited = true;
 
-        $r['AssemblyUnitHistoryBarcode'] =  barcodeFormatter_AssemblyUnitHistoryNumber($r['AssemblyUnitHistoryNumber']);
-
-		$history[] = $r;
+        $item->AssemblyUnitHistoryBarcode =  barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
 	}
 	
 	if($shippingProhibited) $shippingClearance = false;
@@ -59,75 +58,38 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     STR;
 	
 	$queryParam = array();
-	$queryParam[] = " AssemblyUnitNumber = '" . $assemblyUnitNumber . "'";
-	$query = dbBuildQuery($dbLink, $query, $queryParam);
-	$result = dbRunQuery($dbLink,$query);
-	
-	$output = array();
+	$queryParam[] = " AssemblyUnitNumber = '$assemblyUnitNumber'";
+    $output = $database->query($query,$queryParam)[0];
 
-	$output = mysqli_fetch_assoc($result);
-    $output['LocationName'] = location_getName(intval($output['LocationId']));
-    $output['AssemblyBarcode'] =  barcodeFormatter_AssemblyNumber($output['AssemblyNumber']);
-    $output['AssemblyUnitBarcode'] =  barcodeFormatter_AssemblyUnitNumber($output['AssemblyUnitNumber']);
-	$output['ShippingClearance'] =  $shippingClearance;
-	$output['ShippingProhibited'] = $shippingProhibited;
-	$output['History'] = $history;
-	
-	dbClose($dbLink);	
-	sendResponse($output);
+    $output->LocationName = (new Location())->name(intval($output->LocationId));
+    $output->AssemblyBarcode =  barcodeFormatter_AssemblyNumber($output->AssemblyNumber);
+    $output->AssemblyUnitBarcode =  barcodeFormatter_AssemblyUnitNumber($output->AssemblyUnitNumber);
+	$output->ShippingClearance =  $shippingClearance;
+	$output->ShippingProhibited = $shippingProhibited;
+	$output->History = $history;
+
+    $api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	if(!isset($data['SerialNumber']) or !isset($data['AssemblyNumber'])) sendResponse(null,"SerialNumber or AssemblyNumber missing");
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+	$data = $api->getPostData();
+    if(!isset($data->AssemblyNumber)) $api->returnParameterMissingError("AssemblyNumber");
+    if(!isset($data->SerialNumber)) $api->returnParameterMissingError("SerialNumber");
 
-	$serialNumber = dbEscapeString($dbLink,$data['SerialNumber']);
-    $assemblyNumber = barcodeParser_AssemblyNumber($data['AssemblyNumber']);
-	
-	$workOrderNumber = null;
-	if(isset($data['WorkOrderNumber']))
-	{
-		$workOrderNumber = barcodeParser_WorkOrderNumber($data['WorkOrderNumber']);
-	} 
-	
-	
+    $assemblyNumber = barcodeParser_AssemblyNumber($data->AssemblyNumber);
+    $workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber??null);
+
 	$sqlData = array();
-	$sqlData['SerialNumber'] = $serialNumber;
-	if($workOrderNumber !== null)$sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = ".$workOrderNumber.")";
-	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNumber = ".$assemblyNumber.")";
+	$sqlData['SerialNumber'] = $data->SerialNumber;
+	if($workOrderNumber !== null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = '$workOrderNumber')";
+	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNumber = '$assemblyNumber')";
 	$sqlData['AssemblyUnitNumber']['raw'] = "(SELECT generateItemNumber())";
-	
-	$query = dbBuildInsertQuery($dbLink,"assembly_unit", $sqlData);
-	
-	$query .= " SELECT AssemblyUnitNumber FROM assembly_unit WHERE Id = LAST_INSERT_ID();";
 
-	$error = null;
-	$output = null;
-	
-	if(mysqli_multi_query($dbLink,$query))
-	{
-		do {
-			if ($result = mysqli_store_result($dbLink)) {
-				while ($row = mysqli_fetch_row($result)) {
-					$output = $row[0];
-				}
-				mysqli_free_result($result);
-			}
-			if(!mysqli_more_results($dbLink)) break;
-		} while (mysqli_next_result($dbLink));
-	}
-	else
-	{
-		$error = "Error description: " . mysqli_error($dbLink);
-	}
-	
-	dbClose($dbLink);	
-	sendResponse($output, $error);
+    $id = $database->insert("assembly_unit",$sqlData);
+	$query = " SELECT AssemblyUnitNumber FROM assembly_unit WHERE Id = $id;";
+
+    $output = array();
+    $output["AssemblyUnitNumber"] = $database->query($query)[0]->AssemblyUnitNumber;
+
+    $api->returnData($output);
 }
-
-
-?>

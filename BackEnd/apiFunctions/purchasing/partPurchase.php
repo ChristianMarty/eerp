@@ -7,18 +7,19 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	
-	if(!isset($_GET["ManufacturerPartNumberId"]) && !isset($_GET["ProductionPartNumber"])) sendResponse(NULL,"ManufacturerPartNumberId or ProductionPartNumber Required!");
-	
-	$dbLink = dbConnect();
+    $parameters = $api->getGetData();
+
+    if(!isset($parameters->ManufacturerPartNumberId)) $api->returnParameterMissingError('ManufacturerPartNumberId');
+    if(!isset($parameters->ProductionPartNumber)) $api->returnParameterMissingError('ProductionPartNumber');
 
     $query = <<<STR
         SELECT
@@ -36,29 +37,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
     STR;
 
+
+    $queryParameters = array();
 	
-	$parameters = array();
-	
-	if(isset($_GET["ManufacturerPartNumberId"]))
+	if(isset($parameters->ManufacturerPartNumberId))
 	{
-		$parameters[] = 'supplierPart.ManufacturerPartNumberId = ' . dbEscapeString($dbLink, $_GET["ManufacturerPartNumberId"]);
+        $queryParameters[] = 'supplierPart.ManufacturerPartNumberId = '. $database->escape($parameters->ManufacturerPartNumberId);
 	}
-	else if(isset($_GET["ProductionPartNumber"]))
+	else if(isset($parameters->ProductionPartNumber))
 	{
-		$parameters[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = '" . barcodeParser_ProductionPart($_GET["ProductionPartNumber"]) . "'";
+        $queryParameters[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = " . $database->escape($parameters->ProductionPartNumber);
 	}
 	else
 	{
-		sendResponse(NULL,"Parameter Error!");
+		$api->returnError("Parameter Error!");
 	}
-	
-	$query = dbBuildQuery($dbLink, $query, $parameters);
-	$query .= " GROUP BY purchaseOrder_itemOrder.Id";
 
-	$result = dbRunQuery($dbLink,$query);
+    $result = $database->query($query, $queryParameters, "GROUP BY purchaseOrder_itemOrder.Id");
 
 	$rows = array();
-	$rowcount = mysqli_num_rows($result);
+	$rowcount = count($result);
 	$totalQuantity = 0;
 	$receivedQuantity = 0;
 
@@ -68,21 +66,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $priceWeightedAverageSum = 0;
     $priceWeightSum = 0;
 	
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach ($result as $r)
 	{
-		unset($r['Id']);
-		$totalQuantity += $r['Quantity'];
-		$receivedQuantity += $r['TotalQuantityReceived'];
+		unset($r->Id);
+		$totalQuantity += $r->Quantity;
+		$receivedQuantity += $r->TotalQuantityReceived;
 
-        if($r['Price'] < $priceMinimum ) $priceMinimum = $r['Price'];
-        if($r['Price'] > $priceMaximum ) $priceMaximum = $r['Price'];
+        if($r->Price < $priceMinimum ) $priceMinimum = $r->Price;
+        if($r->Price > $priceMaximum ) $priceMaximum = $r->Price;
 
-        $priceAverageSum +=  $r['Price'];
-        $priceWeightedAverageSum +=  $r['Price'] * $r['Quantity'];
-        $priceWeightSum += $r['Quantity'];
+        $priceAverageSum +=  $r->Price;
+        $priceWeightedAverageSum +=  $r->Price * $r->Quantity;
+        $priceWeightSum += $r->Quantity;
 
-        $r['PurchaseOrderBarcode']= barcodeFormatter_PurchaseOrderNumber( $r['PoNo']);
-        $r['PurchaseOrderNumber'] = $r['PoNo'];
+        $r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber( $r->PoNo);
+        $r->PurchaseOrderNumber = $r->PoNo;
 		
 		$rows[] = $r;
 	}
@@ -113,7 +111,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$output['Data'] = $rows;
 	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($output);
 }
-?>

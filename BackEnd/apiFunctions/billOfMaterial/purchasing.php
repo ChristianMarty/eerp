@@ -3,33 +3,32 @@
 // FileName : purchasing.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 25.09.2023
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../externalApi/octopart.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["RevisionId"])) sendResponse(NULL, "RevisionId Undefined");
-    $revisionId = intval($_GET["RevisionId"]);
+    $parameter = $api->getGetData();
+
+    if(!isset($parameter->RevisionId)) $api->returnParameterMissingError("RevisionId");
+    $revisionId = intval($parameter->RevisionId);
 
     $quantity = 1;
-    if(isset($_GET["Quantity"])) $quantity = intval($_GET["Quantity"]);
+    if(isset($parameter->Quantity)) $quantity = intval($parameter->Quantity);
 
-    $authorizedOnly = false;
-    $includeBrokers = false;
-    $includeNoStock = false;
-    $knownSuppliers = true;
-    if(isset($_GET["AuthorizedOnly"])) $authorizedOnly = filter_var($_GET["AuthorizedOnly"],FILTER_VALIDATE_BOOLEAN);
-    if(isset($_GET["Brokers"])) $includeBrokers = filter_var($_GET["Brokers"],FILTER_VALIDATE_BOOLEAN);
-    if(isset($_GET["NoStock"])) $includeNoStock = filter_var($_GET["NoStock"],FILTER_VALIDATE_BOOLEAN);
-    if(isset($_GET["KnownSuppliers"])) $knownSuppliers = filter_var($_GET["KnownSuppliers"],FILTER_VALIDATE_BOOLEAN);
+    $authorizedOnly = $parameter->AuthorizedOnly ?? false;
+    $includeBrokers = $parameter->Brokers ?? false;
+    $includeNoStock = $parameter->NoStock ?? false;
+    $knownSuppliers = $parameter->KnownSuppliers ?? true;
 
-    $dbLink = dbConnect();
     $query = <<<STR
         SELECT
                COUNT(*) AS Quantity, 
@@ -53,72 +52,60 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     STR;
 
     $data = array();
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 
     $vendorList = octopart_getVendorList();
-	
 
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach ($result AS $r)
 	{
-        $r['Quantity'] = intval($r['Quantity']);
-        $r['TotalQuantity'] = $r['Quantity']*$quantity;
-        $r['Stock'] = intval($r['Stock']);
-        $r['ProductionPartNumber'] = $r['ProductionPartPrefix']."-".$r['ProductionPartNumber'];
+        $r->TotalQuantity = $r->Quantity*$quantity;
+        $r->ProductionPartNumber = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
 
-        $start = microtime(true);
-        $octopartData = octopart_getPartData($dbLink, $r['OctopartId']);
-        $r['Load Time'] = microtime(true) - $start;
+        $octopartData = octopart_getPartData($dbLink, $r->OctopartId);
 
-        $formatStart = microtime(true);
-        $r['Data'] = octopart_formatAvailabilityData($octopartData, $vendorList, $authorizedOnly,  $includeBrokers, $includeNoStock, $knownSuppliers);
-        $r['Format Time'] = microtime(true) - $formatStart;
+        $r->Data = octopart_formatAvailabilityData($octopartData, $vendorList, $authorizedOnly,  $includeBrokers, $includeNoStock, $knownSuppliers);
 
-        $r['CheapestPrice'] = 100000000000;
-        $r['CheapestSupplier'] = "";
+        $r->CheapestPrice = 100000000000;
+        $r->CheapestSupplier = "";
 
-        $start = microtime(true);
-
-        foreach ($r['Data'] as $key=>&$supplier) {
-            if(!$includeNoStock && $supplier['Stock'] === 0){
-                unset($r['Data'][$key]);
+        foreach ($r->Data as $key=>&$supplier)
+        {
+            if(!$includeNoStock && $supplier->Stock === 0){
+                unset($r->Data[$key]);
                 continue;
             }
 
-            if($knownSuppliers && $supplier['VendorId'] === null)
+            if($knownSuppliers && $supplier->VendorId === null)
             {
-                unset($r['Data'][$key]);
+                unset($r->Data[$key]);
                 continue;
             }
 
-            if($supplier['MinimumOrderQuantity'] > $r['TotalQuantity'])
+            if($supplier->MinimumOrderQuantity > $r->TotalQuantity)
             {
-                unset($r['Data'][$key]);
+                unset($r->Data[$key]);
                 continue;
             }
 
             $i = 0;
-            foreach ($supplier['Prices'] as &$prices) {
-                if($prices['Quantity'] > $r['TotalQuantity'])break;
+            foreach ($supplier->Prices as &$prices) {
+                if($prices->Quantity > $r->TotalQuantity)break;
                 $i++;
             }
-            $supplier['Prices'] = array_values(array_slice($supplier['Prices'],$i-1,2)); // Show price for set quantity and next higher quantity
+            $supplier->Prices = array_values(array_slice($supplier->Prices, $i-1,2)); // Show price for set quantity and next higher quantity
 			
-            if(isset($supplier['Prices'][0]) && $supplier['Prices'][0]['Price'] < $r['CheapestPrice']){
-                $r['CheapestPrice'] = $supplier['Prices'][0]['Price'] ;
-                $r['CheapestSupplier'] = $supplier['VendorName'];
+            if(isset($supplier->Prices[0]) && $supplier->Prices[0]['Price'] < $r->CheapestPrice){
+                $r->CheapestPrice = $supplier->Prices[0]['Price'] ;
+                $r->CheapestSupplier = $supplier->VendorName;
             }
         }
 
-        if($r['CheapestPrice'] == 100000000000) $r['CheapestPrice'] = null;
+        if($r->CheapestPrice == 100000000000) $r->CheapestPrice = null;
 
-        $r['Data'] = array_values($r['Data']);
+        $r->Data = array_values($r->Data);
 
-        $r['Process Time'] = microtime(true) - $start;
         $data[] = $r;
 	}
-	
-	dbClose($dbLink);
-	sendResponse($data);
-}
 
-?>
+    $api->returnData($data);
+}

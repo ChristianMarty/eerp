@@ -8,13 +8,9 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-include_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-function getPurchaseInformation($receivalId)
+function getPurchaseInformation($receivalId): array
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
+    global $database;
 
     $query = <<<STR
         SELECT 
@@ -33,19 +29,5 @@ function getPurchaseInformation($receivalId)
         LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
         WHERE purchaseOrder_itemReceive.Id = $receivalId
     STR;
-
-	$result = dbRunQuery($dbLink,$query);
-	$output = array();
-
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$r["VendorId"] = intval($r["VendorId"]);
-		$output[] = $r;
-	}
-
-	dbClose($dbLink);
-	return $output;
+    return $database->query($query);
 }
-
-
-?>

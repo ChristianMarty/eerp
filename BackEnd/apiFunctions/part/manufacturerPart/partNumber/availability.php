@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../../../externalApi/octopart.php";
 
 if($api->isGet())
@@ -44,11 +42,10 @@ if($api->isGet())
     $part = (array)$part;
 
     $vendorList = octopart_getVendorList();
-	$dbLink = dbConnect();
-	$data = octopart_getPartData($dbLink, $part['OctopartId']);
-    dbClose($dbLink);
-    $availability = octopart_formatAvailabilityData ($data, $vendorList, $authorizedOnly, $includeBrokers );
-    
+
+	$data = octopart_getPartData($part['OctopartId']);
+
+    $availability = octopart_formatAvailabilityData($data, $vendorList, $authorizedOnly, $includeBrokers );
 
 	$output = array();
 	$output['Data'] = $availability;

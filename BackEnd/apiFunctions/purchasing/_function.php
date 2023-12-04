@@ -7,9 +7,8 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/item/_line.php";
@@ -17,17 +16,17 @@ require_once __DIR__ . "/item/_line.php";
 
 function getPurchaseOrderData($purchaseOrderNo): ?array
 {
-	$dbLink = dbConnect();
+	global $database;
 	
 	$vat = array();
     $query = <<<STR
         SELECT * FROM finance_tax
     STR;
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 	
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach ($result as $r)
 	{
-		$vat[$r['Id']] = $r;
+		$vat[$r->Id] = $r;
 	}
 
     $query = <<<STR
@@ -43,7 +42,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
             BillingContactId, 
             PurchaseContactId, 
             purchaseOrder.DocumentIds, 
-            purchaseOrder.PoNo, 
+            purchaseOrder.PoNo AS PurchaseOrderNumber, 
             purchaseOrder.CreationDate, 
             purchaseOrder.PurchaseDate, 
             purchaseOrder.Title, 
@@ -69,63 +68,50 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 		$query.= " WHERE PoNo = ".$purchaseOrderNo;		
 	}
 
-	$result = dbRunQuery($dbLink,$query);
+    $r = $database->query($query)[0];
 
-	$r = mysqli_fetch_assoc($result);
 
-    $purchaseOrderNumber= $r['PoNo'];
-    $r['PurchaseOrderNumber'] = $r['PoNo'];
-    $r['PurchaseOrderBarcode'] = barcodeFormatter_PurchaseOrderNumber($r['PoNo']);
-    $r['CurrencyId'] = intval($r['CurrencyId']);
-    $r['VendorContactId'] = intval($r['VendorContactId']);
-    $r['VendorAddressId'] = intval($r['VendorAddressId']);
-    $r['ShippingContactId'] = intval($r['ShippingContactId']);
-    $r['BillingContactId'] = intval($r['BillingContactId']);
-    $r['PurchaseContactId'] = intval($r['PurchaseContactId']);
-    $purchaseOrderId = $r['PoId'];
-    $status = $r['Status'];
+    $purchaseOrderNumber= $r->PurchaseOrderNumber;
+    $r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber);
+    $purchaseOrderId = $r->PoId;
+    $status = $r->Status;
 
-    unset($r['PoId']);
+    unset($r->PoId);
     $output['MetaData'] = $r;
 
-	
-	$output['Lines'] = Array();
-	
-	$query = purchaseOrderItem_getLineQuery($purchaseOrderId);
-
-	$orderLimeResult = dbRunQuery($dbLink,$query);
+	$orderLimeResult = $database->query(purchaseOrderItem_getLineQuery($purchaseOrderId));
 
 	$lines = array();
-	while($r = mysqli_fetch_assoc($orderLimeResult))
+	foreach ($orderLimeResult as $r)
 	{
 		$orderLineId = purchaseOrderItem_getLineIdFromQueryResult($r);
 			
 		if(!array_key_exists($orderLineId,$lines))
 		{
-            $lines[$r['OrderLineId']] = purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $r);
+            $lines[$r->OrderLineId] = purchaseOrderItem_getDataFromQueryResult($purchaseOrderNumber, $r);
 
-            $query = purchaseOrderItem_getCostCenterQuery($r['OrderLineId']);
-            $lines[$r['OrderLineId']]['CostCenter'] = purchaseOrderItem_getCostCenterData(dbRunQuery($dbLink,$query));
+            $query = purchaseOrderItem_getCostCenterQuery($r->OrderLineId);
+            $lines[$r->OrderLineId]['CostCenter'] = purchaseOrderItem_getCostCenterData($database->query($query));
 
 			if($status == "Confirmed" or $status == "Closed")
             {
-				$lines[$r['OrderLineId']]['QuantityReceived'] = 0;
+				$lines[$r->OrderLineId]['QuantityReceived'] = 0;
 			}
-            $r['Price'] = floatval($r['Price']);
+            $r->Price = floatval($r->Price);
 		}
 		
-		if( $r['ReceiveId'] != null and ($status == "Confirmed" or $status == "Closed"))
+		if( $r->ReceiveId != null and ($status == "Confirmed" or $status == "Closed"))
 		{
-			if(!array_key_exists("Received",$lines[$r['OrderLineId']])) $lines[$r['OrderLineId']]['Received'] = array();
+			if(!array_key_exists("Received",$lines[$r->OrderLineId])) $lines[$r->OrderLineId]['Received'] = array();
 			
 			$received = array();
-			$received['AddedStockQuantity'] = intval($r['AddedStockQuantity']);
-            $received['QuantityReceived'] = intval($r['QuantityReceived']);
+			$received['AddedStockQuantity'] = intval($r->AddedStockQuantity);
+            $received['QuantityReceived'] = intval($r->QuantityReceived);
 			$lines[$r['OrderLineId']]['QuantityReceived'] += $received['QuantityReceived'];
-			$received['ReceivalDate'] = $r['ReceivalDate'];
-			$received['ReceivalId'] = intval($r['ReceiveId']);
+			$received['ReceivalDate'] = $r->ReceivalDate;
+			$received['ReceivalId'] = intval($r->ReceiveId);
 			
-			$lines[$r['OrderLineId']]['Received'][] = $received;
+			$lines[$r->OrderLineId]['Received'][] = $received;
 		}
 	}
 
@@ -146,16 +132,10 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	WHERE PurchaseOrderId = $purchaseOrderId 
 	ORDER BY LineNo
 	STR;
-	$result = dbRunQuery($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
+    $additionalCharges = $database->query($query);
+	foreach ($result as $r)
 	{
-		$r['AdditionalChargesLineId'] = intval( $r['AdditionalChargesLineId']);
-		$r['LineNo'] = intval( $r['LineNo']);
-        $r['Price'] = floatval($r['Price']);
-		$r['Total'] = floatval($r['Price'] * intval($r['Quantity']));
-		$r['VatTaxId'] = intval($r['VatTaxId']);
-		
-		$additionalCharges[] = $r;
+		$r->Total = floatval($r->Price * intval($r->Quantity));
 	}
 
 	$output['AdditionalCharges'] = $additionalCharges;
@@ -197,10 +177,6 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 								"Total"=> round($total, $digits, PHP_ROUND_HALF_UP),
 								"CurrencyCode"=> $output['MetaData']['CurrencyCode']
 								);
-
-	dbClose($dbLink);	
 	
 	return $output;
 }
-
-?>

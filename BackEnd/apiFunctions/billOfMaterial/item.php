@@ -1,59 +1,46 @@
 <?php
 //*************************************************************************************************
-// FileName : item.php.php
+// FileName : item.php
 // FilePath : apiFunctions/billOfMaterial/
 // Author   : Christian Marty
-// Date		: 13.11.2022
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	
-	if(!isset($_GET["BillOfMaterialBarcode"])) sendResponse(NULL, "Bill of Material Number Undefined");
-    $billOfMaterialNumber = barcodeParser_BillOfMaterial($_GET["BillOfMaterialBarcode"]);
+    $parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+    if(!isset($parameter->BillOfMaterialBarcode)) $api->returnParameterMissingError("BillOfMaterialBarcode");
+    $billOfMaterialNumber = barcodeParser_BillOfMaterial($parameter->BillOfMaterialBarcode);
+    if($billOfMaterialNumber === null) $api->returnParameterError("BillOfMaterialBarcode");
 
     $query = <<<STR
-        SELECT * FROM billOfMaterial
+        SELECT 
+            * 
+        FROM billOfMaterial
         WHERE BillOfMaterialNumber = $billOfMaterialNumber
+        LIMIT 1
     STR;
 
-	$output = array();
-	$result = dbRunQuery($dbLink,$query);
-	$id = null;
-	$r = mysqli_fetch_assoc($result);
-	
-	$output['Title'] = $r['Title'];
-	$output['Description'] = $r['Description'];
-	$output['BillOfMaterialNumber'] = $r['BillOfMaterialNumber'];
-	$output['BillOfMaterialBarcode'] = "BOM-".$r['BillOfMaterialNumber'];
-	$id = $r['Id'];
-	
-	
-	$revisions = array();
-	$query  = "SELECT * FROM billOfMaterial_revision ";
-	$query .= "WHERE Type = 'Revision' AND BillOfMaterialId = ".$id." ";
-	$query .= "ORDER BY VersionNumber ASC";
-	
-	$result = dbRunQuery($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-        $r['Id'] = intval($r['Id']);
-		$revisions[] = $r;
-	}
-	$output['Revisions'] = $revisions;
+    $output = $database->query($query)[0];
+	$id = $output->Id;
 
-	
-	dbClose($dbLink);
-	sendResponse($output);
+    $query = <<<STR
+        SELECT 
+            * 
+        FROM billOfMaterial_revision
+        WHERE Type = 'Revision' AND BillOfMaterialId = '$id'
+        ORDER BY VersionNumber ASC
+    STR;
+
+	$output->Revisions = $database->query($query);
+
+	$api->returnData($output);
 }
-
-?>

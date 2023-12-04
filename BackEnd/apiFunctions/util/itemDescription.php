@@ -7,14 +7,19 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $api;
+
 require_once __DIR__ . "/_description.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["Item"])) sendResponse(null,"No item specified");
+    $parameters = $api->getGetData();
 
-    $data = description_generateSummary($_GET["Item"]);
+    if(!isset($parameters->Item)) $api->returnParameterMissingError("Item");
 
-    sendResponse($data['data'], $data['error']);
+    $data = description_generateSummary($parameters->Item);
+
+    if($data['error']) $api->returnError($data['error']);
+    else $api->returnData($data['data']);
 }
-?>

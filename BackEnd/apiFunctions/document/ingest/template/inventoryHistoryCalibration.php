@@ -7,58 +7,38 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../../../databaseConnector.php";
-require_once __DIR__ . "/../../../../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
 require_once __DIR__ . "/../../_functions.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
 require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
+if($api->isPost())
+{
+    $data = $api->getPostData();
 
-    $data = json_decode(file_get_contents('php://input'),true);
+    $date = $database->escape($data->Date);
+    $description = $database->escape($data->Description);
+    $nextDate = $database->escape($data->NextDate);
+    $fileName = $database->escape($data->FileName);
 
-    $dbLink = dbConnect();
-
-    $invNumber = dbEscapeString($dbLink, $data['InventoryNumber']);
-    $date = dbEscapeString($dbLink, $data['Date']);
-    $description = dbEscapeString($dbLink, $data['Description']);
-    $nextDate = dbEscapeString($dbLink, $data['NextDate']);
-    
-    $fileName = dbEscapeString($dbLink, $data['FileName']);
-
-    $invNumber = barcodeParser_InventoryNumber($invNumber);
-    
-    if(!$invNumber) sendResponse(null,"Inventory number invalid");
+    $invNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
+    if($invNumber == 0) $api->returnParameterError("InventoryNumber");
 
     $query = <<<STR
         SELECT Id, InvNo, Manufacturer, Type, SerialNumber FROM inventory WHERE  InvNo = $invNumber   
     STR;
+    $inv = $database->query($query)[0];
 
-    $result = dbRunQuery($dbLink,$query);
-    if(!$result)
-    {
-        dbClose($dbLink);
-        sendResponse(null,"DB Error");
-    }
-    
-    $inv = mysqli_fetch_assoc($result);
+    if(!isset($inv->InvNo)) $api->returnError("Inventory number not found");
 
-    if(!isset($inv['InvNo']))
-    {
-        dbClose($dbLink);
-        sendResponse(null,"Inventory number not found");
-    }
-
-    $name = $inv['Manufacturer']."_".$inv['Type']."_".$inv['SerialNumber']."_".$date;
-	
+    $name = $inv->Manufacturer."_".$inv->Type."_".$inv->SerialNumber."_".$date;
 	$name = str_replace(" ", "-",$name);
 	
 	$fileNameIllegalCharactersRegex = '/[ %:"*?<>|\\/]+/';
 	$name = preg_replace($fileNameIllegalCharactersRegex, '', $name);
-
-    dbClose($dbLink);
 
     $ingestData = array();
     $ingestData['FileName'] = $fileName;
@@ -68,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $result = ingest($ingestData);
 
-	if(!is_int($result)) sendResponse(null,$result['error']);
+	if(!is_int($result)) $api->returnError($result['error']);
 
     $docIds = array();
     $docIds[] = $result;
@@ -82,13 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         INSERT INTO inventory_history (InventoryId, Description, DocumentIds, Date, NextDate, Type)
         VALUES ($invId,'$description','$docIdStr','$date','$nextDate', 'Calibration'); 
     STR;
+    $database->execute($query);
 
-    $dbLink = dbConnect();
-    $result = dbRunQuery($dbLink,$query);
-    dbClose($dbLink);
-
-    sendResponse($docIdStr,null);
+    $api->returnData($docIdStr);
 }
-
-?>
-

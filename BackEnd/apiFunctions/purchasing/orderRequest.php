@@ -7,14 +7,13 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-
+    /*
     $query = <<< STR
         SELECT 
             orderRequest.Id AS OrderRequestId, 
@@ -65,32 +64,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	{
 		unset($r['Id']);
 		$rows[] = $r;
-	}
+	}//*/
 
-	dbClose($dbLink);	
-	sendResponse($rows);
+	$api->returnError("Not Implemented");
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	
-	$supplierPartId = $data['data']['SupplierPartId'];
-	$quantity = $data['data']['Quantity'];
-	$description = $data['data']['Description'];
-	
+	$data = $api->getPostData()->data;
+
 	$row = array();
-	$row['Description'] = $description;
-	$row['SupplierPartId'] = $supplierPartId;
-	$row['Quantity'] = $quantity;
-	
-	$query = dbBuildInsertQuery($dbLink, "orderRequest",$row);
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	dbClose($dbLink);
-	
-	sendResponse(null,null);
+	$row['Description'] = $data->Description;
+	$row['SupplierPartId'] = $data->SupplierPartId;
+	$row['Quantity'] = $data->Quantity;
+
+    $database->insert("orderRequest",$row);
+
+    $api->returnEmpty();
+
 }
-?>

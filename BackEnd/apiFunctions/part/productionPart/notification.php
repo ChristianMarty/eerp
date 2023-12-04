@@ -7,14 +7,12 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
-
     $query = <<<STR
         SELECT 
             CONCAT(numbering.Prefix,'-',productionPart.Number) AS ProductionPartNumber, 
@@ -28,28 +26,25 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE StockMinimum IS NOT Null OR StockMaximum IS NOT NULL OR StockWarning IS NOT Null
     STR;
 
-	$result = mysqli_query($dbLink,$query);
+	$result = $database->query($query);
 	
 	$rows = array();
-	while($r = mysqli_fetch_assoc($result)) 
+    foreach ($result as $r)
 	{
-		$quantity = intval($r['StockQuantity']);
-		$minimum = intval($r['StockMinimum']);
-		$maximum = intval($r['StockMaximum']);
-		$warning = intval($r['StockWarning']);
+		$quantity = intval($r->StockQuantity);
+		$minimum = intval($r->StockMinimum);
+		$maximum = intval($r->StockMaximum);
+		$warning = intval($r->StockWarning);
 		
 		$status = null;
 		if( $quantity < $minimum and $minimum != Null) $status = "Minimum";
 		else if( $quantity < $warning and $warning != Null) $status = "Warning";
 		else if( $quantity > $maximum  and $maximum != Null ) $status = "Maximum";
 
-		$r["Status"] = $status;
+		$r->Status = $status;
 		
 		if($status != null) $rows[] = $r;
 	}
 
-	dbClose($dbLink);
-	sendResponse($rows);
+	$api->returnData($rows);
 }
-
-?>

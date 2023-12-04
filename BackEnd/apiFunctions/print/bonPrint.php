@@ -3,39 +3,34 @@
 // FileName : bonPrint.php
 // FilePath : apiFunctions/print
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/escpos/autoload.php";
-
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\Printer;
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$lines = $data['data'];
-	$printerId = intval($data['PrinterId']);
-	
-	$query = "SELECT * FROM printer WHERE Id =".$printerId;
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$r = mysqli_fetch_assoc($result);
+    $data = $api->getPostData();
+    if(!isset($data->Data)) $api->returnParameterMissingError("Data");
+    if(!isset($data->PrinterId)) $api->returnParameterMissingError("PrinterId");
+    $printerId = intval($data->PrinterId);
+    if($printerId == 0) $api->returnParameterError("PrinterId");
 
-	$connector = new NetworkPrintConnector($r['Ip'], $r['Port']);
-	$printer = new Printer($connector);
+	$query = "SELECT * FROM printer WHERE Id ='$printerId' LIMIT 1;";
+    $printer = $database->query($query)[0];
+
+    $connector = new NetworkPrintConnector($printer->Ip, $printer->Port);
+    $printer = new Printer($connector);
 	
 	$printer -> initialize();
-	foreach($lines as $line)
+	foreach($data->data as $line)
 	{
 		$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 		$text = $line['PartNo']." - ".$line['Value']."\n";
@@ -49,10 +44,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$printer -> cut();
 	$printer -> close();
 	
-	$output = array();
-	
-	dbClose($dbLink);
-	sendResponse($output);
+	$api->returnEmpty();
 
 }
-?>

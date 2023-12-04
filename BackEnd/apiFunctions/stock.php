@@ -60,7 +60,7 @@ if($api->isGet("stock.view"))
 	foreach ($data as $line)
 	{
 		$line->StockBarcode = barcodeFormatter_StockNumber($line->StockNumber);
-		$line->Location = location_getName(intval($line->LocationId));
+		$line->Location = (new Location())->name(intval($line->LocationId));
 		$line->Barcode = $line->StockBarcode;
 	}
 

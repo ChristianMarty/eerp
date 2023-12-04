@@ -3,23 +3,21 @@
 // FileName : manufacturerPart.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
-// Date		: 15.05.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/_part.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	$dbLink = dbConnect();
+    $parameter = $api->getGetData();
 
 	// Query attributes
-
-	$attributes  = array();
-
     $query = <<<STR
 	SELECT manufacturerPart_attribute.Id, 
 	       manufacturerPart_attribute.ParentId, 
@@ -33,11 +31,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
 	STR;
 	
-	$result = mysqli_query($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result))
+	$result = $database->query($query);
+    $attributes = [];
+	foreach ($result as $r)
 	{
-		$id = $r['Id'];
-		unset($r['Id']);
+		$id = $r->Id;
+		unset($r->Id);
 		$attributes[$id] = $r;
 	}
 
@@ -63,55 +62,47 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$queryParam = array();
 	
-	if(isset($_GET["ManufacturerName"]))
+	if(isset($parameter->ManufacturerName))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerName"]);
-		$queryParam[] = "vendor.Name = '" . $temp . "'";
+		$temp = $database->escape($parameter->ManufacturerName);
+		$queryParam[] = "vendor.Name = $temp ";
 	}
 	
-	if(isset($_GET["VendorId"]))
+	if(isset($parameter->VendorId))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["VendorId"]);
-		$queryParam[] = "vendor.Id = '" . $temp . "'";
+		$temp = intval($parameter->VendorId);
+		$queryParam[] = "vendor.Id = '$temp'";
 	}
 	
-	if(isset($_GET["ManufacturerPartNumber"]))
+	if(isset($parameter->ManufacturerPartNumber))
 	{
-		$temp = dbEscapeString($dbLink, $_GET["ManufacturerPartNumber"]);
-		$queryParam[] = "manufacturerPart_partNumber.Number LIKE '" . $temp . "'";
+        $temp = $database->escape($parameter->ManufacturerPartNumber);
+		$queryParam[] = "manufacturerPart_partNumber.Number LIKE $temp ";
 	}
 	
-	if(isset($_GET["ClassId"]))
+	if(isset($parameter->ClassId))
 	{
-		$dbLink2 = dbConnect();
-		$temp = dbEscapeString($dbLink2, $_GET["ClassId"]);
-		$classIdList = "";
-		$query = "CALL manufacturerPart_class_getChildrenRecursive('".$temp."')";
-		$result = mysqli_query($dbLink2, $query);
-		dbClose($dbLink2);
+		$temp = intval($parameter->ClassId);
+		$query = "CALL manufacturerPart_class_getChildrenRecursive('$temp')";
+        $result = $database->query($query);
 
-		while($r = mysqli_fetch_assoc($result)) 
+        $classIdList = "";
+		foreach ($result as $r)
 		{
-	
-			$classIdList .= "'".$r['Id']."',";
+			$classIdList .= "'".$r->Id."',";
 		}
 		$classIdList = substr($classIdList, 0, -1);
 
 		$queryParam[] = "PartClassId IN(" . $classIdList . ")";
 	}
-	
-	$query = dbBuildQuery($dbLink,$baseQuery,$queryParam);
-	
-	$query  .= " GROUP BY manufacturerPart_item.Id ";
 
-	$result = mysqli_query($dbLink,$query);
+	$result = $database->query($baseQuery,$queryParam," GROUP BY manufacturerPart_item.Id ");
 	$rows = array();
-	$rowcount = mysqli_num_rows($result);
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach ($result as $r)
 	{
         // Decode Attributes
         $partDataRaw = null;
-        if($r['PartData'] != null ) $partDataRaw = json_decode($r['PartData']);
+        if($r->PartData != null ) $partDataRaw = json_decode($r->PartData);
 
 		$partData = array();
 		if($partDataRaw != null)
@@ -119,7 +110,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 			foreach ($partDataRaw as $key =>$value) 
 			{
 				$dataSet = array();
-				$attributeName = $attributes[$key]['Name'];
+				$attributeName = $attributes[$key]->Name;
 				if(is_array($value))
 				{
 					$value['Minimum'] = $value['0'];
@@ -133,59 +124,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 				$dataSet['Name'] = $attributeName;
 				$dataSet['AttributeId'] = $key;
 				$dataSet['Value']= $value;
-				$dataSet['Unit']= $attributes[$key]['Unit'];
-				$dataSet['Symbol']= $attributes[$key]['Symbol'];
+				$dataSet['Unit']= $attributes[$key]->Unit;
+				$dataSet['Symbol']= $attributes[$key]->Symbol;
 				$partData[] = $dataSet;
 			}
 		}
 		
-		$r['PartData'] = $partData;
+		$r->PartData = $partData;
 
-        $r['ManufacturerPartNumberTemplateWithoutParameters'] = manufacturerPart_numberWithoutParameters($r['ManufacturerPartNumberTemplate']);
-        if($r['ManufacturerPartNumberTemplateWithoutParameters'] ==  NULL) $r['ManufacturerPartNumberTemplateWithoutParameters'] = $r['ManufacturerPartNumber'];
+        $r->ManufacturerPartNumberTemplateWithoutParameters = manufacturerPart_numberWithoutParameters($r->ManufacturerPartNumberTemplate);
+        if($r->ManufacturerPartNumberTemplateWithoutParameters ==  NULL) $r->ManufacturerPartNumberTemplateWithoutParameters = $r->ManufacturerPartNumber;
 		$rows[] = $r;
 	}
 
-	dbClose($dbLink);	
-	sendResponse($rows);
+	$api->returnData($rows);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-	$data = json_decode(file_get_contents('php://input'),true);
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$manufacturerName = dbEscapeString($dbLink,$data['data']['ManufacturerName']);
-	$manufacturerPartNumber = dbEscapeString($dbLink,$data['data']['ManufacturerPartNumber']);
-
-	$insertData['VendorId']['raw']  = "(SELECT Id FROM vendor WHERE Name = '".$manufacturerName."')";
-	$insertData['ManufacturerPartNumber']  = $manufacturerPartNumber;
-	
-	$query = dbBuildInsertQuery($dbLink, "manufacturerPart", $insertData);
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$error = null;
-	$manufacturerPart = array();
-	if(!$result)
-	{
-		$error = "Error description: " . dbGetErrorString($dbLink);
-	}
-	
-	$query = <<< STR
-        SELECT Id FROM manufacturerPart WHERE Id = LAST_INSERT_ID();
-    STR;
-
-	$result = dbRunQuery($dbLink,$query);
-	
-	$manufacturerPart['ManufacturerPartId'] = dbGetResult($result)['Id'];
-	
-	$result = dbRunQuery($dbLink,$query);
-	$stockPart = dbGetResult($result);
-	
-	dbClose($dbLink);	
-	sendResponse($manufacturerPart, $error);
-}
-
-?>

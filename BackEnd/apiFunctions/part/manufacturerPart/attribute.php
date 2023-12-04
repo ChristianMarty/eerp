@@ -3,37 +3,26 @@
 // FileName : attribute.php
 // FilePath : apiFunctions/manufacturerPart/
 // Author   : Christian Marty
-// Date        : 15.05.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
+    $parameters = $api->getGetData();
 
     $children = true;
-    if(isset($_GET["children"]))
-    {
-        if(!$_GET["children"]) $children = false;
-    }
-    
+    if(isset($parameters->children) and !$parameters->children) $children = false;
+
     $parents = false;
-    if(isset($_GET["parents"]))
-    {
-        if($_GET["parents"]) $parents = true;
-    }
+    if(isset($parameters->parents) and $parameters->parents) $parents = true;
     
     $classId = 0;
-    if(isset($_GET["classId"]))
-    {
-        $classId = intval($_GET["classId"],10);
-    }
-    
-    $dbLink = dbConnect();
-    if($dbLink == null) return null;
+    if(isset($parameters->classId)) $classId = intval($parameters->classId);
     
     // Query attributes
     $attributes  = array();
@@ -49,11 +38,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     LEFT JOIN unitOfMeasurement ON unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
     STR;
 
-    
-    $result = dbRunQuery($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result)) 
+    $result = $database->query($query);
+    foreach ($result as $r)
     {
-        $attributes[$r['Id']] = $r;
+        $attributes[$r->Id] = $r;
     }
     
     $attributeList = array();
@@ -67,10 +55,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         // Query Classes
         $classes  = array();
         $query = "SELECT * FROM manufacturerPart_class";
-        $result = mysqli_query($dbLink,$query);
-        while($r = mysqli_fetch_assoc($result))
+        $result = $database->query($query);
+        foreach ($result as $r)
         {
-            $classes[$r['Id']] = $r;
+            $classes[$r->Id] = $r;
         }
 
         $attributeIdList = getParentAttributes($classes, $classId);
@@ -79,10 +67,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         foreach ($attributeIdList as $attributeId)
         {
             $attribute = array();
-            $attribute['Name'] = $attributes[$attributeId]['Name'];
-            $attribute['Unit'] = $attributes[$attributeId]['Unit'];
-            $attribute['Symbol'] = $attributes[$attributeId]['Symbol'];
-            $attribute['Scale'] = $attributes[$attributeId]['Scale'];
+            $attribute['Name'] = $attributes[$attributeId]->Name;
+            $attribute['Unit'] = $attributes[$attributeId]->Unit;
+            $attribute['Symbol'] = $attributes[$attributeId]->Symbol;
+            $attribute['Scale'] = $attributes[$attributeId]->Scale;
             //if($attributes[$attributeId]['UseMinTypMax']) $attribute['MinMax'] = true;
             //else $attribute['MinMax'] = false;
             
@@ -90,13 +78,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         }
     }
     
-    dbClose($dbLink);    
-    sendResponse($attributeList);
+    $api->returnData($attributeList);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
-{
-    
-}
+
 
 function getUnitType($attributes, $id)
 {    
@@ -130,18 +114,18 @@ function getUnitOfMeasure($attributes, $id)
     }
 }
 
-function getParentAttributes($rows, $childId)
+function getParentAttributes(array $rows, int $childId)
 {  
     $attributeList = array();
-
     $row = $rows[$childId];
-    if ((int)$row['Id'] == (int)$childId)
+
+    if ((int)$row->Id == $childId)
     {
-        if($row['AttributeList'] != null) $attributeList = json_decode($row['AttributeList']);
+        if($row->AttributeList != null) $attributeList = json_decode($row->AttributeList);
         
-        if ((int)$row['ParentId'] != 0)
+        if ((int)$row->ParentId != 0)
         {
-            $attributeList = array_merge(getParentAttributes($rows, $row['ParentId']),$attributeList);
+            $attributeList = array_merge(getParentAttributes($rows, $row->ParentId),$attributeList);
         }
     }
     

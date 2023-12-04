@@ -3,19 +3,20 @@
 // FileName : partNumber.php
 // FilePath : apiFunctions/manufacturerPart/
 // Author   : Christian Marty
-// Date		: 20.05.2023
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 require_once __DIR__ . "/_function.php";
 require_once __DIR__ . "/../_part.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    $dbLink = dbConnect();
+    $parameters = $api->getGetData();
 
     $baseQuery = <<<STR
         SELECT
@@ -33,40 +34,27 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId OR vendor.Id = manufacturerPart_partNumber.VendorId OR vendor.Id = manufacturerPart_series.VendorId
-        
     STR;
 
-
     $parameter = array();
-    if(isset($_GET["ManufacturerPartNumber"]))
+    if(isset($parameters->ManufacturerPartNumber))
     {
-        $manufacturerPartNumber = dbEscapeString($dbLink,$_GET["ManufacturerPartNumber"]);
-        $parameter[] =  "manufacturerPart_partNumber.Number LIKE '".$manufacturerPartNumber."'";
+        $manufacturerPartNumber = $database->escape($parameters->ManufacturerPartNumber);
+        $parameter[] =  "manufacturerPart_partNumber.Number LIKE $manufacturerPartNumber";
     }
 
-    if(isset($_GET["VendorId"]))
+    if(isset($parameters->VendorId))
     {
-        $vendorId = intval($_GET["VendorId"]);
+        $vendorId = intval($parameters->VendorId);
         $parameter[] = "vendor.Id = ".$vendorId;
     }
 
-    $query  = dbBuildQuery($dbLink,$baseQuery,$parameter);
-    $query .= " ORDER BY PartNumber ";
+    $output = $database->query($baseQuery,$parameter,"ORDER BY PartNumber");
 
-
-    $result = mysqli_query($dbLink,$query);
-    $output = array();
-    while($r = mysqli_fetch_assoc($result))
+    foreach ($output as $r)
     {
-        $r['ManufacturerId'] = intval($r['ManufacturerId']);
-        $r['PartNumberId'] = intval($r['PartNumberId']);
-        $r['PartId'] = intval($r['PartId']);
-        $r['SeriesId'] = intval($r['SeriesId']);
-        $r['ManufacturerPartNumberTemplateWithoutParameters'] = manufacturerPart_numberWithoutParameters($r['ManufacturerPartNumberTemplate']);
-        $output[] = $r;
+        $r->ManufacturerPartNumberTemplateWithoutParameters = manufacturerPart_numberWithoutParameters($r->ManufacturerPartNumberTemplate);
     }
 
-    dbClose($dbLink);
-
-    sendResponse($output);
+    $api->returnData($output);
 }

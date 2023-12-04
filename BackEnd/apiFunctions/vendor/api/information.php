@@ -3,27 +3,27 @@
 // FileName : information.php
 // FilePath : apiFunctions/vendor/api/
 // Author   : Christian Marty
-// Date		: 05.01.2022
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["SupplierId"])) sendResponse(null, "SupplierId missing!");
+    $parameter = $api->getGetData();
 
-    $dbLink = dbConnect();
-    $supplierId = dbEscapeString($dbLink, $_GET["SupplierId"]);
+    if(!isset($parameter->SupplierId)) $api->returnParameterMissingError("SupplierId");
+    $supplierId = intval($parameter->SupplierId);
+    if($supplierId === 0) $api->returnParameterError("SupplierId");
 
-    $query = "SELECT * FROM vendor WHERE Id = ".$supplierId.";";
-    $result = dbRunQuery($dbLink,$query);
-    $supplierData = mysqli_fetch_assoc($result);
-    dbClose($dbLink);
+    $query = "SELECT * FROM vendor WHERE Id = $supplierId LIMIT 1;";
 
-    $name = $supplierData['API'];
+    $supplierData = $database->query($query)[0];
+
+    $name = $supplierData->API;
     if($name === null)
 	{
 		$output = array();
@@ -34,8 +34,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		$output['Capability']= array();
 		$output['Capability']['OrderImportSupported'] = false;
 		$output['Capability']['SkuSearchSupported'] = false;
-		
-		sendResponse($output);
+
+        $api->returnData($output);
 	}
 
     $path =  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
@@ -43,5 +43,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
     $data = call_user_func($name."_apiInfo");
 
-	sendResponse($data);
+    $api->returnData($data);
 }

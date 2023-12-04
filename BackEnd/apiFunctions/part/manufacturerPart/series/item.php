@@ -7,19 +7,20 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../_function.php";
 require_once __DIR__ . "/../../../util/_getDocuments.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-    if(!isset($_GET["ManufacturerPartSeriesId"])) sendResponse(null,"ManufacturerPartSeriesId not set");
+    $parameters = $api->getGetData();
 
-    $manufacturerPartSeriesId = intval($_GET["ManufacturerPartSeriesId"]);
-
-    $dbLink = dbConnect();
+    if(!isset($parameters->ManufacturerPartSeriesId)) $api->returnParameterMissingError("ManufacturerPartSeriesId");
+    $manufacturerPartSeriesId = intval($parameters->ManufacturerPartSeriesId);
+    if($manufacturerPartSeriesId == 0) $api->returnParameterError("ManufacturerPartSeriesId");
 
     $query = <<<STR
         SELECT
@@ -33,23 +34,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         LEFT JOIN manufacturerPart_class ON manufacturerPart_class.Id = manufacturerPart_series.ClassId
         LEFT JOIN vendor on vendor.Id = manufacturerPart_series.VendorId
         WHERE manufacturerPart_series.Id = '$manufacturerPartSeriesId'
+        LIMIT 1
     STR;
 
-    $result = mysqli_query($dbLink,$query);
+    $output = $database->query($query)[0];
 
-    $output = array();
-    while($r = mysqli_fetch_assoc($result))
+    $parameter= getParameter($manufacturerPartSeriesId);
+    $output->Parameter = $parameter;
+
+    if($parameter == null) $output->Parameter = array();
+    foreach($output->Parameter  as &$p)
     {
-        $r['ManufacturerPartSeriesId'] = intval($r['ManufacturerPartSeriesId']);
-        $output = $r;
-    }
-
-    $parameter= getParameter($dbLink, $manufacturerPartSeriesId);
-    $output['Parameter'] = $parameter;
-
-    if($parameter == null) $output['Parameter'] = array();
-    foreach($output['Parameter']  as &$p) {
-        if(!isset($p['Values'])) $p['Values'] = array();
+        if(!isset($p->Values)) $p->Values = array();
     }
 
     $query = <<<STR
@@ -58,83 +54,54 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         WHERE manufacturerPart_item.SeriesId = '$manufacturerPartSeriesId'
     STR;
 
-    $manufacturerPartItem = array();
-    $result = mysqli_query($dbLink,$query);
-    while($r = mysqli_fetch_assoc($result))
+    $manufacturerPartItem = $database->query($query);
+    foreach ($manufacturerPartItem as $r)
     {
-        $r['ItemId'] = $r['Id'];
-        $manufacturerPartItem[] = $r;
+        $r->ItemId = $r->Id;
     }
-    $output['Item'] = $manufacturerPartItem;
+    $output->Item = $manufacturerPartItem;
 
 
-    foreach ($output['Item'] as &$item)
+    foreach ($output->Item as $item)
     {
-        $itemId = $item["Id"];
+        $itemId = $item->Id;
         $query = <<<STR
             SELECT *
             FROM manufacturerPart_partNumber
             WHERE manufacturerPart_partNumber.ItemId = '$itemId'
         STR;
 
-        $manufacturerPartNumber = array();
-        $item['Description'] = descriptionFromNumber($output['NumberTemplate'],$parameter,$item['Number']);
+        $item->Description = descriptionFromNumber($output->NumberTemplate,$parameter,$item->Number);
+        $manufacturerPartNumber = $database->query($query);
 
-        $result = mysqli_query($dbLink, $query);
-        while ($r = mysqli_fetch_assoc($result)) {
-            $r['Description'] = descriptionFromNumber($item['Number'],$parameter,$r['Number']);
-            $r['PartNumberId'] = intval($r['Id']);
-            $manufacturerPartNumber[] = $r;
+        foreach ($manufacturerPartNumber as $r)
+        {
+            $r->Description = descriptionFromNumber($item->Number,$parameter,$r->Number);
+            $r->PartNumberId = intval($r->Id);
         }
-        $item['PartNumber'] = $manufacturerPartNumber;
+        $item->PartNumber = $manufacturerPartNumber;
     }
 
-    $output["Documents"] = getDocumentsFromIds($dbLink, $output['SeriesDocumentIds']);
-    unset($output['SeriesDocumentIds']);
+    $output->Documents = getDocumentsFromIds($output->SeriesDocumentIds);
+    unset($output->SeriesDocumentIds);
 
-    dbClose($dbLink);
-
-    sendResponse($output);
+    $api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-    $data = json_decode(file_get_contents('php://input'),true);
+    $data = $api->getPostData();
 
-    if(!isset($data['VendorId']))  sendResponse(null, "VendorId is not specified!");
-    if(!isset($data['Title']))  sendResponse(null, "Title is not specified!");
-    if(!isset($data['Description']))  sendResponse(null, "Description is not specified!");
-
-    $dbLink = dbConnect();
+    if(!isset($data->VendorId))  $api->returnParameterMissingError("VendorId");
+    if(!isset($data->Title))  $api->returnParameterMissingError("Title");
+    if(!isset($data->Description))  $api->returnParameterMissingError("Description");
 
     $seriesCreate = array();
-    $seriesCreate['VendorId'] = intval($data['VendorId']);
-    $seriesCreate['Description'] = trim($data['Description']);
-    $seriesCreate['Title'] = trim($data['Title']);
+    $seriesCreate['VendorId'] = intval($data->VendorId);
+    $seriesCreate['Description'] = trim($data->Description);
+    $seriesCreate['Title'] = trim($data->Title);
 
-    $query = dbBuildInsertQuery($dbLink, "manufacturerPart_series", $seriesCreate);
-    $query .= "SELECT Id FROM manufacturerPart_series WHERE Id = LAST_INSERT_ID();";
+    $output = [];
+    $output["ManufacturerPartSeriesId"] = $database->insert("manufacturerPart_series", $seriesCreate);
 
-    $output = array();
-    $error = null;
-    if(mysqli_multi_query($dbLink,$query))
-    {
-        do {
-            if ($result = mysqli_store_result($dbLink)) {
-                while ($row = mysqli_fetch_row($result)) {
-                    $output["ManufacturerPartSeriesId"] = intval($row[0]);
-                }
-                mysqli_free_result($result);
-            }
-            if(!mysqli_more_results($dbLink)) break;
-        } while (mysqli_next_result($dbLink));
-    }
-    else
-    {
-        $error = "Error description: " . mysqli_error($dbLink);
-    }
-
-    dbClose($dbLink);
-    sendResponse($output,$error);
+    $api->returnData($output);
 }
-
-?>

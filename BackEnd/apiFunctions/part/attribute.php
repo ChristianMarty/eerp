@@ -3,39 +3,37 @@
 // FileName : attribute.php
 // FilePath : apiFunctions/part/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 03.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
+    $parameter = $api->getGetData();
+
 	$children = true;
-	if(isset($_GET["children"]))
+	if(isset($parameter->children))
 	{
-		if(!$_GET["children"]) $children = false;
+		if(!$parameter->children) $children = false;
 	}
 	
 	$parents = false;
-	if(isset($_GET["parents"]))
+	if(isset($parameter->parents))
 	{
-		if($_GET["parents"]) $parents = true;
+		if($parameter->parents) $parents = true;
 	}
 	
 	$classId = 0;
-	if(isset($_GET["classId"]))
+	if(isset($parameter->classId))
 	{
-		$classId = intval($_GET["classId"],10);
+		$classId = intval($parameter->classId);
 	}
-	
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
+
 	// Query attributes
-	$attributes  = array();
     $query = <<<STR
         SELECT 
             manufacturerPart_attribute.Id,
@@ -48,29 +46,30 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         FROM `manufacturerPart_attribute` 
         LEFT JOIN `unitOfMeasurement` ON unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
     STR;
-	
-	$result = dbRunQuery($dbLink,$query);
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$attributes[$r['Id']] = $r;
+	$result = $database->query($query);
+
+    $attributes  = array();
+    foreach ($result as $r)
+    {
+		$attributes[$r->Id] = $r;
 	}
 	
 	$attributeList = array();
 	
 	if(!$parents)
 	{
-		$attributeList = buildTree($attributes,$classId,$children, $parents);
+		$attributeList = buildTree($attributes,$classId,$children);
 	}
 	else if($classId != 0)
 	{
 		// Query Classes
 		$classes  = array();
 		$query = "SELECT * FROM manufacturerPart_class";
-		$result = mysqli_query($dbLink,$query);
-		while($r = mysqli_fetch_assoc($result))
-		{
-			$classes[$r['Id']] = $r;
-		}
+		$result = $database->query($query);
+        foreach ($result as $r)
+        {
+            $classes[$r->Id] = $r;
+        }
 
 		$attributeIdList = getParentAttributes($classes, $classId);
 
@@ -78,33 +77,26 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 		foreach ($attributeIdList as $attributeId)
 		{
 			$attribute = array();
-			$attribute['Name'] = $attributes[$attributeId]['Name'];
-			$attribute['Unit'] = $attributes[$attributeId]['Unit'];
-			$attribute['Scale'] = $attributes[$attributeId]['Scale'];
-			//if($attributes[$attributeId]['UseMinTypMax']) $attribute['MinMax'] = true;
-			//else $attribute['MinMax'] = false;
-			
+			$attribute['Name'] = $attributes[$attributeId]->Name;
+			$attribute['Unit'] = $attributes[$attributeId]->Unit;
+			$attribute['Scale'] = $attributes[$attributeId]->Scale;
+
 			$attributeList[] = $attribute;
 		}
 	}
 	
-	dbClose($dbLink);	
-	sendResponse($attributeList);
-}
-else if($_SERVER['REQUEST_METHOD'] == 'PATCH')
-{
-	
+	$api->returnData($attributeList);
 }
 
-function getUnitType($attributes, $id)
+function getUnitType(array $attributes, int $id)
 {	
-	if($attributes[$id]['Type'] != null) 
+	if($attributes[$id]->Type != null)
 	{
-		return $attributes[$id]['Type'];
+		return $attributes[$id]->Type;
 	}
-	else if ($attributes[$id]['ParentId'] != 0)
+	else if ($attributes[$id]->ParentId != 0)
 	{
-		return getUnitType($attributes, $attributes[$id]['ParentId']);
+		return getUnitType($attributes, $attributes[$id]->ParentId);
 	}
 	else
 	{
@@ -112,15 +104,15 @@ function getUnitType($attributes, $id)
 	}
 }
 
-function getUnitOfMeasure($attributes, $id)
+function getUnitOfMeasure(array $attributes, int $id)
 {	
-	if($attributes[$id]['Unit'] != null) 
+	if($attributes[$id]->Unit != null)
 	{
 		return $attributes[$id];
 	}
-	else if ($attributes[$id]['ParentId'] != 0)
+	else if ($attributes[$id]->ParentId != 0)
 	{
-		return getUnitOfMeasure($attributes, $attributes[$id]['ParentId']);
+		return getUnitOfMeasure($attributes, $attributes[$id]->ParentId);
 	}
 	else
 	{
@@ -128,12 +120,12 @@ function getUnitOfMeasure($attributes, $id)
 	}
 }
 
-function getParentAttributes($rows, $childId)
+function getParentAttributes(array $rows, int $childId)
 {  
 	$attributeList = array();
 
 	$row = $rows[$childId];
-	if ((int)$row['Id'] == (int)$childId)
+	if ((int)$row['Id'] == $childId)
 	{
 		if($row['AttributeList'] != null) $attributeList = json_decode($row['AttributeList']);
 		
@@ -146,38 +138,36 @@ function getParentAttributes($rows, $childId)
 	return $attributeList;
 }
 
-function hasChild($rows,$id): bool
+function hasChild(array $rows,int $id): bool
 {
-	foreach ($rows as $row) 
-	{
-		if ($row['ParentId'] == $id)return true;
-	}
-	return false;
+    foreach ($rows as $row)
+    {
+        if ($row->ParentId == $id)return true;
+    }
+    return false;
 }
 
-function buildTree($attributes, $parentId, $children, $parents): array
+function buildTree(array $attributes, int $parentId, $children): array
 {  
 	$treeItem = array();
 	foreach ($attributes as $row)
 	{
-		if ($row['ParentId'] == $parentId)
+		if ($row->ParentId == $parentId)
 		{
-			$uom = getUnitOfMeasure($attributes, $row['Id']);
-			$unitType = getUnitType($attributes, $row['Id']);
+			$uom = getUnitOfMeasure($attributes, $row->Id);
+			$unitType = getUnitType($attributes, $row->Id);
 			
-			$temp = array();
-			
-			$temp['Name'] = $row['Name'];
-			$temp['Id'] = $row['Id'];
-			$temp['Unit'] = $uom['Unit'];
-			$temp['Symbol'] = $uom['Symbol'];
+			$temp = [];
+			$temp['Name'] = $row->Name;
+			$temp['Id'] = $row->Id;
+			$temp['Unit'] = $uom->Unit??"";
+			$temp['Symbol'] = $uom->Symbol??"";
 			$temp['Type'] = $unitType;
-			$temp['Scale'] = $row['Scale'];
+			$temp['Scale'] = $row->Scale;
 		
-			if ($children && hasChild($attributes,$row['Id']))
+			if ($children && hasChild($attributes,$row->Id))
 			{
-				$temp['Children'] = array();
-				$temp['Children'] =  buildTree($attributes,$row['Id'], $children, $parents);
+				$temp['Children'] =  buildTree($attributes,$row->Id, $children);
 			}
 			$treeItem[] = $temp;
 		}
@@ -185,4 +175,3 @@ function buildTree($attributes, $parentId, $children, $parents): array
 	
 	return $treeItem;
 }
-?>

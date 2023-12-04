@@ -8,11 +8,9 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-function manufacturerPart_numberWithoutParameters($input): string|null
+function manufacturerPart_numberWithoutParameters(string|null $input): string|null
 {
     if($input == null) return null;
 
     return preg_replace("/(\{[^{]+\})/","{}",$input);
 }
-
-?>

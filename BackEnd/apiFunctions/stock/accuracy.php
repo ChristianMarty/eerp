@@ -3,47 +3,49 @@
 // FileName : accuracy.php
 // FilePath : apiFunctions/stock/
 // Author   : Christian Marty
-// Date		: 05.01.2022
+// Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
-	if(!isset($_GET["StockNo"]))sendResponse(null, "StockNo not specified");
-	$stockNumber = barcodeParser_StockNumber($_GET["StockNo"]);
-	if(!$stockNumber) sendResponse(null, "StockNo invalid");
+	$parameter = $api->getGetData();
 
-	$dbLink = dbConnect();
+	if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
+	$stockNumber = barcodeParser_StockNumber($parameter->StockNo);
+	if($stockNumber === null) $api->returnParameterError("StockNo");
 
 	$query = <<<STR
 		SELECT * FROM partStock_history_sinceLastCount
 		WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '$stockNumber')
 	STR;
 	
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 	
 	$daysSinceStocktaking = NULL;
 	$lastStocktakingDate = NULL;
 	$certaintyFactor = 1;
 	
 	$movements = array();
-	while($r = mysqli_fetch_assoc($result)) 
+	foreach ($result as $item)
 	{
-		if($r['ChangeType'] == 'Absolute' || $r['ChangeType'] == 'Create')
+		if($item->ChangeType == 'Absolute' || $item->ChangeType == 'Create')
 		{
-			$earlier = new DateTime($r['Date']);
+			$earlier = new DateTime($item->Date);
 			$later = new DateTime();
 			
 			$daysSinceStocktaking = $later->diff($earlier)->format("%a");
-			$lastStocktakingDate = $r['Date'];
+			$lastStocktakingDate = $item->Date;
 		}
 		else
 		{
-			$movements[] = $r;
+			$movements[] = $item;
 		}
 	}
 	
@@ -64,7 +66,5 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	$output['DaysSinceStocktaking'] = $daysSinceStocktaking;
 	$output['LastStocktakingDate'] = $lastStocktakingDate;
 	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($output);
 }
-?>

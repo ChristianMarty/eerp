@@ -8,28 +8,13 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-include_once __DIR__ . "/../databaseConnector.php";
 include_once __DIR__ . "/_barcodeFormatter.php";
-
 
 function getLocations()
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$query = "SELECT * FROM location ORDER BY `Name` ASC";	
-	
-	$result = dbRunQuery($dbLink,$query);
-	
-	$locations = array();
-	while($r = mysqli_fetch_assoc($result)) 
-	{
-		$locations[] = $r;
-	}
-	
-	dbClose($dbLink);	
-	
-	return $locations;
+    global $database;
+	$query = "SELECT * FROM location ORDER BY `Name` ASC";
+	return $database->query($query);
 }
 
 function hasChild($rows,$id): bool

@@ -7,9 +7,9 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
 
 $title = "Altium Pick & Place";
@@ -18,23 +18,14 @@ $description = "";
 // TODO: This is not working -> fix  it all
 
 
-if($_SERVER['REQUEST_METHOD'] == 'POST')
+if($api->isPost())
 {
+    $data = $api->getPostData();
 
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
-	$output = array();
-	$bom = array();
-	
-	$PriceTotal = 0;
-	
-	$data = json_decode(file_get_contents('php://input'),true);
-	$csvDataStr =   $data["csv"];
-	$csvDataStr = str_replace("\r","",$csvDataStr);
+    if(!isset($data->csv)) $api->returnParameterMissingError("csv");
+    $csvDataStr = str_replace("\r","",$data->csv);
+    $CSVLines = explode("\n",$csvDataStr);
 
-	$CSVLines = explode("\n",$csvDataStr);
-	
 	$BoMData = array();
 	
 	foreach($CSVLines as $i => $Line)
@@ -57,8 +48,5 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		$BoMData[$i]["ProductionPartBarcode"] = "GCT-".$temp["0"];
 	}
 
-	dbClose($dbLink);	
-	sendResponse($BoMData);
+	$api->returnData($BoMData);
 }
-
-?>

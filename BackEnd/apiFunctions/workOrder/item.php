@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
@@ -22,7 +20,7 @@ if($api->isGet())
 
 	if(!isset($parameter->WorkOrderNumber)) $api->returnParameterMissingError("WorkOrderNumber");
     $workOrderNumber = barcodeParser_WorkOrderNumber($parameter->WorkOrderNumber);
-    if($workOrderNumber === false) $api->returnParameterError("WorkOrderNumber");
+    if($workOrderNumber === null) $api->returnParameterError("WorkOrderNumber");
 
     $query = <<< STR
         SELECT 
@@ -112,8 +110,6 @@ else if($api->isPost())
     $query = "SELECT Id, WorkOrderNumber FROM workOrder WHERE Id = $workOrderId;";
     $result = $database->query($query);
 
-    $result = dbGetResult($result);
-
     $workOrder = [];
     $workOrder['WorkOrderId'] = $result[0]->Id;
     $workOrder['WorkOrderNumber'] = $result[0]->WorkOrderNumber;
@@ -127,7 +123,7 @@ else if($api->isPatch())
     if(!isset($data->Status)) $api->returnParameterMissingError("Status");
 
     $workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
-    if($workOrderNumber === false)$api->returnParameterError("WorkOrderNumber");
+    if($workOrderNumber === null)$api->returnParameterError("WorkOrderNumber");
 
     $woData = array();
     $woData['Status'] = $data->Status;

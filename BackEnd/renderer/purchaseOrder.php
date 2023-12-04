@@ -8,8 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../apiFunctions/databaseConnector.php";
-require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
 require_once __DIR__ . "/../apiFunctions/vendor/_vendor.php";
 

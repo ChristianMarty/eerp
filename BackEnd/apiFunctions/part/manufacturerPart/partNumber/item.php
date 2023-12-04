@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../../databaseConnector.php";
-require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../_function.php";
 
 if($api->isGet())
@@ -48,9 +46,7 @@ if($api->isGet())
 
     if($output->NumberTemplate === null) $output->NumberTemplate = $output->Number;
 
-    $dbLink = dbConnect();
-    $parameter= getParameter($dbLink, $output->SeriesId);
-    dbClose($dbLink);
+    $parameter= getParameter($output->SeriesId);
 
     $output->PartNumberDescription = descriptionFromNumber($output->SeriesNumberTemplate,$parameter,$output->PartNumber);
     $api->returnData($output);
@@ -65,13 +61,12 @@ else if($api->isPost())
     $vendorId = intval($data->VendorId);
     $partNumber = $data->PartNumber;//dbEscapeString($dbLink, $_GET["PartNumber"]);
 
-    $dbLink = dbConnect();
 
     $partNumberCreate = array();
     $partNumberCreate['VendorId'] = intval($data['VendorId']);
     $partNumberCreate['PartNumber'] = trim($data['PartNumber']);
 
-    $manufacturerPartData = itemFromNumber($dbLink, $vendorId, $partNumber);
+    $manufacturerPartData = itemFromNumber($vendorId, $partNumber);
 
 
     if($manufacturerPartData !== null)
@@ -80,14 +75,12 @@ else if($api->isPost())
         $output['PreExisting'] = true;
         $output['ItemId'] = $manufacturerPartData['ItemId'];
         $output['ItemNumber'] = $manufacturerPartData['Number'];
-        sendResponse($output);
+        $api->returnData($output);
     }
 
     //$partParameter = getParameter($dbLink, $manufacturerPartSeries['SeriesId']);
 
     //$manufacturerPartSeries['PartNumberDescription'] = descriptionFromNumber( $manufacturerPartSeries['NumberTemplate'],$partParameter,$partNumber);
-
-    dbClose($dbLink);
 
     $api->returnData($manufacturerPartSeries);
 }

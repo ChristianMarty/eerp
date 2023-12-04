@@ -7,12 +7,10 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-require_once __DIR__ . "/../../databaseConnector.php";
-require_once __DIR__ . "/../../../config.php";
 
-function seriesDataFromNumber($dbLink, $vendorId, $partNumber) :array | null
+function seriesDataFromNumber(int $vendorId, string $partNumber) :array | null
 {
-    $vendorId = intval($vendorId);
+    global $database;
 
     $query = <<<STR
         SELECT 
@@ -28,25 +26,24 @@ function seriesDataFromNumber($dbLink, $vendorId, $partNumber) :array | null
         WHERE manufacturerPart_series.VendorId = '$vendorId'
     STR;
 
-    $result = mysqli_query($dbLink,$query);
+    $result = $database->query($query);
 
-    if(!$result) return null;
+    if(count($result) == 0) return null;
 
-    while($r = mysqli_fetch_assoc($result))
+    foreach ($result as $r)
     {
-        if( preg_match($r['SeriesNameMatch'], trim($partNumber))) {
-            $r['SeriesId'] = intval($r['SeriesId']);
-            return $r;
+        if( preg_match($r->SeriesNameMatch, trim($partNumber)))
+        {
+            return (array)$r;
         }
     }
     return null;
 }
 
-function partNumberDataFromNumber($dbLink, $vendorId, $partNumber) :array | null
+function partNumberDataFromNumber(int $vendorId, string $partNumber) :array | null
 {
-    $vendorId = intval($vendorId);
-    $partNumber = dbEscapeString($dbLink,trim($partNumber));
-
+    global $database;
+    $partNumber = $database->escape(trim($partNumber));
     $query = <<<STR
         SELECT 
                manufacturerPart_partNumber.Number,
@@ -57,24 +54,21 @@ function partNumberDataFromNumber($dbLink, $vendorId, $partNumber) :array | null
         FROM manufacturerPart_partNumber
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-        WHERE (manufacturerPart_partNumber.VendorId = '$vendorId' OR manufacturerPart_item.VendorId = '$vendorId' OR manufacturerPart_series.VendorId = '$vendorId') AND manufacturerPart_partNumber.Number = '$partNumber'
+        WHERE (manufacturerPart_partNumber.VendorId = '$vendorId' OR manufacturerPart_item.VendorId = '$vendorId' OR manufacturerPart_series.VendorId = '$vendorId') AND manufacturerPart_partNumber.Number = $partNumber
     STR;
 
-    $result = mysqli_query($dbLink,$query);
-    if(!$result) return null;
+    $result = $database->query($query);
+    if(count($result)== 0) return null;
 
-    $r = mysqli_fetch_assoc($result);
-    if(!$r) return null;
-
-    if(!is_null($r['SeriesId'])) $r['SeriesId'] = intval($r['SeriesId']);
-    if(!is_null($r['ItemId'])) $r['ItemId'] = intval($r['ItemId']);
+    $r = $result[0];
+    if(!is_null($r->SeriesId)) $r->SeriesId = intval($r->SeriesId);
+    if(!is_null($r->ItemId)) $r->ItemId = intval($r->ItemId);
 
     return $r;
 }
 
-function itemDataFromItemId($dbLink, $itemId) :array | null
+function itemDataFromItemId($dbLink, int $itemId) :array | null
 {
-    $itemId = intval($itemId);
     $query = <<<STR
         SELECT * 
         FROM manufacturerPart_item
@@ -260,9 +254,11 @@ function descriptionFromNumber($numberTemplate, $parameter, $number) :string
     return $output;
 }
 
-function getParameter($dbLink,$manufacturerPartSeriesId) :array|null
+function getParameter(int|null $manufacturerPartSeriesId) :array|null
 {
-    $manufacturerPartSeriesId = intval($manufacturerPartSeriesId);
+    if($manufacturerPartSeriesId === null) return null;
+
+    global  $database;
 
     $query = <<<STR
         SELECT *
@@ -270,19 +266,20 @@ function getParameter($dbLink,$manufacturerPartSeriesId) :array|null
         WHERE manufacturerPart_series.Id = '$manufacturerPartSeriesId'
     STR;
 
-    $result = mysqli_query($dbLink,$query);
-    $r = mysqli_fetch_assoc($result);
-    if($r == null) return null;
-    $parameter = $r['Parameter'];
+    $result = $database->query($query);
+    if(count($result) == 0) return null;
+
+    $parameter = $result[0]->Parameter;
 
     if($parameter == null) return null;
     if(trim($parameter) == "") return null;
     return json_decode($parameter,true);
 }
 
-function getAttributes($dbLink) :array
+function getAttributes() :array
 {
-    $attributes  = array();
+    global $database;
+
     $query = <<<STR
     SELECT manufacturerPart_attribute.Id, manufacturerPart_attribute.ParentId, manufacturerPart_attribute.Name, 
            manufacturerPart_attribute.Type, manufacturerPart_attribute.Scale, 
@@ -290,13 +287,13 @@ function getAttributes($dbLink) :array
     FROM manufacturerPart_attribute
     LEFT JOIN unitOfMeasurement On unitOfMeasurement.Id = manufacturerPart_attribute.UnitOfMeasurementId
     STR;
+    $result = $database->query($query);
 
-    $result = mysqli_query($dbLink,$query);
-
-    while($r = mysqli_fetch_assoc($result))
+    $attributes = [];
+    foreach ($result as $r)
     {
-        $id = $r['Id'];
-        unset($r['Id']);
+        $id = $r->Id;
+        unset($r->Id);
         $attributes[$id] = $r;
     }
     return $attributes;
@@ -311,7 +308,7 @@ function decodeAttributes($attributes, $partDataInput) :array
         foreach ($partDataRaw as $key =>$value)
         {
             $dataSet = array();
-            $attributeName = $attributes[$key]['Name'];
+            $attributeName = $attributes[$key]->Name;
             if(is_array($value))
             {
                 $value['Minimum'] = $value['0'];
@@ -325,14 +322,11 @@ function decodeAttributes($attributes, $partDataInput) :array
             $dataSet['Name'] = $attributeName;
             $dataSet['AttributeId'] = $key;
             $dataSet['Value']= $value;
-            $dataSet['Unit']= $attributes[$key]['Unit'];
-            $dataSet['Symbol']= $attributes[$key]['Symbol'];
+            $dataSet['Unit']= $attributes[$key]->Unit;
+            $dataSet['Symbol']= $attributes[$key]->Symbol;
             $partData[] = $dataSet;
         }
     }
 
     return $partData;
 }
-
-
-?>

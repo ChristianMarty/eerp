@@ -3,57 +3,55 @@
 // FileName : item.php
 // FilePath : apiFunctions/document/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/_functions.php";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
+if($api->isGet())
 {
+	$parameter = $api->getGetData();
+
 	$query = "";
 
-	if(isset($_GET["DocId"]))
+	if(isset($parameter->DocId))
 	{
-		$docId = intval($_GET["DocId"]);
-		$query = "SELECT * FROM `document` WHERE `Id` = '".$docId."' ";
+		$docId = intval($parameter->DocId);
+		$query = "SELECT * FROM `document` WHERE `Id` = '$docId';";
 	}
-	else if(isset($_GET["DocumentNumber"]))
+	else if(isset($parameter->DocumentNumber))
 	{
-		$documentNumber = barcodeParser_DocumentNumber($_GET["DocumentNumber"]);
-		$query = "SELECT * FROM `document` WHERE `DocumentNumber` = '".$documentNumber."' ";
+		$documentNumber = barcodeParser_DocumentNumber($parameter->DocumentNumber);
+		if($documentNumber == null) $api->returnParameterError("DocumentNumber");
+		$query = "SELECT * FROM `document` WHERE `DocumentNumber` = '$documentNumber';";
 	}
 	else
 	{
-		sendResponse(null,"Document Id or Document Number not Specified");
+		$api->returnParameterMissingError("DocId or DocumentNumber");
 	}
 
-	$dbLink = dbConnect();
-	$output = array();
+	$output = $database->query($query);
 
-	$result = dbRunQuery($dbLink,$query);
-	$r = mysqli_fetch_assoc($result);
+	if(count($output)) $api->returnEmpty();
+	$output = $output[0];
 
-	$id = $r['Id'];
-	unset($r['Id']);
-	$output = $r;
 	global $documentRootPath;
-	$output['Path'] = $documentRootPath."/".$r['Type']."/".$r['Path'];
-	$output['Barcode']  = "Doc-".$r['DocumentNumber'];
-	$output['Citations'] = getCitations($dbLink, $id);
+	$output->Path = $documentRootPath."/".$output->Type."/".$output->Path;
+	$output->DocumentBarcode  = barcodeFormatter_DocumentNumber($output->DocumentNumber);
+	$output->Barcode = $output->DocumentBarcode; // TODO: Legacy->remove
+	$output->Citations = getCitations($output->Id);
 	
-	dbClose($dbLink);	
-	sendResponse($output);
+	$api->returnData($output);
 }
-else if($_SERVER['REQUEST_METHOD'] == 'POST')
+else if($api->isPost())
 {
-	$dbLink = dbConnect();
-	if($dbLink == null) return null;
-	
 	$output = array();
 	$error = null;
 	
@@ -68,38 +66,25 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 	$fileMd5 = md5_file ($file);
 	
 	$query = "SELECT * FROM `document` WHERE `Hash`='".$fileMd5."'";
-	$result = dbRunQuery($dbLink,$query);
+	$result = $database->query($query);
 	
-	if($result) 
+	if(count($result)==0)
 	{
-		$result = mysqli_fetch_assoc($result);
-	}
-	
-	if(!isset($result))
-	{
-		$dbPath = dbEscapeString($dbLink,$fileName);
-		$dbFileHash = dbEscapeString($dbLink,$fileMd5);
-		$dbFileDescription = dbEscapeString($dbLink,$_POST["Description"]);
-		$dbFileType = dbEscapeString($dbLink,$_POST["Type"]);
-		
-        $query = "INSERT INTO `document` (`Path`,`Type`,`Description`,`Hash`)
-                  VALUES ('".$dbPath."', '".$dbFileType."', '".$dbFileDescription."', '".$dbFileHash."')";
-		
+		$sqlData = array();
+		$sqlData['Path'] = $fileName;
+		$sqlData['Type']  = $_POST["Type"];
+		$sqlData['Description']  = $_POST["Description"];
+		$sqlData['Hash']  = $fileMd5;
 
-		if(!dbRunQuery($dbLink,$query))
-        {
-            $dbError = mysqli_error($dbLink);
-            dbClose($dbLink);
-            sendResponse($output, $dbError);
-        }
+		$id = $database->insert("document", $sqlData);
 
         move_uploaded_file($file, $fileDir.$_POST["Type"]."/".$fileName);
 
-		$query = "SELECT * FROM `document` WHERE `Hash`='".$fileMd5."'";
-		$result = dbRunQuery($dbLink,$query);
-		if($result) 
+		$query = "SELECT * FROM `document` WHERE `Id`='$id';";
+		$result = $database->query($query);
+		if(count($result))
 		{
-			$result = mysqli_fetch_assoc($result);
+			$result = $result[0];
 		}
 		
 		$output["message"]= "File uploaded successfully.";
@@ -112,8 +97,5 @@ else if($_SERVER['REQUEST_METHOD'] == 'POST')
 
 	$output["fileInfo"]= $result;
 
-	dbClose($dbLink);	
-	sendResponse($output,$error);
+	$api->returnData($output);
 }
-?>
-
