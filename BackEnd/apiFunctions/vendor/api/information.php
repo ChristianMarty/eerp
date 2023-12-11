@@ -11,6 +11,8 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+require_once __DIR__ . "/_vendorInterface.php";
+
 if($api->isGet())
 {
     $parameter = $api->getGetData();
@@ -19,29 +21,28 @@ if($api->isGet())
     $supplierId = intval($parameter->SupplierId);
     if($supplierId === 0) $api->returnParameterError("SupplierId");
 
-    $query = "SELECT * FROM vendor WHERE Id = $supplierId LIMIT 1;";
+    $query = <<< QUERY
+        SELECT 
+            *
+        FROM vendor
+        WHERE Id = $supplierId
+        LIMIT 1;
+    QUERY;
 
     $supplierData = $database->query($query)[0];
 
     $name = $supplierData->API;
-    if($name === null)
+    if($name === null) // in case no api is implemented
 	{
-		$output = array();
-		$output['Authentication']= array();
-		$output['Authentication']['Authenticated'] = false;
-		$output['Authentication']['AuthenticationUrl'] = '';
-		
-		$output['Capability']= array();
-		$output['Capability']['OrderImportSupported'] = false;
-		$output['Capability']['SkuSearchSupported'] = false;
-
-        $api->returnData($output);
+        $vendor = new \vendorInterface\vendorInterface(null);
 	}
+    else
+    {
+        if($supplierData->ApiData == null) $apiData = null;
+        else $apiData = json_decode($supplierData->ApiData);
+        require_once  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
+        $vendor = new $name($apiData);
+    }
 
-    $path =  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
-    require $path;
-
-    $data = call_user_func($name."_apiInfo");
-
-    $api->returnData($data);
+    $api->returnData($vendor->information());
 }

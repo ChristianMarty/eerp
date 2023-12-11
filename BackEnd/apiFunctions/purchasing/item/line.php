@@ -121,7 +121,7 @@ if($api->isGet())
     $output = purchaseOrderItem_getDataFromQueryResult("po",$result);
 
     $query = purchaseOrderItem_getCostCenterQuery($output['OrderLineId']);
-    $result =  $database->query($query)[0];
+    $result =  $database->query($query)[0]??null;
 
     $output['CostCenter'] = purchaseOrderItem_getCostCenterData($result);
 

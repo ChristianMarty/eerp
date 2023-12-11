@@ -76,8 +76,10 @@ function purchaseOrderItem_getCostCenterQuery($lineId):string
     return $query;
 }
 
-function purchaseOrderItem_getCostCenterData($result):array
+function purchaseOrderItem_getCostCenterData(array|null $result):array
 {
+    if($result === null) return [];
+
     $output = array();
     foreach ($result as $r)
     {

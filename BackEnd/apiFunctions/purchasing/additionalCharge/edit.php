@@ -20,26 +20,26 @@ if($api->isPost())
 
     // TODO: complete refactoring
 
-	$action =  $data->data['Action'];
+	$action =  $data->data->Action;
 
-    $poNo = barcodeParser_PurchaseOrderNumber($data->data['PoNo']);
+    $poNo = barcodeParser_PurchaseOrderNumber($data->data->PoNo);
 	
 	if($action == "save")
 	{
-		$lines = $data->data['Lines'];
+		$lines = $data->data->Lines;
 
 		foreach ($lines as $line) 
 		{
 			$sqlData = array();
 			
-			$id = intval($line['AdditionalChargesLineId']);
-			$sqlData['LineNo'] = $line['LineNo'];
-			$sqlData['Type'] = $line['Type'];
-			if($line['Price'] === null) $sqlData['Price'] = 0;
-			else $sqlData['Price'] = $line['Price'];
-			$sqlData['Quantity'] = $line['Quantity'];
-			$sqlData['VatTaxId'] = intval($line['VatTaxId']);
-			$sqlData['Description'] = $line['Description'];
+			$id = intval($line->AdditionalChargesLineId);
+			$sqlData['LineNo'] = $line->LineNo;
+			$sqlData['Type'] = $line->Type;
+			if($line->Price === null) $sqlData['Price'] = 0;
+			else $sqlData['Price'] = $line->Price;
+			$sqlData['Quantity'] = $line->Quantity;
+			$sqlData['VatTaxId'] = intval($line->VatTaxId);
+			$sqlData['Description'] = $line->Description;
 					
 			if($id != 0)
 			{	

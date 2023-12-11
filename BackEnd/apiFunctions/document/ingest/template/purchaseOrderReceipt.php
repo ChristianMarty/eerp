@@ -9,6 +9,7 @@
 //*************************************************************************************************
 declare(strict_types=1);
 global $api;
+require_once __DIR__ . "/_purchaseOrderDocument.php";
 
 if($api->isPost())
 {

@@ -403,6 +403,24 @@ class Purchase {
             }
           })
         })
+      },
+      upload(PurchaseOrderNumber, Data) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'patch',
+            url: '/purchasing/item/upload',
+            params: {
+              PurchaseOrderNumber: PurchaseOrderNumber
+            },
+            data: Data
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
       }
     }
   }

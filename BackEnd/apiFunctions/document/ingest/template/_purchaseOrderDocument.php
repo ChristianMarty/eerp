@@ -42,7 +42,7 @@ use JetBrains\PhpStorm\NoReturn;
     $name= "PO-".$po->PoNo."_".$po->PurchaseDate;
 
     $ingestData = array();
-    $ingestData['FileName'] = $data['FileName'];
+    $ingestData['FileName'] = $data->FileName;
     $ingestData['Name'] = $name;
     $ingestData['Type'] = $type;
     $ingestData['Description'] = $type.' '.date('Y-m-d');
@@ -52,7 +52,8 @@ use JetBrains\PhpStorm\NoReturn;
 
     if(!is_int($result)) $api->returnError($result['error']);
 
-    $docIds = explode(",", $po->DocumentIds);
+    if($po->DocumentIds === null) $docIds = [];
+    else $docIds = explode(",", $po->DocumentIds);
     $docIds[] = $result;
 
     if (($key = array_search("", $docIds)) !== false) unset($docIds[$key]); // Remove empty string

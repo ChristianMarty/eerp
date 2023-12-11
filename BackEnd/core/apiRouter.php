@@ -134,9 +134,11 @@ class apiRouter
         return $output;
     }
 
-    function getPostData():stdClass
+    function getPostData():stdClass|null
     {
         $data = json_decode(file_get_contents('php://input'));
+        if($data === null) return null;
+
         foreach($data as &$item)
         {
             if(!is_string($item)) continue;
@@ -148,9 +150,11 @@ class apiRouter
         }
         return $data;
     }
-    function getGetData():stdClass
+    function getGetData():stdClass|null
     {
         $data = $_GET;
+        if($data === null) return null;
+
         foreach($data as &$item)
         {
             $str = strtolower($item);

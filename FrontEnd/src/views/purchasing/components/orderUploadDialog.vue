@@ -1,25 +1,37 @@
 <template>
-  <div class="order-import-dialog">
+  <div class="order-upload-dialog">
     <el-dialog
-      title="Order Import"
+      title="Order Upload"
       :visible.sync="visible"
       :before-close="closeDialog"
       width="70%"
     >
-      <p v-if="ApiInfo.Authenticated == false">Click "Authenticate" and follow the instructions on the new page. Afterwards use the "Reload" button to reload the import dialogue.</p>
-      <el-button v-if="ApiInfo.Authenticated == false" type="primary" @click="authenticate()">Authenticate</el-button>
-      <el-button v-if="ApiInfo.Authenticated == false" type="primary" @click="getImportApiInfo()">Reload</el-button>
 
-      <el-form v-if="ApiInfo.Authenticated == true" ref="inputForm" :model="receivalData" class="form-container" label-width="150px">
-        <el-form-item label="Order Number:">
-          <el-input v-model="OrderNumber" />
+      <el-form class="form-container">
+        <el-form-item>
+          <el-upload
+            ref="upload"
+            :action="docUrl"
+            :file-list="fileList"
+            drag
+            multiple
+            :auto-upload="false"
+            :on-success="onUploadSuccess"
+            :on-error="onUploadError()"
+          >
+            <i class="el-icon-upload" />
+            <div class="el-upload__text">
+              Drop file here or <em>click to upload</em>
+            </div>
+          </el-upload>
         </el-form-item>
-        <el-form-item v-if="importData.length == 0">
-          <el-button type="primary" @click="loadData()">Load</el-button>
+
+        <el-form-item>
+          <el-button type="primary" @click="onUpload()">Upload</el-button>
         </el-form-item>
       </el-form>
 
-      <template v-if="importData.length != 0">
+      <template v-if="importData.length !== 0">
         <el-table ref="itemTable" :key="tableKey" :data="importData.Lines" border style="width: 100%">
           <el-table-column prop="LineNo" label="Line" width="70" />
           <el-table-column prop="Quantity" label="Quantity" width="100" />
@@ -64,18 +76,16 @@
 
 <script>
 
-import Vendor from '@/api/vendor'
-const vendor = new Vendor()
-
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
 export default {
-  name: 'AddToStock',
+  name: 'OrderUpload',
   props: { meat: { type: Object, default: {}}, visible: { type: Boolean, default: false }},
   data() {
     return {
-      importData: [],
+      docUrl: process.env.VUE_APP_BLUENOVA_API + '/purchasing/item/upload?PurchaseOrderNo=' + this.meat.PurchaseOrderBarcode,
+      importData: {},
       OrderNumber: '',
       ApiInfo: {}
     }
@@ -84,35 +94,34 @@ export default {
     this.getImportApiInfo()
   },
   methods: {
-    authenticate() {
-      window.open(this.ApiInfo.AuthenticationUrl, '_blank').focus()
-    },
-    getImportApiInfo() {
-      vendor.api.information(this.meat.SupplierId).then(response => {
-        this.ApiInfo = response.Authentication
-      }).catch(response => {
+    onUploadSuccess(response, file, fileList) {
+      this.importData = response.data
+      this.OrderNumber = this.importData.OrderNumber
+      /*
+      this.closeDialog()
+      if (response.error === null) {
         this.$message({
           showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
+          message: response.data.message,
+          duration: 2,
+          type: 'success'
         })
-      })
-    },
-    loadData() {
-      purchase.item.import.load(this.meat.SupplierId, this.OrderNumber).then(response => {
-        this.importData = response
-      }).catch(response => {
+      } else {
         this.$message({
           showClose: true,
-          message: response,
           duration: 0,
+          message: response.data.message,
           type: 'error'
         })
-      })
+      }*/
+    },
+    onUploadError(err, file, fileList) {
+    },
+    onUpload() {
+      this.$refs.upload.submit()
     },
     importOrder() {
-      purchase.item.import.save(this.meat.PurchaseOrderBarcode, this.OrderNumber).then(response => {
+      purchase.item.import.upload(this.meat.PurchaseOrderBarcode, this.importData).then(response => {
         this.closeDialog()
       }).catch(response => {
         this.$message({

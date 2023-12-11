@@ -344,6 +344,7 @@ class Vendor {
       },
       Capability: {
         OrderImportSupported: false,
+        OrderUploadSupported: false,
         SkuSearchSupported: false
       }
     },

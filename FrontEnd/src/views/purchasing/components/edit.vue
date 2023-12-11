@@ -12,6 +12,7 @@
           @click="addItemLine()"
         />
         <el-button v-if="apiInfo.Capability.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
+        <el-button v-if="apiInfo.Capability.OrderUploadSupported == true" @click="openOrderUpload()">Upload</el-button>
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
         <el-button @click="setVatVisible = true">Set VAT</el-button>
         <el-button @click="setExpectedDateVisible = true">Set Expected Date</el-button>
@@ -99,6 +100,7 @@
         @closed="getOrderLines()"
         @refresh="refreshPage()"
       />
+
       <editAdditionalChargesDialog
         :visible.sync="additionalChargesDialogVisible"
         :line="additionalChargesLine"
@@ -108,12 +110,21 @@
       />
 
       <orderImportDialog
-        v-if="apiInfo.Capability.OrderImportSupported == true"
+        v-if="apiInfo.Capability.OrderImportSupported === true"
         :visible.sync="importDialogVisible"
         :meat="poData.MetaData"
         @closed="getOrderLines()"
         @refresh="refreshPage()"
       />
+
+      <orderUploadDialog
+        v-if="apiInfo.Capability.OrderUploadSupported === true"
+        :visible.sync="uploadDialogVisible"
+        :meat="poData.MetaData"
+        @closed="getOrderLines()"
+        @refresh="refreshPage()"
+      />
+
     </template>
 
     <el-dialog width="85%" title="Pending Order Request" :visible.sync="orderReqestDialogVisible" @open="getOrderRequests()">
@@ -177,6 +188,7 @@ import ElTableDraggable from 'el-table-draggable'
 
 import orderTotal from './orderTotal'
 import orderImportDialog from './orderImportDialog'
+import orderUploadDialog from './orderUploadDialog'
 import editLineItemDialog from './editLineItemDialog'
 import editAdditionalChargesDialog from './editAdditionalChargesDialog'
 
@@ -203,7 +215,7 @@ const emptyAdditionalChargesLine = {
 export default {
   name: 'PurchaseOrderEdit',
   directives: { permission },
-  components: { ElTableDraggable, orderTotal, orderImportDialog, editLineItemDialog, editAdditionalChargesDialog },
+  components: { ElTableDraggable, orderTotal, orderImportDialog, orderUploadDialog, editLineItemDialog, editAdditionalChargesDialog },
   props: {
     orderData: { type: Object, default: null }
   },
@@ -226,6 +238,7 @@ export default {
       orderLineEditDialogVisible: false,
       setVatVisible: false,
       importDialogVisible: false,
+      uploadDialogVisible: false,
       orderReqestDialogVisible: false,
       setExpectedDateVisible: false,
 
@@ -264,6 +277,15 @@ export default {
       this.additionalChargesLine = Object.assign({}, emptyAdditionalChargesLine)
       this.additionalChargesLine.LineNo = this.additionalChargesLineIndex
       this.additionalChargesDialogVisible = true
+    },
+    openOrderUpload(){
+      if (this.poData.Lines.length > 0) {
+        this.$alert('To import an order, the order can not contain any lines. Please remove all lines and try again.', 'Cannot Import Order', {
+          confirmButtonText: 'OK'
+        })
+      } else {
+        this.uploadDialogVisible = true
+      }
     },
     openOrderImport() {
       if (this.poData.Lines.length > 0) {
