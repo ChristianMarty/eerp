@@ -102,7 +102,9 @@ else if($api->isPost("stock.create"))
 
 
 	$orderReference = $database->escape($data->OrderReference);
-	$date = $database->escape($data->Date);
+    $date = trim($data->Date);
+    if(strlen($date) == 0)$date = 'NULL';
+	else $date = $database->escape($date);
 	$quantity = intval($data->Quantity);
 	$location = barcodeParser_LocationNumber($data->LocationCode);
     $userId = $user->userId();
@@ -148,7 +150,7 @@ else if($api->isPost("stock.create"))
         STR;
 	}
 
-    $stockNo = $database->query($query)['StockNo'];
+    $stockNo = $database->query($query)[0]->StockNo;
 	$stockPart = $database->query(_stockPartQuery($stockNo))[0];
 
     $orderReference = $stockPart->OrderReference;

@@ -18,8 +18,7 @@ if($api->isGet())
 {
     $parameters = $api->getGetData();
 
-    if(!isset($parameters->ManufacturerPartNumberId)) $api->returnParameterMissingError('ManufacturerPartNumberId');
-    if(!isset($parameters->ProductionPartNumber)) $api->returnParameterMissingError('ProductionPartNumber');
+    if(!isset($parameters->ManufacturerPartNumberId) && !isset($parameters->ProductionPartNumber)) $api->returnParameterMissingError('ManufacturerPartNumberId and ProductionPartNumber');
 
     $query = <<<STR
         SELECT
@@ -68,15 +67,17 @@ if($api->isGet())
 	
 	foreach ($result as $r)
 	{
+        $price = floatval($r->Price);
+
 		unset($r->Id);
 		$totalQuantity += $r->Quantity;
 		$receivedQuantity += $r->TotalQuantityReceived;
 
-        if($r->Price < $priceMinimum ) $priceMinimum = $r->Price;
-        if($r->Price > $priceMaximum ) $priceMaximum = $r->Price;
+        if($r->Price < $priceMinimum ) $priceMinimum = $price;
+        if($r->Price > $priceMaximum ) $priceMaximum = $price;
 
-        $priceAverageSum +=  $r->Price;
-        $priceWeightedAverageSum +=  $r->Price * $r->Quantity;
+        $priceAverageSum +=  $price;
+        $priceWeightedAverageSum +=  $price * $r->Quantity;
         $priceWeightSum += $r->Quantity;
 
         $r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber( $r->PoNo);

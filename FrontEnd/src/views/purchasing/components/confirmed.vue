@@ -238,7 +238,7 @@ export default {
           message: 'SKU not found'
         })
       } else {
-        if (parseInt(line.QuantityOrderd, 10) > parseInt(line.QuantityReceived, 10)) {
+        if (parseInt(line.QuantityOrdered, 10) > parseInt(line.QuantityReceived, 10)) {
           this.openConfirmDialog(line)
         } else {
           this.$message({

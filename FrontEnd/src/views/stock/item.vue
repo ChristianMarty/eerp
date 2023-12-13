@@ -338,7 +338,7 @@ export default {
     },
     getPurchaseInformation() {
       stock.item.purchaseInformation(this.inputStockId).then(response => {
-        this.purchaseInformation = response
+        this.purchaseInformation = response[0]
       }).catch(response => {
         this.$message({
           showClose: true,

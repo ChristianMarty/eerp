@@ -278,7 +278,7 @@ export default {
       this.additionalChargesLine.LineNo = this.additionalChargesLineIndex
       this.additionalChargesDialogVisible = true
     },
-    openOrderUpload(){
+    openOrderUpload() {
       if (this.poData.Lines.length > 0) {
         this.$alert('To import an order, the order can not contain any lines. Please remove all lines and try again.', 'Cannot Import Order', {
           confirmButtonText: 'OK'

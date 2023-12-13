@@ -186,9 +186,9 @@ if($api->isGet())
     $dataWithAttribute = array();
     foreach ($output['Characteristics']["Data"] as $line) {
         $temp = array();
-        $temp['PartNumber'] = $line['Number'];
-        foreach ($line['Attribute'] as $key => $value) {
-            $attributeName = $attributes[$key]['Name'];
+        $temp['PartNumber'] = $line->Number;
+        foreach ($line->Attribute as $key => $value) {
+            $attributeName = $attributes[$key]->Name;
             $temp[$attributeName] = $value;
         }
         $dataWithAttribute[] = $temp;
