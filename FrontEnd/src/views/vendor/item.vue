@@ -245,6 +245,19 @@
       </el-table-column>
     </el-table>
 
+    <el-divider />
+    <h2>Supplier Part Numbers Ordered</h2>
+    <p><b>Number of supplier parts:</b> {{ supplierPartNumbers.length }}</p>
+    <el-table
+      :data="supplierPartNumbers"
+      style="width: 100%; margin-top:10px"
+    >
+      <el-table-column prop="Sku" label="Sku" sortable width="150" />
+      <el-table-column prop="ManufacturerName" label="Manufacturer" sortable width="150" />
+      <el-table-column prop="ManufacturerPartNumber" label="Part Number" sortable width="250" />
+      <el-table-column prop="Description" label="Description" sortable />
+    </el-table>
+
     <editDialog
       :vendor-id="Number($route.params.vendorNo)"
       :visible.sync="editDialogVisible"
@@ -320,7 +333,9 @@ export default {
       editAddressId: null,
 
       editContactVisible: false,
-      editContactId: null
+      editContactId: null,
+
+      supplierPartNumbers: []
 
     }
   },
@@ -352,6 +367,17 @@ export default {
 
       purchase.get(vendorId).then(response => {
         this.PurchaseOrders = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+
+      purchase.supplierPartNumber.list(vendorId).then(response => {
+        this.supplierPartNumbers = response
       }).catch(response => {
         this.$message({
           showClose: true,

@@ -441,6 +441,26 @@ class Purchase {
       })
     }
   }
+
+  supplierPartNumber = {
+    list(VendorId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/purchasing/supplierPartNumber',
+          methood: 'get',
+          params: {
+            VendorId: VendorId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
 }
 
 export default Purchase
