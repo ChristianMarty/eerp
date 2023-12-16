@@ -356,7 +356,9 @@ class Purchase {
             params: {
               PurchaseOrderNumber: PurchaseOrderNumber
             },
-            data: LineIds
+            data: {
+              Lines: LineIds
+            }
           }).then(response => {
             if (response.error == null) {
               resolve(response.data)

@@ -27,7 +27,7 @@
         </router-link>
       </p>
       <p><b>Part Number: </b>
-        <router-link :to="'/manufacturerPart/item/' + partData.ManufacturerPartItemId" class="link-type">
+        <router-link :to="'/manufacturerPart/partNumber/item/' + partData.ManufacturerPartNumberId" class="link-type">
           {{ partData.ManufacturerPartNumber }}
         </router-link>
       </p>
@@ -88,7 +88,7 @@
       <el-divider />
 
       <h3>History</h3>
-      <stockHistory :key="stockHistoryKey" :stock-no="inputStockId" @change="historyEdit" />
+      <stockHistory :key="stockHistoryKey" :stock-no="inputStockId" />
 
       <h3>Reservations</h3>
       <el-table :data="reservation" style="width: 100%">
@@ -203,7 +203,8 @@ const partDataEmpty = {
 const purchaseInformationData = {
   PoNo: '',
   Price: '',
-  Currency: ''
+  Currency: '',
+  PurchaseDate: ''
 }
 
 const stockAccuracyData = {
@@ -338,7 +339,7 @@ export default {
     },
     getPurchaseInformation() {
       stock.item.purchaseInformation(this.inputStockId).then(response => {
-        this.purchaseInformation = response[0]
+        if (response.length) this.purchaseInformation = response[0]
       }).catch(response => {
         this.$message({
           showClose: true,

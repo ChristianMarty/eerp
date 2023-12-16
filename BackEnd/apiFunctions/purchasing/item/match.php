@@ -74,7 +74,7 @@ function manufacturerPartNumberId(int $manufacturerId, string $manufacturerPartN
         FROM manufacturerPart_partNumber 
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_item.SeriesId = manufacturerPart_series.Id
-        WHERE manufacturerPart_partNumber.Number = '$manufacturerPartNumber' AND (
+        WHERE manufacturerPart_partNumber.Number = $manufacturerPartNumber AND (
             manufacturerPart_partNumber.VendorId = $manufacturerId OR 
             manufacturerPart_item.VendorId = $manufacturerId OR 
             manufacturerPart_series.VendorId = $manufacturerId)
@@ -96,7 +96,7 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
     {
         $query = <<<STR
             INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number)  
-            VALUES ('$manufacturerId', '$manufacturerPartNumber')
+            VALUES ('$manufacturerId', $manufacturerPartNumber)
         STR;
         $database->execute($query);
 
@@ -105,7 +105,7 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
 
     $query = <<<STR
         INSERT IGNORE INTO supplierPart (VendorId, SupplierPartNumber, ManufacturerPartNumberId)  
-        VALUES ( '$supplierId', '$supplierPartNumber', '$partNumberId')
+        VALUES ( '$supplierId', $supplierPartNumber, '$partNumberId')
     STR;
     $database->execute($query);
 
@@ -113,7 +113,7 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
         UPDATE supplierPart SET ManufacturerPartNumberId = $partNumberId 
         WHERE ManufacturerPartNumberId IS NULL AND
               VendorId = $supplierId AND 
-              SupplierPartNumber = '$supplierPartNumber'
+              SupplierPartNumber = $supplierPartNumber
     STR;
     $database->execute($query);
 }
@@ -146,11 +146,11 @@ else if($api->isPost())
         SELECT 
             VendorId 
         FROM purchaseOrder 
-        WHERE PoNo = $purchaseOrderNumber
+        WHERE PoNo = '$purchaseOrderNumber'
     STR;
     $supplierId = $database->query($query)[0]->VendorId;
 
-    foreach($data as $itemOrderId)
+    foreach($data->Lines as $itemOrderId)
     {
         $itemOrderId = intval($itemOrderId);
 

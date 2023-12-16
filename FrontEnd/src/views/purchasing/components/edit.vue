@@ -217,7 +217,7 @@ export default {
   directives: { permission },
   components: { ElTableDraggable, orderTotal, orderImportDialog, orderUploadDialog, editLineItemDialog, editAdditionalChargesDialog },
   props: {
-    orderData: { type: Object, default: null }
+    orderData: { type: Object, default: Object }
   },
   data() {
     return {

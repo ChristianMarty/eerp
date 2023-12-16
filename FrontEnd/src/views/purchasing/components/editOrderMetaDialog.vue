@@ -163,7 +163,7 @@ export default {
   name: 'EditOrderMetaDialog',
   props: {
     visible: { type: Boolean, required: true, default: false },
-    purchaseOrderNumber: { type: String, required: true }
+    purchaseOrderNumber: { type: Number, required: true }
   },
   data() {
     return {

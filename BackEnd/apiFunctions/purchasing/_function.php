@@ -116,8 +116,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	}
 
 	$output['Lines'] = array_values($lines);
-	
-	$additionalCharges = Array();
+
     $query = <<<STR
 	SELECT purchaseOrder_additionalCharges.Id AS AdditionalChargesLineId, 
 	       purchaseOrder_additionalCharges.LineNo, 

@@ -143,9 +143,9 @@ export default {
   directives: { permission },
   data() {
     return {
-      orderData: null,
+      orderData: {},
       orderStatus: 0,
-      documents: {},
+      documents: [],
       showOrderMetaEditDialog: false
     }
   },

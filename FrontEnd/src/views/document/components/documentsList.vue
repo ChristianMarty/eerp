@@ -35,7 +35,7 @@
 <script>
 
 export default {
-  props: { documents: { type: Object, default: null }},
+  props: { documents: { type: Array, default: Array }},
   data() {
     return {
     }

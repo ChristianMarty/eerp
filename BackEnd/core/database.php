@@ -150,6 +150,11 @@ class database
 
     public function update(string $tableName, array $data, string|null $condition = null): void
     {
+        if($condition === null){
+            trigger_error("DB Update -> will not run update without condition", E_USER_ERROR);
+            return;
+        }
+
         $pairs ="";
 
         foreach ($data as $key => $value)

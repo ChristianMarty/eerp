@@ -66,7 +66,7 @@ function save_line($purchaseOrderNumber, $line): int
     {
         $sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PoNo = '".$purchaseOrderNumber."' )";
         $sqlData['LineNo'] = 0;
-        $database->update("purchaseOrder_itemOrder", $sqlData);
+        $database->insert("purchaseOrder_itemOrder", $sqlData);
 
         $query = <<<STR
             UPDATE purchaseOrder_itemOrder SET 

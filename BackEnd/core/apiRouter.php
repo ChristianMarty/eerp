@@ -150,6 +150,7 @@ class apiRouter
         }
         return $data;
     }
+
     function getGetData():stdClass|null
     {
         $data = $_GET;

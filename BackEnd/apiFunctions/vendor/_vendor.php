@@ -39,7 +39,9 @@ class vendor
         $query = "CALL `vendor_idFromName`('$name');";
         try {
             $data = $database->pdo()->query($query);
-            return $data->fetch()->Id;
+            $result = $data->fetch();
+            if(is_bool($result)) return null;
+            return $result->Id;
         }
         catch (\PDOException $e)
         {
