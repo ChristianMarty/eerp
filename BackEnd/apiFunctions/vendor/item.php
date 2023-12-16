@@ -120,16 +120,16 @@ else if($api->isPatch())
     if($vendorId === 0) $api->returnParameterError("VendorId");
 
 	$insertData = array();
-    $insertData['FullName']  = trim($data->FullName);
-    $insertData['ShortName']  = trim($data->ShortName);
-    $insertData['AbbreviatedName']  = trim($data->AbbreviatedName);
-    $insertData['CustomerNumber']  = trim($data->CustomerNumber);
+    $insertData['FullName']  = $data->FullName!==null ? trim($data->FullName):null;
+    $insertData['ShortName']  = $data->ShortName!==null ? trim($data->ShortName):null;
+    $insertData['AbbreviatedName']  = $data->AbbreviatedName!==null ? trim($data->AbbreviatedName):null;
+    $insertData['CustomerNumber']  = $data->CustomerNumber!==null ? trim($data->CustomerNumber):null;
 
     $insertData['IsSupplier'] = $data->IsSupplier;
     $insertData['IsManufacturer'] = $data->IsManufacturer;
     $insertData['IsContractor'] = $data->IsContractor;
 
-    $insertData['ParentId'] = $data->ParentId == null;
+    $insertData['ParentId'] = $data->ParentId ?? null;
 
 	$database->update("vendor", $insertData, "Id = $vendorId");
 	

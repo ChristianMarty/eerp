@@ -27,7 +27,7 @@ if($api->isGet())
         purchaseOrder_itemOrder.Description
     FROM purchaseOrder_itemOrder 
     LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
-    WHERE purchaseOrder.VendorId = $vendorId
+    WHERE purchaseOrder_itemOrder.Sku IS NOT NULL AND purchaseOrder.VendorId = $vendorId
     GROUP BY Sku
     STR;
 

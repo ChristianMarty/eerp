@@ -11,8 +11,8 @@
           style="margin-top: 20px"
           @click="addItemLine()"
         />
-        <el-button v-if="apiInfo.Capability.OrderImportSupported == true" @click="openOrderImport()">Import</el-button>
-        <el-button v-if="apiInfo.Capability.OrderUploadSupported == true" @click="openOrderUpload()">Upload</el-button>
+        <el-button v-if="apiInfo.Capability.OrderImportSupported === true" @click="openOrderImport()">Import</el-button>
+        <el-button v-if="apiInfo.Capability.OrderUploadSupported === true" @click="openOrderUpload()">Upload</el-button>
         <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
         <el-button @click="setVatVisible = true">Set VAT</el-button>
         <el-button @click="setExpectedDateVisible = true">Set Expected Date</el-button>
@@ -321,7 +321,7 @@ export default {
       })
     },
     saveLines() {
-      purchase.item.line.save(this.$props.orderData.PoNo, this.poData.Lines).then(response => {
+      purchase.item.line.save(this.$props.orderData.PurchaseOrderBarcode, this.poData.Lines).then(response => {
         this.showSuccessMessage()
       }).catch(response => {
         this.showErrorMessage(response)
@@ -331,7 +331,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges, PoNo: this.$props.orderData.PoNo }}
+        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges, PoNo: this.$props.orderData.PurchaseOrderBarcode }}
       }).then(response => {
         if (response.error == null) {
           this.poData = response.data

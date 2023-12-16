@@ -226,17 +226,17 @@ else if($api->isPost())
 	$sqlData['Title'] = $data->Title;
 	$sqlData['Manufacturer'] = $data->ManufacturerName;
 	$sqlData['Type'] = $data->Type;
-	$sqlData['SerialNumber'] = $data['SerialNumber'];
+	$sqlData['SerialNumber'] = $data->SerialNumber;
 	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocNr = ".$database->escape($data->LocationNumber).")";
 	$sqlData['InventoryCategoryId'] = intval($data->CategoryId);
 
 	$Id = $database->insert("inventory", $sqlData);
 
-	$inventoryNumber = " SELECT `InvNo` FROM `inventory` WHERE `Id` = $Id;";
+    $query = " SELECT `InvNo` FROM `inventory` WHERE `Id` = $Id;";
 
 	$output = [];
-	$output['InventoryNumber'] = $inventoryNumber;
-	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($inventoryNumber);
+	$output['InventoryNumber'] = $database->query($query)[0]->InvNo;
+	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($output['InventoryNumber']);
 
 	$api->returnData($output);
 }
