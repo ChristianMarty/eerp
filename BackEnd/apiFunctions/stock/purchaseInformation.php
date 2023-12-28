@@ -27,7 +27,8 @@ if($api->isGet())
 		    PoNo, 
 		    Price, 
 		    finance_currency.CurrencyCode AS Currency, 
-		    PurchaseDate 
+		    PurchaseDate,
+		    LineNo AS Line
 		FROM purchaseOrder_itemOrder
 		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
 		LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId 
@@ -36,5 +37,11 @@ if($api->isGet())
 	STR;
 
 	$output = $database->query($query);
+
+    if(count($output) !== 0)
+    {
+        $output[0]->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($output[0]->PoNo, $output[0]->Line);
+    }
+
 	$api->returnData($output);
 }

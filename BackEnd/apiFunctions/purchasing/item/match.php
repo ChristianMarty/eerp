@@ -65,9 +65,6 @@ function manufacturerPartNumberId(int $manufacturerId, string $manufacturerPartN
 {
     global $database;
 
-    $partNumberPreprocess = new PartNumberPreprocess($manufacturerId);
-    $manufacturerPartNumber = $partNumberPreprocess->clean($manufacturerPartNumber);
-
     $query = <<<QUERY
         SELECT 
             manufacturerPart_partNumber.Id 
@@ -89,6 +86,12 @@ function manufacturerPartNumberId(int $manufacturerId, string $manufacturerPartN
 
 function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, $manufacturerPartNumber ): void
 {
+    $partNumberPreprocess = new PartNumberPreprocess($manufacturerId);
+    $manufacturerPartNumber = $partNumberPreprocess->clean($manufacturerPartNumber);
+
+    $supplierNumberPreprocess = new PartNumberPreprocess($supplierId);
+    $supplierPartNumber = $supplierNumberPreprocess->clean($supplierPartNumber);
+
     global $database;
     $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
 

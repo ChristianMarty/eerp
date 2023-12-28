@@ -80,7 +80,7 @@ export default {
       let partFilter = this.ProdPartNoFilter.trim()
       if (partFilter === '') partFilter = null
 
-      productionPart.search(partFilter, null, this.fliterNoMfp).then(response => {
+      productionPart.search(partFilter, null, null, this.fliterNoMfp).then(response => {
         this.loading = false
         this.data = response
       }).catch(response => {

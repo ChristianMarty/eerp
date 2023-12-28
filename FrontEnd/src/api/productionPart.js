@@ -1,7 +1,7 @@
 import eerpApi from '@/api/apiQuery'
 
 class ProductionPart {
-  search(ProductionPartNumber = null, ManufacturerPartNumberId = null, HideNoManufacturerPart = false) {
+  search(ProductionPartNumber = null, ManufacturerPartNumberId = null, SpecificationPartRevisionId = null, HideNoManufacturerPart = false) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/productionPart',
@@ -9,7 +9,8 @@ class ProductionPart {
         params: {
           ProductionPartNumber: ProductionPartNumber,
           ManufacturerPartNumberId: ManufacturerPartNumberId,
-          HideNoManufacturerPart: HideNoManufacturerPart
+          HideNoManufacturerPart: HideNoManufacturerPart,
+          SpecificationPartRevisionId: SpecificationPartRevisionId
         }
       }).then(response => {
         if (response.error == null) {

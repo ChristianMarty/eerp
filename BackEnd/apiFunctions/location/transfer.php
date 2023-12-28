@@ -16,26 +16,26 @@ require_once __DIR__ . "/../util/_barcodeParser.php";
 
 function filterInv($var): int
 {
-	if(explode("-",strtolower($var))[0] == "inv") return 1;
-	else return 0;
+    if(barcodeParser_InventoryNumber($var) === null) return 0;
+    else return 1;
 }
 
 function filterStk($var): int
 {
-	if(explode("-",strtolower($var))[0] == "stk") return 1;
-	else return 0;
+    if(barcodeParser_StockNumber($var) === null) return 0;
+    else return 1;
 }
 
 function filterLoc($var): int
 {
-	if(explode("-",strtolower($var))[0] == "loc") return 1;
-	else return 0;
+    if(barcodeParser_LocationNumber($var) === null) return 0;
+    else return 1;
 }
 
 function filterAsu($var): int
 {
-	if(explode("-",strtolower($var))[0] == "asu") return 1;
-	else return 0;
+    if(barcodeParser_AssemblyUnitNumber($var) === null) return 0;
+    else return 1;
 }
 
 function moveItems($itemList, $locationNr, string $category, string $idName): string
@@ -44,15 +44,16 @@ function moveItems($itemList, $locationNr, string $category, string $idName): st
 
 	foreach($itemList as &$item)
 	{
-		$item = explode("-", $item)[1];
+		$item = $database->escape(explode("-", $item)[1]);
 	}
-	$itemListStr = $database->escape(implode("', '",$itemList));
+	$itemListStr = implode(",",$itemList);
 
 	$baseQuery = <<<STR
 		UPDATE $category
 		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$locationNr')
 		WHERE $idName IN($itemListStr)
 	STR;
+
 
 	$database->execute($baseQuery);
 

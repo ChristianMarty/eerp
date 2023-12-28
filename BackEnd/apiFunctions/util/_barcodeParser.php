@@ -9,8 +9,10 @@
 //*************************************************************************************************
 
 
-function barcodeParser_StockNumber(string|int $input): null|string
+function barcodeParser_StockNumber(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $stockNumber = trim($input);
@@ -30,8 +32,10 @@ function barcodeParser_StockNumber(string|int $input): null|string
     return $stockNumberParts[1];
 }
 
-function barcodeParser_InventoryNumber($input): null|int
+function barcodeParser_InventoryNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
 	$inventoryCode = trim($input);
 	$inventoryCode = strtolower($inventoryCode);
 	
@@ -49,8 +53,10 @@ function barcodeParser_InventoryNumber($input): null|int
 	return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_InventoryAccessoryNumber($input): null|int
+function barcodeParser_InventoryAccessoryNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     $inventoryCode = strtolower(trim($input));
 
     if( substr_count($inventoryCode, '-') == 0) // if only number is given
@@ -68,8 +74,10 @@ function barcodeParser_InventoryAccessoryNumber($input): null|int
     return intval($inventoryNumberParts[2]);
 }
 
-function barcodeParser_PurchaseOrderNumber($input): null|int
+function barcodeParser_PurchaseOrderNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     $poCode = trim($input);
     $poCode = strtolower($poCode);
 
@@ -87,14 +95,16 @@ function barcodeParser_PurchaseOrderNumber($input): null|int
     return intval($poCodeParts[1]);
 }
 
-function barcodeParser_ProductionPart($input): bool|string
+function barcodeParser_ProductionPart(null|string|int $input): null|string
 {
     // TODO: Fix this
     return trim($input);
 }
 
-function barcodeParser_SpecificationPart($input): null|string
+function barcodeParser_SpecificationPart(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     $specificationPartCode = trim($input);
     $specificationPartCode = strtolower($specificationPartCode);
 
@@ -158,8 +168,10 @@ function barcodeParser_WorkOrderNumber(null|string|int $input): null|int
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_AssemblyNumber(string|int $input): null|string
+function barcodeParser_AssemblyNumber(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $ashCode = trim($input);
@@ -179,8 +191,10 @@ function barcodeParser_AssemblyNumber(string|int $input): null|string
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_AssemblyUnitNumber(string|int $input): null|string
+function barcodeParser_AssemblyUnitNumber(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $ashCode = trim($input);
@@ -200,8 +214,10 @@ function barcodeParser_AssemblyUnitNumber(string|int $input): null|string
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): null|string
+function barcodeParser_AssemblyUnitHistoryNumber(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $ashCode = trim($input);
@@ -221,8 +237,10 @@ function barcodeParser_AssemblyUnitHistoryNumber(string|int $input): null|string
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_DocumentNumber(string|int $input): null|int
+function barcodeParser_DocumentNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $woCode = trim($input);
@@ -242,8 +260,10 @@ function barcodeParser_DocumentNumber(string|int $input): null|int
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_LocationNumber(string|int $input): null|int
+function barcodeParser_LocationNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $woCode = trim($input);
@@ -263,8 +283,10 @@ function barcodeParser_LocationNumber(string|int $input): null|int
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_CostCenter(string|int $input): null|string
+function barcodeParser_CostCenter(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     $inventoryCode = trim($input);
     $inventoryCode = strtolower($inventoryCode);
 
@@ -282,8 +304,10 @@ function barcodeParser_CostCenter(string|int $input): null|string
     return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_Project(string|int $input): null|string
+function barcodeParser_Project(null|string|int $input): null|string
 {
+    if($input === null) return null;
+
     $inventoryCode = trim($input);
     $inventoryCode = strtolower($inventoryCode);
 
@@ -301,8 +325,10 @@ function barcodeParser_Project(string|int $input): null|string
     return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_TestSystemNumber(string|int $input): null|int
+function barcodeParser_TestSystemNumber(null|string|int $input): null|int
 {
+    if($input === null) return null;
+
     if(is_int($input)) $input = strval($input);
 
     $woCode = trim($input);
@@ -321,4 +347,3 @@ function barcodeParser_TestSystemNumber(string|int $input): null|int
 
     return intval($woCodeParts[1]);
 }
-?>

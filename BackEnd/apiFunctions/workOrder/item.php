@@ -57,21 +57,28 @@ if($api->isGet())
         partStock.StockNo AS StockNumber, 
         manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
         manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
-        vendor_displayName(vendor.Id) as ManufacturerName, 
+        vendor_displayName(vendor.Id) as ManufacturerDisplayName, 
+        vendor.Id AS ManufacturerId,
         partStock_history.Quantity, 
         partStock_history.Date AS RemovalDate, 
         partStock_getPrice(partStock_history.StockId) AS Price
     FROM partStock_history
     LEFT JOIN partStock On partStock.Id = partStock_history.StockId
-    LEFT JOIN manufacturerPart_partNumber On manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId
-    LEFT JOIN vendor On vendor.Id = manufacturerPart_partNumber.VendorId 
+    LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId
+    LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+    LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId    
+    LEFT JOIN vendor On vendor.Id <=> manufacturerPart_series.VendorId OR vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_partNumber.VendorId
     LEFT JOIN (
-        SELECT GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number)) AS ProductionPartNumber, ManufacturerPartNumberId 
-        FROM productionPart_manufacturerPart_mapping 
-        LEFT JOIN productionPart On productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
+        SELECT 
+            GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number)) AS ProductionPartNumber, 
+            productionPart_manufacturerPart_mapping.ManufacturerPartNumberId,
+            productionPart_specificationPart_mapping.SpecificationPartRevisionId
+        FROM productionPart
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
+        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
-        GROUP BY ManufacturerPartNumberId
-    )prodPart On prodPart.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
+        GROUP BY ManufacturerPartNumberId, SpecificationPartRevisionId
+    )prodPart On prodPart.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId OR prodPart.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
     WHERE partStock_history.workOrderId = $workOrderId
     STR;
 

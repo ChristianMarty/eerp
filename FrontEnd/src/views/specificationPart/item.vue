@@ -15,7 +15,7 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Description" label="Description" sortable />
+      <el-table-column prop="ProductionPartDescription" label="Description" sortable />
     </el-table>
   </div>
 </template>

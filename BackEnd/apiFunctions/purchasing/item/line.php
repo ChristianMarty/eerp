@@ -85,24 +85,25 @@ function save_line($purchaseOrderNumber, $line): int
     return $lineId;
 }
 
-function update_costCenter($dbLink, $lineId, $costCenterList): void
+function update_costCenter($lineId, $costCenterList): void
 {
+    global $database;
     // TODO: Find better way to update this
     $query = <<<STR
             DELETE FROM purchaseOrder_itemOrder_costCenter_mapping WHERE ItemOrderId = $lineId
     STR;
-    dbRunQuery($dbLink,$query);
+    $database->execute($query);
 
     foreach ($costCenterList as $cc)
     {
-        $costCenterNumber = barcodeParser_CostCenter($cc['Barcode']);
-        $quota = floatval($cc['Quota']);
+        $costCenterNumber = barcodeParser_CostCenter($cc->Barcode);
+        $quota = floatval($cc->Quota);
 
         $query = <<<STR
             INSERT INTO purchaseOrder_itemOrder_costCenter_mapping (CostCenterId, ItemOrderId, Quota) 
             VALUES ((SELECT Id FROM finance_costCenter WHERE CostCenterNumber = $costCenterNumber),$lineId,$quota)
         STR;
-        dbRunQuery($dbLink,$query);
+        $database->execute($query);
     }
 }
 
@@ -116,12 +117,12 @@ if($api->isGet())
 
 
     $query = purchaseOrderItem_getLineQuery(null, $lineId);
-    $result =  $database->query($query)[0];
+    $result = $database->query($query)[0];
 
     $output = purchaseOrderItem_getDataFromQueryResult("po",$result);
 
     $query = purchaseOrderItem_getCostCenterQuery($output['OrderLineId']);
-    $result =  $database->query($query)[0]??null;
+    $result = $database->query($query)??null;
 
     $output['CostCenter'] = purchaseOrderItem_getCostCenterData($result);
 
@@ -139,7 +140,7 @@ else if($api->isPost() OR $api->isPatch())
     foreach ($lines->Lines as $line)
     {
         $lineId = save_line($purchaseOrderNumber, $line);
-        update_costCenter($lineId, $line['CostCenter']);
+        update_costCenter($lineId, $line->CostCenter);
     }
 
     $api->returnEmpty();

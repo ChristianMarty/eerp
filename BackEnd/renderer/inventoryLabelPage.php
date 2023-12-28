@@ -81,7 +81,13 @@ if($api->isGet())
 
     $invNoList = implode(", ", $invNo);
     $query = <<< STR
-        SELECT `InvNo`,`Title`,`Manufacturer`,`Type` FROM `inventory` WHERE InvNo IN( $invNoList );
+        SELECT 
+            InvNo,
+            Title,
+            Manufacturer,
+            Type
+        FROM inventory
+        WHERE InvNo IN( $invNoList );
     STR;
 
     $rows = $database->query($query);

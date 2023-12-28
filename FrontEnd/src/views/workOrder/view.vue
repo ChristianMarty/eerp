@@ -42,7 +42,7 @@
         <template slot-scope="{ row }">
           <template v-for="part in row.ProductionPartNumber">
             <router-link
-              :to="('/prodParts/prodPartView/' + part)"
+              :to="('/productionPart/item/' + part)"
               class="link-type"
             >
               <span>{{ part }} </span>
@@ -51,7 +51,8 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="ManufacturerName" label="Manufacturer" sortable />
+      <el-table-column prop="ManufacturerDisplayName" label="Manufacturer" sortable />
+
       <el-table-column
         prop="ManufacturerPartNumber"
         sortable
@@ -60,7 +61,7 @@
       >
         <template slot-scope="{ row }">
           <router-link
-            :to="'/mfrParts/partView/' + row.ManufacturerPartId"
+            :to="'/manufacturerPart/partNumber/item/' + row.ManufacturerPartNumberId"
             class="link-type"
           >
             <span>{{ row.ManufacturerPartNumber }}</span>

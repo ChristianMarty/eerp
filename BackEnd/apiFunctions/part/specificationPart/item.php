@@ -29,9 +29,9 @@ if($api->isGet())
             productionPart.Number AS ProductionPartNumber,
             numbering.Prefix AS ProductionPartNumberPrefix,
             productionPart.Description AS ProductionPartDescription 
-    
         FROM specificationPart
-        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartId = specificationPart.Id
+        LEFT JOIN specificationPart_revision ON specificationPart_revision.SpecificationPartId = specificationPart.Id
+        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = specificationPart_revision.Id
         LEFT JOIN productionPart ON productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
         WHERE specificationPart.Number = $specificationPartNumber

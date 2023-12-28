@@ -65,7 +65,7 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
     return $query;
 }
 
-function purchaseOrderItem_getCostCenterQuery($lineId):string
+function purchaseOrderItem_getCostCenterQuery(int $lineId):string
 {
     $query = <<<STR
         SELECT * 
@@ -83,6 +83,7 @@ function purchaseOrderItem_getCostCenterData(array|null $result):array
     $output = array();
     foreach ($result as $r)
     {
+
         $temp = array();
         $temp['Barcode'] = barcodeFormatter_CostCenter($r->CostCenterNumber);
         $temp['Quota'] = floatval($r->Quota);

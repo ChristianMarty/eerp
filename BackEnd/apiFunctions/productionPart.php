@@ -11,6 +11,9 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_barcodeParser.php";
+
 if($api->isGet())
 {
     $parameter = $api->getGetData();
@@ -27,6 +30,7 @@ if($api->isGet())
             Cache_BillOfMaterial_NumberOfOccurrence
         FROM productionPart
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
+        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
     STR;
 
@@ -34,9 +38,14 @@ if($api->isGet())
 	
 	if(isset($parameter->ManufacturerPartNumberId))
 	{
-		$temp = $database->escape($parameter->ManufacturerPartNumberId);
+		$temp = intval($parameter->ManufacturerPartNumberId);
 		$queryParam[] = "productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = $temp";
 	}
+    else if(isset($parameter->SpecificationPartRevisionId))
+    {
+        $temp = intval($parameter->SpecificationPartRevisionId);
+        $queryParam[] = "productionPart_specificationPart_mapping.SpecificationPartRevisionId = $temp";
+    }
 	else if(isset($parameter->ProductionPartNumber))
 	{
         $temp = $database->escape($parameter->ProductionPartNumber);

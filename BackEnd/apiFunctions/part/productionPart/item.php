@@ -85,7 +85,8 @@ if($api->isGet())
             LocationId
         FROM partStock  
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
-        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
+        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
+        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId OR productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
     STR;

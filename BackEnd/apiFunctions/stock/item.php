@@ -12,6 +12,7 @@ global $database;
 global $api;
 global $user;
 
+require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
@@ -34,6 +35,7 @@ function _stockPartQuery(string $stockNo): string
 			partStock.Date, 
 			manufacturerPart_partNumber.Description,
 			manufacturerPart_item.Id AS ManufacturerPartItemId,
+			partStock.SpecificationPartRevisionId,
 			partStock.LocationId, 
 			partStock.HomeLocationId, 
 			hc.CreateQuantity,  
@@ -51,6 +53,7 @@ function _stockPartQuery(string $stockNo): string
 	LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartNumberId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
 	LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
 	LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+	    
 	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
 	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
 	LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
@@ -106,8 +109,14 @@ else if($api->isPost("stock.create"))
     if(strlen($date) == 0)$date = 'NULL';
 	else $date = $database->escape($date);
 	$quantity = intval($data->Quantity);
-	$location = barcodeParser_LocationNumber($data->LocationCode);
+
     $userId = $user->userId();
+
+    $location = barcodeParser_LocationNumber($data->LocationCode ?? null);
+    if($location === null) {
+        global $defaultLocationBarcode;
+        $location = $defaultLocationBarcode;
+    }
 	
 	if(isset($data->ReceivalId))  // If part is created based on purchase receival id
 	{

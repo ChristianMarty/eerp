@@ -116,8 +116,8 @@
       <h3>Purchase Information</h3>
       <el-divider />
       <p><b>PO No: </b>
-        <router-link :to="'/purchasing/edit/' + purchaseInformation.PoNo" class="link-type">
-          <span>{{ purchaseInformation.PoNo }}</span>
+        <router-link :to="'/purchasing/edit/' + purchaseInformation.PurchaseOrderBarcode" class="link-type">
+          <span>{{ purchaseInformation.PurchaseOrderBarcode }}</span>
         </router-link>
       </p>
       <p><b>Price: </b>{{ purchaseInformation.Price }} {{ purchaseInformation.Currency }}</p>
@@ -350,9 +350,9 @@ export default {
       })
     },
     getProductionPartData() {
-      if (this.partData.ManufacturerPartNumberId === null) return
+      if (this.partData.ManufacturerPartNumberId === null && this.partData.SpecificationPartRevisionId === null) return
 
-      productionPart.search(null, this.partData.ManufacturerPartNumberId).then(response => {
+      productionPart.search(null, this.partData.ManufacturerPartNumberId, this.partData.SpecificationPartRevisionId).then(response => {
         this.productionPartData = response
       }).catch(response => {
         this.$message({
