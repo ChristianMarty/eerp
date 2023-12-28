@@ -53,7 +53,7 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
         SELECT SUM(Quantity) AS AddedStockQuantity, partStock.ReceivalId
         FROM partStock
         LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id
-        WHERE partStock_history.ChangeType = 'Create'
+        WHERE partStock_history.ChangeType = 'Create' AND partStock.DeleteRequestUserId IS NULL
         GROUP BY partStock.ReceivalId
     )partStock ON partStock.ReceivalId = purchaseOrder_itemReceive.Id
     STR;

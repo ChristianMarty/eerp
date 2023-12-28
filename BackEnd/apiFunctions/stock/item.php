@@ -187,11 +187,13 @@ else if($api->isDelete("stock.delete"))
 	$stockNumber = barcodeParser_StockNumber($data->StockNumber);
 	if($stockNumber === false) $api->returnParameterError("StockNumber");
 
+    $stockNumber = $database->escape($stockNumber);
+
 	$sqlData['DeleteRequestUserId'] = $user->userId();;
 	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
-	$sqlData['DeleteRequestNote'] = $database->escape($data->Note);
+	$sqlData['DeleteRequestNote'] = $data->Note;
 
-    $database->update("partStock", $sqlData, "StockNo = '$stockNumber");
+    $database->update("partStock", $sqlData, "StockNo = $stockNumber");
 
     $api->returnEmpty();
 }

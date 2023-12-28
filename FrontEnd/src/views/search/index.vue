@@ -73,7 +73,7 @@ export default {
       this.$store.dispatch('tagsView/delView', this.$route) // close search view
 
       switch (item.Category) {
-        case 'Location': this.$router.push('/location/summary/' + item.RedirectCode)
+        case 'Location': this.$router.push('/location/item/' + item.RedirectCode)
           break
         case 'Stock': this.$router.push('/stock/item/' + item.RedirectCode)
           break

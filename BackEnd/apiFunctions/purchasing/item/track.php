@@ -26,7 +26,7 @@ if($api->isGet())
             partStock_history.Quantity AS CreateQuantity 
         FROM partStock
         LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id
-        WHERE ReceivalId = $receivalId AND partStock_history.ChangeType = 'Create'
+        WHERE ReceivalId = $receivalId AND partStock_history.ChangeType = 'Create' AND DeleteRequestUserId IS NULL
     STR;
 	
 	$result = $database->query($query);
