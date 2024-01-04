@@ -78,6 +78,7 @@ class Location
 				$temp = new stdClass;
 
 				$temp->Name = $row->Name;
+				$temp->Title = $row->Title;
 				$temp->Description = $row->Description;
 				$temp->LocationNumber = $row->LocNr;
 				$temp->LocationBarcode = barcodeFormatter_LocationNumber($row->LocNr);

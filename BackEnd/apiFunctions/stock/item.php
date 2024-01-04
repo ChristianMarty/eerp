@@ -90,8 +90,8 @@ if($api->isGet("stock.view"))
 
     $r->Location = $location->name($r->LocationId);
 	$r->HomeLocation = $location->name($r->HomeLocationId);
-	$r->LocationPath = $location->name($r->LocationId, 100);
-	$r->HomeLocationPath = $location->name($r->HomeLocationId, 100);
+	$r->LocationPath = $location->path($r->LocationId, 100);
+	$r->HomeLocationPath = $location->path($r->HomeLocationId, 100);
 
 	if($r->DeleteRequestUserId !== null)$r->Deleted = true;
 	else $r->Deleted = false;

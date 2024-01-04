@@ -11,7 +11,7 @@
         border
         :tree-props="{ children: 'Children' }"
       >
-        <el-table-column prop="LocationBarcode" label="Location Nr" width="150px">
+        <el-table-column prop="LocationBarcode" label="Location Nr" width="250px">
           <template slot-scope="{ row }">
             <router-link
               :to="'/location/item/' + row.LocationBarcode"
@@ -21,7 +21,8 @@
             </router-link>
           </template>
         </el-table-column>
-        <el-table-column prop="Name" label="Name" width="250px" />
+        <el-table-column prop="Name" label="Name" width="200px" />
+        <el-table-column prop="Title" label="Title" width="200px" />
         <el-table-column prop="Description" label="Description" />
         <el-table-column prop="Attributes.EsdSave" label="ESD Save">
           <template slot-scope="scope">
