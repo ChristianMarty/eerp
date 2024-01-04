@@ -111,7 +111,8 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
     $output['LineNo'] = $lineNumber;
     $output['LineNumber'] = $lineNumber;
     $output['Price'] = floatval($data['Price']);
-    $output['SupplierSku'] = $data['Sku'];
+    $output['SupplierSku'] = $data['Sku']; // TODO: legacy -> remove
+    $output['SupplierPartNumber'] = $data['Sku'];
     $output['LineType'] = $data['LineType'];
     $output['QuantityOrdered'] = intval($data['Quantity']);
     $output['OrderLineId'] = intval($data['OrderLineId']);

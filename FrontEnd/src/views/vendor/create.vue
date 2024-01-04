@@ -17,6 +17,12 @@
       <el-form-item label="Is Contractor:">
         <el-checkbox v-model="vendorData.IsContractor" />
       </el-form-item>
+      <el-form-item label="Is Carrier:">
+        <el-checkbox v-model="vendorData.IsCarrier" />
+      </el-form-item>
+      <el-form-item label="Is Customer:">
+        <el-checkbox v-model="vendorData.IsCustomer" />
+      </el-form-item>
 
       <el-form-item>
         <el-button type="primary" @click="save">Save</el-button>

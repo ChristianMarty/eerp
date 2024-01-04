@@ -29,6 +29,18 @@
 
     <template>
       <el-button style="float: right" icon="el-icon-document" @click="openPoDoc()">Export Purchase Order</el-button>
+      <el-select
+        v-model="rendererSelected"
+        placeholder="Select Document"
+        style="min-width: 200px; margin-right: 10px; float: right;"
+      >
+        <el-option
+          v-for="item in rendererList"
+          :key="item.Id"
+          :label="item.Name"
+          :value="item.Code"
+        />
+      </el-select>
     </template>
 
     <el-divider />
@@ -137,6 +149,9 @@ import documentsList from '@/views/document/components/documentsList'
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
+import Print from '@/api/print'
+const print = new Print()
+
 export default {
   name: 'PurchaseOrder',
   components: { editOrder, reviewOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList, editOrderMetaDialog },
@@ -146,7 +161,10 @@ export default {
       orderData: {},
       orderStatus: 0,
       documents: [],
-      showOrderMetaEditDialog: false
+      showOrderMetaEditDialog: false,
+
+      rendererList: [],
+      rendererSelected: null
     }
   },
   created() {
@@ -156,6 +174,13 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   mounted() {
+    print.label.search('PurchaseOrder').then(response => {
+      this.rendererList = response
+      this.rendererSelected = this.rendererList[0].Code
+    }).catch(response => {
+      this.showErrorMessage(response)
+    })
+
     this.getOrder()
   },
   methods: {
@@ -175,7 +200,7 @@ export default {
       this.showOrderMetaEditDialog = true
     },
     openPoDoc() {
-      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/purchaseOrder?PurchaseOrderNo=' + this.orderData.PurchaseOrderNumber
+      const path = process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + this.rendererSelected + '?PurchaseOrderNumber=' + this.orderData.PurchaseOrderNumber
       window.open(path, '_blank').focus()
     },
     setTagsViewTitle() {

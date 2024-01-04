@@ -22,8 +22,7 @@ if($api->isGet())
 	if(!isset($parameters->LocationNumber)) $api->returnParameterMissingError('LocationNumber');
 
     $locationNumber = barcodeParser_LocationNumber($parameters->LocationNumber);
-	if($locationNumber === false) $api->returnParameterError('LocationNumber');
-
+	if($locationNumber === null) $api->returnParameterError('LocationNumber');
 
 	$output = array();
 // get main item
@@ -47,7 +46,7 @@ if($api->isGet())
 		LIMIT 1;
 	STR;
 	$result = $database->query($query);
-	$locationData = $result[0];
+	$locationData = $result[0] ?? null;
 	if($locationData === null) $api->returnError("Location barcode not found");
 
 	$locationId = intval($locationData->Id);

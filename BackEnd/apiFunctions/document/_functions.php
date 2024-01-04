@@ -191,8 +191,9 @@ function getCitations($documentId): array
     $ingestData['Description'] = null;
     $ingestData['Note'] = null;
 */
-function ingest(array $data): null|int|array
+function ingest(array|stdClass $data): null|int|array
 {
+    $data = (array)$data;
 
     global $database;
 
@@ -229,7 +230,7 @@ function ingest(array $data): null|int|array
     $sqlData['Type'] = $data['Type'];
     $sqlData['Description'] = $data['Description'] ?? null;
     $sqlData['LinkType'] = "Internal";
-    $sqlData['Note'] = $data['Note'];
+    $sqlData['Note'] = $data['Note']??null;
     $sqlData['Hash'] = $fileHashCheck['hash'];
     $sqlData['DocumentNumber']['raw'] = "(SELECT generateItemNumber())";
 

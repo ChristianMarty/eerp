@@ -113,7 +113,7 @@ export default {
   },
   methods: {
     getManufactures() {
-      vendor.search(false, true).then(response => {
+      vendor.search(false, true, false, false, false).then(response => {
         this.manufacturers = response
         // this.setTitle()
       }).catch(response => {

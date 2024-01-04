@@ -21,10 +21,12 @@ if($api->isGet())
 
     $query = <<< STR
     SELECT
-        purchaseOrder_itemOrder.Sku,
+        purchaseOrder_itemOrder.Sku AS SupplierPartNumber,
         purchaseOrder_itemOrder.ManufacturerName,
         purchaseOrder_itemOrder.ManufacturerPartNumber,
-        purchaseOrder_itemOrder.Description
+        purchaseOrder_itemOrder.Description,
+        COUNT(purchaseOrder_itemOrder.Sku) AS NumberOfOrders,
+        SUM(purchaseOrder_itemOrder.Quantity) AS TotalOrdered
     FROM purchaseOrder_itemOrder 
     LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId
     WHERE purchaseOrder_itemOrder.Sku IS NOT NULL AND purchaseOrder.VendorId = $vendorId

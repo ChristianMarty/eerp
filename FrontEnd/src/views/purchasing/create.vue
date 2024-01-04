@@ -66,7 +66,7 @@ export default {
     }
   },
   async mounted() {
-    this.suppliers = await vendor.search(true, false, false, true)
+    this.suppliers = await vendor.search(true, false, false, false, false, true)
   },
   methods: {
     dateToday() {

@@ -13,7 +13,7 @@ namespace vendor;
 
 class vendor
 {
-    static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor): int
+    static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor, bool $isCarrier, bool $isCustomer): int
     {
         global $database;
 
@@ -22,6 +22,8 @@ class vendor
         $insertData['IsSupplier']  = $isSupplier;
         $insertData['IsManufacturer']  = $isManufacturer;
         $insertData['IsContractor'] = $isContractor;
+        $insertData['IsCarrier'] = $isCarrier;
+        $insertData['IsCustomer'] = $isCustomer;
 
         try {
             return $database->insert("vendor", $insertData);

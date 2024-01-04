@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>Location - {{ LocationBarcode }}</h1>
+    <h1>{{ itemList.Name }}  - {{ LocationBarcode }}</h1>
     <el-divider />
 
     <p><b>Name:</b> {{ itemList.Name }}</p>

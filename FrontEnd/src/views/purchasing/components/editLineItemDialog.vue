@@ -265,7 +265,7 @@ export default {
   async mounted() {
     this.vat = await finance.tax.list('VAT')
     this.uom = await unitOfMeasurement.list(true)
-    this.partManufacturer = await vendor.search(false, true, false)
+    this.partManufacturer = await vendor.search(false, true, false, false, false)
     this.costCenter = await finance.costCenter.list()
     this.specificationPart = await specificationPart.search()
     this.getType()

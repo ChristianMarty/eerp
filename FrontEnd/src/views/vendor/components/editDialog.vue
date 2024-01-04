@@ -30,6 +30,12 @@
         <el-form-item label="Is Contractor">
           <el-checkbox v-model="vendorData.IsContractor" />
         </el-form-item>
+        <el-form-item label="Is Carrier">
+          <el-checkbox v-model="vendorData.IsCarrier" />
+        </el-form-item>
+        <el-form-item label="Is Customer">
+          <el-checkbox v-model="vendorData.IsCustomer" />
+        </el-form-item>
         <el-form-item label="Has Parent">
           <el-checkbox v-model="hasParent" />
           <br>
@@ -82,7 +88,7 @@ export default {
     async onOpen() {
       this.vendorData = await vendor.item(this.$props.VendorId)
 
-      vendor.search(null, null, null, true).then(response => {
+      vendor.search(null, null, null, null, null, true).then(response => {
         this.suppliers = response
         this.parentId = this.vendorData.ParentId
         if (this.parentId == null) this.hasParent = false
@@ -109,7 +115,9 @@ export default {
         CustomerNumber: this.vendorData.CustomerNumber,
         IsSupplier: this.vendorData.IsSupplier,
         IsManufacturer: this.vendorData.IsManufacturer,
-        IsContractor: this.vendorData.IsContractor
+        IsContractor: this.vendorData.IsContractor,
+        IsCarrier: this.vendorData.IsCarrier,
+        IsCustomer: this.vendorData.IsCustomer
       }
 
       vendor.save(saveParameters).then(response => {

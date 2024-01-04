@@ -56,6 +56,8 @@ if($api->isGet("stock.view"))
 		$queryParam[] = "partStock.Cache_Quantity != '0'";
 	}
 
+    $queryParam[] = "partStock.DeleteRequestUserId IS NULL";
+
 	$data = $database->query($baseQuery,$queryParam);
 	foreach ($data as $line)
 	{

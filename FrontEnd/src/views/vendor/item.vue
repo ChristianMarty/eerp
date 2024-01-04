@@ -10,6 +10,8 @@
     <p><b>Is Supplier:</b> {{ vendorData.IsSupplier }}</p>
     <p><b>Is Manufacturer:</b> {{ vendorData.IsManufacturer }}</p>
     <p><b>Is Contractor:</b> {{ vendorData.IsContractor }}</p>
+    <p><b>Is Carrier:</b> {{ vendorData.IsCarrier }}</p>
+    <p><b>Is Customer:</b> {{ vendorData.IsCustomer }}</p>
 
     <template v-if="checkPermission(['vendor.edit'])">
       <el-button
@@ -252,10 +254,12 @@
       :data="supplierPartNumbers"
       style="width: 100%; margin-top:10px"
     >
-      <el-table-column prop="Sku" label="Sku" sortable width="150" />
+      <el-table-column prop="SupplierPartNumber" label="Sku" sortable width="150" />
       <el-table-column prop="ManufacturerName" label="Manufacturer" sortable width="150" />
       <el-table-column prop="ManufacturerPartNumber" label="Part Number" sortable width="250" />
       <el-table-column prop="Description" label="Description" sortable />
+      <el-table-column prop="NumberOfOrders" label="No. of Orders" sortable width="150" />
+      <el-table-column prop="TotalOrdered" label="Total Ordered" sortable width="150" />
     </el-table>
 
     <editDialog

@@ -8,8 +8,8 @@
     </ul>
 
     <el-button type="primary" @click="clearList">Clear List</el-button>
-
     <el-divider />
+
     <h2>Print Preview</h2>
     <div class="preview-container">
       <a :href="printPreviewPath" target="print" style="float: right;">
@@ -17,6 +17,7 @@
       </a>
 
       <el-form :inline="true" :model="form">
+
         <el-form-item label="Offset" />
         <el-input-number
           v-model="offset"
@@ -24,7 +25,22 @@
           :max="47"
           @change="handleChange"
         />
+
+        <el-select
+          v-model="rendererSelected"
+          placeholder="Select Document"
+          style="min-width: 200px; margin-left: 10px;"
+        >
+          <el-option
+            v-for="item in rendererList"
+            :key="item.Id"
+            :label="item.Name"
+            :value="item"
+          />
+        </el-select>
+
       </el-form>
+      <p>{{ rendererSelected.Description }}</p>
       <div style="height:297mm;">
         <iframe :src="printPreviewPath" width="100%" height="100%" />
       </div>
@@ -39,8 +55,8 @@ import Cookies from 'js-cookie'
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
-const printPath =
-  process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/inventoryLabelPage'
+import Print from '@/api/print'
+const print = new Print()
 
 export default {
   name: 'InventoryView',
@@ -51,12 +67,21 @@ export default {
       offset: 0,
       form: null,
       printPreviewPath: null,
-      invList: null
+      invList: null,
+
+      rendererList: [],
+      rendererSelected: null
     }
   },
   mounted() {
-    //  this.getInventoryData();
+    print.label.search('InventoryLabel').then(response => {
+      this.rendererList = response
+      this.rendererSelected = this.rendererList[0]
+    }).catch(response => {
+      this.showErrorMessage(response)
+    })
     this.loadInventoryList()
+    this.handleChange()
   },
   created() {},
   methods: {
@@ -74,6 +99,9 @@ export default {
       this.handleChange()
     },
     handleChange() {
+      const printPath =
+        process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + this.rendererSelected.Code
+
       this.printPreviewPath =
         printPath + '?offset=' + this.offset + '&invNo=' + this.invList
     },

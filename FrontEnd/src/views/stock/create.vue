@@ -155,9 +155,9 @@ export default {
     }
   },
   async mounted() {
-    this.suppliers = await vendor.search(true, false, false, true)
+    this.suppliers = await vendor.search(true, false, false, false, false, true)
     this.locations = await location.search()
-    this.manufacturer = await vendor.search(false, true, false)
+    this.manufacturer = await vendor.search(false, true, false, false, false)
 
     this.label = await print.label.search('Stock')
 

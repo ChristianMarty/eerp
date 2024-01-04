@@ -88,7 +88,7 @@ if($api->isGet())
         LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
         LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId OR productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
-        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode'
+        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode' AND partStock.DeleteRequestUserId IS NULL 
     STR;
     $result = $database->query($query);
 

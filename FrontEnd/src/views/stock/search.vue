@@ -185,7 +185,7 @@ export default {
       })
     },
     getManufacturers() {
-      vendor.search(false, true, false).then(response => {
+      vendor.search(false, true, false, false, false).then(response => {
         this.manufacturers = response
       }).catch(response => {
         this.$message({

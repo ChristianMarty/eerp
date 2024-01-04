@@ -61,6 +61,7 @@
       <el-table-column prop="SpecificationPartBarcode" label="Specification Part" width="150" />
       <el-table-column prop="Description" label="Description" />
     </el-table>
+
     <h3>Generic:</h3>
     <el-table
       :key="tableKey"

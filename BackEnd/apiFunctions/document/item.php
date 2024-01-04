@@ -42,8 +42,9 @@ if($api->isGet())
 	if(count($output)== 0) $api->returnEmpty();
 	$output = $output[0];
 
-	global $documentRootPath;
-	$output->Path = $documentRootPath."/".$output->Type."/".$output->Path;
+    global $dataRootPath;
+	global $documentPath;
+    $output->Path = $dataRootPath.$documentPath."/".$output->Type."/".$output->Path;
 	$output->DocumentBarcode  = barcodeFormatter_DocumentNumber($output->DocumentNumber);
 	$output->Barcode = $output->DocumentBarcode; // TODO: Legacy->remove
 	$output->Citations = getCitations($output->Id);

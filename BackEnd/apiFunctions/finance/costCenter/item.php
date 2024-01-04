@@ -45,6 +45,7 @@ if($api->isGet())
             purchaseOrder_itemOrder.ExpectedReceiptDate, 
             purchaseOrder_itemOrder.Quantity,
             purchaseOrder_itemOrder.Price,
+            purchaseOrder_itemOrder.Discount,
             finance_currency.CurrencyCode AS Currency,
             purchaseOrder.ExchangeRate, 
             purchaseOrder.PaymentTerms, 
@@ -68,7 +69,7 @@ if($api->isGet())
     $result = $database->query($query);
     foreach($result as $item) {
         $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PoNo, $item->LineNo);
-        $item->LineTotal = round($item->Price*$item->Quantity,6);
+        $item->LineTotal = round(($item->Price*$item->Quantity)*(1-($item->Discount/100)),6);
         $item->ProductionPartNumber = $item->ProductionPartNumberList;
     }
 

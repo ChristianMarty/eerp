@@ -11,13 +11,13 @@
 require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
 require_once __DIR__ . "/../apiFunctions/vendor/_vendor.php";
 
-if(!isset($_GET["PurchaseOrderNo"]))
+if(!isset($_GET["PurchaseOrderNumber"]))
 {
     echo "<p>Parameter error</p>";
     exit;
 }
 
-$poData = getPurchaseOrderData($_GET["PurchaseOrderNo"]);
+$poData = getPurchaseOrderData($_GET["PurchaseOrderNumber"]);
 
 ?>
 

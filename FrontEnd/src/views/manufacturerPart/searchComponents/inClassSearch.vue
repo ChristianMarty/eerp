@@ -28,7 +28,7 @@
           :props="{
             emitPath: false,
             value: 'Id',
-            label: 'Name',
+            label: 'DisplayName',
             children: 'Children',
             checkStrictly: true
           }"
@@ -58,12 +58,12 @@
       </el-form-item>
     </el-form>
 
-    <SearchSelectPanel
+    <!--  <SearchSelectPanel
       v-for="option in filterOptions"
       :key="option.Name"
       :options="option"
       style="margin-bottom: 50px;"
-    />
+    />-->
 
     <template>
       <el-table
@@ -143,10 +143,6 @@ export default {
   props: { data: { type: Object, default: null }},
   data() {
     return {
-
-      filteredData: ['s', 'g', 'r', 'p'],
-      checked: [],
-
       filterOptions: [],
       loading: true,
       manufacturerPartClass: null,
@@ -171,9 +167,20 @@ export default {
   created() {
   },
   mounted() {
+    this.getManufacturers()
   },
   methods: {
     handleFilter() {
+      manufacturerPart.search(this.partFilter, true).then(response => {
+        this.partData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
     },
     resetFilter() {
       this.partFilter = Object.assign({}, vendor.searchParameters)
@@ -235,7 +242,7 @@ export default {
       })
     },
     getManufacturers() {
-      vendor.search(false, true, false).then(response => {
+      vendor.search(false, true, false, false, false, true).then(response => {
         this.manufacturers = response
       }).catch(response => {
         this.$message({

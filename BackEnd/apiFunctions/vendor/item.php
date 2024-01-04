@@ -35,6 +35,8 @@ if($api->isGet("vendor.view"))
             vendor.IsSupplier as IsSupplier,
             vendor.IsManufacturer as IsManufacturer,
             vendor.IsContractor as IsContractor,
+            vendor.IsCarrier AS IsCarrier,
+            vendor.IsCustomer AS IsCustomer,
             vendor.ParentId as ParentId,
             vendor_displayName(parent.Id) AS ParentName
         FROM vendor 
@@ -60,6 +62,12 @@ if($api->isGet("vendor.view"))
 
     if($output->IsContractor == 1)$output->IsContractor = true;
     else $output->IsContractor = false;
+
+    if($output->IsCarrier == 1)$output->IsCarrier = true;
+    else $output->IsCarrier = false;
+
+    if($output->IsCustomer == 1)$output->IsCustomer = true;
+    else $output->IsCustomer = false;
 
 	$output->Alias = \vendor\alias::aliasesForVendor($vendorId);
 	
@@ -128,6 +136,9 @@ else if($api->isPatch())
     $insertData['IsSupplier'] = $data->IsSupplier;
     $insertData['IsManufacturer'] = $data->IsManufacturer;
     $insertData['IsContractor'] = $data->IsContractor;
+    $insertData['IsCarrier'] = $data->IsCarrier;
+    $insertData['IsCarrier'] = $data->IsCarrier;
+    $insertData['IsCustomer'] = $data->IsCustomer;
 
     $insertData['ParentId'] = $data->ParentId ?? null;
 
@@ -140,7 +151,7 @@ else if($api->isPost("vendor.create"))
     $data = $api->getPostData();
 
     $output =[];
-    $output['VendorId'] = \vendor\vendor::create($data->FullName, $data->IsSupplier, $data->IsManufacturer, $data->IsContractor);
+    $output['VendorId'] = \vendor\vendor::create($data->FullName, $data->IsSupplier ?? false, $data->IsManufacturer ?? false, $data->IsContractor ?? false, $data->IsCarrier ?? false, $data->IsCustomer ?? false);
 
     $api->returnData($output);
 }
