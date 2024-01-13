@@ -1,9 +1,9 @@
 <?php
 //*************************************************************************************************
 // FileName : printer.php
-// FilePath : apiFunctions/
+// FilePath : apiFunctions/peripheral
 // Author   : Christian Marty
-// Date		: 21.11.2023
+// Date		: 13.01.2024
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************

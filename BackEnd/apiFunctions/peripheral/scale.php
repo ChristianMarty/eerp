@@ -1,9 +1,9 @@
 <?php
 //*************************************************************************************************
-// FileName : printer.php
-// FilePath : apiFunctions/
+// FileName : scale.php
+// FilePath : apiFunctions/peripheral
 // Author   : Christian Marty
-// Date		: 21.11.2023
+// Date		: 13.01.2024
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
@@ -23,7 +23,7 @@ if($api->isGet())
         SELECT 
             *
         FROM peripheral
-        WHERE DeviceType = 'printer'
+        WHERE DeviceType = 'scale'
     QUERY;
     $result = $database->query($query, $queryParameters, "ORDER BY Name ASC");
 
