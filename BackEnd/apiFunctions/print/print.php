@@ -26,7 +26,7 @@ if($api->isPost())
     else $language = "";
 
 
-    $query = "SELECT * FROM printer WHERE Id ='$printerId' LIMIT 1;";
+    $query = "SELECT * FROM peripheral WHERE Id ='$printerId' LIMIT 1;";
     $printer = $database->query($query)[0];
 
 

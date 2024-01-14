@@ -29,7 +29,7 @@ if($api->isPost())
 	
 	$printData = $data->Data;
 
-	$query = "SELECT * FROM printer WHERE Id = '$printerId' LIMIT 1";
+	$query = "SELECT * FROM peripheral WHERE Id = '$printerId' LIMIT 1";
 	$printer = $database->query($query)[0];
 
 	$connector = new NetworkPrintConnector($printer->Ip, $printer->Port);

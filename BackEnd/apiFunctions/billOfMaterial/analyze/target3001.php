@@ -97,7 +97,7 @@ if($api->isPost())
         {
             $productionPartData = getStockData($line["ProductionPartBarcode"]);
             unset($line['ProductionPartBarcode']);
-            $output[$i] = array_merge($productionPartData,$line);
+            $output[$i] = array_merge((array)$productionPartData,(array)$line);
         }
     }
 
