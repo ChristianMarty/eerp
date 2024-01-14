@@ -1,9 +1,9 @@
 <?php
 //*************************************************************************************************
 // FileName : printer.php
-// FilePath : apiFunctions/
+// FilePath : apiFunctions/peripheral/
 // Author   : Christian Marty
-// Date		: 21.11.2023
+// Date		: 14.01.2024
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
@@ -16,15 +16,14 @@ if($api->isGet())
     $parameter = $api->getGetData();
 
     $queryParameters = [];
-    if(isset($parameter->Type)) $queryParameters[] = 'Type = '.$database->escape($parameter->Type);
-    if(isset($parameter->Language)) $queryParameters[] = 'Language = '.$database->escape($parameter->Language);
+    if(isset($parameter->Type)) $queryParameters[] = 'DeviceType = '.$database->escape($parameter->Type);
 
-    $queryParameters[]  = "DeviceType = 'printer'";
     $query = <<< QUERY
         SELECT 
             *
         FROM peripheral
     QUERY;
+
     $result = $database->query($query, $queryParameters, "ORDER BY Name ASC");
 
     $api->returnData($result);

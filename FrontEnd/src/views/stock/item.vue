@@ -85,6 +85,14 @@
         icon="el-icon-finished"
         @click="countStockDialogVisible = true"
       >Count</el-button>
+
+      <el-button
+        v-permission="['stock.count']"
+        style="margin-right: 20px"
+        icon="el-icon-finished"
+        @click="scaleStockDialogVisible = true"
+      >Count by weight</el-button>
+
       <el-divider />
 
       <h3>History</h3>
@@ -146,6 +154,17 @@
     </el-card>
 
     <el-dialog
+      title="Count by weight"
+      :visible.sync="scaleStockDialogVisible"
+    >
+      <hl />
+      <scale />
+
+      <el-button @click="scaleStockDialogVisible = false">Cancel</el-button>
+
+    </el-dialog>
+
+    <el-dialog
       title="Delete Item ?"
       :visible.sync="deleteDialogVisible"
     >
@@ -180,6 +199,7 @@ import countStockDialog from './components/countStockDialog'
 import stockHistory from './components/stockHistory'
 
 import locationTransferDialog from '@/components/Location/locationTransferDialog'
+import scale from '@/components/Scale/scale'
 
 import Stock from '@/api/stock'
 const stock = new Stock()
@@ -215,7 +235,7 @@ const stockAccuracyData = {
 
 export default {
   name: 'LocationAssignment',
-  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory, locationTransferDialog },
+  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory, locationTransferDialog, scale },
   directives: { permission },
   data() {
     return {
@@ -234,6 +254,7 @@ export default {
       addStockDialogVisible: false,
       removeStockDialogVisible: false,
       countStockDialogVisible: false,
+      scaleStockDialogVisible: false,
       editStockHistoryDialogVisible: false,
       stockHistoryKey: 0,
       locationTransferDialogVisible: false,
