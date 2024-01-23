@@ -135,7 +135,7 @@ else if($api->isPatch())
     $woData = array();
     $woData['Status'] = $data->Status;
 
-    $database->update("workOrder", $woData);
+    $database->update("workOrder", $woData, "WorkOrderNumber = $workOrderNumber");
 
     $api->returnEmpty();
 }
