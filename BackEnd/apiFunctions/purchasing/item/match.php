@@ -93,13 +93,16 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
     $supplierPartNumber = $supplierNumberPreprocess->clean($supplierPartNumber);
 
     global $database;
+    global $user;
+
     $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
 
     if($partNumberId == NULL)
     {
+        $userId = $user->userId();
         $query = <<<STR
-            INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number)  
-            VALUES ('$manufacturerId', $manufacturerPartNumber)
+            INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number, CreationUserId)  
+            VALUES ('$manufacturerId', $manufacturerPartNumber, $userId)
         STR;
         $database->execute($query);
 
@@ -107,8 +110,8 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
     }
 
     $query = <<<STR
-        INSERT IGNORE INTO supplierPart (VendorId, SupplierPartNumber, ManufacturerPartNumberId)  
-        VALUES ( '$supplierId', $supplierPartNumber, '$partNumberId')
+        INSERT IGNORE INTO supplierPart (VendorId, SupplierPartNumber, ManufacturerPartNumberId, CreationUserId)  
+        VALUES ( '$supplierId', $supplierPartNumber, '$partNumberId', $userId)
     STR;
     $database->execute($query);
 

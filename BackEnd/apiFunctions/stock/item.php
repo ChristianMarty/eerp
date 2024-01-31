@@ -12,6 +12,7 @@ global $database;
 global $api;
 global $user;
 
+require_once __DIR__ . "/_stock.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
@@ -59,13 +60,13 @@ function _stockPartQuery(string $stockNo): string
 	LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
 
 	LEFT JOIN (
-		SELECT StockId, Quantity AS CreateQuantity, Date AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '$stockNo')
+		SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNo = $stockNo)
 		)hc ON  hc.StockId = partStock.Id
 	LEFT JOIN (
-		SELECT StockId, Date AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNo = '$stockNo') ORDER BY Date DESC LIMIT 1
+		SELECT StockId, CreationDate AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNo = $stockNo) ORDER BY CreationDate DESC LIMIT 1
 		)lc ON  lc.StockId = partStock.Id
 
-	WHERE partStock.StockNo = '$stockNo'
+	WHERE partStock.StockNo = $stockNo
 	STR;
 }
 
@@ -76,6 +77,7 @@ if($api->isGet("stock.view"))
     $stockNumber = barcodeParser_StockNumber($parameter->StockNo);
     if($stockNumber === null) $api->returnParameterError("StockNumber");
 
+    $stockNumber = $database->escape($stockNumber);
 	$r = $database->query(_stockPartQuery($stockNumber))[0];
 
 	$r->Barcode = barcodeFormatter_StockNumber($r->StockNo);
@@ -103,14 +105,28 @@ else if($api->isPost("stock.create"))
 {
     $data = $api->getPostData();
 
+    if($data->LotNumber == null){
+        $lotNumber = null;
+    } else {
+        $lotNumber = trim($data->LotNumber);
+        if(strlen($lotNumber) == 0)$lotNumber = null;
+    }
 
-	$orderReference = $database->escape($data->OrderReference);
-    $date = trim($data->Date);
-    if(strlen($date) == 0)$date = 'NULL';
-	else $date = $database->escape($date);
+    if($data->OrderReference == null){
+        $orderReference = null;
+    } else {
+        $orderReference = trim($data->OrderReference);
+        if(strlen($orderReference) == 0)$orderReference = null;
+    }
+
+    if($data->Date == null){
+        $date = null;
+    } else {
+        $date = trim($data->Date);
+        if(strlen($date) == 0)$date = null;
+    }
+
 	$quantity = intval($data->Quantity);
-
-    $userId = $user->userId();
 
     $location = barcodeParser_LocationNumber($data->LocationCode ?? null);
     if($location === null) {
@@ -120,63 +136,39 @@ else if($api->isPost("stock.create"))
 	
 	if(isset($data->ReceivalId))  // If part is created based on purchase receival id
 	{
-		$receivalId = intval($data->ReceivalId);
-		$lotNumber = $database->escape($data->LotNumber);
-
-        $query = <<<STR
-            SELECT partStock_create_onReceival(
-                $receivalId,
-                (SELECT `Id` FROM `location` WHERE `LocNr`= '$location'),
-                $quantity, 
-                $date, 
-                $orderReference, 
-                $lotNumber, 
-                $userId
-            ) AS StockNo;
-        STR;
+        $stockNumber = \stock\stock::createOnReceival(
+            intval($data->ReceivalId),
+            $location,
+            $quantity,
+            $date,
+            $lotNumber,
+            $orderReference
+        );
 	}
 	else // If new part is created
 	{
-		$manufacturerId = intval($data->ManufacturerId);
-		$manufacturerPartNumber = $database->escape($data->ManufacturerPartNumber);
-		$supplierId = intval($data->SupplierId);
-		$supplierPartNumber = $database->escape($data->SupplierPartNumber);
-		$lotNumber = $database->escape($data->LotNumber);
+        $manufacturerId = intval($data->ManufacturerId);
+        $manufacturerPartNumber = trim($data->ManufacturerPartNumber);
+        $supplierId = intval($data->SupplierId);
+        $supplierPartNumber = trim($data->SupplierPartNumber);
 
-        $query = <<<STR
-            SELECT partStock_create(
-                $manufacturerId,
-                $manufacturerPartNumber,
-                (SELECT `Id` FROM `location` WHERE `LocNr`= '$location'),
-                $quantity, 
-                $date, 
-                $orderReference, 
-                $supplierId,
-                $supplierPartNumber,
-                $lotNumber, 
-                $userId
-            ) AS StockNo;
-        STR;
+        $stockNumber = \stock\stock::create(
+            $manufacturerId,
+            $manufacturerPartNumber,
+            $location,
+            $quantity,
+            $date,
+            $lotNumber,
+            $orderReference,
+            $supplierId,
+            $supplierPartNumber
+        );
 	}
 
-    $stockNo = $database->query($query)[0]->StockNo;
-	$stockPart = $database->query(_stockPartQuery($stockNo))[0];
+    $stockPart = $database->query(_stockPartQuery("'$stockNumber'"))[0];
 
     $orderReference = $stockPart->OrderReference;
     $stockPart->Barcode = barcodeFormatter_StockNumber($stockPart->StockNo);
-    $stockPart->Description = "";
-
-    if(!empty($orderReference) )  //TODO: Fix
-    {
-        // Get Description -> Still a hack
-        $descriptionQuery = "SELECT Description FROM `partLookup` WHERE PartNo = '$orderReference' LIMIT 1";
-        $descriptionResult = $database->query($descriptionQuery);
-
-        if(count($descriptionResult) !== 0)
-        {
-            $stockPart->Description = $descriptionResult[0]->Description;
-        }
-    }
 
     $api->returnData($stockPart);
 }

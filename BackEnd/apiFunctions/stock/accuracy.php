@@ -37,11 +37,11 @@ if($api->isGet())
 	{
 		if($item->ChangeType == 'Absolute' || $item->ChangeType == 'Create')
 		{
-			$earlier = new DateTime($item->Date);
+			$earlier = new DateTime($item->CreationDate);
 			$later = new DateTime();
 			
 			$daysSinceStocktaking = $later->diff($earlier)->format("%a");
-			$lastStocktakingDate = $item->Date;
+			$lastStocktakingDate = $item->CreationDate;
 		}
 		else
 		{

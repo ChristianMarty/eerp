@@ -25,10 +25,10 @@ if($api->isGet())
     if($assemblyHistoryNumber === null) $api->returnParameterError("AssemblyUnitHistoryNumber");
 
     $query  = <<< STR
-        SELECT * FROM assembly_unit_history
+        SELECT *, assembly_unit_history.CreationDate AS Date FROM assembly_unit_history
         LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId
         WHERE assembly_unit_history.AssemblyUnitHistoryNumber = '$assemblyHistoryNumber'
-        ORDER BY Date
+        ORDER BY assembly_unit_history.CreationDate
     STR;
 
     $history = $database->query($query);

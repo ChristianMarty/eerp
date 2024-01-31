@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../_functions.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
@@ -58,9 +59,10 @@ if($api->isPost())
     $docIdStr = implode(",",$docIds);
 
     $invId = $inv['Id'];
+    $userId = $user->userId();
     $query = <<<STR
-        INSERT INTO inventory_history (InventoryId, Description, DocumentIds, Date, NextDate, Type)
-        VALUES ($invId,'$description','$docIdStr','$date','$nextDate', 'Calibration'); 
+        INSERT INTO inventory_history (InventoryId, Description, DocumentIds, Date, NextDate, Type, CreationUserId)
+        VALUES ($invId,'$description','$docIdStr','$date','$nextDate', 'Calibration', $userId); 
     STR;
     $database->execute($query);
 

@@ -38,7 +38,7 @@
         </el-form-item>
 
         <el-form-item label="Supplier Address:">
-          <el-select v-model="dialogData.VendorAddressId" placeholder="Currency" filterable>
+          <el-select v-model="dialogData.VendorAddressId" placeholder="Select Address" filterable>
             <el-option
               v-for="item in supplierAddress"
               :key="item.AddressId"
@@ -49,7 +49,7 @@
         </el-form-item>
 
         <el-form-item label="Supplier Contact:">
-          <el-select v-model="dialogData.VendorContactId" placeholder="Currency" filterable>
+          <el-select v-model="dialogData.VendorContactId" placeholder="Select Contact" filterable>
             <el-option v-for="item in supplierContact" :key="item.Id" :label="item.FirstName+' '+item.LastName" :value="item.Id" />
           </el-select>
         </el-form-item>

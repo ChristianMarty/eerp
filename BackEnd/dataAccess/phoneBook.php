@@ -45,7 +45,7 @@ $query = <<< QUERY
     SELECT 
         FullName, 
         ShortName, 
-        vendor_displayName(Id) AS DisplayName,
+        vendor_displayName(vendor.Id) AS DisplayName,
         FirstName, 
         LastName, 
         CustomerNumber, 

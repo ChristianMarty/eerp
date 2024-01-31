@@ -144,7 +144,7 @@
         <el-select v-model="selectedPrinterId">
           <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
-        <el-button type="primary" style="margin-left: 20px" @click="printDialogVisible = true">Print</el-button>
+        <el-button type="primary" style="margin-left: 20px" @click="openPrintDialog()">Print</el-button>
       </template>
     </el-card>
 
@@ -176,7 +176,7 @@
 
     </el-dialog>
 
-    <printDialog :visible.sync="printDialogVisible" :data="partData" @print="print" />
+    <printDialog :visible.sync="printDialogVisible" :data="printData" @print="print" />
 
     <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
     <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
@@ -247,6 +247,7 @@ export default {
       stockAccuracy: Object.assign({}, stockAccuracyData),
       label: null,
       printer: {},
+      printData: {},
       selectedPrinterId: 0,
       selectedLabelId: 0,
       productionPartData: [],
@@ -401,6 +402,11 @@ export default {
           type: 'error'
         })
       })
+    },
+    openPrintDialog() {
+      this.printData = structuredClone(this.partData)
+      if (this.partData.Description === null || this.partData.Description === '') this.printData.Description = this.productionPartData[0].Description
+      this.printDialogVisible = true
     },
     getPrinter() {
       print.printer.search().then(response => {

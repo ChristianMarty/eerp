@@ -61,7 +61,7 @@ if($api->isGet())
         $r->TotalQuantity = $r->Quantity*$quantity;
         $r->ProductionPartNumber = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
 
-        $octopartData = octopart_getPartData($dbLink, $r->OctopartId);
+        $octopartData = octopart_getPartData($r->OctopartId);
 
         $r->Data = octopart_formatAvailabilityData($octopartData, $vendorList, $authorizedOnly,  $includeBrokers, $includeNoStock, $knownSuppliers);
 

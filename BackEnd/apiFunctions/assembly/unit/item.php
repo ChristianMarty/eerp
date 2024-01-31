@@ -25,9 +25,9 @@ if($api->isGet())
 
 	// Get History Data
     $query = <<<STR
-        SELECT * FROM assembly_unit_history
+        SELECT *, CreationDate AS Date FROM assembly_unit_history
         WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '$assemblyUnitNumber')
-        ORDER BY Date DESC
+        ORDER BY CreationDate DESC
     STR;
 
     $history = $database->query($query);

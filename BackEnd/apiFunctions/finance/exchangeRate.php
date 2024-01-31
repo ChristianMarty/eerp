@@ -16,15 +16,13 @@ require_once __DIR__ ."/../externalApi/europeanCentralBank.php";
 
 if($api->isGet()) {
     $parameter = $api->getGetData();
-    if (!isset($parameter->CurrencyCode)) $api->returnParameterMissingError("CurrencyCode");
-    if (!isset($parameter->CurrencyId)) $api->returnParameterMissingError("CurrencyId");
+    if (!isset($parameter->CurrencyCode) AND !isset($parameter->CurrencyId)) $api->returnParameterMissingError("CurrencyId and CurrencyCode");
 
     global $accountingCurrencyId;
 
     $query = "SELECT CurrencyCode FROM finance_currency WHERE Id = " . intval($accountingCurrencyId) . " LIMIT 1;";
     $sourceCurrencyCode = $database->query($query)[0]->CurrencyCode;
 
-    $targetCurrencyCode = null;
     if (isset($parameter->CurrencyCode)) {
         $targetCurrencyCode = $parameter->CurrencyCode;
     } else if (isset($parameter->CurrencyId)) {

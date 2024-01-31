@@ -53,7 +53,7 @@ if($api->isGet())
         LEFT JOIN inventory ON inventory.Id = testSystem_item.InventoryId
         LEFT JOIN inventory_history ON inventory_history.Id = (
             SELECT Id FROM inventory_history 
-            WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id AND Date <= '$testDate' ORDER BY Date DESC LIMIT 1
+            WHERE TYPE = 'Calibration' AND InventoryId = inventory.Id AND Date <= $testDate ORDER BY Date DESC LIMIT 1
         ) 
         WHERE testSystem_item.TestSystemId = $testSystemId
     STR;

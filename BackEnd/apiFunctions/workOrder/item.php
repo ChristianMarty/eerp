@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
@@ -60,7 +61,7 @@ if($api->isGet())
         vendor_displayName(vendor.Id) as ManufacturerDisplayName, 
         vendor.Id AS ManufacturerId,
         partStock_history.Quantity, 
-        partStock_history.Date AS RemovalDate, 
+        partStock_history.CreationDate AS RemovalDate, 
         partStock_getPrice(partStock_history.StockId) AS Price
     FROM partStock_history
     LEFT JOIN partStock On partStock.Id = partStock_history.StockId
@@ -103,8 +104,12 @@ else if($api->isPost())
     $projectId = intval($data->ProjectId);
     $quantity = intval($data->Quantity);
     $title = $database->escape($data->Title);
+    $userId = $user->userId();
 
-    $query = "INSERT INTO workOrder (Title, Quantity, ProjectId, WorkOrderNumber) VALUES ( $title, $quantity, $projectId, workOrder_generateWorkOrderNumber());";
+    $query = <<< QUERY
+        INSERT INTO workOrder (Title, Quantity, ProjectId, WorkOrderNumber, CreationUserId) 
+        VALUES ( $title, $quantity, $projectId, workOrder_generateWorkOrderNumber(), $userId);
+    QUERY;
 
     $insertData = [];
     $insertData['Title'] = $data->Title;

@@ -28,7 +28,7 @@ if($api->isGet())
             Description
         FROM partLookup
         LEFT JOIN vendor ON vendor.Id = partLookup.VendorId
-        WHERE CONCAT('GCT-',partLookup.PartNo) = '$productionPartNumber'
+        WHERE CONCAT('GCT-',partLookup.PartNumber) = '$productionPartNumber'
     STR;
 
     $api->returnData($database->query($query));

@@ -28,6 +28,28 @@ class database
         $this->pdo = new PDO($dsn, $databaseUser, $databasePassword, $options);
     }
 
+    public function beginTransaction():bool
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    public function commitTransaction():bool
+    {
+        return $this->pdo->commit();
+    }
+
+    public function rollBackTransaction():bool
+    {
+        return $this->pdo->rollBack();
+    }
+
+    public function lastInsertId():int|false
+    {
+        $lastInsertId = $this->pdo()->lastInsertId();
+        if($lastInsertId === false) return false;
+        else return intval($lastInsertId);
+    }
+
     public function pdo():PDO
     {
         return $this->pdo;
