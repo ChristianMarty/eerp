@@ -23,6 +23,7 @@ if($api->isGet()) {
     $query = "SELECT CurrencyCode FROM finance_currency WHERE Id = " . intval($accountingCurrencyId) . " LIMIT 1;";
     $sourceCurrencyCode = $database->query($query)[0]->CurrencyCode;
 
+    $targetCurrencyCode = null;
     if (isset($parameter->CurrencyCode)) {
         $targetCurrencyCode = $parameter->CurrencyCode;
     } else if (isset($parameter->CurrencyId)) {

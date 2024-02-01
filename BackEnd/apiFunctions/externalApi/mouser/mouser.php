@@ -3,24 +3,22 @@
 // FileName : mouser.php
 // FilePath : apiFunctions/externalApi/
 // Author   : Christian Marty
-// Date		: 01.08.2020
+// Date     : 01.08.2020
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
 use vendorInterface\vendorInterface;
 
-require_once __DIR__ . "/../../../config.php";
-
 class mouser extends vendorInterface {
 
     public function __construct(stdClass $apiData)
     {
         parent::__construct($apiData);
-
         $this->orderImportSupported = true;
         $this->orderUploadSupported = false;
         $this->skuSearchSupported = false;
+        $this->authenticated = true;
     }
 
     function getPartData(string $mouserPartNumber): array|null
@@ -48,10 +46,7 @@ class mouser extends vendorInterface {
 
     public function getOrderHistory(): array|null
     {
-        global $mouserApiPath;
-        global $mouserApiKey;
-
-        $url = $mouserApiPath.'orderhistory/ByDateFilter?apiKey='.$mouserApiKey.'&dateFilter=YearToDate';
+        $url = $this->apiData->ApiPath.'orderhistory/ByDateFilter?apiKey='.$this->apiData->ApiKey.'&dateFilter=YearToDate';
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -86,10 +81,8 @@ class mouser extends vendorInterface {
 
     function getOrderInformation(string $mouserOrderNumber): array
     {
-        global $mouserApiPath;
-        global $mouserApiKey;
-
-        $url = $mouserApiPath.'order/'.$mouserOrderNumber.'?apiKey='.$mouserApiKey;
+        $url = $this->apiData->ApiPath.'order/'.$mouserOrderNumber.'?apiKey='.$this->apiData->ApiKey;
+        echo $url;
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -113,7 +106,7 @@ class mouser extends vendorInterface {
         $data['ShippingPrice'] = 0;
         $data['MerchandisePrice'] = $mouserData["MerchandiseTotal"];
         $data['CurrencyCode'] = $mouserData["CurrencyCode"];
-        $data['OrderDate'] = mouser_getOrderHistory()['Orders'][$mouserOrderNumber]['OrderDate'];
+        $data['OrderDate'] = $this->getOrderHistory()['Orders'][$mouserOrderNumber]['OrderDate'];
 
         $lineIndex = 1;
         $lines = array();

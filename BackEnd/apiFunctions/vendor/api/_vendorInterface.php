@@ -16,6 +16,7 @@ class vendorInterface
     protected bool $orderImportSupported = false;
     protected bool $orderUploadSupported = false;
     protected bool $skuSearchSupported = false;
+	protected bool $authenticated = false;
 
     protected \stdClass|null  $apiData = null;
 
@@ -28,7 +29,7 @@ class vendorInterface
     {
         $output = array();
         $output['Authentication']= array();
-        $output['Authentication']['Authenticated'] = false;
+        $output['Authentication']['Authenticated'] = $this->authenticated;
         $output['Authentication']['AuthenticationUrl'] = '';
 
         $output['Capability']= array();

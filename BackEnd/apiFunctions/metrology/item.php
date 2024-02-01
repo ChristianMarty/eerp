@@ -97,7 +97,7 @@ else if($api->isPost("metrology.create"))
     $sqlData['TestSystemNumber']['raw'] = "(SELECT generateItemNumber())";
     $id = $database->insert("testSystem", $sqlData);
 
-    $query ="SELECT TestSystemNumber AS Number  FROM testSystem WHERE Id = $id;";
+    $query ="SELECT TestSystemNumber AS Number FROM testSystem WHERE Id = $id;";
     $output = [];
     $output['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($database->query($query)[0]->Number);
     $api->returnData($output);

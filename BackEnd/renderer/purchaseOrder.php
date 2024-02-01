@@ -400,11 +400,11 @@ function table_addLine($line): string
     $temp .= "<td class='lines'>{$line->description}</td>";
 	$temp .= "<td class='lines'  style='text-align: right;'>{$line->quantity}</td>";
 	$temp .= "<td class='lines'  style='text-align: center;'>{$line->symbol}</td>";
-	$temp .= "<td class='lines'  style='text-align: center;'>{$line->date}</td>";
-	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->price)."</td>";
+	$temp .= "<td class='lines'  style='white-space: nowrap; text-align: center;'>{$line->date}</td>";
+	$temp .= "<td class='lines'  style='white-space: nowrap; text-align: right;'>".price_formater($line->price)."</td>";
 	if($hasDiscount) $temp .= "<td class='lines'  style='text-align: right;'>{$line->discount}</td>";
 	if($hasVat) $temp .= "<td class='lines'  style='text-align: right;'>{$line->vat}</td>";
-	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->total)."</td>";
+	$temp .= "<td class='lines'  style='white-space: nowrap; text-align: right;'>".price_formater($line->total)."</td>";
 	$temp .= "</tr>";
 	
 	return $temp;
@@ -458,7 +458,7 @@ function table_total($total): string
 	$temp .= "<td class='lines_total' colspan='{$colTotalOffset}'>";
 	$temp .= "<b>Total [{$total["CurrencyCode"]}]:</b></td>";
 	if($hasDiscount OR $hasVat) $temp .= "<td class='lines_total_sum'>";
-	else $temp .= "<td class='lines_total'>";
+	else $temp .= "<td class='lines_total' style='white-space: nowrap;'>";
 	$temp .= "<b>".total_formater($total["Total"]).'<span style="color: White;">00</span><b/></td>';
 	$temp .= "</tr>";
 	
@@ -510,10 +510,10 @@ function additionalCharges_addLine($line): string
     $temp .= "<td class='lines' style='text-align: right;'>{$line->quantity}</td>";
 	$temp .= "<td class='lines' style='text-align: right;'></td>";
 	$temp .= "<td class='lines' style='text-align: right;'></td>";
-	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->price)."</td>";
+	$temp .= "<td class='lines'  style='white-space: nowrap; text-align: right;'>".price_formater($line->price)."</td>";
 	if($hasDiscount)$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'></th>";
 	if($hasVat) $temp .= "<td class='lines'  style='text-align: right;'>{$line->vat}</td>";
-	$temp .= "<td class='lines'  style='text-align: right;'>".price_formater($line->total)."</td>";
+	$temp .= "<td class='lines'  style='white-space: nowrap; text-align: right;'>".price_formater($line->total)."</td>";
 	$temp .= "</tr>";
 	
 	return $temp;
