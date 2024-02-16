@@ -33,7 +33,7 @@ if ($api->isGet())
         if($poBarcode == null) $api->returnParameterError("AttachBarcode");
 
         $query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '$poBarcode' LIMIT 1";
-        $docIdList = $database->query($query);
+        $docIdList = $database->query($query)[0];
     }
     else if($attachToTable === "ManufacturerPartSeriesDocument")
     {
@@ -41,7 +41,7 @@ if ($api->isGet())
         if($manufacturerPartSeriesId == null) $api->returnParameterError("AttachBarcode");
 
         $query = "SELECT DocumentIds FROM manufacturerPart_series WHERE Id = '$manufacturerPartSeriesId' LIMIT 1";
-        $docIdList = $database->query($query);
+        $docIdList = $database->query($query)[0];
     }
     else if($attachToTable === "ManufacturerPartItemDocument")
     {
@@ -49,10 +49,10 @@ if ($api->isGet())
         if($manufacturerPartItemId == null) $api->returnParameterError("AttachBarcode");
 
         $query = "SELECT DocumentIds FROM manufacturerPart_item WHERE Id = '$manufacturerPartItemId' LIMIT 1";
-        $docIdList = $database->query($query);
+        $docIdList = $database->query($query)[0];
     }
 
-    $api->returnData(getDocuments($docIdList));
+    $api->returnData(getDocuments($docIdList->DocumentIds));
 }
 else if($api->isPost())
 {
@@ -62,18 +62,19 @@ else if($api->isPost())
 	
 	$docList = "";
 	
-	foreach($data['DocumentBarcodes'] as $key => $line)
+	foreach($data->DocumentBarcodes as $key => $line)
 	{
         $docNumber = barcodeParser_DocumentNumber($line);
 		$docList .= $docNumber.",";
 	}
     $docList = substr($docList, 0, -1);
 
+
     $docIdList = "";
     if(!empty($docList))
     {
         $query = "SELECT GROUP_CONCAT(Id) AS DocumentIds FROM document WHERE DocumentNumber IN($docList)";
-        $docIdList = $database->query($query);
+        $docIdList = $database->query($query)[0]->DocumentIds;
     }
 
     if($attachToTable === "PurchaseOrderDocument")
