@@ -32,6 +32,7 @@ if($api->isGet())
     $orderNumber = $parameters->OrderNumber;
     
     $name = $supplierData->API;
+    if($name === null) $api->returnError("Supplier not supported!");
 
     if($supplierData->ApiData == null) $apiData = null;
     else $apiData = json_decode($supplierData->ApiData);
@@ -68,19 +69,23 @@ else if($api->isPost())
     
     $name = $vendorMetaData->API;
     if($name === null) $api->returnError("Supplier not supported!");
-
-    require_once __DIR__ . "/../../externalApi/".$name."/".$name.".php";
-
-    $supplierData = call_user_func($name."_getOrderInformation", $orderNumber);
-
+    
+    if($vendorMetaData->ApiData == null) $apiData = null;
+    else $apiData = json_decode($vendorMetaData->ApiData);
+    
+    require_once  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
+    $vendor = new $name($apiData);
+  
+    $data  = $vendor->getOrderInformation($orderNumber);
+    
     $poData = array();
     $poData['OrderNumber'] = $orderNumber;
-    $poData['PurchaseDate'] = $supplierData['OrderDate'];
-    $poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$supplierData['CurrencyCode']."')";
+    $poData['PurchaseDate'] = $data['OrderDate'];
+    $poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$data['CurrencyCode']."')";
     
     $database->update("purchaseOrder", $poData, "PoNo = ".$purchaseOrderNo);
     
-    foreach($supplierData["Lines"] as $line) 
+    foreach($data["Lines"] as $line) 
     {
         $sqlData = array();
         $sqlData['LineNo'] = $line['LineNo'];
