@@ -1,0 +1,43 @@
+CREATE TABLE `inventory` (
+	`Id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`PicturePath` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`InventoryNumber` INT(5) UNSIGNED ZEROFILL NOT NULL DEFAULT (cast(rand() * 100000 as signed)),
+	`Title` MEDIUMTEXT NOT NULL COLLATE 'utf8_bin',
+	`InventoryCategoryId` INT(11) UNSIGNED NULL DEFAULT NULL,
+	`LocationId` INT(11) UNSIGNED NULL DEFAULT NULL,
+	`HomeLocationId` INT(11) UNSIGNED NULL DEFAULT NULL,
+	`PurchaseDate` DATE NULL DEFAULT NULL,
+	`PurchasePrice` DECIMAL(11,2) NULL DEFAULT NULL,
+	`SupplierIdOld` INT(11) UNSIGNED NULL DEFAULT NULL,
+	`VendorId` INT(11) UNSIGNED NULL DEFAULT NULL,
+	`Manufacturer` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`Type` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`Description` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`Note` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`DocumentIds` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`SerialNumber` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`MacAddressWired` CHAR(12) NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`MacAddressWireless` CHAR(12) NULL DEFAULT NULL COLLATE 'utf8_bin',
+	`Status` ENUM('Normal','Broken','Scrapped') NOT NULL DEFAULT 'Normal' COLLATE 'utf8_bin',
+	`Calibration` BIT(1) NOT NULL DEFAULT b'0',
+	`CreationUserId` INT(10) UNSIGNED NOT NULL,
+	`CreationDate` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	PRIMARY KEY (`Id`) USING BTREE,
+	UNIQUE INDEX `InventoryNumber` (`InventoryNumber`) USING BTREE,
+	UNIQUE INDEX `MacAddressWired_MacAddressWireless` (`MacAddressWired`, `MacAddressWireless`) USING BTREE,
+	INDEX `FK_equipment_location` (`LocationId`) USING BTREE,
+	INDEX `FK_equipment_equipmentCategory` (`InventoryCategoryId`) USING BTREE,
+	INDEX `FK_inventory_location` (`HomeLocationId`) USING BTREE,
+	INDEX `FK_inventory_vendor` (`VendorId`) USING BTREE,
+	INDEX `FK_inventory_suppliers` (`SupplierIdOld`) USING BTREE,
+	INDEX `FK_inventory_user` (`CreationUserId`) USING BTREE,
+	CONSTRAINT `FK_inventory_inventoryCategories` FOREIGN KEY (`InventoryCategoryId`) REFERENCES `inventory_category` (`Id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	CONSTRAINT `FK_inventory_location` FOREIGN KEY (`HomeLocationId`) REFERENCES `location` (`Id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	CONSTRAINT `FK_inventory_locations` FOREIGN KEY (`LocationId`) REFERENCES `location` (`Id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	CONSTRAINT `FK_inventory_user` FOREIGN KEY (`CreationUserId`) REFERENCES `user` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_inventory_vendor` FOREIGN KEY (`VendorId`) REFERENCES `vendor` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+COLLATE='utf8_bin'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;

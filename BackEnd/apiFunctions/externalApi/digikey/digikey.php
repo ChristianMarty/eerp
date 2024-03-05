@@ -198,8 +198,8 @@ class digikey extends vendorInterface {
             $temp['Quantity'] = $line["Quantity"];
             $temp['Price'] = $line["UnitPrice"];
             $temp['TotalPrice'] = $line["TotalPrice"];
-            if($line["PoLineItemNumber"] == "") $temp['LineNo'] = $lineIndex;
-            else $temp['LineNo'] = $line["PoLineItemNumber"];
+            if($line["PoLineItemNumber"] == "") $temp['LineNumber'] = $lineIndex;
+            else $temp['LineNumber'] = $line["PoLineItemNumber"];
 
             $lineIndex++;
 

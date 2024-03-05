@@ -103,7 +103,7 @@ class texasInstruments extends vendorInterface
             $temp['Quantity'] = $line["quantity"];
             $temp['Price'] = $line["unitPrice"];
             $temp['TotalPrice'] = $line["netPrice"];
-            $temp['LineNo'] =  $lineIndex;
+            $temp['LineNumber'] =  $lineIndex;
 
             $lineIndex++;
 

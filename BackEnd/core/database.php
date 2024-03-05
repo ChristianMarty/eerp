@@ -131,7 +131,7 @@ class database
         }
     }
 
-    public function insert(string $tableName, array $data): int
+    public function insert(string $tableName, array $data, bool $ignore = false): int
     {
         $keys ="";
         $values ="";
@@ -156,8 +156,11 @@ class database
         $keys = rtrim($keys, ", ");
         $values = rtrim($values, ", ");
 
+        if($ignore)$ignoreString = "IGNORE";
+        else $ignoreString = "";
+
         $query = <<< QUERY
-            INSERT INTO $tableName ($keys) VALUES ($values);
+            INSERT $ignoreString INTO $tableName ($keys) VALUES ($values);
         QUERY;
 
         try {

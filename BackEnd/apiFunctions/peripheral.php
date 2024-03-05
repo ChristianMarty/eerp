@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
-// FileName : printer.php
-// FilePath : apiFunctions/peripheral/
+// FileName : peripheral.php
+// FilePath : apiFunctions/
 // Author   : Christian Marty
 // Date		: 14.01.2024
 // License  : MIT
@@ -20,7 +20,15 @@ if($api->isGet())
 
     $query = <<< QUERY
         SELECT 
-            *
+            Id,
+            Name,
+            DeviceType,
+            Ip,
+            Port,
+            Language,
+            Type,
+            COALESCE(Description, '') AS Description,
+            Driver
         FROM peripheral
     QUERY;
 

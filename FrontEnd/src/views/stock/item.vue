@@ -34,10 +34,10 @@
       <el-divider />
       <h4>Production Parts:</h4>
       <el-table :data="productionPartData" style="width: 100%">
-        <el-table-column prop="ProductionPartBarcode" label="Part Number" sortable width="150">
+        <el-table-column prop="ItemCode" label="Part Number" sortable width="150">
           <template slot-scope="{ row }">
-            <router-link :to="'/productionPart/item/' + row.ProductionPartBarcode" class="link-type">
-              <span>{{ row.ProductionPartBarcode }}</span>
+            <router-link :to="'/productionPart/item/' + row.ItemCode" class="link-type">
+              <span>{{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>
@@ -204,11 +204,17 @@ import scale from '@/components/Scale/scale'
 import Stock from '@/api/stock'
 const stock = new Stock()
 
+import ProductionPart from '@/api/productionPart'
+const productionPart = new ProductionPart()
+
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
+
 import Print from '@/api/print'
 const print = new Print()
 
-import ProductionPart from '@/api/productionPart'
-const productionPart = new ProductionPart()
+import Peripheral from '@/api/peripheral'
+const peripheral = new Peripheral()
 
 const partDataEmpty = {
   StockId: '',
@@ -409,7 +415,7 @@ export default {
       this.printDialogVisible = true
     },
     getPrinter() {
-      print.printer.search().then(response => {
+      peripheral.list(peripheral.Type.Printer).then(response => {
         this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
         this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
         this.printer = response
@@ -422,7 +428,7 @@ export default {
         })
       })
     },
-    print(printData) {
+    async print(printData) {
       var labelData = {
         $Barcode: printData.Barcode,
         $StockId: printData.StockNo,
@@ -432,7 +438,7 @@ export default {
         $Description: printData.Description
       }
 
-      var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
+      var labelTemplateObject = await renderer.item(this.selectedLabelId)// this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
       var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
 
       print.print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {

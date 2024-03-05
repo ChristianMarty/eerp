@@ -25,9 +25,10 @@ if($api->isGet())
 
     $query = <<< STR
         SELECT 
-            workOrder.Id AS WorkOrderId, 
-            project.Title AS ProjectTitle, 
-            workOrder.Title, 
+            workOrder.Id AS WorkOrderId,
+            ProjectNumber,
+            project.Name AS ProjectTitle, 
+            workOrder.Name AS Title, 
             Quantity, 
             WorkOrderNumber, 
             Status 
@@ -43,9 +44,10 @@ if($api->isGet())
     $workOrderId = $workOrderData[0]->WorkOrderId;
 
     $output = array();
-    $output['WorkOrderBarcode'] = barcodeFormatter_WorkOrderNumber($workOrderData[0]->WorkOrderNumber);
+    $output['ItemCode'] = barcodeFormatter_WorkOrderNumber($workOrderData[0]->WorkOrderNumber);
     $output['WorkOrderNumber'] = $workOrderData[0]->WorkOrderNumber;
     $output['Title'] = $workOrderData[0]->Title;
+    $output['ProjectCode'] = barcodeFormatter_Project( $workOrderData[0]->ProjectNumber);
     $output['ProjectTitle'] = $workOrderData[0]->ProjectTitle;
     $output['Quantity'] = $workOrderData[0]->Quantity;
     $output['Status'] = $workOrderData[0]->Status;
@@ -97,34 +99,27 @@ else if($api->isPost())
 {
     $data = $api->getPostData();
 
-    if(!isset($data->ProjectId)) $api->returnParameterMissingError("ProjectId");
     if(!isset($data->Quantity)) $api->returnParameterMissingError("Quantity");
-    if(!isset($data->Title)) $api->returnParameterMissingError("Title");
+    if(!isset($data->Name)) $api->returnParameterMissingError("Name");
 
-    $projectId = intval($data->ProjectId);
-    $quantity = intval($data->Quantity);
-    $title = $database->escape($data->Title);
-    $userId = $user->userId();
-
-    $query = <<< QUERY
-        INSERT INTO workOrder (Title, Quantity, ProjectId, WorkOrderNumber, CreationUserId) 
-        VALUES ( $title, $quantity, $projectId, workOrder_generateWorkOrderNumber(), $userId);
-    QUERY;
+    if(!isset($data->ProjectCode))$projectNumber =  barcodeParser_Project($data->ProjectCode);
+    else $projectNumber = null;
 
     $insertData = [];
-    $insertData['Title'] = $data->Title;
+    $insertData['Name'] = $data->Name;
     $insertData['Quantity'] = intval($data->Quantity);
-    $insertData['ProjectId'] = intval($data->ProjectId);
+    if($projectNumber!== null) $insertData['ProjectId']['raw'] = "(SELECT Id FROM project WHERE ProjectNumber = '$projectNumber')";
     $insertData['WorkOrderNumber']['raw'] = "(SELECT workOrder_generateWorkOrderNumber())";
+    $insertData['CreationUserId'] = $user->userId();
 
     $workOrderId = $database->insert("workOrder", $insertData);
 
-    $query = "SELECT Id, WorkOrderNumber FROM workOrder WHERE Id = $workOrderId;";
+    $query = "SELECT WorkOrderNumber FROM workOrder WHERE Id = $workOrderId;";
     $result = $database->query($query);
 
     $workOrder = [];
-    $workOrder['WorkOrderId'] = $result[0]->Id;
     $workOrder['WorkOrderNumber'] = $result[0]->WorkOrderNumber;
+    $workOrder['ItemCode'] =  barcodeFormatter_WorkOrderNumber($workOrder['WorkOrderNumber']);
 
     $api->returnData($workOrder);
 }

@@ -34,8 +34,8 @@ if($api->isGet())
         SELECT 
             purchaseOrder.PurchaseDate, 
             vendor_displayName(supplier.Id) AS Supplier, 
-            purchaseOrder.PoNo AS PoNo,
-            purchaseOrder_itemOrder.LineNo, 
+            purchaseOrder.PurchaseOrderNumber,
+            purchaseOrder_itemOrder.LineNumber, 
             purchaseOrder_itemOrder.OrderReference, 
             purchaseOrder_itemOrder.PartNo,
             purchaseOrder_itemOrder.ManufacturerName, -- manufacturer.Name AS Manufacturer,
@@ -68,7 +68,7 @@ if($api->isGet())
 
     $result = $database->query($query);
     foreach($result as $item) {
-        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PoNo, $item->LineNo);
+        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
         $item->LineTotal = round(($item->Price*$item->Quantity)*(1-($item->Discount/100)),6);
         $item->ProductionPartNumber = $item->ProductionPartNumberList;
     }

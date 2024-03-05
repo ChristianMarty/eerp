@@ -11,35 +11,63 @@
 require_once __DIR__ . "/../../config.php";
 include_once __DIR__ . "/../util/_barcodeFormatter.php";
 
+function _formatDocumentOutput(array $result): array
+{
+    global $dataRootPath;
+    global $documentPath;
+    foreach($result as $item) {
+        $item->File = $item->Path;
+        $item->DocumentNumber = intval($item->DocumentNumber);
+        $item->Path = $dataRootPath.$documentPath."/".$item->Type."/".$item->Path;
+        $item->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
+        $item->Description = $item->Description??'';
+    }
+    return $result;
+}
+
 function getDocumentsFromIds(string|null $documentIds): array
 {
-    if(empty($documentIds)) return [];
+    if($documentIds === null) return [];
 
     global $database;
 
-    global $dataRootPath;
-    global $documentPath;
+    $docIds = explode(",", $documentIds);
+    if (empty($docIds)) return [];
+    $idList = implode(", ", $docIds);
 
-    $DocIds = explode(",",$documentIds);
-    if(empty($DocIds))  return [];
+    $query = <<< QUERY
+        SELECT 
+            DocumentNumber,
+            Path,
+            Type,
+            LinkType,
+            Name,
+            Hash,
+            CreationDate
+        FROM document
+        WHERE Id IN($idList)
+        ORDER BY Id DESC
+    QUERY;
 
-    $baseQuery = "SELECT * FROM `document` WHERE Id IN(".implode(", ",$DocIds).")";
-
-    $documents = $database->query($baseQuery);
-    foreach ($documents as $r)
-    {
-        $r->FileName = $r->Path;
-        $r->Path = $dataRootPath.$documentPath."/".$r->Type."/".$r->Path;
-
-        if($r->DocumentNumber === null) $r->Barcode = "";
-        else $r->Barcode = barcodeFormatter_DocumentNumber($r->DocumentNumber);
-    }
-    return $documents;
+    $result = $database->query($query);
+    return _formatDocumentOutput($result);
 }
 
-function getDocuments(string|null $documentIds): array
+function getDocuments(): array
 {
-    if(empty($documentIds)) return [];
-
-    return getDocumentsFromIds( $documentIds);
+    global $database;
+    $query = <<< QUERY
+        SELECT 
+            DocumentNumber,
+            Path,
+            Type,
+            LinkType,
+            Name,
+            Hash,
+            CreationDate
+        FROM document
+        ORDER BY CreationDate DESC
+    QUERY;
+    $result = $database->query($query);
+    return _formatDocumentOutput($result);
 }

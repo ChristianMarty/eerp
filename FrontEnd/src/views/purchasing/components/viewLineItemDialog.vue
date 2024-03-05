@@ -1,7 +1,7 @@
 <template>
   <div class="view-line-item-dialog">
     <el-dialog
-      :title="'Line '+line.LineNo"
+      :title="'Line '+line.LineNumber"
       :visible.sync="visible"
       :before-close="closeDialog"
       @open="onOpen()"

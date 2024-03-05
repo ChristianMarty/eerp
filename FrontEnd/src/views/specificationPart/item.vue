@@ -47,7 +47,7 @@ export default {
   methods: {
 
     setTitle() {
-      const title = `${this.partData.Type} - ${this.partData.Title}`
+      const title = `${this.partData.Type} - ${this.partData.Name}`
       const route = Object.assign({}, this.tempRoute, {
         title: `${title}`
       })

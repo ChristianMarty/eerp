@@ -133,12 +133,12 @@ function description_generateSummary($locationNr): array
 	{
 		$query = <<<STR
 			SELECT 
-			    LocNr as LocationNumber,
+			    LocationNumber,
 			    Id,
 			    Movable, 
 			    LocationId
 			FROM location 
-			WHERE LocNr = $itemNr
+			WHERE LocationNumber = $itemNr
 		STR;
         $result = $database->query($query);
 
@@ -171,7 +171,7 @@ function description_generateSummary($locationNr): array
 		$query = <<<STR
 			SELECT 
 			    Id,
-			    LocNr, 
+			    LocationNumber, 
 			    NAME
 			FROM location 
 			WHERE Id = $locationId

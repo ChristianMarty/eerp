@@ -14,7 +14,7 @@ function getPurchaseInformation($receivalId): array
 
     $query = <<<STR
         SELECT 
-            PoNo, 
+            PurchaseOrderNumber, 
             Price, 
             finance_currency.CurrencyCode AS Currency, 
             PurchaseDate, 

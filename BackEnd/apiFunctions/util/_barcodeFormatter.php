@@ -33,9 +33,10 @@ function barcodeFormatter_LocationNumber(string|int $input): string
     return "Loc-".$input;
 }
 
-function barcodeFormatter_ProductionPart(string|int $input): string
+function barcodeFormatter_ProductionPart(string|int $number, string|null $prefix = null ): string
 {
-    return $input; // TODO: Fix this
+    if($prefix === null) return $number; // TODO: Fix this
+    else return $prefix."-".$number;
 }
 
 function barcodeFormatter_SpecificationPart(string|int $input): string
@@ -80,7 +81,7 @@ function barcodeFormatter_CostCenter(string|int $input): string
     return "CC-".$input;
 }
 
-function barcodeFormatter_Project(string|int $input): string
+function barcodeFormatter_Project(string|int|null $input): string|null
 {
     return "Pjct-".$input;
 }

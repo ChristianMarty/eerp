@@ -19,7 +19,7 @@
       style="width: 100%"
       :cell-class-name="tableAnalyzer"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="LineNumber" label="Line" width="70" />
       <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="220" />
       <el-table-column prop="ManufacturerName" label="Manufacturer" width="200">
         <template slot-scope="{ row }">
@@ -57,8 +57,8 @@
       :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
-      <el-table-column prop="SpecificationPartBarcode" label="Specification Part" width="150" />
+      <el-table-column prop="LineNumber" label="Line" width="70" />
+      <el-table-column prop="SpecificationPartCode" label="Specification Part" width="150" />
       <el-table-column prop="Description" label="Description" />
     </el-table>
 
@@ -72,7 +72,7 @@
       :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="LineNumber" label="Line" width="70" />
       <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="220" />
       <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" />
       <el-table-column prop="ManufacturerPartNumber" label="Manufacturer Part Number" width="220" />
@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PurchaseOrderNumber).then(response => {
+      purchase.item.search(this.$props.orderData.ItemCode).then(response => {
         response.Lines.forEach(element => {
           if (element.LineType === 'Generic') {
             this.genericLines.push(element)
@@ -131,7 +131,7 @@ export default {
     },
     getMatchLines() {
       this.loading = true
-      purchase.item.match.get(this.$props.orderData.PurchaseOrderNumber).then(response => {
+      purchase.item.match.get(this.$props.orderData.ItemCode).then(response => {
         this.matchedData = response
         this.loading = false
       }).catch(response => {
@@ -151,7 +151,7 @@ export default {
       })
 
       purchase.item.match.create(
-        this.$props.orderData.PurchaseOrderNumber,
+        this.$props.orderData.ItemCode,
         LineIdList
       ).then(response => {
         this.getMatchLines()

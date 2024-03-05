@@ -63,7 +63,7 @@ class distrelec extends vendorInterface {
             $temp['Quantity'] = $lineData[$indexQuantity];
             $temp['Price'] = 0;
             $temp['TotalPrice'] = 0;
-            $temp['LineNo'] =  $index;
+            $temp['LineNumber'] =  $index;
 
             $output[] = $temp;
         }

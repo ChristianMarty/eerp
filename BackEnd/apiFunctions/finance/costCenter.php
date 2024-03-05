@@ -22,7 +22,7 @@ if($api->isGet())
             finance_costCenter.Description, 
             finance_costCenter.ProjectId, 
             finance_costCenter.Color,
-            project.Title AS ProjectName
+            project.Name AS ProjectName
         FROM finance_costCenter
         LEFT JOIN project ON project.Id = finance_costCenter.ProjectId = project.Id
     QUERY;

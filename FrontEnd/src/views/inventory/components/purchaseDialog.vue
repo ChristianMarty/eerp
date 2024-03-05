@@ -165,7 +165,7 @@ export default {
     },
     prepairLines(data) {
       data.forEach(line => {
-        line.lineKey = line.LineNo
+        line.lineKey = line.LineNumber
 
         if ('Received' in line) {
           if (line.Received.length === 1) {

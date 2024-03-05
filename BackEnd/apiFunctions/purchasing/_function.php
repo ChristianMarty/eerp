@@ -42,7 +42,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
             BillingContactId, 
             PurchaseContactId, 
             purchaseOrder.DocumentIds, 
-            purchaseOrder.PoNo AS PurchaseOrderNumber, 
+            purchaseOrder.PurchaseOrderNumber, 
             purchaseOrder.CreationDate, 
             purchaseOrder.PurchaseDate, 
             purchaseOrder.Title, 
@@ -65,14 +65,14 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 
 	if(isset($purchaseOrderNo) and $purchaseOrderNo !== null)
 	{
-		$query.= " WHERE PoNo = ".$purchaseOrderNo;		
+		$query.= " WHERE PurchaseOrderNumber = ".$purchaseOrderNo;
 	}
 
     $r = $database->query($query)[0];
 
 
     $purchaseOrderNumber= $r->PurchaseOrderNumber;
-    $r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber);
+    $r->ItemCode = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber);
     $purchaseOrderId = $r->PoId;
     $status = $r->Status;
 
@@ -119,7 +119,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 
     $query = <<<STR
 	SELECT purchaseOrder_additionalCharges.Id AS AdditionalChargesLineId, 
-	       purchaseOrder_additionalCharges.LineNo, 
+	       purchaseOrder_additionalCharges.LineNumber, 
 	       purchaseOrder_additionalCharges.Type, 
 	       purchaseOrder_additionalCharges.Price, 
 	       purchaseOrder_additionalCharges.Quantity, 
@@ -129,7 +129,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	FROM purchaseOrder_additionalCharges
 	LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_additionalCharges.VatTaxId
 	WHERE PurchaseOrderId = $purchaseOrderId 
-	ORDER BY LineNo
+	ORDER BY LineNumber
 	STR;
     $additionalCharges = $database->query($query);
 	foreach ($result as $r)

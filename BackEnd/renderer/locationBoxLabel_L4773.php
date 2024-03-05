@@ -124,10 +124,10 @@ if($api->isGet())
     }
     $query = <<< STR
         SELECT 
-            LocNr,
+            LocationNumber,
             Name
         FROM location
-        WHERE LocNr IN( $locationNumbersString );
+        WHERE LocationNumber IN( $locationNumbersString );
     STR;
 
     $rows = $database->query($query);

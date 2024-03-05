@@ -16,7 +16,7 @@
         v-if="loading === false"
         label-width="150px"
       >
-        <el-form-item label="Line:">{{ line.LineNo }}</el-form-item>
+        <el-form-item label="Line:">{{ line.LineNumber }}</el-form-item>
 
         <el-form-item label="Type:">
           <el-select
@@ -133,16 +133,16 @@
         </el-form-item>
         <el-form-item v-if="line.LineType == 'Specification Part'" label="Specification Part:">
           <el-select
-            v-model="line.SpecificationPartNumber"
-            placeholder="Supplier Part"
+            v-model="line.SpecificationPartCode"
+            placeholder="Specification Part"
             filterable
             style="min-width: 200px; margin-right: 10px;"
           >
             <el-option
               v-for="item in specificationPart"
-              :key="item.SpecificationPartNumber"
-              :label="item.SpecificationPartBarcode+' - '+item.Title"
-              :value="item.SpecificationPartNumber"
+              :key="item.ItemCode"
+              :label="item.ItemCode+' - '+item.Name"
+              :value="item.ItemCode"
             />
           </el-select>
 
@@ -388,7 +388,7 @@ export default {
       })
     },
     deleteLine() {
-      this.$confirm('This will permanently delete line ' + this.line.LineNo + '. Continue?', 'Warning', {
+      this.$confirm('This will permanently delete line ' + this.line.LineNumber + '. Continue?', 'Warning', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'warning'

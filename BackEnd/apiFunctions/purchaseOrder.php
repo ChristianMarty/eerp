@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : PurchaseOrder.php
+// FileName : purchaseOrder.php
 // FilePath : apiFunctions/
 // Author   : Christian Marty
 // Date		: 21.11.2023
@@ -20,8 +20,7 @@ if($api->isGet())
 
 	$baseQuery = <<<STR
 		SELECT 
-		    purchaseOrder.PoNo, 
-		    purchaseOrder.CreationDate, 
+		    purchaseOrder.PurchaseOrderNumber AS PurchaseOrderNumber, 
 		    purchaseOrder.PurchaseDate, 
 		    purchaseOrder.Title, 
 		    purchaseOrder.Description, 
@@ -31,9 +30,9 @@ if($api->isGet())
 		    vendor.Id AS SupplierId, 
 		    purchaseOrder.AcknowledgementNumber, 
 		    purchaseOrder.OrderNumber, 
-		    finance_currency.CurrencyCode, 
-		    finance_currency.Id AS CurrencyId, 
-		    purchaseOrder.ExchangeRate, 
+		    -- finance_currency.CurrencyCode, 
+		    -- finance_currency.Id AS CurrencyId, 
+		    -- purchaseOrder.ExchangeRate, 
 		    purchaseOrder.QuotationNumber, 
 			SUM(purchaseOrder_itemOrder.Quantity) AS TotalQuantityOrdered, 
 			SUM(Received.TotalQuantityReceived) AS TotalQuantityReceived
@@ -52,7 +51,7 @@ if($api->isGet())
 	{
 		$purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameter->PurchaseOrderNo);
 		if($purchaseOrderNo === false) $api->returnParameterError("PurchaseOrderNo");
-		$queryParam[] = "PoNo = " . $purchaseOrderNo;
+		$queryParam[] = "PurchaseOrderNumber = " . $purchaseOrderNo;
 	}
 	
 	if(isset($parameter->VendorId))
@@ -79,20 +78,28 @@ if($api->isGet())
 		$queryParam[] = "Status = $status";
 	}
 
-	$result = $database->query($baseQuery,$queryParam,"GROUP BY purchaseOrder.Id ORDER BY purchaseOrder.PoNo DESC");
+	$result = $database->query($baseQuery,$queryParam,"GROUP BY purchaseOrder.Id ORDER BY purchaseOrder.PurchaseOrderNumber DESC");
 
 	foreach ($result as $item)
 	{
+        $item->ItemCode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber);
+
 		if($item->Title == null) $item->Title = $item->SupplierName." - ".$item->PurchaseDate;
 
-		$totalQuantityOrdered =  intval($item->TotalQuantityOrdered);
-		$totalQuantityReceived =  intval($item->TotalQuantityReceived);
+        $item->TotalQuantityOrdered =  intval($item->TotalQuantityOrdered);
+        $item->TotalQuantityReceived =  intval($item->TotalQuantityReceived);
 
-		$item->TotalQuantityOrdered = $totalQuantityOrdered;
-		$item->TotalQuantityReceived = $totalQuantityReceived;
-
-		if($totalQuantityOrdered != 0) $item->ReceiveProgress = intval($totalQuantityReceived/$totalQuantityOrdered*100);
+		if($item->TotalQuantityOrdered != 0) $item->ReceiveProgress = intval($item->TotalQuantityReceived/$item->TotalQuantityOrdered*100);
 		else $item->ReceiveProgress = 0;
+
+        $item->AcknowledgementNumber = $item->AcknowledgementNumber??"";
+        $item->QuotationNumber = $item->QuotationNumber??"";
+
+        unset($item->PoId);
+        unset($item->CurrencyId);
+        unset($item->TotalQuantityOrdered);
+        unset($item->TotalQuantityReceived);
+
 	}
 
 	$api->returnData($result);

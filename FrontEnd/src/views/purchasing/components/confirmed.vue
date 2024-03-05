@@ -15,7 +15,7 @@
       :tree-props="{ children: 'Received' }"
       :cell-class-name="tableAnalyzer"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="LineNumber" label="Line" width="70" />
       <el-table-column prop="QuantityOrdered" label="Orderd Qty" width="100" />
       <el-table-column prop="QuantityReceived" label="Received Qty" width="120" />
       <el-table-column prop="AddedStockQuantity" label="Add Stock Qty" width="120" />
@@ -195,7 +195,7 @@ export default {
       this.trackDialogVisible = true
     },
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PurchaseOrderBarcode).then(response => {
+      purchase.item.search(this.$props.orderData.ItemCode).then(response => {
         this.lines = response.Lines
         this.prepairLines(this.lines)
       }).catch(response => {
@@ -209,7 +209,7 @@ export default {
     },
     prepairLines(data) {
       data.forEach(line => {
-        line.lineKey = line.LineNo
+        line.lineKey = line.LineNumber
 
         if ('Received' in line) {
           if (line.Received.length === 1) {

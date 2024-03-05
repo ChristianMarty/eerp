@@ -23,7 +23,7 @@
           :options="locations"
           :props="{
             emitPath: false,
-            value: 'LocNr',
+            value: 'ItemCode',
             label: 'Name',
             children: 'Children',
             checkStrictly: true

@@ -1,0 +1,13 @@
+CREATE DEFINER=`root`@`%` PROCEDURE `vendor_idFromName`(
+	IN `InputName` CHAR(50)
+)
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+
+SELECT * FROM vendor_names WHERE Name = InputName;
+
+END;

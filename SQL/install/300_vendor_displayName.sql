@@ -1,0 +1,23 @@
+CREATE DEFINER=`root`@`%` FUNCTION `vendor_displayName`(
+	`VendorId` int
+)
+RETURNS char(50) CHARSET utf8
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+
+DECLARE Name CHAR(50) DEFAULT "";
+DECLARE ShortName CHAR(50) DEFAULT NULL;
+
+SELECT vendor.FullName, vendor.ShortName INTO Name, ShortName FROM vendor WHERE Id = VendorId;
+
+IF ShortName IS NOT NULL THEN
+	RETURN ShortName;
+ELSE 
+	RETURN Name;
+END IF;
+
+END

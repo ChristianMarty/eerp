@@ -116,7 +116,7 @@ else if($api->isPost())
         $api->returnParameterError("Parameter combination");
 	}
 
-	$sqlData['UserId'] = $user->userId();
+	$sqlData['CreationUserId'] = $user->userId();
 
     $database->insert("partStock_history", $sqlData);
 

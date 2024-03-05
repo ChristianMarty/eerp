@@ -8,12 +8,18 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
+
+require_once __DIR__."/util/_files.php";
 
 if($api->isGet("report.view"))
 {
-	require_once __DIR__."/util/_files.php";
-	$path = "../report/";
-	$api->returnData(files_listFiles($path,"report.php"));
+    $path = "../report/";
+    $reportList = files_listFiles($path,"report.php");
+    foreach($reportList as &$item) {
+        unset($item['FileName']);
+        $item['Name'] = $item['Title'];
+        unset($item['Title']);
+    }
+    $api->returnData($reportList);
 }

@@ -253,7 +253,7 @@ foreach( $poData['Lines'] AS $srcLine)
 {
 	$line = new stdClass;
 	
-	$line->lineNo = $srcLine['LineNo'];
+	$line->LineNumber = $srcLine['LineNumber'];
 	$line->quantity =$srcLine['QuantityOrdered'];
 	$line->symbol = $srcLine['UnitOfMeasurement'];
 	$line->price = $srcLine['LinePrice'];
@@ -285,7 +285,7 @@ foreach( $poData['AdditionalCharges'] AS $srcLine)
 
     $srcLine = (array)$srcLine;
 	
-	$line->lineNo = $alphabet[intval($srcLine['LineNo'])-1];
+	$line->LineNumber = $alphabet[intval($srcLine['LineNumber'])-1];
 	$line->type = $srcLine['Type'];
 	$line->price = $srcLine['Price'];
 	$line->quantity =$srcLine['Quantity'];
@@ -395,7 +395,7 @@ function table_addLine($line): string
 	global $hasVat;
 	
 	$temp = "<tr class='lines'>";
-    $temp .= "<td class='lines'  style='text-align: right;'>{$line->lineNo}</td>";
+    $temp .= "<td class='lines'  style='text-align: right;'>{$line->LineNumber}</td>";
 	$temp .= "<td class='lines' style='white-space: nowrap;'>{$line->sku}</td>";
     $temp .= "<td class='lines'>{$line->description}</td>";
 	$temp .= "<td class='lines'  style='text-align: right;'>{$line->quantity}</td>";
@@ -504,7 +504,7 @@ function additionalCharges_addLine($line): string
 	global $hasVat;
 	
 	$temp = "<tr class='lines'>";
-    $temp .= "<td class='lines' style='text-align: right;'>{$line->lineNo}</td>";
+    $temp .= "<td class='lines' style='text-align: right;'>{$line->LineNumber}</td>";
 	$temp .= "<td class='lines' style='white-space: nowrap;'>{$line->type}</td>";
 	$temp .= "<td class='lines' >{$line->Description}</td>";
     $temp .= "<td class='lines' style='text-align: right;'>{$line->quantity}</td>";

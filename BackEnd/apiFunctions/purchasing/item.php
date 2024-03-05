@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/_function.php";
 require_once __DIR__ . "/../../config.php";
@@ -29,7 +30,7 @@ if($api->isGet())
     $DocIds = $output['MetaData']->DocumentIds ?? null;
     unset($output['MetaData']->DocumentIds);
 	
-	$output["Documents"] = getDocuments($DocIds);
+	$output["Documents"] = getDocumentsFromIds($DocIds);
 
 	$api->returnData($output);
 }
@@ -42,15 +43,15 @@ else if($api->isPost())
     $poCreate['PurchaseDate'] = $data->PurchaseDate;
     if($data->Title != "") $poCreate['Title'] = $data->Title;
     if($data->Description != "") $poCreate['Description'] = $data->Description;
-
-    $poCreate['PoNo']['raw'] = "purchaseOrder_generatePoNo()";
+    $poCreate['PurchaseOrderNumber']['raw'] = "purchaseOrder_generatePurchaseOrderNumber()";
+    $poCreate['CreationUserId'] = $user->userId();
 
     $purchaseOrderId = $database->insert("purchaseOrder", $poCreate);
 
-    $query = "SELECT PoNo FROM purchaseOrder WHERE Id = $purchaseOrderId;";
+    $query = "SELECT PurchaseOrderNumber FROM purchaseOrder WHERE Id = $purchaseOrderId;";
 
     $output = [];
-    $output["PurchaseOrderNo"] = $database->query($query)[0]->PoNo;
+    $output["PurchaseOrderNo"] = $database->query($query)[0]->PurchaseOrderNumber;
 
     $api->returnData($output);
 }
@@ -83,7 +84,7 @@ else if ($api->isPatch())
     $poData['VendorContactId'] = intval($data['VendorContactId']);
     $poData['Status'] = $data['Status'];
 
-    $database->update("purchaseOrder", $poData, "PoNo = ".$purchaseOrderNumber);
+    $database->update("purchaseOrder", $poData, "PurchaseOrderNumber = ".$purchaseOrderNumber);
 
     $api->returnEmpty();
 }

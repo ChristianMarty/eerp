@@ -32,7 +32,7 @@
         style="width: 100%"
         @row-click="(row, column, event) =>openItemLineEdit(row)"
       >
-        <el-table-column prop="LineNo" label="Line" width="70" />
+        <el-table-column prop="LineNumber" label="Line" width="70" />
         <el-table-column prop="QuantityOrdered" label="Quantity" width="80" />
         <el-table-column prop="UnitOfMeasurement" label="Unit" width="50" />
         <el-table-column prop="LineType" label="Type" width="150" />
@@ -72,14 +72,14 @@
     >
       <el-table
         ref="additionalChargesTable"
-        row-key="AdditionalChargesLineNo"
+        row-key="AdditionalChargesLineNumber"
         :data="poData.AdditionalCharges"
         border
         :cell-style="{ padding: '0', height: '20px' }"
         style="width: 100%"
         @row-click="(row, column, event) =>openAdditionalChargesLine(row)"
       >
-        <el-table-column prop="LineNo" label="Line" width="70" />
+        <el-table-column prop="LineNumber" label="Line" width="70" />
         <el-table-column prop="Type" label="Type" width="100" />
         <el-table-column prop="Quantity" label="Quantity" width="80" />
         <el-table-column prop="Description" label="Description" />
@@ -204,7 +204,7 @@ const finance = new Finance()
 import * as defaultSetting from '@/utils/defaultSetting'
 const emptyAdditionalChargesLine = {
   AdditionalChargesLineId: 0,
-  LineNo: 0,
+  LineNumber: 0,
   Type: 'Shipping',
   Quantity: 1,
   Price: 0,
@@ -275,7 +275,7 @@ export default {
     },
     addAdditionalChargesLine() {
       this.additionalChargesLine = Object.assign({}, emptyAdditionalChargesLine)
-      this.additionalChargesLine.LineNo = this.additionalChargesLineIndex
+      this.additionalChargesLine.LineNumber = this.additionalChargesLineIndex
       this.additionalChargesDialogVisible = true
     },
     openOrderUpload() {
@@ -321,7 +321,7 @@ export default {
       })
     },
     saveLines() {
-      purchase.item.line.save(this.$props.orderData.PurchaseOrderBarcode, this.poData.Lines).then(response => {
+      purchase.item.line.save(this.$props.orderData.ItemCode, this.poData.Lines).then(response => {
         this.showSuccessMessage()
       }).catch(response => {
         this.showErrorMessage(response)
@@ -331,7 +331,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges, PoNo: this.$props.orderData.PurchaseOrderBarcode }}
+        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges, PoNo: this.$props.orderData.ItemCode }}
       }).then(response => {
         if (response.error == null) {
           this.poData = response.data
@@ -356,14 +356,14 @@ export default {
     reorderItemLines() {
       this.itemLineIndex = 1
       this.poData.Lines.forEach(element => {
-        element.LineNo = this.itemLineIndex
+        element.LineNumber = this.itemLineIndex
         this.itemLineIndex++
       })
     },
     reorderAdditionalChargesLines() {
       this.additionalChargesLineIndex = 1
       this.poData.AdditionalCharges.forEach(element => {
-        element.LineNo = this.additionalChargesLineIndex
+        element.LineNumber = this.additionalChargesLineIndex
         this.additionalChargesLineIndex++
       })
     },
@@ -383,7 +383,7 @@ export default {
       this.getOrderLines()
     },
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PurchaseOrderBarcode).then(response => {
+      purchase.item.search(this.$props.orderData.ItemCode).then(response => {
         this.poData = response
         this.itemLineIndex = this.poData.Lines.length
         this.additionalChargesLineIndex = this.poData.AdditionalCharges.length

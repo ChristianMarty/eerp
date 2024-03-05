@@ -7,14 +7,13 @@ const reportRouter = {
   meta: {
     title: 'report',
     icon: 'el-icon-download'
-    // roles: ["report"]
   },
   children: [
     {
-      path: 'report',
-      component: () => import('@/views/report/index'),
+      path: '',
+      component: () => import('@/views/report/list'),
       name: 'report',
-      meta: { title: 'Report', icon: 'el-icon-download' }
+      meta: { title: 'Report', icon: 'el-icon-download', roles: ['report.view'] }
     }
 
   ]

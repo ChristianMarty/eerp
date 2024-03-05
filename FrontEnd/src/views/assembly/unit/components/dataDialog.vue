@@ -1,7 +1,7 @@
 <template>
   <div class="assembly-history-data-dialog">
     <el-dialog
-      :title="data.AssemblyUnitHistoryBarcode + ' - Assembly History'"
+      :title="data.ItemCode + ' - Assembly History'"
       :visible.sync="visible"
       :before-close="closeDialog"
       center
@@ -9,7 +9,7 @@
     >
 
       <p><b>{{ data.Title }}</b></p>
-      <p>{{ data.AssemblyUnitHistoryBarcode }}</p>
+      <p>{{ data.ItemCode }}</p>
       <p>{{ data.Type }}, {{ data.Date }}</p>
       <p>{{ data.Description }}</p>
 
@@ -50,15 +50,20 @@ const assembly = new Assembly()
 import Print from '@/api/print'
 const print = new Print()
 
+
+import Peripheral from '@/api/peripheral'
+const peripheral = new Peripheral()
+
+
 export default {
   name: 'AssemblyItemHistoryData',
-  props: { assemblyUnitHistoryNumber: { type: Number, default: 0 }, visible: { type: Boolean, default: false }},
+  props: { assemblyUnitHistoryNumber: { type: String, default: '' }, visible: { type: Boolean, default: false }},
   data() {
     return {
       data: {},
       tableData: [],
       selectedPrinterId: 0,
-      printer: {}
+      printer: null
     }
   },
   mounted() {
@@ -71,7 +76,7 @@ export default {
     },
     getHistoryData() {
       assembly.unit.history.item(this.$props.assemblyUnitHistoryNumber).then(response => {
-        this.data = response[0]
+        this.data = response
         this.tableData = []
         if (this.data.Data === null) return
 
@@ -121,9 +126,10 @@ export default {
       })
     },
     getPrinter() {
-      print.printer.search().then(response => {
-        this.printer = response
+      peripheral.list(peripheral.Type.Printer).then(response => {
         this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
+        //this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+        this.printer = response
       }).catch(response => {
         this.$message({
           showClose: true,

@@ -18,7 +18,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Title:">
-        <el-input v-model="specificationPartCreateParameters.Title" />
+        <el-input v-model="specificationPartCreateParameters.Name" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onCreate()">Create</el-button>

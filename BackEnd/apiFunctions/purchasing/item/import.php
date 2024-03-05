@@ -57,7 +57,7 @@ else if($api->isPost())
 
     $data = $api->getPostData();
 
-    $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PoNo = $purchaseOrderNo;";
+    $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PurchaseOrderNumber = $purchaseOrderNo;";
     
     $result = $database->query($query)[0];
     
@@ -83,12 +83,12 @@ else if($api->isPost())
     $poData['PurchaseDate'] = $data['OrderDate'];
     $poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$data['CurrencyCode']."')";
     
-    $database->update("purchaseOrder", $poData, "PoNo = ".$purchaseOrderNo);
+    $database->update("purchaseOrder", $poData, "PurchaseOrderNumber = ".$purchaseOrderNo);
     
     foreach($data["Lines"] as $line) 
     {
         $sqlData = array();
-        $sqlData['LineNo'] = $line['LineNo'];
+        $sqlData['LineNumber'] = $line['LineNumber'];
         $sqlData['Description'] = $line['SupplierDescription'];
         $sqlData['Quantity'] = $line['Quantity'];
         $sqlData['Sku'] = $line['SupplierPartNumber'];

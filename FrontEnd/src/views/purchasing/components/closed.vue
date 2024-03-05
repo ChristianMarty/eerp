@@ -11,7 +11,7 @@
       :tree-props="{ children: 'Received' }"
       @cell-click="(row, column, cell, event) =>openViewLineItemDialog(row, column, cell, event)"
     >
-      <el-table-column prop="LineNo" label="Line" width="80" sortable />
+      <el-table-column prop="LineNumber" label="Line" width="80" sortable />
       <el-table-column prop="QuantityOrdered" label="Orderd Qty" width="140" sortable />
       <el-table-column
         prop="QuantityReceived"
@@ -56,13 +56,13 @@
 
     <el-table
       ref="additionalChargesTable"
-      row-key="AdditionalChargesLineNo"
+      row-key="AdditionalChargesLineNumber"
       :data="additionalCharges"
       border
       :cell-style="{ padding: '0', height: '20px' }"
       style="width: 100%"
     >
-      <el-table-column prop="LineNo" label="Line" width="70" />
+      <el-table-column prop="LineNumber" label="Line" width="70" />
       <el-table-column prop="Type" label="Type" width="100" />
       <el-table-column prop="Quantity" label="Quantity" width="80" />
       <el-table-column prop="Description" label="Description" />
@@ -111,7 +111,7 @@ export default {
       this.viewLine = row
     },
     getOrderLines() {
-      purchase.item.search(this.$props.orderData.PurchaseOrderBarcode).then(response => {
+      purchase.item.search(this.$props.orderData.ItemCode).then(response => {
         this.lines = response.Lines
         this.total = response.Total
         this.additionalCharges = response.AdditionalCharges
@@ -127,7 +127,7 @@ export default {
     },
     prepairLines(data) {
       data.forEach(line => {
-        line.lineKey = line.LineNo
+        line.lineKey = line.LineNumber
         line.Total = Math.round(line.QuantityOrdered * line.Price * 100000) / 100000
 
         if ('Received' in line) {

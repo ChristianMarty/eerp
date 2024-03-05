@@ -21,7 +21,7 @@ function loadDatabaseData(int $purchaseOrderNo):array
     $query = <<<QUERY
         SELECT 
             purchaseOrder_itemOrder.Id AS OrderLineId, 
-            LineNo, 
+            LineNumber, 
             purchaseOrder_itemOrder.Type, 
             vendor_displayName(supplier.Id) AS SupplierName,
             purchaseOrder_itemOrder.Sku AS SupplierPartNumber, 
@@ -38,8 +38,8 @@ function loadDatabaseData(int $purchaseOrderNo):array
         LEFT JOIN supplierPart ON supplierPart.VendorId = purchaseOrder.VendorId AND supplierPart.SupplierPartNumber =  purchaseOrder_itemOrder.Sku
         LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
         LEFT JOIN (SELECT Id, vendor_displayName(Id) FROM vendor)supplier on supplier.Id = supplierPart.VendorId
-        WHERE purchaseOrder.PoNo = '$purchaseOrderNo'
-        ORDER BY LineNo
+        WHERE purchaseOrder.PurchaseOrderNumber = '$purchaseOrderNo'
+        ORDER BY LineNumber
     QUERY;
 
 	$result = $database->query($query);
@@ -152,7 +152,7 @@ else if($api->isPost())
         SELECT 
             VendorId 
         FROM purchaseOrder 
-        WHERE PoNo = '$purchaseOrderNumber'
+        WHERE PurchaseOrderNumber = '$purchaseOrderNumber'
     STR;
     $supplierId = $database->query($query)[0]->VendorId;
 
@@ -178,7 +178,7 @@ else if($api->isPost())
                 SELECT supplierPart.Id FROM supplierPart 
                 WHERE supplierPart.SupplierPartNumber = purchaseOrder_itemOrder.Sku AND supplierPart.VendorId = purchaseOrder.VendorId  
             )
-            WHERE purchaseOrder_itemOrder.Type = 'Part' AND purchaseOrder.PoNo = $purchaseOrderNumber;
+            WHERE purchaseOrder_itemOrder.Type = 'Part' AND purchaseOrder.PurchaseOrderNumber = $purchaseOrderNumber;
         STR;
         $database->execute($query);
     }

@@ -10,8 +10,8 @@ const stockRouter = {
   },
   children: [
     {
-      path: 'search',
-      component: () => import('@/views/stock/search'),
+      path: 'list',
+      component: () => import('@/views/stock/list'),
       name: 'search',
       meta: { title: 'Search', icon: 'search' }
     },

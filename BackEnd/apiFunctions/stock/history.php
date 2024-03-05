@@ -27,7 +27,7 @@ if($api->isGet())
 			partStock_history.ChangeType, 
 			partStock_history.Quantity, 
 			partStock_history.CreationDate AS  Date, 
-			workOrder.Title AS WorkOrderTitle, 
+			workOrder.Name AS WorkOrderTitle, 
 			workOrder.WorkOrderNumber, 
 			partStock_history.Note, 
 			partStock_history.EditToken 

@@ -24,7 +24,7 @@ if($api->isGet())
 
 	$query = <<<STR
 		SELECT 
-		    workOrder.Title AS Title, 
+		    workOrder.Name AS Title, 
 		    WorkOrderNumber, 
 		    partStock_reservation.Quantity 
 		FROM partStock_reservation 

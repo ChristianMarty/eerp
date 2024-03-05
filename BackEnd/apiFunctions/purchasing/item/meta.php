@@ -36,7 +36,7 @@ if($api->isGet())
             BillingContactId, 
             PurchaseContactId, 
             purchaseOrder.DocumentIds, 
-            purchaseOrder.PoNo AS PurchaseOrderNumber, 
+            purchaseOrder.PurchaseOrderNumber AS PurchaseOrderNumber, 
             purchaseOrder.CreationDate, 
             purchaseOrder.PurchaseDate, 
             purchaseOrder.Title, 
@@ -54,7 +54,7 @@ if($api->isGet())
         FROM purchaseOrder
         LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId 
         LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId
-        WHERE purchaseOrder.PoNo = '$purchaseOrderNumber'
+        WHERE purchaseOrder.PurchaseOrderNumber = '$purchaseOrderNumber'
         LIMIT 1
     STR;
 
@@ -94,7 +94,7 @@ else if ($api->isPatch())
     $poData['VendorContactId'] = intval($data->VendorContactId);
     $poData['Status'] = $data->Status;
 
-    $database->update( "purchaseOrder", $poData, "PoNo = ".$purchaseOrderNumber);
+    $database->update( "purchaseOrder", $poData, "PurchaseOrderNumber = ".$purchaseOrderNumber);
 
     $api->returnEmpty();
 }

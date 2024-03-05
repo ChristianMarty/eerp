@@ -23,8 +23,8 @@ if($api->isGet())
            PostalCode,
            City,
            PhonePrefix,
-           country.Name AS CountryName,
-        country.CountryCode
+           country.ShortName AS CountryName,
+           country.Alpha2Code AS CountryCode
         FROM vendor_address
         LEFT JOIN country ON country.Id = vendor_address.CountryId 
     STR;

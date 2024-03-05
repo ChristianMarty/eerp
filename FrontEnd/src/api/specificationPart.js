@@ -54,7 +54,7 @@ class SpecificationPart {
 
   createParameters = {
     Type: '',
-    Title: ''
+    Name: ''
   }
   create(createParameters) {
     return new Promise((resolve, reject) => {

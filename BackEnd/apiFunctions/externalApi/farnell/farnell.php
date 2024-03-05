@@ -69,7 +69,7 @@ class farnell extends vendorInterface {
             $temp['Quantity'] = $lineData[$indexQuantity];
             $temp['Price'] = $lineData[$indexPrice];
             $temp['TotalPrice'] = $lineData[$indexLineTotalPrice];
-            $temp['LineNo'] =  $lineNumber ;
+            $temp['LineNumber'] =  $lineNumber ;
 
             $output[] = $temp;
         }

@@ -13,8 +13,9 @@ use JetBrains\PhpStorm\NoReturn;
 
 #[NoReturn] function purchaseOrderDocumentIngest(stdClass $data, string $type): void
 {
-    require_once __DIR__ . "/../../_functions.php";
-    require_once  __DIR__."/../../../util/_barcodeParser.php";
+    require_once __DIR__."/../../_functions.php";
+    require_once __DIR__."/../../../util/_barcodeParser.php";
+    require_once __DIR__."/../../../util/_barcodeFormatter.php";
 
     global $database;
     global $api;
@@ -26,11 +27,11 @@ use JetBrains\PhpStorm\NoReturn;
     $query = <<<STR
         SELECT 
             Id, 
-            PoNo, 
+            PurchaseOrderNumber, 
             PurchaseDate, 
             DocumentIds 
         FROM purchaseOrder 
-        WHERE  PoNo = $purchaseOrderNumber
+        WHERE  PurchaseOrderNumber = $purchaseOrderNumber
         LIMIT 1
     STR;
     $result = $database->query($query);
@@ -39,7 +40,7 @@ use JetBrains\PhpStorm\NoReturn;
 
     $po = $result[0];
 
-    $name= "PO-".$po->PoNo."_".$po->PurchaseDate;
+    $name= barcodeFormatter_PurchaseOrderNumber($po->PurchaseOrderNumber)."_".$po->PurchaseDate;
 
     $ingestData = array();
     $ingestData['FileName'] = $data->FileName;
@@ -62,7 +63,7 @@ use JetBrains\PhpStorm\NoReturn;
 
     $updateData = [];
     $updateData['DocumentIds'] = $docIdStr;
-    $database->update("purchaseOrder",$updateData,"PoNo = $purchaseOrderNumber" );
+    $database->update("purchaseOrder",$updateData,"PurchaseOrderNumber = $purchaseOrderNumber" );
 
     $api->returnData([$docIdStr]);
 }

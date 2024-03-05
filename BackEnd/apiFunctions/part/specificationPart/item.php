@@ -9,6 +9,7 @@
 //*************************************************************************************************
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
@@ -23,7 +24,7 @@ if($api->isGet())
         SELECT 
             specificationPart.Number AS SpecificationPartNumber,
             specificationPart.Type,
-            specificationPart.Title,
+            specificationPart.Name,
             specificationPart.Description,
             
             productionPart.Number AS ProductionPartNumber,
@@ -65,17 +66,21 @@ if($api->isPost())
 {
     $data = $api->getPostData();
 
+    if(!isset($data->Type)) $api->returnParameterMissingError('Type');
+    if(!isset($data->Name)) $api->returnParameterMissingError('Name');
+
     $sqlData = array();
     $sqlData['Type'] = $data->Type;
-    $sqlData['Title'] = $data->Title;
-
-    $output = array();
+    $sqlData['Name'] = $data->Name;
+    $sqlData['CreationUserId'] = $user->userId();
 
     $id = $database->insert("specificationPart", $sqlData);
     $query = <<< QUERY
         SELECT Number FROM specificationPart WHERE Id = $id;
     QUERY;
 
-    $output['SpecificationPartNumber'] = $this->query($query)[0]->Number;
+    $output = array();
+    $output['SpecificationPartNumber'] = $database->query($query)[0]->Number;
+    $output['ItemCode'] = barcodeFormatter_SpecificationPart($output['SpecificationPartNumber']);
     $api->returnData($output);
 }

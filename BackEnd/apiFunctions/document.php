@@ -12,31 +12,9 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/util/_barcodeFormatter.php";
+require_once __DIR__ . "/util/_getDocuments.php";
 
 if($api->isGet("document.view"))
 {
-    $query = <<< QUERY
-        SELECT 
-            DocumentNumber,
-            Path,
-            Type,
-            LinkType,
-            Description,
-            Hash,
-            CreationDate
-        FROM document
-        ORDER BY Id DESC
-    QUERY;
-    $result = $database->query($query);
-
-    global $dataRootPath;
-    global $documentPath;
-    foreach($result as &$item) {
-        $item->FileName = $item->Path;
-        $item->Path = $dataRootPath.$documentPath."/".$item->Type."/".$item->Path;
-        $item->Barcode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
-        $item->DocumentBarcode = $item->Barcode;
-        $item->Description = $item->Description??'';
-    }
-    $api->returnData($result);
+    $api->returnData(getDocuments());
 }

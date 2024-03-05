@@ -3,7 +3,7 @@
     <el-dialog title="Additional Charge" :visible.sync="visible">
 
       <el-form label-width="150px">
-        <el-form-item label="Line:">{{ line.LineNo }}</el-form-item>
+        <el-form-item label="Line:">{{ line.LineNumber }}</el-form-item>
         <el-form-item label="Type:">
           <el-select
             v-model="line.Type"
@@ -115,7 +115,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: [this.$props.line], PoNo: this.$props.purchaseOrder.PurchaseOrderNumber }}
+        data: { data: { Action: 'save', Lines: [this.$props.line], PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }}
       }).then(response => {
         if (response.error == null) {
           this.$message({
@@ -137,7 +137,7 @@ export default {
       })
     },
     deleteLine() {
-      this.$confirm('This will permanently delete line ' + this.line.LineNo + '. Continue?', 'Warning', {
+      this.$confirm('This will permanently delete line ' + this.line.LineNumber + '. Continue?', 'Warning', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
         type: 'warning'
@@ -145,7 +145,7 @@ export default {
         requestBN({
           method: 'post',
           url: '/purchasing/additionalCharge/edit',
-          data: { data: { Action: 'delete', AdditionalChargeLineId: this.line.AdditionalChargesLineId, PoNo: this.$props.purchaseOrder.PurchaseOrderNumber }}
+          data: { data: { Action: 'delete', AdditionalChargeLineId: this.line.AdditionalChargesLineId, PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }}
         }).then(response => {
           if (response.error != null) {
             this.$message({

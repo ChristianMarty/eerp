@@ -32,7 +32,7 @@ if ($api->isGet())
         $poBarcode =  barcodeParser_PurchaseOrderNumber($attachToBarcode);
         if($poBarcode == null) $api->returnParameterError("AttachBarcode");
 
-        $query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '$poBarcode' LIMIT 1";
+        $query = "SELECT DocumentIds FROM purchaseOrder WHERE PurchaseOrderNumber = '$poBarcode' LIMIT 1";
         $docIdList = $database->query($query)[0];
     }
     else if($attachToTable === "ManufacturerPartSeriesDocument")
@@ -52,7 +52,7 @@ if ($api->isGet())
         $docIdList = $database->query($query)[0];
     }
 
-    $api->returnData(getDocuments($docIdList->DocumentIds));
+    $api->returnData(getDocumentsFromIds($docIdList->DocumentIds));
 }
 else if($api->isPost())
 {
@@ -84,7 +84,7 @@ else if($api->isPost())
 
         $updateData = [];
         $updateData['DocumentIds'] = $docIdList;
-        $database->update('purchaseOrder', $updateData, "PoNo = '$poCode'");
+        $database->update('purchaseOrder', $updateData, "PurchaseOrderNumber = '$poCode'");
     }
     else if($attachToTable === "ManufacturerPartSeriesDocument")
     {

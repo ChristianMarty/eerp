@@ -8,9 +8,9 @@ class Peripheral {
 
   /**
    * Search for peripheral
-   * @param {Type} Type
+   * @param {Type|null} Type
    */
-  search(Type) {
+  list(Type) {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'get',

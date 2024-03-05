@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
@@ -23,8 +24,8 @@ if($api->isGet("inventory.purchase.view"))
 
     $query = <<< STR
         SELECT 
-            PoNo, 
-            purchaseOrder_itemOrder.LineNo AS LineNumber , 
+            PurchaseOrderNumber, 
+            purchaseOrder_itemOrder.LineNumber AS LineNumber , 
             purchaseOrder_itemOrder.Description, 
             vendor_displayName(vendor.Id) AS SupplierName, 
             purchaseOrder.VendorId AS SupplierId, 
@@ -48,9 +49,9 @@ if($api->isGet("inventory.purchase.view"))
     $result = $database->query($query);
     foreach($result as &$item)
     {
-        $item->PurchaseOrderNumber = $item->PoNo;
-        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PoNo, $item->LineNumber);
-        $item->PoNo = barcodeFormatter_PurchaseOrderNumber($item->PoNo);
+        $item->PurchaseOrderNumber = $item->PurchaseOrderNumber;
+        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
+        $item->PurchaseOrderNumber = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber);
     }
 
     $api->returnData($result);
@@ -76,17 +77,17 @@ else if($api->isPatch("inventory.purchase.edit"))
 	$receivalIdList = array();
 	foreach($purchaseOrderItems as $item)
 	{
-        $costType = $database->escape($item->CostType);
-		$quantity = $database->escape($item->Quantity);
-		$receivalId = $database->escape($item->ReceivalId);
-		$receivalIdList[] = $receivalId;
+        $sqlData = array();
+        $sqlData['InventoryId'] = $id;
+        $sqlData['Quantity'] = $item->Quantity;
+        $sqlData['ReceivalId'] = $item->ReceivalId;
+        $sqlData['Type'] = $item->CostType;
+        $sqlData['CreationUserId'] = $user->userId();
 
-        $query = <<< STR
-            INSERT IGNORE INTO inventory_purchaseOrderReference 
-            SET InventoryId = $id, Quantity = $quantity, ReceivalId = $receivalId, Type = $costType;
-        STR;
+        $output = array();
+        $database->insert("inventory_purchaseOrderReference", $sqlData, true);
 
-		$database->query($query);
+		$receivalIdList[] = $database->escape($item->ReceivalId);
 	}
 
     $query = <<< STR

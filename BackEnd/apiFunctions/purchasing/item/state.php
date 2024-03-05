@@ -24,7 +24,7 @@ if($api->isPatch())
 
 	$poData = array();
 	$poData['Status'] = $data->NewState;
-	$database->update('purchaseOrder',$poData,'PoNo = '.$purchaseOrderNumber );
+	$database->update('purchaseOrder',$poData,'PurchaseOrderNumber = '.$purchaseOrderNumber );
 
 	$api->returnEmpty();
 }

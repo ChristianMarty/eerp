@@ -16,7 +16,7 @@ class Location
 	private static array $locationData;
 	public function __construct( )
     {
-		if(empty($this->data)){
+		if(empty($this->locationData)){
 			global $database;
 			$query = <<<STR
 				SELECT *
@@ -42,6 +42,17 @@ class Location
 		return $output;
 	}
 
+	public function itemCode(int|null $locationId): string
+	{
+		if($locationId === null) return "";
+
+		if(array_key_exists($locationId, self::$locationData)) $output = barcodeFormatter_LocationNumber(self::$locationData[$locationId]->LocationNumber);
+		else $output = "Error: Location dose not exist";
+
+		if($output == null) $output = "";
+		return $output;
+	}
+
 	public function path(int|null $locationId): string
 	{
 		if($locationId === null) return "";
@@ -59,7 +70,7 @@ class Location
 		$locationNumber = barcodeFormatter_LocationNumber($locationNumber);
 
 		foreach (self::$locationData  as $row) {
-			if ($row->LocNr == $locationNumber) {
+			if ($row->LocationNumber == $locationNumber) {
 				return $this->getChildren($row->Id);
 			}
 		}
@@ -68,8 +79,7 @@ class Location
 
 	public function tree(int|null $parentId = null): array
 	{
-		if($parentId === null) $parentId = 0;
-
+		//if($parentId === null) $parentId = 0;
 		$treeItem = array();
 		foreach (self::$locationData as $row)
 		{
@@ -80,21 +90,13 @@ class Location
 				$temp->Name = $row->Name;
 				$temp->Title = $row->Title;
 				$temp->Description = $row->Description;
-				$temp->LocationNumber = $row->LocNr;
-				$temp->LocationBarcode = barcodeFormatter_LocationNumber($row->LocNr);
+				$temp->LocationNumber = intval($row->LocationNumber);
+				$temp->ItemCode = barcodeFormatter_LocationNumber($row->LocationNumber);
 
 				$temp->Attributes = new stdClass;
 				$temp->Attributes->EsdSave = boolval($row->ESD);
 
 				if ($this->hasChild($row->Id)) $temp->Children = $this->tree($row->Id);
-
-
-				// TODO: Remove legacy below
-				
-				$temp->Id = $row->Id;
-				$temp->LocNr = barcodeFormatter_LocationNumber($row->LocNr);
-				$temp->ESD = $temp->Attributes->EsdSave; //*/
-
 
 				$treeItem[] = $temp;
 			}
@@ -203,7 +205,7 @@ function location_getItems(int|null $locationId) : array
 
 	$query = <<<QUERY
 		SELECT 
-			LocNr, 
+			LocationNumber, 
 			Name 
 		FROM location 
 		WHERE LocationId = '$locationId';
@@ -213,7 +215,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_LocationNumber($item->LocNr);
+		$data["Item"] = barcodeFormatter_LocationNumber($item->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = "$item->Name";
 		$items[] = $data;

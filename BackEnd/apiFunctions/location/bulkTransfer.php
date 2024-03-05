@@ -27,10 +27,10 @@ if($api->isPost())
 	if($newLocationNr == null)  $api->returnParameterError("DestinationLocationNumber");
 
 	$query = <<<STR
-		UPDATE inventory SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
-		UPDATE partStock SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
-		UPDATE location  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
-		UPDATE assembly_unit  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$oldLocationNr');
+		UPDATE inventory SET LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$oldLocationNr');
+		UPDATE partStock SET LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$oldLocationNr');
+		UPDATE location  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$oldLocationNr');
+		UPDATE assembly_unit  SET LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$newLocationNr') WHERE LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$oldLocationNr');
 	STR;
 
 	$database->execute($query);

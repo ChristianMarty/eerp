@@ -63,7 +63,7 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category']= 'Inventory';
-        $temp['Barcode']= barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['ItemCode']= barcodeFormatter_InventoryNumber($r->InvNo);
         $temp['Description']= $r->Title." - ".$r->Manufacturer." ".$r->Type;
         $output[] = $temp;
     }
@@ -88,7 +88,7 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category']= 'Inventory History';
-        $temp['Barcode']= barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['ItemCode']= barcodeFormatter_InventoryNumber($r->InvNo);
         $temp['Description']= $r->HistoryType." - ".$r->Description." - ".$r->Manufacturer." ".$r->Type;
         $output[] = $temp;
     }
@@ -109,7 +109,7 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category']= 'Manufacturer Part Series';
-        $temp['Barcode']= 'TBD';
+        $temp['ItemCode']= 'TBD';
         $temp['Description']= $r->VendorName." ".$r->Title." - ".$r->Description;
         $output[] = $temp;
     }
@@ -130,7 +130,7 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category']= 'Manufacturer Part Item';
-        $temp['Barcode']= 'TBD';
+        $temp['ItemCode']= 'TBD';
         $temp['Description']= $r->VendorName." ".$r->Number." - ".$r->Description;
         $output[] = $temp;
     }
@@ -138,8 +138,8 @@ function getCitations($documentId): array
 // Get documents from purchaseOrder
     $query = <<< STR
         SELECT 
-            purchaseOrder.PoNo,
-            purchaseOrder.Description,
+            purchaseOrder.PurchaseOrderNumber,
+            purchaseOrder.Title,
             vendor_displayName(vendor.Id) AS VendorName
         FROM purchaseOrder 
         LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
@@ -151,8 +151,8 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category'] = 'Purchase Order';
-        $temp['Barcode'] = barcodeFormatter_PurchaseOrderNumber($r->PoNo);
-        $temp['Description'] = $r->VendorName." - ".$r->Description;
+        $temp['ItemCode'] = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber);
+        $temp['Description'] = $r->VendorName." - ".$r->Title;
         $output[] = $temp;
     }
 
@@ -172,15 +172,13 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category'] = 'Shipment';
-        $temp['Barcode'] = barcodeFormatter_ShipmentNumber($r->ShipmentNumber);
+        $temp['ItemCode'] = barcodeFormatter_ShipmentNumber($r->ShipmentNumber);
         $temp['Description'] = $r->Direction." - ".$r->Description;
         $output[] = $temp;
     }
 
     return $output;
 }
-
-
 
 
 /* Parameter
@@ -196,6 +194,7 @@ function ingest(array|stdClass $data): null|int|array
     $data = (array)$data;
 
     global $database;
+    global $user;
 
     $fileNameIllegalCharactersRegex = '/[ %:"*?<>|\\/]+/';
 
@@ -227,11 +226,12 @@ function ingest(array|stdClass $data): null|int|array
 
     $sqlData = array();
     $sqlData['Path'] = $dstFileName;
-    $sqlData['Type'] = $data['Type'];
-    $sqlData['Description'] = $data['Description'] ?? null;
-    $sqlData['LinkType'] = "Internal";
+    $sqlData['Name'] = $data['Description'] ?? null;
     $sqlData['Note'] = $data['Note']??null;
+    $sqlData['Type'] = $data['Type'];
+    $sqlData['LinkType'] = "Internal";
     $sqlData['Hash'] = $fileHashCheck['hash'];
+    $sqlData['CreationUserId'] = $user->userId();;
     $sqlData['DocumentNumber']['raw'] = "(SELECT generateItemNumber())";
 
     return $database->insert("document", $sqlData);

@@ -242,7 +242,7 @@ class Purchase {
     line: {
       emptyLine: {
         OrderLineId: 0,
-        LineNo: 0,
+        LineNumber: 0,
         LineType: 'Part',
         QuantityOrdered: 1,
         UnitOfMeasurementId: null,

@@ -54,7 +54,7 @@ else if($api->isPost("purchasing.confirm"))
 	$row['ItemOrderId'] = $data->LineId;
 	$row['QuantityReceived'] = $data->ReceivedQuantity;
 	$row['ReceivalDate'] = $data->ReceivedDate;
-	$row['UserId'] = $user->userId();
+	$row['CreationUserId'] = $user->userId();
 
     $output = array();
     $output["ReceivalId"] = $database->insert("purchaseOrder_itemReceive", $row);

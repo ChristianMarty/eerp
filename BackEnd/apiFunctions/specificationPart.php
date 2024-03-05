@@ -20,10 +20,9 @@ if($api->isGet())
 
     $query = <<<STR
         SELECT 
-            specificationPart.Id,
             specificationPart.Number AS SpecificationPartNumber,
             specificationPart.Type,
-            specificationPart.Title
+            specificationPart.Name
         FROM specificationPart
     STR;
 
@@ -31,7 +30,7 @@ if($api->isGet())
     foreach($output as $item)
     {
         $item->SpecificationPartNumber = intval($item->SpecificationPartNumber);
-        $item->SpecificationPartBarcode = barcodeFormatter_SpecificationPart($item->SpecificationPartNumber);
+        $item->ItemCode = barcodeFormatter_SpecificationPart($item->SpecificationPartNumber);
     }
     $api->returnData($output);
 }

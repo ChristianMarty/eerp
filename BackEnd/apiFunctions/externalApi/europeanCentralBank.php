@@ -39,7 +39,7 @@ function ecb_getEcdData(string $sourceCurrencyCode, string $targetCurrencyCode):
 	curl_close($curl);
 	
 	$ecbData = json_decode($result, true);
-	
+
 	$exchangeRate = null;
 	
 	if(isset($ecbData['dataSets'][0]['series']['0:0:0:0:0']['observations'][0][0]))

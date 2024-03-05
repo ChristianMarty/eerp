@@ -29,7 +29,7 @@ if($api->isGet())
 	$query = <<<STR
 		SELECT 
 		    Id,
-			LocNr, 
+			LocationNumber, 
 			ParentId,
 			Name,
 			Title,
@@ -42,7 +42,7 @@ if($api->isGet())
 			Cache_DisplayLocation,
 			Cache_DisplayPath
 		FROM location 
-		WHERE LocNr = '$locationNumber'
+		WHERE LocationNumber = '$locationNumber'
 		LIMIT 1;
 	STR;
 	$result = $database->query($query);
@@ -51,8 +51,8 @@ if($api->isGet())
 
 	$locationId = intval($locationData->Id);
 	$parentId = intval($locationData->ParentId);
-	$output['LocationNumber'] = $locationData->LocNr;
-	$output['LocationBarcode'] = barcodeFormatter_LocationNumber($locationData->LocNr);
+	$output['LocationNumber'] = $locationData->LocationNumber;
+	$output['ItemCode'] = barcodeFormatter_LocationNumber($locationData->LocationNumber);
 	$output['Name'] = $locationData->Name;
 	$output['Title'] = $locationData->Title;
 	$output['Description'] = $locationData->Description;
@@ -70,7 +70,7 @@ if($api->isGet())
 	{
 		$query = <<<STR
 			SELECT 
-				LocNr, 
+				LocationNumber, 
 				Name,
 				Description
 			FROM location 
@@ -79,8 +79,8 @@ if($api->isGet())
 		STR;
 		$item = $database->query($query)[0];
 
-		$parent['LocationNumber'] = $item->LocNr;
-		$parent['LocationBarcode'] = barcodeFormatter_LocationNumber($item->LocNr);
+		$parent['LocationNumber'] = $item->LocationNumber;
+		$parent['ItemCode'] = barcodeFormatter_LocationNumber($item->LocationNumber);
 		$parent['Name'] = $item->Name;
 		$parent['Description'] = $item->Description;
 	}
@@ -89,7 +89,7 @@ if($api->isGet())
 // get children
 	$query = <<<STR
 		SELECT 
-			LocNr, 
+			LocationNumber, 
 			Name,
 			Description
 		FROM location WHERE ParentId = $locationId
@@ -100,8 +100,8 @@ if($api->isGet())
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data['LocationNumber'] = $item->LocNr;
-		$data['LocationBarcode'] = barcodeFormatter_LocationNumber($item->LocNr);
+		$data['LocationNumber'] = $item->LocationNumber;
+		$data['LocationBarcode'] = barcodeFormatter_LocationNumber($item->LocationNumber);
 		$data['Name'] = $item->Name;
 		$data['Description'] = $item->Description;
 		$children[] = $data;

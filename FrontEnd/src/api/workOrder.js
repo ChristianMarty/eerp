@@ -2,8 +2,8 @@ import eerpApi from '@/api/apiQuery'
 
 class WorkOrder {
   createParameters = {
-    Title: '',
-    ProjectId: '',
+    Name: '',
+    ProjectCode: '',
     Quantity: ''
   }
   create(createParameters) {

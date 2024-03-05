@@ -60,7 +60,7 @@ class vendor
             SELECT
                 *,
                vendor.FullName AS VendorName, 
-               country.Name AS CountryName  
+               country.ShortName AS CountryName  
             FROM vendor
             LEFT JOIN vendor_address ON vendor.Id = vendor_address.VendorId 
             LEFT JOIN vendor_contact ON vendor.Id = vendor_contact.VendorId
@@ -84,7 +84,7 @@ class vendor
             SELECT
                 *,
                vendor.FullName AS VendorName, 
-               country.Name AS CountryName  
+               country.ShortName AS CountryName  
             FROM vendor
             LEFT JOIN vendor_address ON  vendor.Id = vendor_address.VendorId
             LEFT JOIN country ON country.Id = vendor_address.CountryId

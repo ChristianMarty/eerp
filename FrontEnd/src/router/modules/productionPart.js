@@ -10,8 +10,8 @@ const partsRouter = {
   },
   children: [
     {
-      path: 'search',
-      component: () => import('@/views/productionPart/search'),
+      path: '',
+      component: () => import('@/views/productionPart/list'),
       name: 'productionPartSearch',
       meta: { title: 'Search', icon: 'search' }
     },

@@ -21,7 +21,7 @@ if($api->isGet())
 	$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
 	if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
-	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber';";
+	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PurchaseOrderNumber = '$purchaseOrderNumber';";
 	$result = $database->query($query)[0]->DocumentIds??null;
 
 	$api->returnData(getDocumentsFromIds($result));

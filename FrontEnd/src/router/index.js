@@ -16,7 +16,7 @@ import documentRouter from './modules/document'
 import locationsRouter from './modules/location'
 import stockRouter from './modules/stock'
 import partMetadataRouter from './modules/partMetadata'
-import labelRouter from './modules/label'
+import rendererRouter from './modules/renderer'
 import processRouter from './modules/process'
 import reportRouter from './modules/report'
 import projectRouter from './modules/project'
@@ -155,7 +155,7 @@ export const asyncRoutes = [
   metrologyRouter,
   locationsRouter,
   documentRouter,
-  labelRouter,
+  rendererRouter,
   processRouter,
   reportRouter,
   /* {

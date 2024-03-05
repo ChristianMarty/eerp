@@ -1,13 +1,22 @@
 <template>
   <div class="app-container">
-    <h1>{{ assemblyUnitData.AssemblyUnitBarcode }}</h1>
-    <p><b>Assembly: </b>
-      <router-link :to="'/assembly/item/' + assemblyUnitData.AssemblyBarcode" class="link-type">
-        {{ assemblyUnitData.AssemblyBarcode }}
-      </router-link>
-    </p>
+    <h1>{{ assemblyUnitData.ItemCode }}</h1>
     <p><b>Serial Number: </b>{{ assemblyUnitData.SerialNumber }}</p>
-    <p><b>Location: </b>{{ assemblyUnitData.LocationName }}</p>
+    <p><b>Assembly: </b>
+      <router-link :to="'/assembly/item/' + assemblyUnitData.AssemblyCode" class="link-type">
+        {{ assemblyUnitData.AssemblyCode }}
+      </router-link>
+      - {{ assemblyUnitData.AssemblyName }}
+    </p>
+    <p><b>Location:</b>
+      <router-link
+        :to="'/location/item/' + assemblyUnitData.LocationCode"
+        class="link-type"
+      >
+        {{ assemblyUnitData.LocationCode }}
+      </router-link>
+      - {{ assemblyUnitData.LocationName }}
+    </p>
     <p><b>Shipping Prohibited: </b>{{ assemblyUnitData.ShippingProhibited }}</p>
     <p><b>Shipping Clearance: </b>{{ assemblyUnitData.ShippingClearance }}</p>
     <p v-if="assemblyUnitData.ShippingProhibited" class="shippingProhibitedWarning">! DO NOT SEND THIS UNIT TO THE CUSTOMER !</p>
@@ -30,14 +39,14 @@
         v-for="(line, index) in assemblyUnitData.History"
         :key="index"
         :color="line.color"
-        :timestamp="line.Date+' - '+ line.AssemblyUnitHistoryBarcode+' - '+line.Type"
+        :timestamp="line.Date+' - '+ line.ItemCode+' - '+line.Type"
         placement="top"
       >
         <el-card>
           <b>{{ line.Title }}</b>
           <p>{{ line.Description }}</p>
-          <el-button @click.native="showHistoryDialog(line.AssemblyUnitHistoryBarcode)">Show Data</el-button>
-          <el-button v-if="line.EditToken" v-permission="['assembly.unit.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.AssemblyUnitHistoryBarcode)">Edit</el-button>
+          <el-button @click.native="showHistoryDialog(line.ItemCode)">Show Data</el-button>
+          <el-button v-if="line.EditToken" v-permission="['assembly.unit.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.ItemCode)">Edit</el-button>
           <p v-if="line.ShippingClearance" class="shippingClearance">Ready for shipment</p>
           <p v-if="line.ShippingProhibited" class="shippingProhibitedWarning">Shipping Prohibited</p>
         </el-card>
@@ -82,7 +91,7 @@
     </el-dialog>
 
     <assemblyDataDialog :assembly-unit-history-number="assemblyUnitHistoryNumber" :visible.sync="assemblyDataDialogVisible" />
-    <locationTransferDialog :barcode="assemblyUnitData.AssemblyUnitBarcode" :visible.sync="locationTransferDialogVisible" @change="getAssemblyItem()" />
+    <locationTransferDialog :barcode="assemblyUnitData.ItemCode" :visible.sync="locationTransferDialogVisible" @change="getAssemblyItem()" />
 
   </div>
 </template>
@@ -208,7 +217,7 @@ export default {
     },
     getHistoryData(AssemblyUnitHistoryNumber) {
       assembly.unit.history.item(AssemblyUnitHistoryNumber).then(response => {
-        this.editHistoryData = response[0]
+        this.editHistoryData = response
         var data = this.editHistoryData.Data
         if (data === null) this.editHistoryData.Data = ''
         else this.editHistoryData.Data = JSON.stringify(data)

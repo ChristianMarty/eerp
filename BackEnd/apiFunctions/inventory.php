@@ -34,7 +34,7 @@ if($api->isGet("inventory.view"))
     $baseQuery = <<<STR
         SELECT 
             PicturePath, 
-            InvNo, 
+            InvNo AS InventoryNumber, 
             Title, 
             Manufacturer, 
             Type, 
@@ -69,22 +69,13 @@ if($api->isGet("inventory.view"))
 	global $dataRootPath;
 	global $picturePath;
 	$pictureRootPath = $dataRootPath.$picturePath."/";
-	
-	$output = array();
-    foreach ($result as $r)
+    foreach($result as &$item)
 	{
-		$item = array();
-		$item['PicturePath'] = $pictureRootPath.$r->PicturePath;
-		$item['InventoryNumber'] = $r->InvNo;
-		$item['InventoryBarcode'] = barcodeFormatter_InventoryNumber($r->InvNo);
-		$item['Title'] = $r->Title;
-		$item['ManufacturerName'] = $r->Manufacturer;
-		$item['Type'] = $r->Type;
-		$item['SerialNumber'] = $r->SerialNumber;
-		$item['Status'] = $r->Status;
-			
-		$output[] = $item;
+		$item->PicturePath = $pictureRootPath.$item->PicturePath;
+        $item->ItemCode = barcodeFormatter_InventoryNumber($item->InventoryNumber);
+		$item->InventoryBarcode = $item->ItemCode; // todo: legacy -> remove
+		$item->ManufacturerName = $item->Manufacturer;
 	}
 
-	$api->returnData($output);
+	$api->returnData($result);
 }

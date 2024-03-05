@@ -23,7 +23,12 @@ if($api->isGet())
 
     $query = "SELECT * FROM unitOfMeasurement ";
     try {
-        $api->returnData($database->query($query,$queryParam));
+        $result = $database->query($query,$queryParam);
+
+        foreach($result as &$item) {
+            $item->Countable = boolval($item->Countable);
+        }
+        $api->returnData($result);
     }
     catch (\Exception $e)
     {

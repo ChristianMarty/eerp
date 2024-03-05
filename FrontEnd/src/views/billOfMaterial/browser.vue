@@ -2,14 +2,14 @@
   <div class="app-container">
     <template>
       <el-table :data="boms" style="width: 100%">
-        <el-table-column prop="BillOfMaterialNumber" label="Bill Of Material Number" width="250" sortable>
+        <el-table-column label="Code" prop="ItemCode" width="150" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/billOfMaterial/billOfMaterialView/' + row.BillOfMaterialBarcode" class="link-type">
-              <span>{{ row.BillOfMaterialBarcode }}</span>
+            <router-link :to="'/billOfMaterial/billOfMaterialView/' + row.ItemCode" class="link-type">
+              <span>{{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>
-        <el-table-column prop="Title" label="Title" sortable />
+        <el-table-column prop="Name" label="Name" width="250" sortable />
         <el-table-column prop="Description" label="Description" sortable />
       </el-table>
     </template>

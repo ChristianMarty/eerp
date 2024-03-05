@@ -8,10 +8,10 @@
         :data="PurchaseOrders"
         style="width: 100%"
       >
-        <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+        <el-table-column prop="ItemCode" label="PO Number" width="150" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
-              <span>PO-{{ row.PoNo }}</span>
+            <router-link :to="'/purchasing/edit/' + row.ItemCode" class="link-type">
+              <span>{{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>

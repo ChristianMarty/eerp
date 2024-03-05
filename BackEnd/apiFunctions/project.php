@@ -15,12 +15,17 @@ require_once __DIR__ . "/util/_barcodeFormatter.php";
 
 if($api->isGet("project.view"))
 {
-	$query = "SELECT * FROM project ";
+    $query = <<< QUERY
+        SELECT 
+            ProjectNumber,
+            Name,
+            COALESCE(Description, '') AS Description
+        FROM project
+    QUERY;
 
 	$result = $database->query($query);
-
 	foreach($result as $item) {
-		$item->ProjectBarcode = barcodeFormatter_Project($item->ProjectNumber);
+		$item->ItemCode = barcodeFormatter_Project($item->ProjectNumber);
 	}
 
 	$api->returnData($result);

@@ -52,7 +52,7 @@ if($api->isGet())
 		    Status,  
 			vendor_displayName(vendor.Id) AS SupplierName, 
 			HomeLocationId, 
-			location.LocNr AS LocationNumber, 
+			location.LocationNumber AS LocationNumber, 
 			InventoryCategoryId AS CategoryId, 
 			inventory.LocationId 
 		FROM `inventory`
@@ -86,8 +86,8 @@ if($api->isGet())
 	// Get Purchase Information
 	$query = <<<STR
 		SELECT  
-		    PoNo, 
-		    purchaseOrder_itemOrder.LineNo AS LineNumber , 
+		    PurchaseOrderNumber, 
+		    purchaseOrder_itemOrder.LineNumber AS LineNumber , 
 		    purchaseOrder_itemOrder.Description, 
 		    purchaseOrder_itemOrder.Discount, 
 		    vendor_displayName(vendor.Id) AS SupplierName, 
@@ -114,9 +114,8 @@ if($api->isGet())
 	$totalMaintenance = 0;
 	foreach ($purchase as $r)
 	{
-		$r->PurchaseOrderNumber = $r->PoNo;
-		$r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($r->PoNo, $r->LineNumber);
-		$r->PoNo = barcodeFormatter_PurchaseOrderNumber($r->PoNo);
+		$r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber, $r->LineNumber);
+		$r->PurchaseOrderNumber = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber);
 
 		$price = ($r->Price*$r->ExchangeRate)*$r->Quantity*((100 - intval($r->Discount))/100);
 		$r->Price = $price;
@@ -127,7 +126,7 @@ if($api->isGet())
 	if(count($purchase) == 0) // Fallback to legacy data
 	{
 		$row = [];
-		$row["PoNo"] = null;
+		$row["PurchaseOrderNumber"] = null;
 		$row["LineNumber"] = null;
 		$row["Price"] = $output->PurchasePrice;
 		$row["Currency"] = "CHF"; // TODO: Fix this
@@ -176,7 +175,7 @@ if($api->isGet())
 	$output->Accessory = $accessory;
 	
 	// Get Documents
-	$output->Documents = getDocuments($output->DocumentIds ?? null);
+	$output->Documents = getDocumentsFromIds($output->DocumentIds ?? null);
 	unset($output->DocumentIds);
 	
 	// Get History

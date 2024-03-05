@@ -4,18 +4,14 @@
       :data="documents"
       style="width: 100%"
     >
-      <el-table-column prop="Barcode" label="Doc No" width="100">
+      <el-table-column prop="ItemCode" label="Code" width="100">
         <template slot-scope="{ row }">
-          <router-link :to="'/document/view/' + row.DocumentNumber" class="link-type">
-            <span> {{ row.Barcode }}</span>
+          <router-link :to="'/document/item/' + row.ItemCode" class="link-type">
+            <span> {{ row.ItemCode }}</span>
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Description" label="Description">
-        <template slot-scope="{ row }">
-          {{ row.Description }}
-        </template>
-      </el-table-column>
+      <el-table-column prop="Name" label="Name" />
       <el-table-column prop="Note" label="Note" />
       <el-table-column prop="Type" label="Type" width="100" />
       <el-table-column prop="Document" label="Document">

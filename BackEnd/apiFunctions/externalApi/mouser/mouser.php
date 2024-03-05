@@ -120,7 +120,7 @@ class mouser extends vendorInterface {
             $temp['Quantity'] = $line["Quantity"];
             $temp['Price'] = $line["UnitPrice"];
             $temp['TotalPrice'] = $line["ExtendedPrice"];
-            $temp['LineNo'] =  $lineIndex;
+            $temp['LineNumber'] =  $lineIndex;
 
             $lineIndex++;
 

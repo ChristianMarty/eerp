@@ -6,15 +6,14 @@ const processRouter = {
   name: 'process',
   meta: {
     title: 'process',
-    icon: 'component',
-    roles: ['process.run']
+    icon: 'component'
   },
   children: [
     {
-      path: 'process',
-      component: () => import('@/views/process/index'),
+      path: '',
+      component: () => import('@/views/process/list'),
       name: 'process',
-      meta: { title: 'Process', icon: 'edit' }
+      meta: { title: 'Process', icon: 'edit', roles: ['process.view'] }
     }
 
   ]

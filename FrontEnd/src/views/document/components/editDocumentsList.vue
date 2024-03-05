@@ -44,9 +44,9 @@
               />
             </template>
           </el-table-column>
-          <el-table-column prop="Barcode" label="Doc No" width="100" />
-          <el-table-column prop="FileName" label="Document" />
-          <el-table-column prop="Description" label="Description" />
+          <el-table-column prop="ItemCode" label="Code" width="100" />
+          <el-table-column prop="Name" label="Document" />
+          <el-table-column prop="Note" label="Note" />
           <el-table-column prop="Type" label="Type" width="120" />
           <el-table-column prop="CreationDate" label="Upload Timestamp" width="180" />
         </el-table>
@@ -60,7 +60,7 @@
         type="info"
         @close="handleRemove(tag)"
       >
-        {{ tag.FileName }}
+        {{ tag.Name }}
       </el-tag>
 
       <span slot="footer" class="dialog-footer">
@@ -100,7 +100,7 @@ export default {
     },
     handleAdd(row) {
       if (!this.selectedDocuments.some(el => el.DocumentNumber === row.DocumentNumber)) {
-        this.selectedDocuments.push({ DocumentNumber: row.DocumentNumber, FileName: row.FileName })
+        this.selectedDocuments.push({ DocumentNumber: row.DocumentNumber, Name: row.Name })
 
         const docIndex = this.documentOptions.findIndex(el => el.DocumentNumber === row.DocumentNumber)
         this.documentOptions[docIndex].Selected = true
@@ -152,7 +152,7 @@ export default {
       })
     },
     getDocumentOptions() {
-      document.search().then(response => {
+      document.list().then(response => {
         this.documentOptions = response
         this.documentOptions.forEach((el, index) => {
           el.Selected = false

@@ -32,9 +32,9 @@ if($api->isGet())
 
 	$baseQuery = <<<STR
 		SELECT 
-		    workOrder.Id, 
-		    project.Title AS ProjectTitle, 
-		    workOrder.Title, 
+		    project.Name AS ProjectName, 
+		    project.ProjectNumber AS ProjectNumber,
+		    workOrder.Name, 
 		    Quantity, 
 		    WorkOrderNumber,
 		    Status  
@@ -44,11 +44,10 @@ if($api->isGet())
 
 	$result = $database->query($baseQuery,$queryParam);
 
-	foreach($result as $item)
-	{
-		$item->WorkOrderId = $item->Id;
-		unset($item->Id);
-		$item->WorkOrderBarcode = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
-	}
-	$api->returnData($result);
+    foreach($result as $item) {
+        $item->ProjectItemCode = barcodeFormatter_Project($item->ProjectNumber);
+        unset($item->ProjectNumber);
+        $item->ItemCode = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+    }
+    $api->returnData($result);
 }

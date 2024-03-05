@@ -87,8 +87,8 @@ if($api->isGet("vendor.view"))
         SELECT 
             vendor_address.Id, 
             PhonePrefix, 
-            CountryCode, 
-            Name AS CountryName, 
+            country.Alpha2Code AS CountryCode, 
+            country.ShortName AS CountryName, 
             CountryId, 
             PostalCode, 
             City, 
@@ -113,7 +113,7 @@ if($api->isGet("vendor.view"))
             Phone, 
             EMail 
         FROM vendor_contact
-        WHERE VendorId = {$vendorId}
+        WHERE VendorId = $vendorId
     QUERY;
     $output->Contact = $database->query($query);
 

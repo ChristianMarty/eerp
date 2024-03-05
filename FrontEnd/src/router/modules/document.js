@@ -11,9 +11,9 @@ const documentRouter = {
   children: [
     {
       path: '',
-      component: () => import('@/views/document/browser'),
+      component: () => import('@/views/document/list'),
       name: 'documentBrowser',
-      meta: { title: 'Document Browser', icon: 'search' }
+      meta: { title: 'Document Browser', icon: 'search', roles: ['document.view'] }
     },
     {
       path: 'ingest',
@@ -22,10 +22,10 @@ const documentRouter = {
       meta: { title: 'Ingest Document', icon: 'documentation', roles: ['document.ingest'] }
     },
     {
-      path: 'view/:DocumentNumber(.*)',
-      component: () => import('@/views/document/view'),
-      name: 'documentView',
-      meta: { title: 'Document View', icon: 'list' },
+      path: 'item/:DocumentNumber(.*)',
+      component: () => import('@/views/document/item'),
+      name: 'documentItem',
+      meta: { title: 'Document Item', icon: 'list', roles: ['document.view'] },
       hidden: true
     }
   ]

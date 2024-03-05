@@ -33,7 +33,7 @@
 
       <template v-if="importData.length !== 0">
         <el-table ref="itemTable" :key="tableKey" :data="importData.Lines" border style="width: 100%">
-          <el-table-column prop="LineNo" label="Line" width="70" />
+          <el-table-column prop="LineNumber" label="Line" width="70" />
           <el-table-column prop="Quantity" label="Quantity" width="100" />
           <el-table-column prop="SupplierPartNumber" label="SKU" width="220" />
           <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" />

@@ -4,8 +4,8 @@
       <el-table :data="testSystem" style="width: 100%">
         <el-table-column label="Test System No" width="150" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/metrology/item/' + row.TestSystemBarcode" class="link-type">
-              <span> {{ row.TestSystemBarcode }}</span>
+            <router-link :to="'/metrology/item/' + row.ItemCode" class="link-type">
+              <span> {{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>

@@ -18,14 +18,14 @@ if($api->isGet("billOfMaterial.view"))
     $query = <<< QUERY
         SELECT 
             BillOfMaterialNumber,
-            Title,
+            Name,
             Description
         FROM billOfMaterial
     QUERY;
     $result = $database->query($query);
 
     foreach($result as &$item) {
-        $item->BillOfMaterialBarcode = barcodeFormatter_BillOfMaterial($item->BillOfMaterialNumber);
+        $item->ItemCode = barcodeFormatter_BillOfMaterial($item->BillOfMaterialNumber);
         $item->Description = $item->Description??'';
     }
     $api->returnData($result);

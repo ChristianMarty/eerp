@@ -101,7 +101,7 @@ function barcodeParser_ProductionPart(null|string|int $input): null|string
     return trim($input);
 }
 
-function barcodeParser_SpecificationPart(null|string|int $input): null|string
+function barcodeParser_SpecificationPart(null|string|int $input): null|int
 {
     if($input === null) return null;
 
@@ -168,7 +168,7 @@ function barcodeParser_WorkOrderNumber(null|string|int $input): null|int
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_AssemblyNumber(null|string|int $input): null|string
+function barcodeParser_AssemblyNumber(null|string|int $input): null|int
 {
     if($input === null) return null;
 
@@ -191,7 +191,7 @@ function barcodeParser_AssemblyNumber(null|string|int $input): null|string
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_AssemblyUnitNumber(null|string|int $input): null|string
+function barcodeParser_AssemblyUnitNumber(null|string|int $input): null|int
 {
     if($input === null) return null;
 
@@ -214,7 +214,7 @@ function barcodeParser_AssemblyUnitNumber(null|string|int $input): null|string
     return intval($ashCodeParts[1]);
 }
 
-function barcodeParser_AssemblyUnitHistoryNumber(null|string|int $input): null|string
+function barcodeParser_AssemblyUnitHistoryNumber(null|string|int $input): null|int
 {
     if($input === null) return null;
 
@@ -319,7 +319,7 @@ function barcodeParser_Project(null|string|int $input): null|string
 
     $inventoryNumberParts = explode('-',$inventoryCode);
 
-    if($inventoryNumberParts[0] != "pcjt") return null;
+    if($inventoryNumberParts[0] != "pjct") return null;
     if(!is_numeric($inventoryNumberParts[1])) return null;
 
     return intval($inventoryNumberParts[1]);

@@ -26,8 +26,8 @@ if($api->isGet())
             numbering.Prefix, 
             productionPart.Number, 
             Description,
-            Cache_BillOfMaterial_TotalQuantityUsed,
-            Cache_BillOfMaterial_NumberOfOccurrence
+            Cache_BillOfMaterial_TotalQuantityUsed AS BillOfMaterial_TotalQuantityUsed,
+            Cache_BillOfMaterial_NumberOfOccurrence AS BillOfMaterial_NumberOfOccurrence
         FROM productionPart
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.ProductionPartId = productionPart.Id
@@ -60,8 +60,7 @@ if($api->isGet())
     $result = $database->query($query,$queryParam,"GROUP BY productionPart.Id");
 
     foreach($result as $item) {
-        $item->ProductionPartNumber = $item->Prefix."-".$item->Number; // TODO: ProductionPartNumber is Legacy -> Remove
-        $item->ProductionPartBarcode = $item->ProductionPartNumber;
+        $item->ItemCode = $item->Prefix."-".$item->Number;
     }
 
     $api->returnData($result);

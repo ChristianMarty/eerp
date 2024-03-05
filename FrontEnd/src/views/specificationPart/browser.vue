@@ -2,18 +2,18 @@
   <div class="app-container">
     <template>
       <el-table :data="specificationParts" style="width: 100%">
-        <el-table-column label="Barcode" prop="SpecificationPartBarcode" width="150" sortable>
+        <el-table-column label="Code" prop="ItemCode" width="150" sortable>
           <template slot-scope="{ row }">
             <router-link
-              :to="'/specificationPart/item/' + row.SpecificationPartNumber"
+              :to="'/specificationPart/item/' + row.ItemCode"
               class="link-type"
             >
-              <span> {{ row.SpecificationPartBarcode }}</span>
+              <span> {{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>
         <el-table-column label="Type" prop="Type" width="150" sortable />
-        <el-table-column label="Title" prop="Title" sortable />
+        <el-table-column label="Name" prop="Name" sortable />
       </el-table>
     </template>
   </div>

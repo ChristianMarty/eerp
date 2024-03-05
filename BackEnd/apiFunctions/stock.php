@@ -59,11 +59,14 @@ if($api->isGet("stock.view"))
     $queryParam[] = "partStock.DeleteRequestUserId IS NULL";
 
 	$data = $database->query($baseQuery,$queryParam);
+    $location = new Location();
 	foreach ($data as $line)
 	{
-		$line->StockBarcode = barcodeFormatter_StockNumber($line->StockNumber);
-		$line->Location = (new Location())->name(intval($line->LocationId));
-		$line->Barcode = $line->StockBarcode;
+        $line->ItemCode = barcodeFormatter_StockNumber($line->StockNumber);
+        $line->LocationName = $location->name(intval($line->LocationId));
+        $line->LocationCode = $location->itemCode(intval($line->LocationId));
+        $line->Description ="";
+        unset($line->LocationId);
 	}
 
 	$api->returnData($data);

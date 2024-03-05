@@ -50,7 +50,7 @@ function moveItems($itemList, $locationNr, string $category, string $idName): st
 
 	$baseQuery = <<<STR
 		UPDATE $category
-		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocNr`= '$locationNr')
+		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$locationNr')
 		WHERE $idName IN($itemListStr)
 	STR;
 

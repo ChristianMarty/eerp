@@ -1,7 +1,11 @@
 <template>
   <div class="app-container">
-    <h1>{{ assemblyData.AssemblyBarcode }}, {{ assemblyData.Name }}</h1>
+    <h1>{{ assemblyData.ItemCode }}, {{ assemblyData.Name }}</h1>
     <p>{{ assemblyData.Description }}</p>
+
+    <router-link :to="'/productionPart/item/' + assemblyData.ProductionPartCode" class="link-type">
+      <span>{{ assemblyData.ProductionPartCode }}</span>
+    </router-link>
 
     <el-divider />
     <el-input ref="serialNumberSearchInput" v-model="serialNumberSearchInput" placeholder="Serial Number Search" @keyup.enter.native="serialNumberSearch(serialNumberSearchInput)">
@@ -23,26 +27,36 @@
       border
       :cell-style="{ padding: '0', height: '20px' }"
     >
-      <el-table-column prop="AssemblyUnitBarcode" label="Assembly Unit" sortable width="150">
+      <el-table-column prop="ItemCode" label="Assembly Unit" sortable width="150">
         <template slot-scope="{ row }">
-          <router-link :to="'/assembly/unit/item/' + row.AssemblyUnitBarcode" class="link-type">
-            <span>{{ row.AssemblyUnitBarcode }}</span>
+          <router-link :to="'/assembly/unit/item/' + row.ItemCode" class="link-type">
+            <span>{{ row.ItemCode }}</span>
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="SerialNumber" label="Serial Number" sortable />
-      <el-table-column prop="WorkOrderBarcode" label="Work Order" sortable width="150">
+      <el-table-column prop="SerialNumber" label="Serial Number" sortable width="250" />
+      <el-table-column prop="WorkOrderCode" label="Work Order" sortable width="300">
         <template slot-scope="{ row }">
           <router-link
-            :to="'/workOrder/workOrderView/' + row.WorkOrderBarcode"
+            :to="'/workOrder/workOrderView/' + row.WorkOrderCode"
             class="link-type"
           >
-            <span> {{ row.WorkOrderBarcode }}</span>
+            <span>{{ row.WorkOrderCode }}</span>
           </router-link>
+          <span> - {{ row.WorkOrderName }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="WorkOrderTitle" label="Work Order Title" sortable />
-      <el-table-column prop="LocationName" label="Location" sortable />
+      <el-table-column prop="LocationCode" label="Location" sortable width="300">
+        <template slot-scope="{ row }">
+          <router-link
+            :to="'/location/item/' + row.LocationCode"
+            class="link-type"
+          >
+            <span>{{ row.LocationCode }}</span>
+          </router-link>
+          <span> - {{ row.LocationName }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="LastHistoryTitle" label="Last History Title" sortable />
       <el-table-column prop="LastHistoryType" label="Last History Type" sortable width="180" />
       <el-table-column prop="LastInspectionPass" label="Last Inspection" sortable width="160">
@@ -75,7 +89,7 @@
             <el-option
               v-for="wo in workOrders"
               :key="wo.WorkOrderNumber"
-              :label="wo.WorkOrderBarcode + ' -- ' + wo.Title"
+              :label="wo.WorkOrderBarcode + ' -- ' + wo.Name"
               :value="wo.WorkOrderNumber"
             />
           </el-select>

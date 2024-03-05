@@ -4,7 +4,7 @@ class Document {
 /* Search *************************************************
   Returns tree of Location
 **********************************************************/
-  search() {
+  list() {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/document',

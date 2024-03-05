@@ -22,7 +22,7 @@ class Print {
     })
   }
 
-  printer = {
+  printer = { // todo: deptocated -> use peripheral list
     search() {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -43,7 +43,7 @@ class Print {
     search(Type = null) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          url: '/label',
+          url: '/renderer',
           methood: 'get',
           params: { Tag: Type }
         }).then(response => {

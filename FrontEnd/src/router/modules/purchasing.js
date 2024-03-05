@@ -28,7 +28,7 @@ const purchasingRouter = {
     },
     {
       path: 'edit/:PurchaseOrderNumber(.*)',
-      component: () => import('@/views/purchasing/edit'),
+      component: () => import('@/views/purchasing/item'),
       name: 'editPurchaseOrder',
       meta: { title: 'Edit PO', icon: 'el-icon-sold-out' },
       hidden: true

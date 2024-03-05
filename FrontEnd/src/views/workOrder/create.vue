@@ -4,17 +4,17 @@
     <el-divider />
 
     <el-form label-width="150px">
-      <el-form-item label="Titel:">
-        <el-input v-model="form.Title" placeholder="Please input" />
+      <el-form-item label="Name:">
+        <el-input v-model="form.Name" placeholder="Please input" />
       </el-form-item>
 
       <el-form-item label="Project:">
-        <el-select v-model="form.ProjectId" filterable>
+        <el-select v-model="form.ProjectCode" filterable>
           <el-option
             v-for="item in projects"
-            :key="item.Id"
-            :label="item.Title"
-            :value="item.Id"
+            :key="item.ItemCode"
+            :label="item.ItemCode+' - '+item.Name"
+            :value="item.ItemCode"
           />
         </el-select>
       </el-form-item>
@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       form: Object.assign({}, workOrder.createParameters),
-      projects: null
+      projects: []
     }
   },
   mounted() {
@@ -54,7 +54,7 @@ export default {
     save() {
       workOrder.create(this.form).then(response => {
         this.$router.push(
-          '/workOrder/workOrderView/' + response.WorkOrderNo
+          '/workOrder/item/' + response.ItemCode
         )
       }).catch(response => {
         this.$message({

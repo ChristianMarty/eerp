@@ -34,7 +34,7 @@ if($api->isGet())
 			Cache_Quantity 
 		FROM partStock
 		LEFT JOIN manufacturerPart_partNumber on partStock.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
+		WHERE LocationId = (SELECT Id FROM location where LocationNumber = '$locationNumber')
 	STR;
 	$result = $database->query($query);
 	foreach ($result as $r)
@@ -58,7 +58,7 @@ if($api->isGet())
 		    Type, 
 		    LocationId 
 		FROM inventory
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
+		WHERE LocationId = (SELECT Id FROM location where LocationNumber = '$locationNumber')
 	STR;
 	$result = $database->query($query);
 	foreach ($result as $r)
@@ -83,7 +83,7 @@ if($api->isGet())
 		    LocationId 
 		FROM assembly_unit
 		LEFT JOIN assembly on assembly.Id =  assembly_unit.AssemblyId
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
+		WHERE LocationId = (SELECT Id FROM location where LocationNumber = '$locationNumber')
 	STR;
 	$result = $database->query($query);
 	foreach ($result as $r)
@@ -104,7 +104,7 @@ if($api->isGet())
 		    Id,
 			LocNr
 		FROM location
-		WHERE LocationId = (SELECT Id FROM location where LocNr = '$locationNumber')
+		WHERE LocationId = (SELECT Id FROM location where LocationNumber = '$locationNumber')
 	STR;
 	$result = $database->query($query);
     $location = new Location();

@@ -14,7 +14,7 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
 {
     $query = <<<STR
     SELECT 
-        purchaseOrder_itemOrder.LineNo,
+        purchaseOrder_itemOrder.LineNumber,
         purchaseOrder_itemOrder.Price,
         purchaseOrder_itemOrder.Sku,
         purchaseOrder_itemOrder.Type AS LineType,
@@ -60,7 +60,7 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
 
     if($lineId == null) $query .= " WHERE PurchaseOrderId = $purchaseOrderId ";
     else $query .= " WHERE purchaseOrder_itemOrder.Id = $lineId ";
-    $query .=" ORDER BY LineNo";
+    $query .=" ORDER BY LineNumber";
 
     return $query;
 }
@@ -105,10 +105,10 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
 
     $output = array();
 
-    $lineNumber = intval($data['LineNo']);
+    $lineNumber = intval($data['LineNumber']);
 
     $output["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber, $lineNumber);
-    $output['LineNo'] = $lineNumber;
+    $output['LineNumber'] = $lineNumber;
     $output['LineNumber'] = $lineNumber;
     $output['Price'] = floatval($data['Price']);
     $output['SupplierSku'] = $data['Sku']; // TODO: legacy -> remove
@@ -139,10 +139,10 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
 
     if($data['SpecificationPartNumber'] !== null){
         $output['SpecificationPartNumber'] = intval($data['SpecificationPartNumber']);
-        $output['SpecificationPartBarcode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber']);
+        $output['SpecificationPartCode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber']);
     }else{
         $output['SpecificationPartNumber'] = null;
-        $output['SpecificationPartBarcode'] = null;
+        $output['SpecificationPartCode'] = null;
     }
 
     return $output;

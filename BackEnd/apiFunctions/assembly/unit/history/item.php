@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../../../util/_json.php";
@@ -25,27 +26,44 @@ if($api->isGet())
     if($assemblyHistoryNumber === null) $api->returnParameterError("AssemblyUnitHistoryNumber");
 
     $query  = <<< STR
-        SELECT *, assembly_unit_history.CreationDate AS Date FROM assembly_unit_history
+        SELECT 
+            Title,
+            Description,
+            Type,
+            AssemblyUnitHistoryNumber,
+            Data,
+            assembly_unit.AssemblyUnitNumber AS AssemblyUnitNumber,
+            ShippingProhibited,
+            ShippingClearance,
+            assembly_unit_history.Date AS Date,
+            EditToken
+        FROM assembly_unit_history
         LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId
         WHERE assembly_unit_history.AssemblyUnitHistoryNumber = '$assemblyHistoryNumber'
         ORDER BY assembly_unit_history.CreationDate
+        LIMIT 1;
     STR;
 
-    $history = $database->query($query);
-	foreach ($history as $item)
-	{
-        $item->AssemblyUnitBarcode = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
-        $item->AssemblyUnitHistoryBarcode = barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
+    $result = $database->query($query);
+    if(count($result) == 0) {
+        $api->returnError("Assembly unit history item not found");
+    }else{
+        $history = $result[0];
+    }
 
-        $item->Barcode =$item->AssemblyUnitBarcode; // TODO: Legacy -> remove
+    $history->AssemblyUnitCode = barcodeFormatter_AssemblyUnitNumber($history->AssemblyUnitNumber);
+    unset($history->AssemblyUnitNumber);
 
-		if($item->ShippingClearance != 0) $item->ShippingClearance = true;
-		else $temp['ShippingClearance'] = false;
-		if($item->ShippingProhibited != 0) $item->ShippingProhibited = true;
-		else $item->ShippingProhibited = false;
-		if($item->Data != NULL) $item->Data = json_decode($item->Data);
-		else $item->Data = NULL;
-	}
+    $history->AssemblyUnitHistoryNumber = intval($history->AssemblyUnitHistoryNumber);
+    $history->ItemCode = barcodeFormatter_AssemblyUnitHistoryNumber($history->AssemblyUnitHistoryNumber);
+
+    if($history->ShippingClearance != 0) $history->ShippingClearance = true;
+    else $history->ShippingClearance = false;
+
+    if($history->ShippingProhibited != 0) $history->ShippingProhibited = true;
+    else $history->ShippingProhibited = false;
+
+    if($history->Data != NULL) $history->Data = json_decode($history->Data);
 
     $api->returnData($history);
 }
@@ -111,6 +129,7 @@ else if($api->isPost())
     $sqlData['Data']['raw'] = "JSON_UNQUOTE(". $database->escape($jsonData).")";
 	$sqlData['AssemblyUnitId']['raw'] = "(SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '$assemblyUnitNumber' )";
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
+    $sqlData['CreationUserId'] = $user->userId();
 
 
 	$id = $database->insert("assembly_unit_history", $sqlData);

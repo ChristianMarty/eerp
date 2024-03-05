@@ -8,7 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
 
 require_once __DIR__."/util/_files.php";
@@ -16,5 +15,11 @@ require_once __DIR__."/util/_files.php";
 if($api->isGet("process.view"))
 {
 	$path = "process/";
-	$api->returnData(files_listFiles($path,"process.php"));
+    $processList = files_listFiles($path,"process.php");
+    foreach($processList as &$item) {
+        unset($item['FileName']);
+        $item['Name'] = $item['Title'];
+        unset($item['Title']);
+    }
+	$api->returnData($processList);
 }

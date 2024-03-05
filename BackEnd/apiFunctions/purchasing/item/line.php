@@ -11,6 +11,7 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+
 require_once __DIR__ . "/../_function.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
@@ -19,6 +20,7 @@ function save_line($purchaseOrderNumber, $line): int
 {
     $line = (array)$line;
     global $database;
+    global $user;
 
     $sqlData = array();
 
@@ -32,6 +34,7 @@ function save_line($purchaseOrderNumber, $line): int
     $sqlData['Discount'] = $line['Discount'];
     $sqlData['StockPart']['raw'] = $database::dbToBit($line['StockPart']);
     $sqlData['ExpectedReceiptDate'] = $line['ExpectedReceiptDate'];
+    $sqlData['CreationUserId'] = $user->userId();
 
     if($line['Price'] === null) $sqlData['Price'] = 0;
     else $sqlData['Price'] = $line['Price'];
@@ -51,6 +54,7 @@ function save_line($purchaseOrderNumber, $line): int
     $sqlData['ManufacturerName'] = $line['ManufacturerName'];
     $sqlData['ManufacturerPartNumber'] = $line['ManufacturerPartNumber'];
 
+
     if($sqlData['Type'] == 'Generic'){
         $sqlData['StockPart']['raw'] = $database::dbToBit(false);
     }
@@ -58,20 +62,20 @@ function save_line($purchaseOrderNumber, $line): int
     if($lineId != 0)// Update row
     {
         $condition = "Id = ".$lineId;
-        $sqlData['LineNo'] = $line['LineNo'];
+        $sqlData['LineNumber'] = $line['LineNumber'];
         $database->update("purchaseOrder_itemOrder", $sqlData, $condition);
 
     }
     else // Insert new row
     {
-        $sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PoNo = '".$purchaseOrderNumber."' )";
-        $sqlData['LineNo'] = 0;
+        $sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '".$purchaseOrderNumber."' )";
+        $sqlData['LineNumber'] = 0;
         $database->insert("purchaseOrder_itemOrder", $sqlData);
 
         $query = <<<STR
             UPDATE purchaseOrder_itemOrder SET 
-            LineNo = (SELECT MAX(LineNo)+1 FROM purchaseOrder_itemOrder WHERE PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' )) 
-            WHERE LineNo = 0 AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' )
+            LineNumber = (SELECT MAX(LineNumber)+1 FROM purchaseOrder_itemOrder WHERE PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '$purchaseOrderNumber' )) 
+            WHERE LineNumber = 0 AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '$purchaseOrderNumber' )
         STR;
         $database->execute($query);
 
@@ -88,6 +92,7 @@ function save_line($purchaseOrderNumber, $line): int
 function update_costCenter($lineId, $costCenterList): void
 {
     global $database;
+    global $user;
     // TODO: Find better way to update this
     $query = <<<STR
             DELETE FROM purchaseOrder_itemOrder_costCenter_mapping WHERE ItemOrderId = $lineId
@@ -97,13 +102,14 @@ function update_costCenter($lineId, $costCenterList): void
     foreach ($costCenterList as $cc)
     {
         $costCenterNumber = barcodeParser_CostCenter($cc->Barcode);
-        $quota = floatval($cc->Quota);
+        $quota =
+        $sqlData = array();
+        $sqlData['CostCenterId']['raw'] = "(SELECT Id FROM finance_costCenter WHERE CostCenterNumber = $costCenterNumber)";
+        $sqlData['ItemOrderId'] = $lineId;
+        $sqlData['Quota'] = floatval($cc->Quota);
+        $sqlData['CreationUserId'] = $user->userId();
 
-        $query = <<<STR
-            INSERT INTO purchaseOrder_itemOrder_costCenter_mapping (CostCenterId, ItemOrderId, Quota) 
-            VALUES ((SELECT Id FROM finance_costCenter WHERE CostCenterNumber = $costCenterNumber),$lineId,$quota)
-        STR;
-        $database->execute($query);
+        $database->insert("purchaseOrder_itemOrder_costCenter_mapping", $sqlData);
     }
 }
 
@@ -158,7 +164,7 @@ else if($api->isDelete())
 
     $query = <<<STR
         DELETE FROM purchaseOrder_itemOrder 
-               WHERE Id = $lineId AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PoNo = '$purchaseOrderNumber' );
+               WHERE Id = $lineId AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '$purchaseOrderNumber' );
     STR;
     $database->query($query);
     $api->returnEmpty();

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ projectData.Title }}</h1>
+    <h1>{{ projectData.Name }}</h1>
     <p>{{ projectData.Description }}</p>
   </div>
 </template>

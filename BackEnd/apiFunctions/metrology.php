@@ -24,7 +24,7 @@ if($api->isGet("metrology.view"))
     QUERY;
 	$result = $database->query($query);
 	foreach($result as $item) {
-		$item->TestSystemBarcode = barcodeFormatter_TestSystemNumber($item->TestSystemNumber);
+		$item->ItemCode = barcodeFormatter_TestSystemNumber($item->TestSystemNumber);
 	}
 	$api->returnData($result);
 }

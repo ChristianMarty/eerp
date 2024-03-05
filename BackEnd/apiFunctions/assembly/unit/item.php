@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
@@ -25,7 +26,16 @@ if($api->isGet())
 
 	// Get History Data
     $query = <<<STR
-        SELECT *, CreationDate AS Date FROM assembly_unit_history
+        SELECT
+            Title,
+            Description,
+            Type,
+            AssemblyUnitHistoryNumber,
+            ShippingProhibited,
+            ShippingClearance,
+            EditToken,
+            Date 
+        FROM assembly_unit_history
         WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '$assemblyUnitNumber')
         ORDER BY CreationDate DESC
     STR;
@@ -46,24 +56,49 @@ if($api->isGet())
 		if($item->ShippingClearance) $shippingClearance = true;
 		if($item->ShippingProhibited) $shippingProhibited = true;
 
-        $item->AssemblyUnitHistoryBarcode =  barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
+        $item->AssemblyUnitHistoryNumber = intval($item->AssemblyUnitHistoryNumber);
+        $item->ItemCode =  barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
 	}
 	
 	if($shippingProhibited) $shippingClearance = false;
 
     $query = <<<STR
-        SELECT *
+        SELECT 
+            AssemblyUnitNumber,
+            SerialNumber,
+            -- assembly_unit.CreationUserId,
+            -- assembly_unit.CreationDate,
+            LocationId,
+            assembly.Name AS AssemblyName,
+            AssemblyNumber,
+            workOrder.WorkOrderNumber AS WorkOrderNumber,
+            workOrder.Name AS WorkOrderName
         FROM assembly_unit
         LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId
+        LEFT JOIN workOrder ON workOrder.Id = assembly_unit.WorkOrderId
+        WHERE AssemblyUnitNumber = '$assemblyUnitNumber'
+        LIMIT 1;
     STR;
-	
-	$queryParam = array();
-	$queryParam[] = " AssemblyUnitNumber = '$assemblyUnitNumber'";
-    $output = $database->query($query,$queryParam)[0];
 
-    $output->LocationName = (new Location())->name(intval($output->LocationId));
-    $output->AssemblyBarcode =  barcodeFormatter_AssemblyNumber($output->AssemblyNumber);
-    $output->AssemblyUnitBarcode =  barcodeFormatter_AssemblyUnitNumber($output->AssemblyUnitNumber);
+    $result = $database->query($query);
+    if(count($result) == 0) {
+        $api->returnError("Item not found");
+    }else{
+        $output = $result[0];
+    }
+
+    $location = new Location();
+
+    $output->LocationName = $location->name(intval($output->LocationId));
+    $output->LocationCode = $location->itemCode(intval($output->LocationId));
+    unset($output->LocationId);
+
+    $output->ItemCode =  barcodeFormatter_AssemblyUnitNumber($output->AssemblyUnitNumber);
+    $output->AssemblyCode =  barcodeFormatter_AssemblyNumber($output->AssemblyNumber);
+    unset($output->AssemblyNumber);
+    $output->WorkOrderCode =  barcodeFormatter_WorkOrderNumber($output->WorkOrderNumber);
+    unset($output->WorkOrderNumber);
+    $output->AssemblyUnitNumber = intval($output->AssemblyUnitNumber);
 	$output->ShippingClearance =  $shippingClearance;
 	$output->ShippingProhibited = $shippingProhibited;
 	$output->History = $history;
@@ -84,6 +119,7 @@ else if($api->isPost())
 	if($workOrderNumber !== null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = '$workOrderNumber')";
 	$sqlData['AssemblyId']['raw'] = "(SELECT Id FROM assembly WHERE AssemblyNumber = '$assemblyNumber')";
 	$sqlData['AssemblyUnitNumber']['raw'] = "(SELECT generateItemNumber())";
+    $sqlData['CreationUserId'] = $user->userId();
 
     $id = $database->insert("assembly_unit",$sqlData);
 	$query = " SELECT AssemblyUnitNumber FROM assembly_unit WHERE Id = $id;";

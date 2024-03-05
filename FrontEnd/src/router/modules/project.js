@@ -9,8 +9,8 @@ const projectRouter = {
   },
   children: [
     {
-      path: '/project',
-      component: () => import('@/views/project/search'),
+      path: '',
+      component: () => import('@/views/project/list'),
       name: 'projectSearch',
       meta: { title: 'Projects' }
     },

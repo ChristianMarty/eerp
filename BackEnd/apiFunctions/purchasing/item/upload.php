@@ -29,7 +29,7 @@ if($api->isPost())
             ApiData
         FROM vendor
         LEFT JOIN purchaseOrder ON purchaseOrder.VendorId = vendor.Id
-        WHERE purchaseOrder.PoNo = '$purchaseOrderNo'
+        WHERE purchaseOrder.PurchaseOrderNumber = '$purchaseOrderNo'
         LIMIT 1;
     QUERY;
     $supplierData = $database->query($query)[0];
@@ -55,7 +55,7 @@ else if($api->isPatch())
     $purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
     if($purchaseOrderNo == null) $api->returnParameterError("PurchaseOrderNumber");
 
-    $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PoNo = $purchaseOrderNo;";
+    $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PurchaseOrderNumber = $purchaseOrderNo;";
 
     $result = $database->query($query)[0];
 
@@ -70,12 +70,12 @@ else if($api->isPatch())
     //$poData['PurchaseDate'] = $supplierData['OrderDate'];
     $poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = $currencyCode)";
 
-    $database->update("purchaseOrder", $poData, "PoNo = ".$purchaseOrderNo);
+    $database->update("purchaseOrder", $poData, "PurchaseOrderNumber = ".$purchaseOrderNo);
 
     foreach($data->Lines as $line)
     {
         $sqlData = array();
-        $sqlData['LineNo'] = $line->LineNo;
+        $sqlData['LineNumber'] = $line->LineNumber;
         $sqlData['Description'] = $line->SupplierDescription;
         $sqlData['Quantity'] = $line->Quantity;
         $sqlData['Sku'] = $line->SupplierPartNumber;
