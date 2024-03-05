@@ -48,7 +48,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
                 LEFT JOIN billOfMaterial_item ON billOfMaterial_item.BillOfMaterialRevisionId = billOfMaterial_revision.Id
                 GROUP BY billOfMaterial_item.ProductionPartId
             )AS pq
-        SET pp.Cache_BillOfMaterial_NumberOfOccurence = pq.BoMs
+        SET pp.Cache_BillOfMaterial_NumberOfOccurrence = pq.BoMs
         WHERE pp.Id = pq.ProductionPartId;
     STR;
     dbRunQuery($dbLink, $query);

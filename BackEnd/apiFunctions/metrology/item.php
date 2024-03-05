@@ -40,7 +40,7 @@ if($api->isGet())
     $testSystemId = $output->Id;
     $query = <<<STR
         SELECT 
-            inventory.InvNo AS InventoryNumber, 
+            InventoryNumber, 
             inventory.Title, 
             inventory.Manufacturer, 
             inventory.SerialNumber, 

@@ -2,7 +2,7 @@ SELECT
 	supplier.Name AS SupplierName, 
 	supplierPart.SupplierPartNumber, 
 	partStock.OrderReference, 
-	partStock.StockNo, 
+	partStock.StockNumber, 
 	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
 	manufacturer.Id AS ManufacturerId, 
 	manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 

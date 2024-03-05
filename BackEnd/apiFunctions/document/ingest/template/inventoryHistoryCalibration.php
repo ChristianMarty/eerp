@@ -29,11 +29,11 @@ if($api->isPost())
     if($invNumber == 0) $api->returnParameterError("InventoryNumber");
 
     $query = <<<STR
-        SELECT Id, InvNo, Manufacturer, Type, SerialNumber FROM inventory WHERE  InvNo = $invNumber   
+        SELECT Id, InventoryNumber, Manufacturer, Type, SerialNumber FROM inventory WHERE  InventoryNumber = $invNumber   
     STR;
     $inv = $database->query($query)[0];
 
-    if(!isset($inv->InvNo)) $api->returnError("Inventory number not found");
+    if(!isset($inv->InventoryNumber)) $api->returnError("Inventory number not found");
 
     $name = $inv->Manufacturer."_".$inv->Type."_".$inv->SerialNumber."_".$date;
 	$name = str_replace(" ", "-",$name);

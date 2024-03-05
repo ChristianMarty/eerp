@@ -82,12 +82,12 @@ if($api->isGet())
     $invNoList = implode(", ", $invNo);
     $query = <<< STR
         SELECT 
-            InvNo,
+            InventoryNumber,
             Title,
             Manufacturer,
             Type
         FROM inventory
-        WHERE InvNo IN( $invNoList );
+        WHERE InventoryNumber IN( $invNoList );
     STR;
 
     $rows = $database->query($query);
@@ -108,7 +108,7 @@ if($api->isGet())
 	foreach ($rows as $row)
     {
         $category = $row->Manufacturer . " " . $row->Type;
-        $invNo = $row->InvNo . " ";
+        $invNo = $row->InventoryNumber . " ";
         $title = $row->Title . " ";
 
         $content = "<h1>" . $companyName . "</h1>";

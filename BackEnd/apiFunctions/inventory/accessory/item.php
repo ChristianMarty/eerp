@@ -27,14 +27,14 @@ if($api->isGet())
 
     $query = <<<STR
         SELECT 
-            inventory.InvNo AS InventoryNumber, 
+            InventoryNumber, 
             inventory_accessory.AccessoryNumber, 
             inventory_accessory.Description, 
             inventory_accessory.Note,  
             inventory_accessory.Labeled 
         FROM inventory
         LEFT JOIN inventory_accessory ON inventory_accessory.InventoryId = inventory.Id 
-        WHERE inventory.InvNo = $inventoryNumber AND inventory_accessory.AccessoryNumber = $accessoryNumber
+        WHERE inventory.InventoryNumber = $inventoryNumber AND inventory_accessory.AccessoryNumber = $accessoryNumber
         LIMIT 1
     STR;
 
@@ -59,7 +59,7 @@ else if($api->isPatch())
         SELECT 
             Id
         FROM inventory
-        WHERE InvNo = $inventoryNumber
+        WHERE InventoryNumber = $inventoryNumber
     STR;
     $inventoryId = $database->query($query)[0]->Id;
 
@@ -86,7 +86,7 @@ else if($api->isPost())
         SELECT 
             Id
         FROM inventory
-        WHERE InvNo = $inventoryNumber
+        WHERE InventoryNumber = $inventoryNumber
     STR;
     $inventoryId = $database->query($query)[0]->Id;
 

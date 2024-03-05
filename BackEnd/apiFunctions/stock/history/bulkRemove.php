@@ -43,7 +43,7 @@ if($api->isPost())
         $stockNo = barcodeParser_StockNumber($line->Barcode);
 
         $query = <<<STR
-			SELECT Id FROM partStock WHERE StockNo = '$stockNo';
+			SELECT Id FROM partStock WHERE StockNumber = '$stockNo';
 		STR;
         $stockId = $database->query($query)[0]->Id;
         $removeQuantity = intval($line->RemoveQuantity);

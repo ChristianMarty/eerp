@@ -50,7 +50,7 @@ if($api->isGet())
             manufacturerPart_item.Description,
             manufacturerPart_item.Attribute AS PartData, 
             GROUP_CONCAT(manufacturerPart_partPackage.name) AS Package, 
-            SUM(partStock_getQuantity(partStock.StockNo)) AS StockQuantity 
+            SUM(partStock_getQuantity(partStock.StockNumber)) AS StockQuantity 
         FROM manufacturerPart_item
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN vendor On vendor.Id = manufacturerPart_item.VendorId OR vendor.Id = manufacturerPart_series.VendorId 

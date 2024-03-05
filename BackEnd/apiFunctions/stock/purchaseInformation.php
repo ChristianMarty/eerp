@@ -33,7 +33,7 @@ if($api->isGet())
 		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
 		LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId 
 		LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId 
-		WHERE purchaseOrder_itemReceive.Id = (SELECT partStock.ReceivalId FROM partStock WHERE StockNo = '$stockNumber')
+		WHERE purchaseOrder_itemReceive.Id = (SELECT partStock.ReceivalId FROM partStock WHERE StockNumber = '$stockNumber')
 	STR;
 
 	$output = $database->query($query);

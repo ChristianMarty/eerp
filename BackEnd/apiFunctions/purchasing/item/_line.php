@@ -40,7 +40,7 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
         purchaseOrder_itemReceive.Id AS ReceiveId,
         purchaseOrder_itemReceive.QuantityReceived,
         purchaseOrder_itemReceive.ReceivalDate,
-        specificationPart.Number AS SpecificationPartNumber,
+        SpecificationPartNumber,
         partStock.AddedStockQuantity
     FROM purchaseOrder_itemOrder 
     LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 

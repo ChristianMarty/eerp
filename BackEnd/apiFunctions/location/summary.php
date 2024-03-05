@@ -27,7 +27,7 @@ if($api->isGet())
 
 	$query = <<<STR
 		SELECT 
-		    StockNo,
+		    StockNumber,
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
 			vendor_displayName(manufacturerPart_partNumber.VendorId) AS ManufacturerName,
 			Date, 
@@ -43,7 +43,7 @@ if($api->isGet())
 		$descriptor .= ", ".$r->Date.", Qty: ".$r->Cache_Quantity;
 		
 		$data = array();
-		$data["Item"] =  barcodeFormatter_StockNumber($r->StockNo);
+		$data["Item"] =  barcodeFormatter_StockNumber($r->StockNumber);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor; 
 		
@@ -52,7 +52,7 @@ if($api->isGet())
 
 	$query = <<<STR
 		SELECT 
-		    InvNo, 
+		    InventoryNumber, 
 		    Title, 
 		    Manufacturer, 
 		    Type, 
@@ -67,7 +67,7 @@ if($api->isGet())
 		$descriptor .= " - ".$r->Manufacturer." ".$r->Type;
 		
 		$data = array();
-		$data["Item"] =  barcodeFormatter_InventoryNumber($r->InvNo);
+		$data["Item"] =  barcodeFormatter_InventoryNumber($r->InventoryNumber);
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor; 
 		
@@ -102,7 +102,7 @@ if($api->isGet())
 	$query = <<<STR
 		SELECT 
 		    Id,
-			LocNr
+			LocationNumber
 		FROM location
 		WHERE LocationId = (SELECT Id FROM location where LocationNumber = '$locationNumber')
 	STR;
@@ -111,7 +111,7 @@ if($api->isGet())
 	foreach ($result as $r)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_LocationNumber($r->LocNr);
+		$data["Item"] = barcodeFormatter_LocationNumber($r->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = $location->name(intval($r->Id));
 		

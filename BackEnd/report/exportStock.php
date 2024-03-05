@@ -25,7 +25,7 @@ if($api->isGet())
 		LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock_view.ManufacturerPartNumberId
 		LEFT JOIN productionPart ON  productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
 		LEFT JOIN numbering on productionPart.NumberingPrefixId = numbering.Id
-		GROUP BY StockNo
+		GROUP BY StockNumber
 	QUERY;
 	$result = $database->query($query);
 

@@ -37,7 +37,7 @@ if($api->isGet())
 		SELECT 
 		    inventory.Id AS Id, 
 		    PicturePath, 
-		    InvNo, 
+		    InventoryNumber, 
 		    inventory.Title, 
 		    inventory.Manufacturer AS ManufacturerName, 
 		    inventory.Type, 
@@ -61,7 +61,7 @@ if($api->isGet())
 		LEFT JOIN `inventory_category` On inventory_category.Id = inventory.InventoryCategoryId 
 	STR;
 
-	if(isset($InvNo)) $baseQuery .=" WHERE `InvNo` = $InvNo";
+	if(isset($InvNo)) $baseQuery .=" WHERE `InventoryNumber` = $InvNo";
 	if(isset($SerNo)) $baseQuery .=" WHERE `SerialNumber` = $SerNo";
 	
 	global $dataRootPath;
@@ -74,8 +74,8 @@ if($api->isGet())
 	$id = $output->Id;
 
 	$output->PicturePath = $pictureRootPath.$output->PicturePath;
-	$output->InventoryNumber = $output->InvNo;
-	$output->InventoryBarcode = barcodeFormatter_InventoryNumber($output->InvNo);
+	$output->InventoryNumber = $output->InventoryNumber;
+	$output->InventoryBarcode = barcodeFormatter_InventoryNumber($output->InventoryNumber);
 
 	$location = new Location();
 	$output->LocationName = $location->name($output->LocationId);
@@ -221,20 +221,20 @@ else if($api->isPost())
 	$data = $api->getPostData();
 
 	$sqlData = array();
-	$sqlData['InvNo']['raw'] = "(SELECT generateItemNumber())";
+	$sqlData['InventoryNumber']['raw'] = "(SELECT generateItemNumber())";
 	$sqlData['Title'] = $data->Title;
 	$sqlData['Manufacturer'] = $data->ManufacturerName;
 	$sqlData['Type'] = $data->Type;
 	$sqlData['SerialNumber'] = $data->SerialNumber;
-	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocNr = ".$database->escape($data->LocationNumber).")";
+	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocationNumber = ".$database->escape($data->LocationNumber).")";
 	$sqlData['InventoryCategoryId'] = intval($data->CategoryId);
 
 	$Id = $database->insert("inventory", $sqlData);
 
-    $query = " SELECT `InvNo` FROM `inventory` WHERE `Id` = $Id;";
+    $query = " SELECT `InventoryNumber` FROM `inventory` WHERE `Id` = $Id;";
 
 	$output = [];
-	$output['InventoryNumber'] = $database->query($query)[0]->InvNo;
+	$output['InventoryNumber'] = $database->query($query)[0]->InventoryNumber;
 	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($output['InventoryNumber']);
 
 	$api->returnData($output);

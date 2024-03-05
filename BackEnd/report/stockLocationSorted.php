@@ -21,8 +21,8 @@ if($api->isGet())
 	$query = <<<QUERY
 		SELECT 
 			CONCAT(numbering.Prefix,'-',productionPart.Number) AS PartNo,
-			GROUP_CONCAT(StockNo) AS StockNoList, 
-			GROUP_CONCAT(partStock_getQuantity(StockNo)) AS Quantity, 
+			GROUP_CONCAT(StockNumber) AS StockNoList, 
+			GROUP_CONCAT(partStock_getQuantity(StockNumber)) AS Quantity, 
 			GROUP_CONCAT(LocationId) AS LocationIdList
 		FROM partStock 
 		LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId

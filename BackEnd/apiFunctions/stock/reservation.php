@@ -29,7 +29,7 @@ if($api->isGet())
 		    partStock_reservation.Quantity 
 		FROM partStock_reservation 
 		LEFT JOIN  workOrder ON workOrder.Id = partStock_reservation.WorkOrderId 
-		WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNo = '$stockNumber') 
+		WHERE StockId = (SELECT partStock.Id FROM partStock WHERE StockNumber = '$stockNumber') 
 	STR;
 
 	$output = $database->query($query);

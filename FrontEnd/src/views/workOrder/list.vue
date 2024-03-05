@@ -19,7 +19,7 @@
           </template>
         </el-table-column>
         <el-table-column label="Title" prop="Name" sortable />
-        <el-table-column label="Project" prop="ProjectItemCode" sortable >
+        <el-table-column label="Project" prop="ProjectItemCode" sortable>
           <template slot-scope="{ row }">
             <router-link
               :to="'/project/item/' + row.ProjectItemCode"

@@ -144,7 +144,7 @@ if($api->isGet())
         foreach([1,2,3,4] as $i) // 4 labels each
         {
 
-            $locNo = $row->LocNr . " ";
+            $locNo = $row->LocationNumber . " ";
             $name = $row->Name . " ";
             $locationBarcode = barcodeFormatter_LocationNumber($locNo);
 

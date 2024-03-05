@@ -72,6 +72,9 @@
 import Print from '@/api/print'
 const print = new Print()
 
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
+
 import Loaction from '@/api/location'
 const loaction = new Loaction()
 
@@ -104,13 +107,16 @@ export default {
   methods: {
 
     handleChange() {
-      const numberList = this.itemList.map(element => element.LocationBarcode)
+      const numberList = this.itemList.map(element => element.ItemCode)
+      renderer.item(this.rendererSelected.Id).then(response => {
+        const printPath =
+          process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + response.Code
 
-      const printPath =
-        process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + this.rendererSelected.Code
-
-      this.printPreviewPath =
-        printPath + '?Offset=' + this.offset + '&LocationNumber=' + numberList
+        this.printPreviewPath =
+          printPath + '?Offset=' + this.offset + '&LocationNumber=' + numberList
+      }).catch(response => {
+        this.showErrorMessage(response)
+      })
     },
     addItem() {
       loaction.item.get(this.inputLocationNumber, false).then(response => {

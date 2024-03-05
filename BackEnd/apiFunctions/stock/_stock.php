@@ -25,9 +25,9 @@ class stock
         QUERY;
 
         $insertData = [];
-        $insertData['StockNo']['raw'] = "partStock_generateStockNo()";
+        $insertData['StockNumber']['raw'] = "partStock_generateStockNumber()";
         $insertData['ManufacturerPartNumberId']['raw'] = "($queryManufacturerPartNumberId)";
-        $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocNr`= $locationNumber)";
+        $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocationNumber`= $locationNumber)";
         $insertData['Date'] = $date;
         $insertData['OrderReference'] = $orderReference;
         $insertData['ReceivalId'] = $receivalId;
@@ -63,7 +63,7 @@ class stock
 
         $database->commitTransaction();
 
-        return $database->query("SELECT StockNo FROM partStock WHERE Id = $stockId")[0]->StockNo;
+        return $database->query("SELECT StockNumber FROM partStock WHERE Id = $stockId")[0]->StockNumber;
     }
 
     static function create(
@@ -142,9 +142,9 @@ class stock
         }
 
         $insertData = [];
-        $insertData['StockNo']['raw'] = "partStock_generateStockNo()";
+        $insertData['StockNumber']['raw'] = "partStock_generateStockNumber()";
         $insertData['ManufacturerPartNumberId'] = $manufacturerPartNumberId;
-        $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocNr`= $locationNumber)";
+        $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocationNumber`= $locationNumber)";
         $insertData['Date'] = $date;
         $insertData['OrderReference'] = $orderReference;
         $insertData['ReceivalId'] = null;
@@ -181,7 +181,7 @@ class stock
 
         $database->commitTransaction();
 
-        return $database->query("SELECT StockNo FROM partStock WHERE ID  = $stockId")[0]->StockNo;
+        return $database->query("SELECT StockNumber FROM partStock WHERE ID  = $stockId")[0]->StockNumber;
     }
 
 }

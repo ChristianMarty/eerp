@@ -32,7 +32,7 @@ function description_generateSummary($locationNr): array
 	{
 		$query = <<< STR
 		SELECT
-		    StockNo AS StockNumber,
+		    StockNumber,
 			vendor_displayName(vendor.Id) AS ManufacturerName,
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
 			Date, 
@@ -41,7 +41,7 @@ function description_generateSummary($locationNr): array
 		FROM partStock 
 		LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId
 		LEFT JOIN vendor ON vendor.Id = manufacturerPart_partNumber_getVendorId(partStock.ManufacturerPartNumberId)
-		WHERE StockNo = $itemNr;
+		WHERE StockNumber = $itemNr;
 		STR;
 
 		$result = $database->query($query);
@@ -68,13 +68,13 @@ function description_generateSummary($locationNr): array
 	{
         $query = <<< STR
 		SELECT
-		    InvNo AS InventoryNumber,
+		    InventoryNumber,
 			Title, 
 			Manufacturer, 
 			Type, 
 			LocationId
 		FROM inventory
-		WHERE InvNo = $itemNr
+		WHERE InventoryNumber = $itemNr
 		STR;
         $result = $database->query($query);
 
@@ -186,8 +186,8 @@ function description_generateSummary($locationNr): array
 
         $itemData = $result[0];
 
-		$data["LocationNr"] = barcodeFormatter_LocationNumber($itemData->LocNr);
-		$data["Location"] = (new Location())->name($itemData->Id);
+		$data["LocationCode"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
+		$data["LocationName"] = (new Location())->name($itemData->Id);
 	}
 	
 	$response['data'] = $data;

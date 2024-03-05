@@ -140,7 +140,7 @@ function location_getItems(int|null $locationId) : array
 	$items = array();
 	$query = <<<QUERY
 		SELECT 
-		    StockNo,
+		    StockNumber,
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
 			vendor_displayName(manufacturerPart_partNumber.VendorId) AS ManufacturerName,
 			Date, 
@@ -154,7 +154,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] =  barcodeFormatter_StockNumber($item->StockNo);
+		$data["Item"] =  barcodeFormatter_StockNumber($item->StockNumber);
 		$data["Category"] = "Stock";
 		$data["Description"] = "$item->ManufacturerName $item->ManufacturerPartNumber, $item->Date Qty: $item->Cache_Quantity";
 		$items[] = $data;
@@ -162,7 +162,7 @@ function location_getItems(int|null $locationId) : array
 
 	$query = <<<QUERY
 		SELECT 
-		    InvNo, 
+		    InventoryNumber, 
 		    Title, 
 		    Manufacturer, 
 		    Type, 
@@ -175,7 +175,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_InventoryNumber($item->InvNo);
+		$data["Item"] = barcodeFormatter_InventoryNumber($item->InventoryNumber);
 		$data["Category"] = "Inventory";
 		$data["Description"] = "$item->Title - $item->Manufacturer $item->Type";
 		$items[] = $data;

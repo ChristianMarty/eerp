@@ -50,7 +50,7 @@ function getCitations($documentId): array
 // Get documents from inventory
     $query = <<< STR
         SELECT 
-            inventory.InvNo,
+            inventory.InventoryNumber,
             inventory.Title,
             inventory.Type,
             inventory.Manufacturer
@@ -63,7 +63,7 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category']= 'Inventory';
-        $temp['ItemCode']= barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['ItemCode']= barcodeFormatter_InventoryNumber($r->InventoryNumber);
         $temp['Description']= $r->Title." - ".$r->Manufacturer." ".$r->Type;
         $output[] = $temp;
     }
@@ -72,7 +72,7 @@ function getCitations($documentId): array
 // Get documents from inventory_history
     $query = <<< STR
         SELECT 
-            inventory.InvNo,
+            inventory.InventoryNumber,
             inventory.Title,
             inventory.Type,
             inventory.Manufacturer,
@@ -88,7 +88,7 @@ function getCitations($documentId): array
     {
         $temp = array();
         $temp['Category']= 'Inventory History';
-        $temp['ItemCode']= barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['ItemCode']= barcodeFormatter_InventoryNumber($r->InventoryNumber);
         $temp['Description']= $r->HistoryType." - ".$r->Description." - ".$r->Manufacturer." ".$r->Type;
         $output[] = $temp;
     }

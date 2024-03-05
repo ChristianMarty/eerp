@@ -23,7 +23,7 @@ CREATE TABLE `inventory` (
 	`CreationUserId` INT(10) UNSIGNED NOT NULL,
 	`CreationDate` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
 	PRIMARY KEY (`Id`) USING BTREE,
-	UNIQUE INDEX `InventoryNumber` (`InventoryNumber`) USING BTREE,
+	UNIQUE INDEX `barcode` (`InventoryNumber`) USING BTREE,
 	UNIQUE INDEX `MacAddressWired_MacAddressWireless` (`MacAddressWired`, `MacAddressWireless`) USING BTREE,
 	INDEX `FK_equipment_location` (`LocationId`) USING BTREE,
 	INDEX `FK_equipment_equipmentCategory` (`InventoryCategoryId`) USING BTREE,

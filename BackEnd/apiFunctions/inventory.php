@@ -34,7 +34,7 @@ if($api->isGet("inventory.view"))
     $baseQuery = <<<STR
         SELECT 
             PicturePath, 
-            InvNo AS InventoryNumber, 
+            InventoryNumber, 
             Title, 
             Manufacturer, 
             Type, 

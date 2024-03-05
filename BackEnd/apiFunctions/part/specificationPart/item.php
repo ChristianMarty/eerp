@@ -22,7 +22,7 @@ if($api->isGet())
 
     $query = <<<STR
         SELECT 
-            specificationPart.Number AS SpecificationPartNumber,
+            SpecificationPartNumber,
             specificationPart.Type,
             specificationPart.Name,
             specificationPart.Description,
@@ -35,7 +35,7 @@ if($api->isGet())
         LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = specificationPart_revision.Id
         LEFT JOIN productionPart ON productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
-        WHERE specificationPart.Number = $specificationPartNumber
+        WHERE SpecificationPartNumber = $specificationPartNumber
     STR;
 
     $result = $database->query($query);

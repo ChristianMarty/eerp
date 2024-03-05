@@ -14,7 +14,7 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="Name" label="Name" sortable width="250"/>
+      <el-table-column prop="Name" label="Name" sortable width="250" />
       <el-table-column prop="ProductionPartCode" label="Production Part" sortable width="170">
         <template slot-scope="{ row }">
           <router-link :to="'/productionPart/item/' + row.ProductionPartCode" class="link-type">

@@ -78,10 +78,10 @@ if($api->isGet())
 // get stock
     $query = <<<STR
         SELECT
-            partStock.StockNo,
+            partStock.StockNumber,
             partStock.Date,
             partStock.LotNumber,
-            partStock_getQuantity(partStock.StockNo) AS Quantity,
+            partStock_getQuantity(partStock.StockNumber) AS Quantity,
             LocationId
         FROM partStock  
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
@@ -98,8 +98,8 @@ if($api->isGet())
     foreach ($result as $r)
     {
         $stockRow = array();
-        $stockRow['StockNumber'] = $r->StockNo;
-        $stockRow['StockBarcode'] = barcodeFormatter_StockNumber($r->StockNo);
+        $stockRow['StockNumber'] = $r->StockNumber;
+        $stockRow['StockCode'] = barcodeFormatter_StockNumber($r->StockNumber);
         $stockRow['Date'] = $r->Date;
         $stockRow['Lot'] = $r->LotNumber;
         $stockRow['Quantity'] = intval($r->Quantity);

@@ -37,8 +37,8 @@ function buildLocationTree($rows, $parentId): array
 			
 			$temp['Name'] = $row['Name'];
             $temp['Description'] = $row['Description'];
-			$temp['LocationNumber'] = $row['LocNr'];
-			$temp['LocationBarcode'] = barcodeFormatter_LocationNumber($row['LocNr']);
+			$temp['LocationNumber'] = $row['LocationNumber'];
+			$temp['LocationBarcode'] = barcodeFormatter_LocationNumber($row['LocationNumber']);
 			
 			$temp['Attributes'] = array();
 			if($row['ESD'] == 1) $temp['Attributes']['EsdSave'] = true;
@@ -48,7 +48,7 @@ function buildLocationTree($rows, $parentId): array
 			
 			// TODO: Remove legacy below
 			$temp['Id'] = $row['Id'];
-			$temp['LocNr'] = barcodeFormatter_LocationNumber($row['LocNr']);
+			$temp['LocationNumber'] = barcodeFormatter_LocationNumber($row['LocationNumber']);
 			
 			if($row['ESD'] == 1) $temp['ESD'] = true;
 			elseif ($row['ESD'] == null) $temp['ESD'] = null;

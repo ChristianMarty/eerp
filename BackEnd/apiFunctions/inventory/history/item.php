@@ -27,7 +27,7 @@ if($api->isGet())
         $query = <<<STR
             SELECT * FROM inventory
             LEFT JOIN inventory_history ON inventory.Id = inventory_history.InventoryId
-            WHERE inventory.InvNo = $inventoryNumber
+            WHERE inventory.InventoryNumber = $inventoryNumber
         STR;
 	}
 	else if(isset($parameter->EditToken))

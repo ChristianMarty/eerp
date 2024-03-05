@@ -43,7 +43,7 @@ if($api->isGet("inventory.purchase.view"))
         LEFT JOIN purchaseOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
         LEFT JOIN vendor ON purchaseOrder.VendorId = vendor.Id
         LEFT JOIN finance_currency ON purchaseOrder.CurrencyId = finance_currency.Id
-        WHERE inventory_purchaseOrderReference.InventoryId = (SELECT Id from inventory WHERE InvNo = $inventoryNumber)
+        WHERE inventory_purchaseOrderReference.InventoryId = (SELECT Id from inventory WHERE InventoryNumber = $inventoryNumber)
     STR;
 
     $result = $database->query($query);
@@ -70,7 +70,7 @@ else if($api->isPatch("inventory.purchase.edit"))
         SELECT 
             Id 
         FROM inventory 
-        WHERE InvNo = {$inventoryNumber};
+        WHERE InventoryNumber = {$inventoryNumber};
     STR;
     $id = $database->query($query)[0]->Id;
 

@@ -50,10 +50,8 @@ const assembly = new Assembly()
 import Print from '@/api/print'
 const print = new Print()
 
-
 import Peripheral from '@/api/peripheral'
 const peripheral = new Peripheral()
-
 
 export default {
   name: 'AssemblyItemHistoryData',
@@ -128,7 +126,7 @@ export default {
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
         this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
-        //this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+        // this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
         this.printer = response
       }).catch(response => {
         this.$message({

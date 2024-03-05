@@ -22,7 +22,7 @@ if($api->isGet())
 	$output = array();
     $query = <<< STR
         SELECT 
-            StockNo,
+            StockNumber,
             partStock_history.Quantity AS CreateQuantity 
         FROM partStock
         LEFT JOIN partStock_history ON partStock_history.StockId = partStock.Id
@@ -33,7 +33,7 @@ if($api->isGet())
     foreach($result as $r)
 	{
         $temp = array();
-        $temp['Barcode'] = barcodeFormatter_StockNumber($r->StockNo);
+        $temp['Barcode'] = barcodeFormatter_StockNumber($r->StockNumber);
         $temp['Type'] = "Part Stock";
         $temp['Description'] = null;
         $temp['CreateQuantity'] = $r->CreateQuantity;
@@ -42,7 +42,7 @@ if($api->isGet())
 
 
     $query = <<< STR
-        SELECT InvNo, Title FROM inventory
+        SELECT InventoryNumber, Title FROM inventory
         LEFT JOIN inventory_purchaseOrderReference ON inventory_purchaseOrderReference.InventoryId = inventory.Id
         WHERE ReceivalId = $receivalId
     STR;
@@ -51,7 +51,7 @@ if($api->isGet())
     foreach($result as $r)
     {
         $temp = array();
-        $temp['Barcode'] = barcodeFormatter_InventoryNumber($r->InvNo);
+        $temp['Barcode'] = barcodeFormatter_InventoryNumber($r->InventoryNumber);
         $temp['Type'] = "Inventory";
         $temp['CreateQuantity'] = null;
         $temp['Description'] = $r->Title;

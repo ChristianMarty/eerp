@@ -55,6 +55,9 @@ import Cookies from 'js-cookie'
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
+
 import Print from '@/api/print'
 const print = new Print()
 
@@ -99,11 +102,15 @@ export default {
       this.handleChange()
     },
     handleChange() {
-      const printPath =
-        process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + this.rendererSelected.Code
+      renderer.item(this.rendererSelected.Id).then(response => {
+        const printPath =
+          process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + response.Code
 
-      this.printPreviewPath =
-        printPath + '?offset=' + this.offset + '&invNo=' + this.invList
+        this.printPreviewPath =
+          printPath + '?offset=' + this.offset + '&invNo=' + this.invList
+      }).catch(response => {
+        this.showErrorMessage(response)
+      })
     },
     clearList() {
       Cookies.remove('invNo')

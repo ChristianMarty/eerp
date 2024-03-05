@@ -18,9 +18,9 @@ if($api->isGet())
 {
 	$parameter = $api->getGetData();
 
-	if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
-	$stockNumber = barcodeParser_StockNumber($parameter->StockNo);
-	if($stockNumber === null) $api->returnParameterError("StockNo");
+	if(!isset($parameter->StockCode)) $api->returnParameterMissingError("StockCode");
+	$stockNumber = barcodeParser_StockNumber($parameter->StockCode);
+	if($stockNumber === null) $api->returnParameterError("StockCode");
 
 	$query = <<<STR
 		SELECT 
@@ -33,7 +33,7 @@ if($api->isGet())
 			partStock_history.EditToken 
 		FROM partStock_history 
 		LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId 
-		WHERE StockId = (SELECT Id FROM partStock WHERE StockNo = '$stockNumber') 
+		WHERE StockId = (SELECT Id FROM partStock WHERE StockNumber = '$stockNumber') 
 		ORDER BY partStock_history.Id ASC
 	STR;
 

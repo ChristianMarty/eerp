@@ -129,7 +129,7 @@ else if($api->isPatch('location.edit'))
     $updateData['ESD'] = $data->ESD;
 
     try {
-        $database->update("location", $updateData, "LocNr = {$locationNumber}");
+        $database->update("location", $updateData, "LocationNumber = {$locationNumber}");
     }
     catch (\Exception $e)
     {

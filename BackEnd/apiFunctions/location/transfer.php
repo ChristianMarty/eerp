@@ -82,7 +82,7 @@ if($api->isPost())
 	$error = "";
 	if(!empty($invList)) $error .= moveItems( $invList, $locationNr, "inventory", "InvNo");
 	if(!empty($stkList)) $error .= moveItems( $stkList, $locationNr, "partStock", "StockNo");
-	if(!empty($locList)) $error .= moveItems( $locList, $locationNr, "location", "LocNr");
+	if(!empty($locList)) $error .= moveItems( $locList, $locationNr, "location", "LocationNumber");
 	if(!empty($asuList)) $error .= moveItems( $asuList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
 	
 	if(empty($error)) $api->returnEmpty();

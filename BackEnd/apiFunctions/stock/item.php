@@ -26,7 +26,7 @@ function _stockPartQuery(string $stockNo): string
 	        vendor_displayName(supplier.Id) AS SupplierName, 
 	        supplierPart.SupplierPartNumber, 
 	       	partStock.OrderReference, 
-	       	partStock.StockNo, 
+	       	partStock.StockNumber, 
 	       	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
 	       	manufacturer.Id AS ManufacturerId, 
 	       	partStock.LotNumber, 
@@ -40,7 +40,7 @@ function _stockPartQuery(string $stockNo): string
 			partStock.LocationId, 
 			partStock.HomeLocationId, 
 			hc.CreateQuantity,  
-			partStock_getQuantity(partStock.StockNo) AS Quantity, 
+			partStock_getQuantity(partStock.StockNumber) AS Quantity, 
 			r.ReservedQuantity AS ReservedQuantity, 
 			lc.LastCountDate AS LastCountDate, 
 			hc.CreateData 
@@ -60,27 +60,27 @@ function _stockPartQuery(string $stockNo): string
 	LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
 
 	LEFT JOIN (
-		SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNo = $stockNo)
+		SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNumber = $stockNo)
 		)hc ON  hc.StockId = partStock.Id
 	LEFT JOIN (
-		SELECT StockId, CreationDate AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNo = $stockNo) ORDER BY CreationDate DESC LIMIT 1
+		SELECT StockId, CreationDate AS LastCountDate FROM partStock_history WHERE ChangeType = 'Absolute' AND StockId = (SELECT ID FROM partStock WHERE StockNumber = $stockNo) ORDER BY CreationDate DESC LIMIT 1
 		)lc ON  lc.StockId = partStock.Id
 
-	WHERE partStock.StockNo = $stockNo
+	WHERE partStock.StockNumber = $stockNo
 	STR;
 }
 
 if($api->isGet("stock.view"))
 {
     $parameter = $api->getGetData();
-    if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
-    $stockNumber = barcodeParser_StockNumber($parameter->StockNo);
-    if($stockNumber === null) $api->returnParameterError("StockNumber");
+    if(!isset($parameter->StockCode)) $api->returnParameterMissingError("StockCode");
+    $stockNumber = barcodeParser_StockNumber($parameter->StockCode);
+    if($stockNumber === null) $api->returnParameterError("StockCode");
 
     $stockNumber = $database->escape($stockNumber);
 	$r = $database->query(_stockPartQuery($stockNumber))[0];
 
-	$r->Barcode = barcodeFormatter_StockNumber($r->StockNo);
+	$r->Barcode = barcodeFormatter_StockNumber($r->StockNumber);
 	if($r->Date) {
 		$date = new DateTime($r->Date);
 		$r->DateCode = $date->format("yW");
@@ -168,7 +168,7 @@ else if($api->isPost("stock.create"))
     $stockPart = $database->query(_stockPartQuery("'$stockNumber'"))[0];
 
     $orderReference = $stockPart->OrderReference;
-    $stockPart->Barcode = barcodeFormatter_StockNumber($stockPart->StockNo);
+    $stockPart->Barcode = barcodeFormatter_StockNumber($stockPart->StockNumber);
 
     $api->returnData($stockPart);
 }
@@ -185,7 +185,7 @@ else if($api->isDelete("stock.delete"))
 	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
 	$sqlData['DeleteRequestNote'] = $data->Note;
 
-    $database->update("partStock", $sqlData, "StockNo = $stockNumber");
+    $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
 
     $api->returnEmpty();
 }

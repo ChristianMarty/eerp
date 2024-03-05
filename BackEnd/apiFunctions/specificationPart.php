@@ -20,7 +20,7 @@ if($api->isGet())
 
     $query = <<<STR
         SELECT 
-            specificationPart.Number AS SpecificationPartNumber,
+            SpecificationPartNumber,
             specificationPart.Type,
             specificationPart.Name
         FROM specificationPart

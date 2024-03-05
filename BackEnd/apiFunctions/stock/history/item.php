@@ -61,7 +61,7 @@ else if($api->isPost())
 	$stockNo = barcodeParser_StockNumber($data->StockNo);
     if($stockNo === null) $api->returnParameterError("StockNo");
 
-	$query = "SELECT Id FROM partStock WHERE StockNo = '$stockNo'";
+	$query = "SELECT Id FROM partStock WHERE StockNumber = '$stockNo'";
 	$stockId = $database->query($query)[0]->Id;
 
 	$workOrderNumber = null;

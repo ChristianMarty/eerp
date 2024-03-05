@@ -57,7 +57,7 @@ if($api->isGet())
     $query = <<<STR
     SELECT  
         prodPart.ProductionPartNumber, 
-        partStock.StockNo AS StockNumber, 
+        StockNumber, 
         manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
         manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
         vendor_displayName(vendor.Id) as ManufacturerDisplayName, 
