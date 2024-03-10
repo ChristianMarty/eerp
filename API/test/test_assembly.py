@@ -22,13 +22,8 @@ def test_schema_assembly_list(db_connection, eerp_connection):
                 "Name": {"type": "string"},
                 "Description": {"type": "string"}
             },
-            "required": [
-                "ItemCode",
-                "AssemblyNumber",
-                "ProductionPartCode",
-                "Name",
-                "Description"
-            ]
+            "additionalProperties": False,
+            "minProperties": 5
         }]
     }
 

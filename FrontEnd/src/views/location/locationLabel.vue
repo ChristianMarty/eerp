@@ -34,9 +34,7 @@
       <a :href="printPreviewPath" target="print" style="float: right;">
         <el-button type="primary" plain icon="el-icon-printer">Print</el-button>
       </a>
-
       <el-form :inline="true" :model="form">
-
         <el-form-item label="Offset" />
         <el-input-number
           v-model="offset"
@@ -57,7 +55,6 @@
             :value="item"
           />
         </el-select>
-
       </el-form>
       <p>{{ rendererSelected.Description }}</p>
       <div style="height:297mm;">

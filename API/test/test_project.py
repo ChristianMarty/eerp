@@ -19,25 +19,13 @@ def test_project_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "ItemCode": {
-                    "type": "string"
-                },
-                "ProjectNumber": {
-                    "type": "integer"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                }
+                "ItemCode": {"type": "string"},
+                "ProjectNumber": {"type": "integer"},
+                "Name": {"type": "string"},
+                "Description": {"type": "string"}
             },
-            "required": [
-                "ProjectNumber",
-                "ItemCode",
-                "Name",
-                "Description"
-            ]
+            "additionalProperties": False,
+            "minProperties": 4
         }]
     }
 

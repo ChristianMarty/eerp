@@ -19,42 +19,21 @@ def test_location_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "Name": {
-                    "type": "string"
-                },
-                "LocationNumber": {
-                    "type": "integer"
-                },
-                "ItemCode": {
-                    "type": "string"
-                },
-                "Title": {
-                    "type": ["string", "null"]
-                },
-                "Description": {
-                    "type": ["string", "null"]
-                },
+                "Name": {"type": "string"},
+                "LocationNumber": {"type": "integer"},
+                "ItemCode": {"type": "string"},
+                "Title": {"type": ["string", "null"]},
+                "Description": {"type": ["string", "null"]},
                 "Attributes": {
                     "type": "object",
                     "properties": {
-                        "EsdSave": {
-                            "type": "boolean"
-                        },
+                        "EsdSave": {"type": "boolean"},
                     }
                 },
-                "Children": {
-                    "type": "array"
-                }
+                "Children": {"type": "array"}
             },
-            "required": [
-                "Name",
-                "LocationNumber",
-                "ItemCode",
-                "Title",
-                "Description",
-                "Attributes",
-                "Children"
-            ]
+            "additionalProperties": False,
+            "minProperties": 7
         }]
     }
 

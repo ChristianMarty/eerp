@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
@@ -78,6 +79,7 @@ else if($api->isPost())
 		$sqlData['Rotation'] = trim($line->Rotation);
 		$sqlData['Layer'] = trim($line->Layer);
 		$sqlData['Description'] = trim($line->Description);
+        $sqlData['CreationUserId'] = $user->userId();
 
         $database->insert("billOfMaterial_item", $sqlData);
 	}

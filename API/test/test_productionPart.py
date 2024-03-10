@@ -19,33 +19,15 @@ def test_production_part_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "Prefix": {
-                    "type": "string"
-                },
-                "Number": {
-                    "type": "string"
-                },
-                "ItemCode": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                },
-                "BillOfMaterial_TotalQuantityUsed": {
-                    "type": ["integer", "null"]
-                },
-                "BillOfMaterial_NumberOfOccurrence": {
-                    "type": ["integer", "null"]
-                },
+                "Prefix": {"type": "string"},
+                "Number": {"type": "string"},
+                "ItemCode": {"type": "string"},
+                "Description": {"type": "string"},
+                "BillOfMaterial_TotalQuantityUsed": {"type": ["integer", "null"]},
+                "BillOfMaterial_NumberOfOccurrence": {"type": ["integer", "null"]},
             },
-            "required": [
-                "Prefix",
-                "Number",
-                "ItemCode",
-                "Description",
-                "BillOfMaterial_TotalQuantityUsed",
-                "BillOfMaterial_NumberOfOccurrence"
-            ]
+            "additionalProperties": False,
+            "minProperties": 10
         }]
     }
 

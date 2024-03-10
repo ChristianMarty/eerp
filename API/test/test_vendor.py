@@ -20,56 +20,21 @@ def test_vendor_list_schema():
             {
                 "type": "object",
                 "properties": {
-                    "Id": {
-                        "type": "integer"
-                    },
-                    "FullName": {
-                        "type": "string"
-                    },
-                    "ShortName": {
-                        "type": ["null", "string"]
-                    },
-                    "AbbreviatedName": {
-                        "type": ["null", "string"]
-                    },
-                    "DisplayName": {
-                        "type": "string"
-                    },
-                    "IsSupplier": {
-                        "type": "boolean"
-                    },
-                    "IsManufacturer": {
-                        "type": "boolean"
-                    },
-                    "IsContractor": {
-                        "type": "boolean"
-                    },
-                    "IsCarrier": {
-                        "type": "boolean"
-                    },
-                    "IsCustomer": {
-                        "type": "boolean"
-                    },
-                    "Note": {
-                        "type": ["null", "string"]
-                    },
-                    "ParentId": {
-                        "type": ["null", "integer"]
-                    }
+                    "Id": {"type": "integer"},
+                    "FullName": {"type": "string"},
+                    "ShortName": {"type": ["null", "string"]},
+                    "AbbreviatedName": {"type": ["null", "string"]},
+                    "DisplayName": {"type": "string"},
+                    "IsSupplier": {"type": "boolean"},
+                    "IsManufacturer": {"type": "boolean"},
+                    "IsContractor": {"type": "boolean"},
+                    "IsCarrier": {"type": "boolean"},
+                    "IsCustomer": {"type": "boolean"},
+                    "Note": {"type": ["null", "string"]},
+                    "ParentId": {"type": ["null", "integer"]}
                 },
-                "required": [
-                    "FullName",
-                    "ShortName",
-                    "AbbreviatedName",
-                    "DisplayName",
-                    "IsSupplier",
-                    "IsManufacturer",
-                    "IsContractor",
-                    "IsCarrier",
-                    "IsCustomer",
-                    "Note",
-                    "ParentId"
-                ]
+                "additionalProperties": False,
+                "minProperties": 12
             }
         ]
     }

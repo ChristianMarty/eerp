@@ -49,7 +49,8 @@ const inventory = new Inventory()
 
 export default {
   name: 'InventoryAccessoryDialog',
-  props: { inventoryNumber: { type: String, default: '' },
+  props: {
+    inventoryNumber: { type: String, default: '' },
     accessoryNumber: { type: Number, default: 0 },
     visible: { type: Boolean, default: false }
   },
@@ -68,7 +69,8 @@ export default {
       }
     },
     save() {
-      this.accessoryData.InventoryNumber = this.$props.inventoryNumber
+      this.accessoryData.ItemCode = this.$props.inventoryNumber
+      if (this.$props.accessoryNumber !== 0) this.accessoryData.ItemCode = this.accessoryData.ItemCode + '-' + this.$props.accessoryNumber
 
       inventory.accessory.save(this.accessoryData).then(response => {
         this.closeDialog()

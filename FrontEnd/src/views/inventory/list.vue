@@ -51,28 +51,15 @@
         </el-collapse-item>
       </el-collapse>
 
-      <el-collapse>
-        <el-collapse-item name="2">
-          <template slot="title">
-            <b>Group Action</b>
-          </template>
-          <el-button type="primary" @click="addPrint">Print Label</el-button>
-        </el-collapse-item>
-      </el-collapse>
       <p><b>Number of Results: </b>{{ inventory.length }}</p>
       <el-table :data="inventory" style="width: 100%">
-        <el-table-column prop="GroupSelect" label="Select" width="70">
-          <template slot-scope="scope">
-            <el-checkbox v-model="scope.row.GroupSelect" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="InventoryNumber" label="Inventory No" width="140" sortable>
+        <el-table-column prop="ItemCode" label="Inventory No" width="140" sortable>
           <template slot-scope="{ row }">
             <router-link
-              :to="'/inventory/inventoryView/' + row.InventoryBarcode"
+              :to="'/inventory/item/' + row.ItemCode"
               class="link-type"
             >
-              <span>{{ row.InventoryBarcode }}</span>
+              <span>{{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>
@@ -86,15 +73,13 @@
         <el-table-column prop="ManufacturerName" label="Manufacturer" sortable />
         <el-table-column prop="Type" label="Type" sortable />
         <el-table-column prop="SerialNumber" label="Serial Number" sortable />
-        <el-table-column prop="Status" label="Status" sortable />
+        <el-table-column prop="LocationName" label="Location" sortable />
       </el-table>
     </template>
   </div>
 </template>
 
 <script>
-
-import Cookies from 'js-cookie'
 
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
@@ -112,8 +97,6 @@ export default {
 
       locations: Object.assign({}, location.searchReturn),
       categories: Object.assign({}, inventory.categoriesReturn),
-
-      selected: null
     }
   },
   async mounted() {
@@ -129,30 +112,6 @@ export default {
     },
     async getInventory() {
       this.inventory = await inventory.search(this.filter)
-    },
-    addPrint() {
-      var cookieList = []
-      try {
-        var cookiesText = Cookies.get('invNo')
-        cookieList = JSON.parse(cookiesText)
-      } catch (e) {
-        cookieList = []
-      }
-
-      var invNoList = []
-      invNoList = invNoList.concat(cookieList)
-
-      this.inventory.forEach(element => {
-        if (typeof element.GroupSelect !== 'undefined') {
-          if (element.GroupSelect === true) {
-            invNoList.push(element.InventoryNumber)
-          }
-        }
-      })
-
-      Cookies.set('invNo', invNoList)
-
-      this.$router.push({ path: '/inventory/inventoryLabel' })
     }
   }
 }

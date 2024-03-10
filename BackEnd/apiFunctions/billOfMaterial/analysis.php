@@ -11,6 +11,9 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+require_once __DIR__ . "/../util/_barcodeParser.php";
+require_once __DIR__ . "/../util/_barcodeFormatter.php";
+
 if($api->isGet())
 {
     $parameter = $api->getGetData();
@@ -64,6 +67,7 @@ if($api->isGet())
 
         $totalAveragePurchasePrice += $purchasePrice['Average']*$line->Quantity;
 
+        $line->PurchasePrice = $purchasePrice;
         $line->NumberOfManufacturers = $line->Cache_Sourcing_NumberOfManufacturers;
         $line->NumberOfParts = $line->Cache_Sourcing_NumberOfParts;
 		

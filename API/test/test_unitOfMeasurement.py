@@ -19,29 +19,14 @@ def test_billOfMaterial_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "Id": {
-                    "type": "integer"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Unit": {
-                    "type": ["string", "null"]
-                },
-                "Symbol": {
-                    "type": ["string", "null"]
-                },
-                "Countable": {
-                    "type": "boolean"
-                }
+                "Id": {"type": "integer"},
+                "Name": {"type": "string"},
+                "Unit": {"type": ["string", "null"]},
+                "Symbol": {"type": ["string", "null"]},
+                "Countable": {"type": "boolean"}
             },
-            "required": [
-                "Name",
-                "Id",
-                "Unit",
-                "Symbol",
-                "Countable"
-            ]
+            "additionalProperties": False,
+            "minProperties": 5
         }]
     }
 

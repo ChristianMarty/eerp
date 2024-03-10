@@ -13,16 +13,19 @@ function barcodeFormatter_StockNumber(string|int $input): string
     return "STK-".strtoupper($input);
 }
 
-function barcodeFormatter_InventoryNumber(string|int $input): string
+function barcodeFormatter_InventoryNumber(string|int $input, string|int|null $accessory = null): string
 {
-    return "Inv-".$input;
+    $output = "Inv-".$input;
+    if($accessory != null) {
+        $output .= "-".$accessory;
+    }
+    return $output;
 }
 
-function barcodeFormatter_PurchaseOrderNumber(string|int $input ,string|int|null $line = null): string
+function barcodeFormatter_PurchaseOrderNumber(string|int $input, string|int|null $line = null): string
 {
     $output =  "PO-".$input;
-    if($line != null)
-    {
+    if($line != null) {
         $output .= "#".$line;
     }
     return $output;

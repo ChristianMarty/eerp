@@ -19,45 +19,18 @@ def test_peripheral_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "Id": {
-                    "type": "integer"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "DeviceType": {
-                    "type": "string"
-                },
-                "Ip": {
-                    "type": "string"
-                },
-                "Port": {
-                    "type": "integer"
-                },
-                "Language": {
-                    "type": "string"
-                },
-                "Type": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                },
-                "Driver": {
-                    "type": ["string", "null"]
-                }
+                "Id": {"type": "integer"},
+                "Name": {"type": "string"},
+                "DeviceType": {"type": "string"},
+                "Ip": {"type": "string"},
+                "Port": {"type": "integer"},
+                "Language": {"type": "string"},
+                "Type": {"type": "string"},
+                "Description": {"type": "string"},
+                "Driver": {"type": ["string", "null"]}
             },
-            "required": [
-                "Id",
-                "Name",
-                "DeviceType",
-                "Ip",
-                "Port",
-                "Language",
-                "Type",
-                "Description",
-                "Driver"
-            ]
+            "additionalProperties": False,
+            "minProperties": 9
         }]
     }
 

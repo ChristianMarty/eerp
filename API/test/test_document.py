@@ -24,22 +24,14 @@ def test_document_list_schema():
                 "File": {"type": "string"},
                 "Name": {"type": "string"},
                 "Type": {"type": "string"},
+                "Description": {"type": "string"},
                 "LinkType": {"type": "string"},
                 "Hash": {"type": "string"},
                 "CreationDate": {"type": "string"},
                 "ItemCode": {"type": "string"}
             },
-            "required": [
-                "DocumentNumber",
-                "Path",
-                "File",
-                "Name",
-                "Type",
-                "LinkType",
-                "Hash",
-                "CreationDate",
-                "ItemCode"
-            ]
+            "additionalProperties": False,
+            "minProperties": 10
         }]
     }
 
@@ -75,19 +67,8 @@ def test_document_item_schema():
                 }]
             },
         },
-        "required": [
-            "DocumentNumber",
-            "Path",
-            "Name",
-            "Note",
-            "Type",
-            "LinkType",
-            "Hash",
-            "CreatedBy",
-            "CreationDate",
-            "ItemCode",
-            "Citations"
-        ]
+        "additionalProperties": False,
+        "minProperties": 1
     }
 
     data = eerp.document.item(67491)

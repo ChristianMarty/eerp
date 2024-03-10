@@ -53,12 +53,10 @@ if($api->isGet())
 			vendor_displayName(vendor.Id) AS SupplierName, 
 			HomeLocationId, 
 			location.LocationNumber AS LocationNumber, 
-			InventoryCategoryId AS CategoryId, 
 			inventory.LocationId 
 		FROM `inventory`
 		LEFT JOIN `vendor` On vendor.Id = inventory.VendorId 
 		LEFT JOIN `location` On location.Id = inventory.LocationId 
-		LEFT JOIN `inventory_category` On inventory_category.Id = inventory.InventoryCategoryId 
 	STR;
 
 	if(isset($InvNo)) $baseQuery .=" WHERE `InventoryNumber` = $InvNo";
@@ -68,20 +66,37 @@ if($api->isGet())
 	global $picturePath;
 
 	$pictureRootPath = $dataRootPath.$picturePath."/";
-
 	$output = $database->query($baseQuery)[0];
 
 	$id = $output->Id;
+    unset($output->Id);
 
 	$output->PicturePath = $pictureRootPath.$output->PicturePath;
-	$output->InventoryNumber = $output->InventoryNumber;
-	$output->InventoryBarcode = barcodeFormatter_InventoryNumber($output->InventoryNumber);
+	$output->InventoryNumber = intval($output->InventoryNumber);
+	$output->ItemCode = barcodeFormatter_InventoryNumber($output->InventoryNumber);
 
 	$location = new Location();
-	$output->LocationName = $location->name($output->LocationId);
-	$output->LocationPath = $location->path($output->LocationId);
-	$output->HomeLocationName = $location->name($output->HomeLocationId);
-	$output->HomeLocationPath = $location->path($output->HomeLocationId);
+    $locationData = new stdClass();
+    $locationData->Number = intval($output->LocationNumber);
+    $locationData->ItemCode = barcodeFormatter_LocationNumber($locationData->Number);
+    unset($output->LocationNumber);
+	$locationData->Name = $location->name($output->LocationId);
+    $locationData->Path = $location->path($output->LocationId);
+    unset($output->LocationId);
+    $locationData->HomeName = $location->name($output->HomeLocationId);
+    $locationData->HomePath = $location->path($output->HomeLocationId);
+    unset($output->HomeLocationId);
+    $output->Location = $locationData;
+
+    // Add Attributes
+    $attributes = [];
+    $macWired = ["Name"=>"Mac Address Wired", "Value"=>$output->MacAddressWired];
+    unset($output->MacAddressWired);
+    $attributes[] = $macWired;
+    $macWireless = ["Name"=>"Mac Address Wireless", "Value"=>$output->MacAddressWireless];
+    unset($output->MacAddressWireless);
+    $attributes[] = $macWireless;
+    $output->Attribute = $attributes;
 
 	// Get Purchase Information
 	$query = <<<STR
@@ -128,7 +143,7 @@ if($api->isGet())
 		$row = [];
 		$row["PurchaseOrderNumber"] = null;
 		$row["LineNumber"] = null;
-		$row["Price"] = $output->PurchasePrice;
+		$row["Price"] = floatval($output->PurchasePrice);
 		$row["Currency"] = "CHF"; // TODO: Fix this
 		$row["SupplierPartNumber"] = null;
 		$row["SupplierName"] = $output->SupplierName;
@@ -139,18 +154,24 @@ if($api->isGet())
 		$row["Quantity"] = 1;
 		$row["CostType"] = 'Legacy Purchase';
 		$row["Description"] = "";
-		
-		$totalPrice = $row["Price"];
+
+        $totalPurchase = $row["Price"];
 		
 		$purchase[] = $row;
 	}
+    unset($output->PurchasePrice);
+    unset($output->SupplierName);
+    unset($output->PurchaseDate);
 	
-	$output->PurchaseInformation = $purchase;
+	$output->PurchaseInformation = new stdClass();
+    $output->PurchaseInformation->Item = $purchase;
 
-	$output->TotalPurchaseCost =  round($totalPurchase, 2);
-	$output->TotalMaintenanceCost =  round($totalMaintenance, 2);
-	$output->TotalCostOfOwnership =  round($totalPurchase+$totalMaintenance, 2);
-	$output->TotalCurrency = "CHF"; //TODO: Fix  $purchase[0]["Currency"];
+    $total = new stdClass();
+    $total->PurchaseCost =  round($totalPurchase, 2);
+    $total->CostOfOwnership =  round($totalPurchase+$totalMaintenance, 2);
+    $total->Currency = "CHF"; //TODO: Fix  $purchase[0]["Currency"];
+
+	$output->PurchaseInformation->Total = $total;
 	
 	// Get Accessory
 	$query = <<<STR
@@ -167,7 +188,7 @@ if($api->isGet())
 	$accessory = $database->query($query);
 	foreach ($accessory as $r)
 	{
-		$r->AccessoryBarcode = $output->InventoryBarcode."-".$r->AccessoryNumber;
+		$r->ItemCode = barcodeFormatter_InventoryNumber($output->InventoryNumber, $r->AccessoryNumber);
 		if($r->Labeled == "0") $r->Labeled = false;
 		else $r->Labeled = true;
 	}

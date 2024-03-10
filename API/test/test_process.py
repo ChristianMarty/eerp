@@ -19,21 +19,12 @@ def test_process_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "Name": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                },
-                "Path": {
-                    "type": "string"
-                }
+                "Name": {"type": "string"},
+                "Description": {"type": "string"},
+                "Path": {"type": "string"}
             },
-            "required": [
-                "Name",
-                "Description",
-                "Path"
-            ]
+            "additionalProperties": False,
+            "minProperties": 3
         }]
     }
 

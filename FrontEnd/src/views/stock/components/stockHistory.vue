@@ -31,7 +31,7 @@ import editStockHistoryDialog from './editStockHistoryDialog'
 export default {
   components: { editStockHistoryDialog },
   props: {
-    stockNo: { type: String, default: '' }
+    StockCode: { type: String, default: '' }
   },
   data() {
     return {
@@ -52,7 +52,7 @@ export default {
       requestBN({
         url: '/stock/history',
         methood: 'get',
-        params: { StockNo: this.$props.stockNo }
+        params: { StockCode: this.$props.StockCode }
       }).then(response => {
         if (response.error != null) {
           this.$message({

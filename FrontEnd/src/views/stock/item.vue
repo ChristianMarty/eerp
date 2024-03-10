@@ -96,7 +96,7 @@
       <el-divider />
 
       <h3>History</h3>
-      <stockHistory :key="stockHistoryKey" :stock-no="inputStockId" />
+      <stockHistory :key="stockHistoryKey" :stock-code="inputStockId" />
 
       <h3>Reservations</h3>
       <el-table :data="reservation" style="width: 100%">

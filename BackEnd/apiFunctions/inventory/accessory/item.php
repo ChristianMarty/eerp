@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../util/_json.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
@@ -18,12 +19,12 @@ require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 if($api->isGet())
 {
     $parameter = $api->getGetData();
-    if(!isset($parameter->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
-    $inventoryNumber = barcodeParser_InventoryNumber($parameter->InventoryNumber);
-    if($inventoryNumber == null) $api->returnParameterError('InventoryNumber');
+    if(!isset($parameter->ItemCode)) $api->returnParameterMissingError("ItemCode");
+    $inventoryNumber = barcodeParser_InventoryNumber($parameter->ItemCode);
+    if($inventoryNumber == null) $api->returnParameterError('InventoryItemCode');
 
-    $accessoryNumber = barcodeParser_InventoryAccessoryNumber($parameter->InventoryNumber);
-    if($accessoryNumber == null) $api->returnParameterError('AccessoryNumber');
+    $accessoryNumber = barcodeParser_InventoryAccessoryNumber($parameter->ItemCode);
+    if($accessoryNumber == null) $api->returnParameterError('AccessoryItemCode');
 
     $query = <<<STR
         SELECT 
@@ -43,17 +44,21 @@ if($api->isGet())
 	if($accessory->Labeled == "0") $accessory->Labeled = false;
 	else $accessory->Labeled = true;
 
+    $accessory->ItemCode = barcodeFormatter_InventoryNumber($accessory->InventoryNumber, $accessory->AccessoryNumber);
+    $accessory->InventoryNumber = intval($accessory->InventoryNumber);
+    $accessory->AccessoryNumber = intval($accessory->AccessoryNumber);
+
 	$api->returnData($accessory);
 }
 else if($api->isPatch())
 {
 	$data = $api->getPostData();
-    if(!isset($data->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
-    $inventoryNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
-    if($inventoryNumber == null) $api->returnParameterError('InventoryNumber');
+    if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");
+    $inventoryNumber = barcodeParser_InventoryNumber($data->ItemCode);
+    if($inventoryNumber == null) $api->returnParameterError('InventoryItemCode');
 
-    $accessoryNumber = barcodeParser_InventoryAccessoryNumber($data->InventoryNumber);
-    if($accessoryNumber == null) $api->returnParameterError('AccessoryNumber');
+    $accessoryNumber = barcodeParser_InventoryAccessoryNumber($data->ItemCode);
+    if($accessoryNumber == null) $api->returnParameterError('AccessoryItemCode');
 
     $query = <<<STR
         SELECT 
@@ -76,11 +81,8 @@ else if($api->isPatch())
 else if($api->isPost())
 {
     $data = $api->getPostData();
-    if(!isset($data->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
-    $inventoryNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
-
-    if(!isset($data->AccessoryNumber)) $api->returnParameterMissingError("AccessoryNumber");
-    $accessoryNumber = intval($data->AccessoryNumber);
+    if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");
+    $inventoryNumber = barcodeParser_InventoryNumber($data->ItemCode);
 
     $query = <<<STR
         SELECT 
@@ -109,8 +111,9 @@ else if($api->isPost())
 	$sqlData['Description'] = $data->Description;
 	$sqlData['Note'] = $data->Note;
     $sqlData['Labeled'] = $data->Labeled;
+    $sqlData['CreationUserId'] = $user->userId();
 
-    $database->update("inventory_accessory", $sqlData);
+    $database->insert("inventory_accessory", $sqlData);
 
 	$api->returnEmpty();
 }

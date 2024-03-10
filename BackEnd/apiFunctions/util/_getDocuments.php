@@ -28,6 +28,8 @@ function _formatDocumentOutput(array $result): array
 function getDocumentsFromIds(string|null $documentIds): array
 {
     if($documentIds === null) return [];
+    $documentIds = trim($documentIds);
+    if(strlen($documentIds) === 0) return [];
 
     global $database;
 
@@ -36,7 +38,8 @@ function getDocumentsFromIds(string|null $documentIds): array
     $idList = implode(", ", $docIds);
 
     $query = <<< QUERY
-        SELECT 
+        SELECT
+            Id,
             DocumentNumber,
             Path,
             Type,
@@ -46,7 +49,7 @@ function getDocumentsFromIds(string|null $documentIds): array
             CreationDate
         FROM document
         WHERE Id IN($idList)
-        ORDER BY Id DESC
+        ORDER BY Id DESC;
     QUERY;
 
     $result = $database->query($query);

@@ -88,10 +88,10 @@
           :data="partData.Stock"
           style="width: 100%"
         >
-          <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
+          <el-table-column prop="ItemCode" label="Stock Code" width="150" sortable>
             <template slot-scope="{ row }">
-              <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
-                <span>{{ row.StockBarcode }}</span>
+              <router-link :to="'/stock/item/' + row.ItemCode" class="link-type">
+                <span>{{ row.ItemCode }}</span>
               </router-link>
             </template>
           </el-table-column>
@@ -244,10 +244,10 @@
           :data="purchaseOrder.Data"
           style="width: 100%; margin-top:10px"
         >
-          <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+          <el-table-column prop="ItemCode" label="PO Number" width="150" sortable>
             <template slot-scope="{ row }">
-              <router-link :to="'/purchasing/edit/' + row.PoNo" class="link-type">
-                <span>PO-{{ row.PoNo }}</span>
+              <router-link :to="'/purchasing/edit/' + row.ItemCode" class="link-type">
+                <span>{{ row.ItemCode }}</span>
               </router-link>
             </template>
           </el-table-column>

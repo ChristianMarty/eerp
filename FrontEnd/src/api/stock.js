@@ -1,14 +1,14 @@
 import eerpApi from '@/api/apiQuery'
 
 class Stock {
-  search(HideEmpty = true, StockNumber = null, ManufacturerPartNumberId = null) {
+  search(HideEmpty = true, StockCode = null, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/stock',
         methood: 'get',
         params: {
           HideEmpty: HideEmpty,
-          StockNumber: StockNumber,
+          StockCode: StockCode,
           ManufacturerPartNumberId
         }
       }).then(response => {
@@ -43,12 +43,12 @@ class Stock {
   }
 
   item = {
-    get(StockNumber) {
+    get(StockCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/stock/item',
           methood: 'get',
-          params: { StockNo: StockNumber }
+          params: { StockCode: StockCode }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -103,7 +103,7 @@ class Stock {
           url: '/stock/item',
           methood: 'get',
           data: {
-            StockNumber: StockId,
+            StockCode: StockId,
             Note: Note
           }
         }).then(response => {
@@ -115,12 +115,12 @@ class Stock {
         })
       })
     },
-    accuracy(StockNumber) {
+    accuracy(StockCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/stock/accuracy',
           methood: 'get',
-          params: { StockNo: StockNumber }
+          params: { StockCode: StockCode }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -130,12 +130,12 @@ class Stock {
         })
       })
     },
-    reservation(StockNumber) {
+    reservation(StockCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/stock/reservation',
           methood: 'get',
-          params: { StockNo: StockNumber }
+          params: { StockCode: StockCode }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -145,12 +145,12 @@ class Stock {
         })
       })
     },
-    purchaseInformation(StockNumber) {
+    purchaseInformation(StockCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/stock/purchaseInformation',
           methood: 'get',
-          params: { StockNo: StockNumber }
+          params: { StockCode: StockCode }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)

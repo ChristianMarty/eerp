@@ -16,47 +16,22 @@ def test_inventory_list_schema():
     schema = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "array",
-        "items": [
-            {
-              "type": "object",
-              "properties": {
-                "PicturePath": {
-                  "type": "string"
-                },
-                "InventoryNumber": {
-                  "type": "string"
-                },
-                "ItemCode": {
-                  "type": "string"
-                },
-                "Title": {
-                  "type": "string"
-                },
-                "ManufacturerName": {
-                  "type": "string"
-                },
-                "Type": {
-                  "type": "string"
-                },
-                "SerialNumber": {
-                  "type": "string"
-                },
-                "Status": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "PicturePath",
-                "InventoryNumber",
-                "ItemCode",
-                "Title",
-                "ManufacturerName",
-                "Type",
-                "SerialNumber",
-                "Status"
-              ]
-            }
-        ]
+        "items": [{
+            "type": "object",
+            "properties": {
+                "ItemCode": {"type": "string"},
+                "InventoryNumber": {"type": "string"},
+                "PicturePath": {"type": "string"},
+                "Title": {"type": "string"},
+                "ManufacturerName": {"type": "string"},
+                "Type": {"type": "string"},
+                "SerialNumber": {"type": "string"},
+                "Status": {"type": "string"},
+                "LocationName": {"type": "string"}
+            },
+            "additionalProperties": False,
+            "minProperties": 9
+        }]
     }
 
     data = eerp.inventory.list()

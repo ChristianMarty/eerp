@@ -19,49 +19,19 @@ def test_stock_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "ItemCode": {
-                    "type": "string"
-                },
-                "StockNumber": {
-                    "type": "string"
-                },
-                "Quantity": {
-                    "type": "integer"
-                },
-                "LocationName": {
-                    "type": "string"
-                },
-                "LocationCode": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                },
-                "ManufacturerPartNumber": {
-                    "type": "string"
-                },
-                "ManufacturerPartItemId": {
-                    "type": "integer"
-                },
-                "ManufacturerName": {
-                    "type": "string"
-                },
-                "ManufacturerId": {
-                    "type": "integer"
-                }
+                "ItemCode": {"type": "string"},
+                "StockNumber": {"type": "string"},
+                "Quantity": {"type": "integer"},
+                "LocationName": {"type": "string"},
+                "LocationCode": {"type": "string"},
+                "Description": {"type": "string"},
+                "ManufacturerPartNumber": {"type": "string"},
+                "ManufacturerPartItemId": {"type": "integer"},
+                "ManufacturerName": {"type": "string"},
+                "ManufacturerId": {"type": "integer"}
             },
-            "required": [
-                "ItemCode",
-                "StockNumber",
-                "Quantity",
-                "LocationName",
-                "LocationCode",
-                "Description",
-                "ManufacturerPartNumber",
-                "ManufacturerPartItemId",
-                "ManufacturerName",
-                "ManufacturerId"
-            ]
+            "additionalProperties": False,
+            "minProperties": 10
         }]
     }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <h1>
-      {{ inventoryData.InventoryBarcode }} - {{ inventoryData.Title }},
+      {{ inventoryData.ItemCode }} - {{ inventoryData.Title }},
       {{ inventoryData.ManufacturerName }}
       {{ inventoryData.Type }}
     </h1>
@@ -14,15 +14,11 @@
       <el-main>
         <p>
           <b>Location:</b>
-          {{ inventoryData.LocationName }}
+          {{ inventoryData.Location.Name }}
         </p>
         <p>
-          <b>Home Location:</b>
-          {{ inventoryData.HomeLocationName }}
-        </p>
-        <p>
-          <b>MAC Address Wired:</b>
-          {{ inventoryData.MacAddressWired }}
+          <b>Location Path:</b>
+          {{ inventoryData.Location.Path }}
         </p>
         <p>
           <b>Status:</b>
@@ -31,16 +27,12 @@
       </el-main>
       <el-main>
         <p>
-          <b>Location Path:</b>
-          {{ inventoryData.LocationPath }}
+          <b>Home Location:</b>
+          {{ inventoryData.Location.HomeName }}
         </p>
         <p>
           <b>Home Location Path:</b>
-          {{ inventoryData.HomeLocationPath }}
-        </p>
-        <p>
-          <b>MAC Address Wireless:</b>
-          {{ inventoryData.MacAddressWireless }}
+          {{ inventoryData.Location.HomePath }}
         </p>
         <p>
           <b>Serial Number:</b>
@@ -49,6 +41,13 @@
       </el-main>
     </el-container>
     <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
+    <el-divider />
+    <h2>Attributes</h2>
+    <el-table :data="inventoryData.Attribute" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
+      <el-table-column prop="Name" label="Name" sortable />
+      <el-table-column prop="Value" label="Value" sortable />
+    </el-table>
+
     <el-divider />
     <h2>Accessories</h2>
     <template v-permission="['inventory.accessory.add']">
@@ -61,7 +60,7 @@
       />
     </template>
     <el-table :data="inventoryData.Accessory" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
-      <el-table-column prop="AccessoryBarcode" label="Barcode" width="120" sortable />
+      <el-table-column prop="ItemCode" label="Barcode" width="120" sortable />
       <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="Note" label="Note" sortable />
       <el-table-column prop="Labeled" label="Labeled" width="120" sortable>
@@ -96,8 +95,7 @@
         @click="showEditPurchaseDialog(null)"
       />
     </template>
-    <el-table :data="inventoryData.PurchaseInformation" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
-
+    <el-table :data="inventoryData.PurchaseInformation.Item" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
       <el-table-column prop="PurchaseOrderBarcode" label="Po No" width="140" sortable>
         <template slot-scope="{ row }">
           <router-link
@@ -108,7 +106,7 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="CostType" label="Type" width="120" sortable />
+      <el-table-column prop="CostType" label="Type" width="140" sortable />
       <el-table-column prop="Quantity" label="Quantity" width="120" sortable />
       <el-table-column prop="Description" label="Description" sortable />
       <el-table-column prop="Price" label="Price" width="140" align="right" header-align="left">
@@ -133,15 +131,15 @@
 
     <p>
       <b>Total Purchase Cost:</b>
-      {{ inventoryData.TotalPurchaseCost }} {{ inventoryData.TotalCurrency }}
+      {{ inventoryData.PurchaseInformation.Total.PurchaseCost }} {{ inventoryData.PurchaseInformation.Total.Currency }}
     </p>
     <p>
       <b>Total Maintenance Cost:</b>
-      {{ inventoryData.TotalMaintenanceCost }} {{ inventoryData.TotalCurrency }}
+      {{ inventoryData.PurchaseInformation.Total.MaintenanceCost }} {{ inventoryData.PurchaseInformation.Total.Currency }}
     </p>
     <p>
       <b>Total Cost of Ownership:</b>
-      {{ inventoryData.TotalCostOfOwnership }} {{ inventoryData.TotalCurrency }}
+      {{ inventoryData.PurchaseInformation.Total.CostOfOwnership }} {{ inventoryData.PurchaseInformation.Total.Currency }}
     </p>
 
     <el-divider />
@@ -203,8 +201,8 @@
     />
 
     <accessoryEditDataDialog
-      :inventory-number="inventoryData.InventoryNumber"
-      :accessory-number="accessoryNumber"
+      :inventory-number="inventoryData.ItemCode "
+      :accessory-number="accessoryCode"
       :visible.sync="accessoryEditDialogVisible"
       @change="getInventoryData()"
     />
@@ -222,13 +220,11 @@
     />
 
     <el-divider />
-    <el-button v-permission="['inventory.print']" type="primary" @click="addPrint">Print</el-button>
     <el-button v-permission="['inventory.create']" type="primary" @click="copy">Create Copy</el-button>
   </div>
 </template>
 
 <script>
-import Cookies from 'js-cookie'
 import permission from '@/directive/permission/index.js'
 import documentsList from '@/views/document/components/documentsList'
 
@@ -253,7 +249,7 @@ export default {
       historyEditToken: null,
 
       accessoryEditDialogVisible: false,
-      accessoryNumber: null,
+      accessoryCode: null,
 
       purchaseEditDataDialogVisible: false,
 
@@ -273,10 +269,10 @@ export default {
   methods: {
     setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.inventoryData.InventoryBarcode}`
+        title: `${this.inventoryData.ItemCode}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-      document.title = `${this.inventoryData.InventoryBarcode} - ${this.inventoryData.Title}`
+      document.title = `${this.inventoryData.ItemCode} - ${this.inventoryData.Title}`
     },
     showLocationTransferDialog() {
       this.locationTransferDialogVisible = true
@@ -284,8 +280,9 @@ export default {
     async getInventoryData() {
       this.inventoryData = await inventory.item(this.$route.params.invNo)
     },
-    showEditAccessoryDialog(accessoryNumber) {
-      this.accessoryNumber = accessoryNumber
+    showEditAccessoryDialog(accessoryCode) {
+      if (accessoryCode === null) this.accessoryCode = this.inventoryData.ItemCode
+      else this.accessoryCode = accessoryCode
       this.accessoryEditDialogVisible = true
     },
     showEditHistoryDialog(editToken) {
@@ -294,32 +291,6 @@ export default {
     },
     showEditPurchaseDialog() {
       this.purchaseEditDataDialogVisible = true
-    },
-    addPrint() {
-      var cookieList = []
-      try {
-        var cookiesText = Cookies.get('invNo')
-        cookieList = JSON.parse(cookiesText)
-      } catch (e) {
-        cookieList = []
-      }
-
-      var invNoList = []
-      invNoList = invNoList.concat(cookieList)
-
-      invNoList.push(this.inventoryData.InventoryBarcode)
-      Cookies.set('invNo', invNoList)
-
-      this.$message({
-        showClose: true,
-        message: this.inventoryData.InventoryBarcode + ' Added to Printer Queue',
-        type: 'success'
-      })
-    },
-    copy() {
-      this.$router.push(
-        '/inventory/inventoryCreate/' + this.inventoryData.InventoryBarcode
-      )
     }
   }
 }

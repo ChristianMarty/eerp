@@ -211,13 +211,13 @@
                       <b>Production Parts</b>
                     </template>
                     <el-table :data="productionPartData" style="width: 100%">
-                      <el-table-column prop="ProductionPartNumber" label="Part No" sortable width="100">
+                      <el-table-column prop="ItemCode" label="Part No" sortable width="100">
                         <template slot-scope="{ row }">
                           <router-link
-                            :to="'/prodParts/prodPartView/' + row.ProductionPartNumber"
+                            :to="'/prodParts/prodPartView/' + row.ItemCode"
                             class="link-type"
                           >
-                            <span>{{ row.ProductionPartNumber }}</span>
+                            <span>{{ row.ItemCode }}</span>
                           </router-link>
                         </template>
                       </el-table-column>
@@ -230,10 +230,10 @@
                     </template>
 
                     <el-table :data="stockData" style="width: 100%">
-                      <el-table-column prop="StockNo" label="Stock No" sortable>
+                      <el-table-column prop="ItemCode" label="Stock No" sortable>
                         <template slot-scope="{ row }">
-                          <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-                            <span>{{ row.StockNo }}</span>
+                          <router-link :to="'/stock/item/' + row.ItemCode" class="link-type">
+                            <span>{{ row.ItemCode }}</span>
                           </router-link>
                         </template>
                       </el-table-column>

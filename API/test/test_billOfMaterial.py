@@ -19,25 +19,13 @@ def test_billOfMaterial_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "ItemCode": {
-                    "type": "string"
-                },
-                "BillOfMaterialNumber": {
-                    "type": "string"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                }
+                "ItemCode": {"type": "string"},
+                "BillOfMaterialNumber": {"type": "string"},
+                "Name": {"type": "string"},
+                "Description": {"type": "string"}
             },
-            "required": [
-                "ItemCode",
-                "BillOfMaterialNumber",
-                "Name",
-                "Description"
-            ]
+            "additionalProperties": False,
+            "minProperties": 4
         }]
     }
 

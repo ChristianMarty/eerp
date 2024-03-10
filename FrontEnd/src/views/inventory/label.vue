@@ -3,9 +3,30 @@
     <h1>Inventory Label</h1>
     <el-divider />
 
-    <ul>
-      <li v-for="value in invList" :key="value">{{ value }}</li>
-    </ul>
+    <p>
+      <el-input
+        ref="itemNrInput"
+        v-model="inputInventoryNumber"
+        placeholder="Please input inventory number"
+        @keyup.enter.native="addItem"
+      >
+        <el-button
+          slot="append"
+          icon="el-icon-search"
+          @click="addItem"
+        />
+      </el-input>
+    </p>
+    <p>
+      <el-table :data="itemList" border style="width: 100%">
+        <el-table-column prop="ItemCode" label="Inventory Number" width="180" />
+        <el-table-column prop="Description" label="Description">
+          <template slot-scope="{ row }">
+            {{ row.Title }} - {{ row.ManufacturerName }} {{ row.Type }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </p>
 
     <el-button type="primary" @click="clearList">Clear List</el-button>
     <el-divider />
@@ -50,8 +71,6 @@
 
 <script>
 
-import Cookies from 'js-cookie'
-
 import Inventory from '@/api/inventory'
 const inventory = new Inventory()
 
@@ -66,12 +85,11 @@ export default {
   components: {},
   data() {
     return {
-      inventoryData: null,
       offset: 0,
-      form: null,
       printPreviewPath: null,
-      invList: null,
+      itemList: [],
 
+      inputInventoryNumber: '',
       rendererList: [],
       rendererSelected: null
     }
@@ -88,33 +106,35 @@ export default {
   },
   created() {},
   methods: {
-    async getInventoryData() {
-      this.inventoryData = await inventory.search({ InventoryNumber: this.$route.params.invNo })[0]
-    },
-    loadInventoryList() {
-      try {
-        var cookiesText = Cookies.get('invNo')
-        this.invList = JSON.parse(cookiesText)
-      } catch (e) {
-        this.invList = []
-      }
-
-      this.handleChange()
-    },
     handleChange() {
+      const numberList = this.itemList.map(element => element.ItemCode)
       renderer.item(this.rendererSelected.Id).then(response => {
         const printPath =
           process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + response.Code
 
         this.printPreviewPath =
-          printPath + '?offset=' + this.offset + '&invNo=' + this.invList
+          printPath + '?Offset=' + this.offset + '&InventoryNumber=' + numberList
       }).catch(response => {
         this.showErrorMessage(response)
       })
     },
+    addItem() {
+      inventory.item(this.inputInventoryNumber, false).then(response => {
+        this.itemList.push(response)
+        this.inputInventoryNumber = ''
+        this.handleChange()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
     clearList() {
-      Cookies.remove('invNo')
-      this.loadInventoryList()
+      this.itemList = []
+      this.handleChange()
     },
     print() {
       window.open(this.printPreviewPath)

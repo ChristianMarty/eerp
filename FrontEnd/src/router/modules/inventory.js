@@ -9,10 +9,10 @@ const inventoryRouter = {
   },
   children: [
     {
-      path: 'inventoryBrowser',
-      component: () => import('@/views/inventory/inventoryBrowser'),
-      name: 'inventoryBrowser',
-      meta: { title: 'Inventory Browser', icon: 'list' }
+      path: '',
+      component: () => import('@/views/inventory/list'),
+      name: 'Inventorylist',
+      meta: { title: 'Inventory List', icon: 'list' }
     },
     {
       path: 'inventoryCreate/',
@@ -29,20 +29,20 @@ const inventoryRouter = {
       hidden: true
     },
     {
-      path: 'inventoryLabel',
-      component: () => import('@/views/inventory/inventoryLabel'),
+      path: 'label',
+      component: () => import('@/views/inventory/label'),
       name: 'inventoryLabel',
       meta: { title: 'Label ', icon: 'el-icon-tickets', roles: ['inventory.print'] }
 
     },
     {
-      path: 'inventoryView/:invNo(.*)',
-      component: () => import('@/views/inventory/inventoryView'),
+      path: 'item/:invNo(.*)',
+      component: () => import('@/views/inventory/item'),
       name: 'inventoryView',
       meta: {
-        title: 'Inventory View',
+        title: 'Item',
         noCache: true,
-        activeMenu: '/inventory/inventoryView'
+        activeMenu: '/inventory/item'
       },
       hidden: true
     }

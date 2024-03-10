@@ -98,8 +98,8 @@ if($api->isGet())
     foreach ($result as $r)
     {
         $stockRow = array();
-        $stockRow['StockNumber'] = $r->StockNumber;
-        $stockRow['StockCode'] = barcodeFormatter_StockNumber($r->StockNumber);
+        $stockRow['ItemNumber'] = $r->StockNumber;
+        $stockRow['ItemCode'] = barcodeFormatter_StockNumber($r->StockNumber);
         $stockRow['Date'] = $r->Date;
         $stockRow['Lot'] = $r->LotNumber;
         $stockRow['Quantity'] = intval($r->Quantity);

@@ -19,33 +19,15 @@ def test_renderer_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "Id": {
-                    "type": "integer"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                },
-                "Render": {
-                    "type": "string"
-                },
-                "Language": {
-                    "type": "string"
-                },
-                "Tag": {
-                    "type": "string"
-                }
+                "Id": {"type": "integer"},
+                "Name": {"type": "string"},
+                "Description": {"type": "string"},
+                "Render": {"type": "string"},
+                "Language": {"type": "string"},
+                "Tag": {"type": "string"}
             },
-            "required": [
-                "Id",
-                "Name",
-                "Description",
-                "Render",
-                "Language",
-                "Tag"
-            ]
+            "additionalProperties": False,
+            "minProperties": 6
         }]
     }
 

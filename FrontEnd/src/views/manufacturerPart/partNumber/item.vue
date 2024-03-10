@@ -23,13 +23,13 @@
       <el-tab-pane label="Part">
         <h3>Production Parts</h3>
         <el-table :data="productionPartData" style="width: 100%">
-          <el-table-column prop="ProductionPartNumber" label="Part Number" sortable width="150">
+          <el-table-column prop="ItemCode" label="Part Number" sortable width="150">
             <template slot-scope="{ row }">
               <router-link
-                :to="'/productionPart/item/' + row.ProductionPartNumber"
+                :to="'/productionPart/item/' + row.ItemCode"
                 class="link-type"
               >
-                <span>{{ row.ProductionPartNumber }}</span>
+                <span>{{ row.ItemCode }}</span>
               </router-link>
             </template>
           </el-table-column>
@@ -40,10 +40,10 @@
         <h3>Stock</h3>
         <el-checkbox v-model="fliterEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
         <el-table :data="stockData" style="width: 100%">
-          <el-table-column prop="StockBarcode" label="Stock Code" width="150" sortable>
+          <el-table-column prop="ItemCode" label="Stock Code" width="150" sortable>
             <template slot-scope="{ row }">
-              <router-link :to="'/stock/item/' + row.StockNumber" class="link-type">
-                <span>{{ row.StockBarcode }}</span>
+              <router-link :to="'/stock/item/' + row.ItemCode" class="link-type">
+                <span>{{ row.ItemCode }}</span>
               </router-link>
             </template>
           </el-table-column>
@@ -71,10 +71,10 @@
               </router-link>
             </template>
           </el-table-column>
-          <el-table-column prop="PoNo" label="PO Number" width="150" sortable>
+          <el-table-column prop="ItemCode" label="PO Number" width="150" sortable>
             <template slot-scope="{ row }">
-              <router-link :to="'/purchasing/edit/' + row.PurchaseOrderNumber" class="link-type">
-                <span>{{ row.PurchaseOrderBarcode }}</span>
+              <router-link :to="'/purchasing/edit/' + row.ItemCode" class="link-type">
+                <span>{{ row.ItemCode }}</span>
               </router-link>
             </template>
           </el-table-column>

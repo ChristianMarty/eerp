@@ -19,25 +19,13 @@ def test_specification_part_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "ItemCode": {
-                    "type": "string"
-                },
-                "SpecificationPartNumber": {
-                    "type": "integer"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Type": {
-                    "type": "string"
-                }
+                "ItemCode": {"type": "string"},
+                "SpecificationPartNumber": {"type": "integer"},
+                "Name": {"type": "string"},
+                "Type": {"type": "string"}
             },
-            "required": [
-                "ItemCode",
-                "SpecificationPartNumber",
-                "Name",
-                "Type"
-            ]
+            "additionalProperties": False,
+            "minProperties": 4
         }]
     }
 

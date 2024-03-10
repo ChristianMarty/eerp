@@ -36,11 +36,11 @@ if($api->isGet("inventory.view"))
             PicturePath, 
             InventoryNumber, 
             Title, 
-            Manufacturer, 
+            Manufacturer AS ManufacturerName, 
             Type, 
             SerialNumber, 
             Status,
-            vendor_displayName(vendor.Id) AS SupplierName 
+            location_getName(LocationId) AS LocationName
         FROM `inventory`
         LEFT JOIN `vendor` On vendor.Id = inventory.VendorId
         LEFT JOIN `inventory_category` ON inventory_category.Id = inventory.InventoryCategoryId
@@ -51,7 +51,7 @@ if($api->isGet("inventory.view"))
 	if(isset($parameter->InventoryNumber))
 	{
         $temp = barcodeParser_InventoryNumber($parameter->InventoryNumber);
-		$queryParam[] = "InvNo = {$temp}";
+		$queryParam[] = "InventoryNumber = {$temp}";
 	}
 	
 	if($locationIds !== null)
@@ -73,8 +73,6 @@ if($api->isGet("inventory.view"))
 	{
 		$item->PicturePath = $pictureRootPath.$item->PicturePath;
         $item->ItemCode = barcodeFormatter_InventoryNumber($item->InventoryNumber);
-		$item->InventoryBarcode = $item->ItemCode; // todo: legacy -> remove
-		$item->ManufacturerName = $item->Manufacturer;
 	}
 
 	$api->returnData($result);

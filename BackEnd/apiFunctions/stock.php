@@ -19,7 +19,7 @@ if($api->isGet("stock.view"))
 {
 	$parameters = $api->getGetData();
 
-	$baseQuery = <<<STR
+    $baseQuery = <<<STR
         SELECT
             StockNumber, 
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
@@ -33,7 +33,7 @@ if($api->isGet("stock.view"))
         LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId OR vendor.Id = manufacturerPart_partNumber.VendorId OR vendor.Id = manufacturerPart_series.VendorId
-	STR;
+    STR;
 
 	$queryParam = array();
 	

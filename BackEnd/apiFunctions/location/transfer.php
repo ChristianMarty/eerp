@@ -80,8 +80,8 @@ if($api->isPost())
 	$asuList = array_filter($itemList, "filterAsu");
 	
 	$error = "";
-	if(!empty($invList)) $error .= moveItems( $invList, $locationNr, "inventory", "InvNo");
-	if(!empty($stkList)) $error .= moveItems( $stkList, $locationNr, "partStock", "StockNo");
+	if(!empty($invList)) $error .= moveItems( $invList, $locationNr, "inventory", "InventoryNumber");
+	if(!empty($stkList)) $error .= moveItems( $stkList, $locationNr, "partStock", "StockNumber");
 	if(!empty($locList)) $error .= moveItems( $locList, $locationNr, "location", "LocationNumber");
 	if(!empty($asuList)) $error .= moveItems( $asuList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
 	

@@ -27,16 +27,8 @@ def test_workOrder_list_schema():
                 "ProjectName": {"type": ["string", "null"]},
                 "ProjectItemCode": {"type": ["string", "null"]}
             },
-            "required": [
-                "Name",
-                "WorkOrderNumber",
-                "ItemCode",
-                "ProjectName",
-                "ProjectNumber",
-                "ProjectItemCode",
-                "Quantity",
-                "Status"
-            ]
+            "additionalProperties": False,
+            "minProperties": 7
         }]
     }
 

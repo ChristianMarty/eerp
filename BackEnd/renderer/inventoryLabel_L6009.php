@@ -70,16 +70,32 @@ if($api->isGet())
 {
     $parameter = $api->getGetData();
 
-	$invNo = array();
-	if (isset($parameter->invNo)) {
-        $invNo = explode(",", $parameter->invNo);
+    $inventoryNumbers = [];
+    if (isset($parameter->InventoryNumber)) {
+        $inventoryNumbers = explode(",", $parameter->InventoryNumber);
 
-        foreach ($invNo as &$item) {
+        if(!count($inventoryNumbers)){
+            echo "Inventory number list empty";
+            exit;
+        }
+
+        foreach ($inventoryNumbers as &$item) {
             $item = barcodeParser_InventoryNumber($item);
+            unset($item);
         }
     }
 
-    $invNoList = implode(", ", $invNo);
+    $fieldOffset = 0;
+    if (isset($parameter->Offset)) {
+        $fieldOffset = $parameter->Offset;
+    }
+
+    $inventoryNumbersString = implode(", ", $inventoryNumbers);
+    if(strlen($inventoryNumbersString)=== 0){
+        echo "Inventory number list is empty.";
+        exit;
+    }
+
     $query = <<< STR
         SELECT 
             InventoryNumber,
@@ -87,17 +103,12 @@ if($api->isGet())
             Manufacturer,
             Type
         FROM inventory
-        WHERE InventoryNumber IN( $invNoList );
+        WHERE InventoryNumber IN( $inventoryNumbersString );
     STR;
 
     $rows = $database->query($query);
 
-	$field_offset = 0;
-	if (isset($parameter->offset)) {
-        $field_offset = $parameter->offset;
-    }
-	
-	for ($i = 0; $i < $field_offset; $i++) {
+	for ($i = 0; $i < $fieldOffset; $i++) {
         echo "<div>";
         echo "</div>";
     }

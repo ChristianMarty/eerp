@@ -134,19 +134,20 @@ class Inventory {
   }
   accessory = {
     itemReturn: {
+      ItemCode: null,
       InventoryNumber: null,
       AccessoryNumber: null,
       Description: '',
       Note: '',
       Labeled: ''
     },
-    search(InventoryNumber = null) {
+    search(ItemCode = null) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/inventory/accessory/item',
           methood: 'get',
           params: {
-            InventoryNumber: InventoryNumber
+            ItemCode: ItemCode
           }
         }).then(response => {
           if (response.error == null) {

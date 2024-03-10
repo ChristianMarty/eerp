@@ -19,25 +19,13 @@ def test_metrology_list_schema():
         "items": [{
             "type": "object",
             "properties": {
-                "ItemCode": {
-                    "type": "string"
-                },
-                "TestSystemNumber": {
-                    "type": "string"
-                },
-                "Name": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                }
+                "ItemCode": {"type": "string"},
+                "TestSystemNumber": {"type": "string"},
+                "Name": {"type": "string"},
+                "Description": {"type": "string"}
             },
-            "required": [
-                "ItemCode",
-                "TestSystemNumber",
-                "Name",
-                "Description"
-            ]
+            "additionalProperties": False,
+            "minProperties": 4
         }]
     }
 

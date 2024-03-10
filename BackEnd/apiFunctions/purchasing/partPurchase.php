@@ -80,8 +80,8 @@ if($api->isGet())
         $priceWeightedAverageSum +=  $price * $r->Quantity;
         $priceWeightSum += $r->Quantity;
 
-        $r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber( $r->PurchaseOrderNumber);
-        $r->PurchaseOrderNumber = $r->PurchaseOrderNumber;
+        $r->ItemCode = barcodeFormatter_PurchaseOrderNumber( $r->PurchaseOrderNumber);
+        $r->ItemNumber = $r->PurchaseOrderNumber;
 		
 		$rows[] = $r;
 	}

@@ -18,9 +18,9 @@ if($api->isGet())
 {
 	$parameter = $api->getGetData();
 
-	if(!isset($parameter->StockNo)) $api->returnParameterMissingError("StockNo");
-	$stockNumber = barcodeParser_StockNumber($parameter->StockNo);
-	if($stockNumber === null) $api->returnParameterError("StockNo");
+	if(!isset($parameter->StockCode)) $api->returnParameterMissingError("StockCode");
+	$stockNumber = barcodeParser_StockNumber($parameter->StockCode);
+	if($stockNumber === null) $api->returnParameterError("StockCode");
 
 	$query = <<<STR
 		SELECT 
