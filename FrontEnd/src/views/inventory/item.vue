@@ -24,6 +24,10 @@
           <b>Status:</b>
           {{ inventoryData.Status }}
         </p>
+        <p>
+          <b>Category:</b>
+          {{ inventoryData.CategoryName }}
+        </p>
       </el-main>
       <el-main>
         <p>
@@ -194,7 +198,7 @@
     </el-timeline>
 
     <historyEditDataDialog
-      :inventory-number="inventoryData.InventoryNumber"
+      :inventory-number="inventoryData.ItemCode"
       :visible.sync="historyEditDialogVisible"
       :edit-token="historyEditToken"
       @change="getInventoryData()"
@@ -208,13 +212,13 @@
     />
 
     <purchaseEditDataDialog
-      :inventory-number="inventoryData.InventoryNumber"
+      :inventory-number="inventoryData.ItemCode"
       :visible.sync="purchaseEditDataDialogVisible"
       @change="getInventoryData()"
     />
 
     <locationTransferDialog
-      :barcode="inventoryData.InventoryBarcode"
+      :barcode="inventoryData.ItemCode"
       :visible.sync="locationTransferDialogVisible"
       @change="getInventoryData()"
     />

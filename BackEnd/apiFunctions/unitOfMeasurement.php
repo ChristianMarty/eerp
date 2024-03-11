@@ -21,7 +21,18 @@ if($api->isGet())
         else $queryParam[] = "Countable = b'0'";
     }
 
-    $query = "SELECT * FROM unitOfMeasurement ";
+    $query = <<<QUERY
+        SELECT
+            Id,
+            Name,
+            Unit,
+            Symbol,
+            Countable,
+            BaseUnit,
+            ConversionFactor
+        FROM unitOfMeasurement
+    QUERY;
+
     try {
         $result = $database->query($query,$queryParam);
 

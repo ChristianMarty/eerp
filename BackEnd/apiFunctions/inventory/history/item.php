@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../../util/_json.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
@@ -64,7 +65,7 @@ else if($api->isPost())
 {
 	$data = $api->getPostData();
 
-    if(!isset($data->InventoryNumber)) $api->returnParameterMissingError("LocationNumber");
+    if(!isset($data->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
     $inventoryNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
     if($inventoryNumber == null) $api->returnParameterError("InventoryNumber");
 
@@ -74,7 +75,8 @@ else if($api->isPost())
 	$sqlData['Date'] = $data->Date;
 	$sqlData['NextDate'] = $data->NextDate;
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$sqlData['InventoryId']['raw'] = "(SELECT Id FROM inventory WHERE InvNo = '$inventoryNumber' )";
+	$sqlData['InventoryId']['raw'] = "(SELECT Id FROM inventory WHERE InventoryNumber = '$inventoryNumber' )";
+    $sqlData['CreationUserId'] = $user->userId();
 		
 	$id = $database->insert("inventory_history", $sqlData);
 	

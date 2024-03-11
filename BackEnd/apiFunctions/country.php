@@ -15,16 +15,13 @@ if($api->isGet())
 {
     $query = <<< QUERY
         SELECT 
-            Id,
             PhonePrefix,
             Alpha2Code,
             Alpha3Code,
             NumericCode,
-            ShortName,
-            Alpha2Code AS CountryCode, # todo: legacy -> remove
-            ShortName AS Name  # todo: legacy -> remove
+            ShortName
         FROM country
-        ORDER BY Name ASC
+        ORDER BY ShortName ASC
     QUERY;
     $result = $database->query($query);
     $api->returnData($result);

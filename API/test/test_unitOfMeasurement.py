@@ -23,7 +23,9 @@ def test_billOfMaterial_list_schema():
                 "Name": {"type": "string"},
                 "Unit": {"type": ["string", "null"]},
                 "Symbol": {"type": ["string", "null"]},
-                "Countable": {"type": "boolean"}
+                "Countable": {"type": "boolean"},
+                "BaseUnit": {"type": ["string", "null"]},
+                "ConversionFactor": {"type": ["number", "null"]},
             },
             "additionalProperties": False,
             "minProperties": 5

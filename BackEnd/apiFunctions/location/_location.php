@@ -67,11 +67,12 @@ class Location
 	public function idsWithChildren(string|int|null $locationNumber): array
 	{
 		if($locationNumber === null) return [];
-		$locationNumber = barcodeFormatter_LocationNumber($locationNumber);
+		$locationNumber = barcodeParser_LocationNumber($locationNumber);
+		if($locationNumber === null) return [];
 
 		foreach (self::$locationData  as $row) {
 			if ($row->LocationNumber == $locationNumber) {
-				return $this->getChildren($row->Id);
+				return [$row->Id,...$this->getChildren($row->Id)];
 			}
 		}
 		return [];
@@ -118,15 +119,14 @@ class Location
 	{
 		if($parentId === null) return [];
 
-		$id = null;
+		$output = [];
 		foreach (self::$locationData  as $row)
 		{
 			if ($row->ParentId == $parentId){
-				$id = $row->Id;
-				break;
+				$output = [...$output, $row->Id, ...$this->getChildren($row->Id)];
 			}
 		}
-		return [$id,...$this->getChildren($id)];
+		return $output;
 	}
 }
 

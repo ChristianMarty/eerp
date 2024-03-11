@@ -39,12 +39,12 @@
             <el-form-item>
               <el-button
                 type="primary"
-                @click="getInventory()"
+                @click="onFilter()"
               >Filter</el-button>
               <el-button
                 type="info"
                 plain
-                @click="onFilterReset"
+                @click="onFilterReset()"
               >Reset</el-button>
             </el-form-item>
           </el-form>
@@ -73,6 +73,7 @@
         <el-table-column prop="ManufacturerName" label="Manufacturer" sortable />
         <el-table-column prop="Type" label="Type" sortable />
         <el-table-column prop="SerialNumber" label="Serial Number" sortable />
+        <el-table-column prop="CategoryName" label="Category" sortable />
         <el-table-column prop="LocationName" label="Location" sortable />
       </el-table>
     </template>
@@ -96,18 +97,47 @@ export default {
       inventory: Object.assign({}, inventory.searchReturn),
 
       locations: Object.assign({}, location.searchReturn),
-      categories: Object.assign({}, inventory.categoriesReturn),
+      categories: Object.assign({}, inventory.categoriesReturn)
+    }
+  },
+  watch: {
+    '$route.query': {
+      handler(newVal) {
+        this.filterFromParameter()
+        this.getInventory()
+      }
     }
   },
   async mounted() {
-    this.onFilterReset()
+    this.filterFromParameter()
 
     this.locations = await location.search()
     this.categories = await inventory.categories()
+    this.getInventory()
   },
   methods: {
+    filterFromParameter() {
+      this.filter.CategoryId = this.$route.query.CategoryId
+      this.filter.LocationNumber = this.$route.query.LocationNumber
+      this.filter.InventoryNumber = this.$route.query.InventoryNumber
+    },
+    filterToParameter() {
+      if (this.filter.InventoryNumber === '') this.filter.InventoryNumber = null
+
+      const filter = {}
+      if (this.filter.CategoryId !== null) filter.CategoryId = this.filter.CategoryId
+      if (this.filter.LocationNumber !== null) filter.LocationNumber = this.filter.LocationNumber
+      if (this.filter.InventoryNumber !== null) filter.InventoryNumber = this.filter.InventoryNumber
+
+      this.$router.push({ query: filter })
+    },
+    onFilter() {
+      this.filterToParameter()
+      this.getInventory()
+    },
     onFilterReset() {
       this.filter = Object.assign({}, inventory.searchParameters)
+      this.filterToParameter()
       this.getInventory()
     },
     async getInventory() {

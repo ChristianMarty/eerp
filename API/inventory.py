@@ -13,3 +13,7 @@ class Inventory(object):
     def list(self):
         data = self._eerp.get('inventory')
         return data
+
+    def item(self, inventory_number: str | int):
+        data = self._eerp.get('inventory/item', {"InventoryNumber": inventory_number})
+        return data

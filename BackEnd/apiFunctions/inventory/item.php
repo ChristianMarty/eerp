@@ -22,9 +22,7 @@ if($api->isGet())
 	$parameter = $api->getGetData();
 	if(!isset($parameter->InventoryNumber) and !isset($parameter->SerialNumber)) $api->returnParameterMissingError("InventoryNumber and SerialNumber");
 
-
-	if(isset($parameter->InventoryNumber))
-	{
+	if(isset($parameter->InventoryNumber)) {
 		$InvNo = barcodeParser_InventoryNumber($parameter->InventoryNumber);
 		if($InvNo == null) $api->returnParameterError('InventoryNumber');
 	}
@@ -34,30 +32,32 @@ if($api->isGet())
 	}
 
 	$baseQuery = <<<STR
-		SELECT 
-		    inventory.Id AS Id, 
-		    PicturePath, 
-		    InventoryNumber, 
-		    inventory.Title, 
-		    inventory.Manufacturer AS ManufacturerName, 
-		    inventory.Type, 
-		    SerialNumber, 
-		    PurchaseDate, 
-		    PurchasePrice, 
-		    inventory.Description, 
-		    inventory.Note, 
-		    inventory.DocumentIds, 
-		    MacAddressWired, 
-		    MacAddressWireless, 
-		    Status,  
-			vendor_displayName(vendor.Id) AS SupplierName, 
-			HomeLocationId, 
-			location.LocationNumber AS LocationNumber, 
-			inventory.LocationId 
-		FROM `inventory`
-		LEFT JOIN `vendor` On vendor.Id = inventory.VendorId 
-		LEFT JOIN `location` On location.Id = inventory.LocationId 
-	STR;
+        SELECT 
+            inventory.Id AS Id, 
+            PicturePath, 
+            InventoryNumber, 
+            inventory.Title, 
+            inventory.Manufacturer AS ManufacturerName, 
+            inventory.Type, 
+            SerialNumber, 
+            PurchaseDate, 
+            PurchasePrice, 
+            inventory.Description, 
+            inventory.Note, 
+            inventory.DocumentIds, 
+            MacAddressWired, 
+            MacAddressWireless, 
+            Status,  
+            vendor_displayName(vendor.Id) AS SupplierName, 
+            HomeLocationId, 
+            location.LocationNumber AS LocationNumber,
+            inventory_category.Name as CategoryName,
+            inventory.LocationId 
+        FROM inventory
+        LEFT JOIN vendor On vendor.Id = inventory.VendorId 
+        LEFT JOIN location On location.Id = inventory.LocationId 
+        LEFT JOIN inventory_category ON inventory_category.Id = inventory.InventoryCategoryId
+    STR;
 
 	if(isset($InvNo)) $baseQuery .=" WHERE `InventoryNumber` = $InvNo";
 	if(isset($SerNo)) $baseQuery .=" WHERE `SerialNumber` = $SerNo";
@@ -74,6 +74,7 @@ if($api->isGet())
 	$output->PicturePath = $pictureRootPath.$output->PicturePath;
 	$output->InventoryNumber = intval($output->InventoryNumber);
 	$output->ItemCode = barcodeFormatter_InventoryNumber($output->InventoryNumber);
+    if($output->SerialNumber === null) $output->SerialNumber = "";
 
 	$location = new Location();
     $locationData = new stdClass();
