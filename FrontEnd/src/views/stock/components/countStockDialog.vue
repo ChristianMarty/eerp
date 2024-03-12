@@ -8,7 +8,7 @@
     >
       <el-form label-width="150px">
         <el-form-item label="Stock Quantity:">
-          {{ item.Quantity }}
+          {{ item.Quantity.Quantity }}
         </el-form-item>
 
         <el-form-item label="Counted Quantity:">
@@ -33,7 +33,7 @@
 <script>
 
 const itemData = {
-  StockNo: '',
+  ItemCode: '',
   Quantity: 0,
   Note: ''
 }
@@ -60,7 +60,7 @@ export default {
         method: 'post',
         url: '/stock/history/item',
         data: {
-          StockNo: this.item.StockNo,
+          StockNumber: this.item.ItemCode,
           Quantity: this.newQuantity,
           Note: this.note
         }

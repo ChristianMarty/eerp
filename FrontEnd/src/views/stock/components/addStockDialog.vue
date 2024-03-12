@@ -4,7 +4,7 @@
     <el-dialog title="Add Stock" :visible.sync="visible" :before-close="closeDialog">
       <el-form label-width="150px">
         <el-form-item label="Stock Quantity:">
-          {{ item.Quantity }}
+          {{ item.Quantity.Quantity }}
         </el-form-item>
 
         <el-form-item label="Add Quantity:">
@@ -25,7 +25,7 @@
 <script>
 
 const itemData = {
-  StockNo: '',
+  ItemCode: '',
   Quantity: 0
 }
 
@@ -54,7 +54,7 @@ export default {
         method: 'post',
         url: '/stock/history/item',
         data: {
-          StockNo: this.item.StockNo,
+          StockNumber: this.item.ItemCode,
           AddQuantity: this.addQuantity,
           Note: this.note
         }

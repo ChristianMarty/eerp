@@ -2,7 +2,7 @@
   <div class="add-stock-dialog">
     <el-dialog title="Remove Stock" :visible.sync="visible" :before-close="closeDialog">
       <el-form label-width="150px">
-        <el-form-item label="Stock Quantity:">{{ item.Quantity }}</el-form-item>
+        <el-form-item label="Stock Quantity:">{{ item.Quantity.Quantity }}</el-form-item>
 
         <el-form-item label="Remove Quantity:">
           <el-input-number v-model="removeQuantity" :min="1" :max="item.Quantity" />
@@ -12,9 +12,9 @@
           <el-select v-model="workOrderNumber" filterable>
             <el-option
               v-for="wo in workOrders"
-              :key="wo.WorkOrderBarcode"
-              :label="wo.WorkOrderBarcode + ' - ' + wo.Title"
-              :value="wo.WorkOrderBarcode"
+              :key="wo.WorkOrderNumber"
+              :label="wo.ItemCode + ' - ' + wo.Name"
+              :value="wo.ItemCode"
             />
           </el-select>
         </el-form-item>
@@ -32,7 +32,7 @@
 </template>
 <script>
 const itemData = {
-  StockNo: '',
+  ItemCode: '',
   Quantity: 0
 }
 
@@ -73,7 +73,7 @@ export default {
         method: 'post',
         url: '/stock/history/item',
         data: {
-          StockNo: this.item.StockNo,
+          StockNumber: this.item.ItemCode,
           RemoveQuantity: this.removeQuantity,
           WorkOrderNumber: this.workOrderNumber,
           Note: this.note

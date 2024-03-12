@@ -57,16 +57,19 @@ if($api->isPatch())
 else if($api->isPost())
 {
 	$data = $api->getPostData();
-	if(!isset($data->StockNo)) $api->returnParameterMissingError("StockNo");
-	$stockNo = barcodeParser_StockNumber($data->StockNo);
-    if($stockNo === null) $api->returnParameterError("StockNo");
+	if(!isset($data->StockNumber)) $api->returnParameterMissingError("StockNumber");
+	$stockNo = barcodeParser_StockNumber($data->StockNumber);
+    if($stockNo === null) $api->returnParameterError("StockNumber");
 
 	$query = "SELECT Id FROM partStock WHERE StockNumber = '$stockNo'";
-	$stockId = $database->query($query)[0]->Id;
+    $r = $database->query($query);
+    if(count($r) === 0) {
+        $api->returnError("StockNumber not found");
+    }
+	$stockId = $r[0]->Id;
 
 	$workOrderNumber = null;
-	if(isset($data->WorkOrderNumber))
-	{
+	if(isset($data->WorkOrderNumber)){
 		$workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 	}
 
@@ -74,7 +77,6 @@ else if($api->isPost())
     if($note !== null){
         $note = trim($note);
         if($note == "") $note = null;
-        else $note = $database->escape($note);
     }
 
     $output = array();
@@ -82,7 +84,7 @@ else if($api->isPost())
 	$sqlData = array();
 	$sqlData['Note'] = $note;
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
-	$sqlData['StockId']['raw'] = $stockId;
+	$sqlData['StockId'] = $stockId;
 	
 	if(isset($data->RemoveQuantity))
 	{

@@ -40,7 +40,7 @@ if($api->isPost())
             $note = $database->escape($note);
         }
 
-        $stockNo = barcodeParser_StockNumber($line->Barcode);
+        $stockNo = barcodeParser_StockNumber($line->ItemCode);
 
         $query = <<<STR
 			SELECT Id FROM partStock WHERE StockNumber = '$stockNo';
@@ -53,7 +53,7 @@ if($api->isPost())
         $sqlData['StockId'] = $stockId;
         $sqlData['Quantity'] = abs($removeQuantity) * -1;
         $sqlData['ChangeType']['raw'] = '"Relative"';
-        $sqlData['UserId'] = $user->userId();;
+        $sqlData['CreationUserId'] = $user->userId();;
         if ($workOrder !== null) $sqlData['WorkOrderId'] = $workOrder->Id;
 
         $database->insert("partStock_history", $sqlData);

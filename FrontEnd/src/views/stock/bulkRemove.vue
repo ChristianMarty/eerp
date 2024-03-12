@@ -33,7 +33,7 @@
             <el-option
               v-for="wo in workOrders"
               :key="wo.WorkOrderNumber"
-              :label="wo.WorkOrderBarcode + ' - ' + wo.Title"
+              :label="wo.ItemCode + ' - ' + wo.Name"
               :value="wo.WorkOrderNumber"
             />
           </el-select>
@@ -44,7 +44,7 @@
     </template>
 
     <template v-if="step === 3">
-      <p><b>Work Order:</b> {{ selectedWorkOrderData.WorkOrderBarcode }}  {{ selectedWorkOrderData.Title }}</p>
+      <p><b>Work Order:</b> {{ selectedWorkOrderData.ItemCode }}  {{ selectedWorkOrderData.Name }}</p>
     </template>
 
     <h2>Items</h2>
@@ -64,10 +64,9 @@
         style="width: 100%"
         @row-click="(row, column, event) =>openSetQuantity(row)"
       >
-        <el-table-column prop="Barcode" label="Item Nr." width="100" />
+        <el-table-column prop="ItemCode" label="Item Code" width="100" />
         <el-table-column prop="ManufacturerName" label="Manufacturer" />
         <el-table-column prop="ManufacturerPartNumber" label="Part Number" />
-        <el-table-column prop="DateCode" label="Date Code" width="100" />
         <el-table-column prop="Quantity" label="Stock Quantity" width="130" />
         <el-table-column prop="RemoveQuantity" label="Remove Quantity" width="150" />
       </el-table>
@@ -79,29 +78,29 @@
       width="50%"
     >
       <el-form label-width="150px">
-        <el-form-item label="Barcode:">
-          {{ currentItem.Barcode }}
+        <el-form-item label="Item Code:">
+          {{ dialogData.ItemCode }}
         </el-form-item>
         <el-form-item label="Part:">
-          {{ currentItem.ManufacturerName }} - {{ currentItem.ManufacturerPartNumber }}
+          {{ dialogData.ManufacturerName }} - {{ dialogData.ManufacturerPartNumber }}
         </el-form-item>
         <el-form-item label="Remove Quantity:">
           <el-input-number
             ref="stockRemoveQuantityInput"
-            v-model="currentItem.RemoveQuantity"
+            v-model="dialogData.RemoveQuantity"
             :min="1"
-            :max="Number(currentItem.Quantity)"
-            @keyup.enter.native="setQuantityAndClose(currentItem)"
+            :max="Number(dialogData.Quantity)"
+            @keyup.enter.native="setQuantityAndClose(dialogData)"
           />
         </el-form-item>
         <el-form-item label="Current Stock:">
-          {{ currentItem.Quantity }}
+          {{ dialogData.Quantity }}
         </el-form-item>
         <el-form-item label="Note:">
-          <el-input v-model="currentItem.Note" type="textarea" />
+          <el-input v-model="dialogData.Note" type="textarea" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="setQuantityAndClose(currentItem)">Confirm</el-button>
+          <el-button type="primary" @click="setQuantityAndClose(dialogData)">Confirm</el-button>
           <el-button @click="quantityDialogVisible = false">Cancel</el-button>
         </el-form-item>
       </el-form>
@@ -118,17 +117,26 @@ const workOrder = new WorkOrder()
 import Stock from '@/api/stock'
 const stock = new Stock()
 
-import Print from '@/api/print'
-const print = new Print()
+import Peripheral from '@/api/peripheral'
+const peripheral = new Peripheral()
+
+const dialogDataEmpty = {
+  ItemCode: '',
+  ManufacturerName: '',
+  ManufacturerPartNumber: '',
+  Note: '',
+  Quantity: 0,
+  RemoveQuantity: 0
+}
 
 export default {
   name: 'BulkRemove',
   components: {},
   data() {
     return {
+      dialogData: Object.assign({}, dialogDataEmpty),
       step: 0,
       quantityDialogVisible: false,
-      currentItem: {},
       selectedPrinterId: 0,
 
       stockNoInput: '',
@@ -136,7 +144,7 @@ export default {
       workOrders: [],
 
       selectedWorkOrderNumber: null,
-      selectedWorkOrderData: null
+      selectedWorkOrderData: {}
     }
   },
   mounted() {
@@ -145,7 +153,7 @@ export default {
   },
   methods: {
     findWorkOrder(WorkOrderNumber) {
-      if (WorkOrderNumber == null) return { WorkOrderBarcode: null, WorkOrderNumber: null, Title: null }
+      if (WorkOrderNumber == null) return { ItemCode: null, WorkOrderNumber: null, Name: null }
       return this.workOrders.find(element => element.WorkOrderNumber === WorkOrderNumber)
     },
     clear() {
@@ -154,16 +162,8 @@ export default {
       this.itemList = []
     },
     searchInput() {
-      stock.search(false, this.stockNoInput).then(response => {
-        if (response.length === 0) {
-          this.$message({
-            showClose: true,
-            message: 'Item dose not exist!',
-            type: 'warning'
-          })
-        } else {
-          this.openSetQuantity(response[0])
-        }
+      stock.item.get(this.stockNoInput).then(response => {
+        this.openSetQuantity(response)
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -179,9 +179,13 @@ export default {
       if (this.step !== 0) return
 
       this.quantityDialogVisible = true
-      this.currentItem = data
-      this.currentItem.RemoveQuantity = 1
-      // this.currentItem.Note = ''
+
+      this.dialogData.ItemCode = data.ItemCode
+      this.dialogData.ManufacturerName = data.Part.ManufacturerName
+      this.dialogData.ManufacturerPartNumber = data.Part.ManufacturerPartNumber
+      this.dialogData.Note = ''
+      this.dialogData.Quantity = data.Quantity.Quantity
+      this.dialogData.RemoveQuantity = 1
 
       this.$nextTick(() => {
         this.$refs.stockRemoveQuantityInput.focus()
@@ -191,7 +195,7 @@ export default {
       this.quantityDialogVisible = false
 
       // if not already in list
-      if (!this.itemList.some((element) => element.StockNumber === data.StockNumber)) {
+      if (!this.itemList.some((element) => element.ItemCode === data.ItemCode)) {
         this.itemList.unshift(data)
       } else {
         this.$message({
@@ -217,8 +221,8 @@ export default {
           message: 'Quantity updated successfully',
           type: 'success'
         })
-        this.step = 3
         this.selectedWorkOrderData = this.findWorkOrder(this.selectedWorkOrderNumber)
+        this.step = 3
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -251,7 +255,7 @@ export default {
       })
     },
     getPrinter() {
-      print.printer.search().then(response => {
+      peripheral.list(peripheral.Type.Printer).then(response => {
         this.printer = response
         this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
       }).catch(response => {
