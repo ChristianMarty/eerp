@@ -11,6 +11,21 @@ from schema_validation_helper import validate_schema
 eerp = eerp.Eerp()
 eerp.login()
 
+schema_item_location = {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "ItemCode": {"type": "string"},
+        "LocationNumber": {"type": "integer"},
+        "Name": {"type": "string"},
+        "Path": {"type": "string"},
+        "HomeName": {"type": "string"},
+        "HomePath": {"type": "string"}
+    },
+    "additionalProperties": False,
+    "minProperties": 6
+}
+
 
 def test_location_list_schema():
     schema = {

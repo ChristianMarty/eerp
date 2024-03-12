@@ -12,8 +12,8 @@ const stockRouter = {
     {
       path: 'list',
       component: () => import('@/views/stock/list'),
-      name: 'search',
-      meta: { title: 'Search', icon: 'search' }
+      name: 'stockList',
+      meta: { title: 'Stock List', icon: 'search' }
     },
     {
       path: 'item',
@@ -34,7 +34,7 @@ const stockRouter = {
       meta: { title: 'Bulk Remove', icon: 'el-icon-minus', roles: ['stock.remove'] }
     },
     {
-      path: 'item/:StockNo(.*)',
+      path: 'item/:StockNumber(.*)',
       component: () => import('@/views/stock/item'),
       name: 'item',
       meta: { title: 'Item', icon: 'el-icon-finished' },

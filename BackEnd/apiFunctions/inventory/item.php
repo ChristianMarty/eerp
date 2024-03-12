@@ -50,12 +50,10 @@ if($api->isGet())
             Status,  
             vendor_displayName(vendor.Id) AS SupplierName, 
             HomeLocationId, 
-            location.LocationNumber AS LocationNumber,
             inventory_category.Name as CategoryName,
             inventory.LocationId 
         FROM inventory
         LEFT JOIN vendor On vendor.Id = inventory.VendorId 
-        LEFT JOIN location On location.Id = inventory.LocationId 
         LEFT JOIN inventory_category ON inventory_category.Id = inventory.InventoryCategoryId
     STR;
 
@@ -76,25 +74,18 @@ if($api->isGet())
 	$output->ItemCode = barcodeFormatter_InventoryNumber($output->InventoryNumber);
     if($output->SerialNumber === null) $output->SerialNumber = "";
 
-	$location = new Location();
-    $locationData = new stdClass();
-    $locationData->Number = intval($output->LocationNumber);
-    $locationData->ItemCode = barcodeFormatter_LocationNumber($locationData->Number);
-    unset($output->LocationNumber);
-	$locationData->Name = $location->name($output->LocationId);
-    $locationData->Path = $location->path($output->LocationId);
+    // Add Location
+    $location = new Location();
+    $output->Location = $location->locationItem($output->LocationId, $output->HomeLocationId);
     unset($output->LocationId);
-    $locationData->HomeName = $location->name($output->HomeLocationId);
-    $locationData->HomePath = $location->path($output->HomeLocationId);
     unset($output->HomeLocationId);
-    $output->Location = $locationData;
 
     // Add Attributes
     $attributes = [];
-    $macWired = ["Name"=>"Mac Address Wired", "Value"=>$output->MacAddressWired];
+    $macWired = ["Name"=>"Mac Address Wired", "Value"=>$output->MacAddressWired??""];
     unset($output->MacAddressWired);
     $attributes[] = $macWired;
-    $macWireless = ["Name"=>"Mac Address Wireless", "Value"=>$output->MacAddressWireless];
+    $macWireless = ["Name"=>"Mac Address Wireless", "Value"=>$output->MacAddressWireless??""];
     unset($output->MacAddressWireless);
     $attributes[] = $macWireless;
     $output->Attribute = $attributes;

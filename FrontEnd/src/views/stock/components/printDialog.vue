@@ -1,36 +1,41 @@
 <template>
   <div class="print-dialog">
 
-    <el-dialog title="Print" :visible.sync="visible" :before-close="closeDialog">
+    <el-dialog
+      title="Print"
+      :visible.sync="visible"
+      :before-close="closeDialog"
+      @open="onOpen"
+    >
       <el-form label-width="150px">
         <el-form-item label="Manufacturer:">
           <el-input
-            v-model="data.ManufacturerName"
+            v-model="formData.ManufacturerName"
           />
         </el-form-item>
         <el-form-item label="Part Number:">
           <el-input
-            v-model="data.ManufacturerPartNumber"
+            v-model="formData.ManufacturerPartNumber"
           />
         </el-form-item>
         <el-form-item label="Order Reference:">
           <el-input
-            v-model="data.OrderReference"
+            v-model="formData.OrderReference"
           />
         </el-form-item>
         <el-form-item label="Description:">
           <el-input
-            v-model="data.Description"
+            v-model="formData.Description"
           />
         </el-form-item>
         <el-form-item label="Stock No:">
           <el-input
-            v-model="data.StockNo"
+            v-model="formData.StockNumber"
           />
         </el-form-item>
-        <el-form-item label="Barcode:">
+        <el-form-item label="Item Code:">
           <el-input
-            v-model="data.Barcode"
+            v-model="formData.ItemCode"
           />
         </el-form-item>
       </el-form>
@@ -49,26 +54,29 @@ const printData = {
   ManufacturerPartNumber: '',
   OrderReference: '',
   Description: '',
-  StockNo: '',
-  Barcode: ''
+  StockNumber: '',
+  ItemCode: ''
 }
 
 export default {
   props: { data: { type: Object, default: printData }, visible: { type: Boolean, default: false }},
   data() {
     return {
-
+      formData: Object.assign({}, printData)
     }
   },
   mounted() {
   },
   methods: {
+    onOpen() {
+      this.formData = structuredClone(this.$props.data)
+    },
     closeDialog() {
       this.visible = false
       this.$emit('update:visible', this.visible)
     },
     print() {
-      this.$emit('print', this.data)
+      this.$emit('print', this.formData)
       this.closeDialog()
     }
   }

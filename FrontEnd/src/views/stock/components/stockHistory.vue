@@ -25,8 +25,10 @@
 </template>
 <script>
 
-import requestBN from '@/utils/requestBN'
 import editStockHistoryDialog from './editStockHistoryDialog'
+
+import Stock from '@/api/stock'
+const stock = new Stock()
 
 export default {
   components: { editStockHistoryDialog },
@@ -49,38 +51,31 @@ export default {
       this.editStockHistoryDialogVisible = true
     },
     getHistory() {
-      requestBN({
-        url: '/stock/history',
-        methood: 'get',
-        params: { StockCode: this.$props.StockCode }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.history = response.data
-          this.history.forEach(element => {
-            switch (element.Type) {
-              case 'remove':
-                element.color = '#67C23A'
-                break
-              case 'add':
-                element.color = '#E6A23C'
-                break
-              case 'count':
-              case 'create':
-                element.color = '#409EFF'
-                break
-            }
-          })
-        }
+      stock.item.history(this.$props.StockCode).then(response => {
+        this.history = response
+        this.history.forEach(element => {
+          switch (element.Type) {
+            case 'remove':
+              element.color = '#67C23A'
+              break
+            case 'add':
+              element.color = '#E6A23C'
+              break
+            case 'count':
+            case 'create':
+              element.color = '#409EFF'
+              break
+          }
+        })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
-
   }
 }
 </script>

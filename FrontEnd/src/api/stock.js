@@ -115,40 +115,10 @@ class Stock {
         })
       })
     },
-    accuracy(StockCode) {
+    history(StockCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          url: '/stock/accuracy',
-          methood: 'get',
-          params: { StockCode: StockCode }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    },
-    reservation(StockCode) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          url: '/stock/reservation',
-          methood: 'get',
-          params: { StockCode: StockCode }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    },
-    purchaseInformation(StockCode) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          url: '/stock/purchaseInformation',
+          url: '/stock/item/history',
           methood: 'get',
           params: { StockCode: StockCode }
         }).then(response => {

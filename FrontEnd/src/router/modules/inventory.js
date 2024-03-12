@@ -12,13 +12,13 @@ const inventoryRouter = {
       path: '',
       component: () => import('@/views/inventory/list'),
       name: 'Inventorylist',
-      meta: { title: 'Inventory List', icon: 'list' }
+      meta: { title: 'Inventory List', icon: 'search' }
     },
     {
       path: 'inventoryCreate/',
       component: () => import('@/views/inventory/inventoryCreate'),
       name: 'inventoryCreateNew',
-      meta: { title: 'Create ', noCache: true, icon: 'component', roles: ['inventory.create'] }
+      meta: { title: 'Create ', noCache: true, icon: 'edit', roles: ['inventory.create'] }
 
     },
     {

@@ -13,3 +13,7 @@ class Stock(object):
     def list(self):
         data = self._eerp.get('stock')
         return data
+
+    def item(self, stock_number: str):
+        data = self._eerp.get('stock/item', {"StockCode": stock_number})
+        return data

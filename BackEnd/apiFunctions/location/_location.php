@@ -31,6 +31,18 @@ class Location
 		}
 	}
 
+	public function locationItem(int $locationId, int|null $homeLocationId): stdClass
+	{
+		$locationData = new stdClass();
+		$locationData->LocationNumber = intval(self::$locationData[$locationId]->LocationNumber);
+		$locationData->ItemCode = barcodeFormatter_LocationNumber($locationData->LocationNumber);
+		$locationData->Name = self::name($locationId);
+		$locationData->Path = self::path($locationId);
+		$locationData->HomeName = self::name($homeLocationId);
+		$locationData->HomePath = self::path($homeLocationId);
+		return $locationData;
+	}
+
 	public function name(int|null $locationId): string
 	{
 		if($locationId === null) return "";

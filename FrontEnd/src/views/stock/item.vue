@@ -22,13 +22,13 @@
       <p>{{ partData.Description }}</p>
       <el-divider />
       <p><b>Manufacturer: </b>
-        <router-link :to="'/vendor/view/' + partData.ManufacturerId" class="link-type">
-          {{ partData.ManufacturerName }}
+        <router-link :to="'/vendor/view/' + partData.Part.ManufacturerId" class="link-type">
+          {{ partData.Part.ManufacturerName }}
         </router-link>
       </p>
       <p><b>Part Number: </b>
-        <router-link :to="'/manufacturerPart/partNumber/item/' + partData.ManufacturerPartNumberId" class="link-type">
-          {{ partData.ManufacturerPartNumber }}
+        <router-link :to="'/manufacturerPart/partNumber/item/' + partData.Part.ManufacturerPartNumberId" class="link-type">
+          {{ partData.Part.ManufacturerPartNumber }}
         </router-link>
       </p>
       <el-divider />
@@ -48,18 +48,20 @@
     <el-card v-if="showItem">
       <h3>Stock Information {{ partData.Barcode }}</h3>
       <el-divider />
-      <p><b>Location: </b>{{ partData.Location }}</p>
-      <p><b>Location Path: </b>{{ partData.LocationPath }}</p>
-      <p><b>Home Location: </b>{{ partData.HomeLocation }}</p>
-      <p><b>Home Location Path: </b>{{ partData.HomeLocationPath }}</p>
-      <p><b>Quantity: </b>{{ partData.Quantity }}</p>
+      <p><b>Location: </b>{{ partData.Location.Name }}</p>
+      <p><b>Location Path: </b>{{ partData.Location.Path }}</p>
+      <p><b>Home Location: </b>{{ partData.Location.HomeName }}</p>
+      <p><b>Home Location Path: </b>{{ partData.Location.HomePath }}</p>
       <p><b>Lot Number: </b>{{ partData.LotNumber }}</p>
       <p><b>Date Code: </b>{{ partData.DateCode }}</p>
-      <p><b>Reserved Quantity: </b>{{ partData.ReservedQuantity }}</p>
-      <p><b>Last Counted: </b>{{ partData.LastCountDate }}</p>
+      <p><b>Quantity: </b>{{ partData.Quantity.Quantity }}</p>
+      <p><b>Create Quantity: </b>{{ partData.Quantity.CreateQuantity }}</p>
+      <p><b>Create Data: </b>{{ partData.Quantity.CreateData }}</p>
+      <p><b>Last Counted Date: </b>{{ partData.Quantity.Certainty.LastStocktakingDate }}</p>
+      <p><b>Days Since Stocktaking: </b>{{ partData.Quantity.Certainty.DaysSinceStocktaking }}</p>
       <span>
-        <p><b>Stock Certainty Factor: </b>{{ stockAccuracy.CertaintyFactor }}</p>
-        <el-rate v-model="stockAccuracy.CertaintyFactorRating" disabled />
+        <p><b>Stock Certainty Factor: </b>{{ partData.Quantity.Certainty.Factor }}</p>
+        <el-rate v-model="partData.Quantity.Certainty.Rating" disabled />
       </span>
       <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">Location Transfer</el-button>
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
@@ -97,39 +99,21 @@
 
       <h3>History</h3>
       <stockHistory :key="stockHistoryKey" :stock-code="inputStockId" />
-
-      <h3>Reservations</h3>
-      <el-table :data="reservation" style="width: 100%">
-        <el-table-column prop="WorkOrderNo" label="Work Order No" sortable width="150">
-          <template slot-scope="{ row }">
-            <router-link :to="'/workOrder/workOrderView/' + row.WorkOrderNo" class="link-type">
-              <span>{{ row.WorkOrderNo }}</span>
-            </router-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="Title" label="Title" sortable />
-        <el-table-column prop="Quantity" label="Quantity" sortable />
-      </el-table>
     </el-card>
 
     <el-card v-if="showItem">
-      <h3>Supplier Information</h3>
+      <h3>Supplier & Purchase Information</h3>
       <el-divider />
-      <p><b>Supplier: </b>{{ partData.SupplierName }}</p>
-      <p><b>Part Number: </b>{{ partData.SupplierPartNumber }}</p>
-      <p><b>Order Reference: </b>{{ partData.OrderReference }}</p>
-    </el-card>
-
-    <el-card v-if="showItem">
-      <h3>Purchase Information</h3>
-      <el-divider />
-      <p><b>PO No: </b>
-        <router-link :to="'/purchasing/edit/' + purchaseInformation.PurchaseOrderBarcode" class="link-type">
-          <span>{{ purchaseInformation.PurchaseOrderBarcode }}</span>
+      <p><b>Supplier: </b>{{ partData.Supplier.Name }}</p>
+      <p><b>Part Number: </b>{{ partData.Supplier.PartNumber }}</p>
+      <p><b>Purchase Order: </b>
+        <router-link :to="'/purchasing/edit/' + partData.Purchase.ItemCode" class="link-type">
+          <span>{{ partData.Purchase.ItemCode }}</span>
         </router-link>
       </p>
-      <p><b>Price: </b>{{ purchaseInformation.Price }} {{ purchaseInformation.Currency }}</p>
-      <p><b>Date: </b>{{ purchaseInformation.PurchaseDate }}</p>
+      <p><b>Price: </b>{{ partData.Purchase.PriceAfterDiscount }} {{ partData.Purchase.CurrencyCode }}</p>
+      <p><b>Date: </b>{{ partData.Purchase.PurchaseDate }}</p>
+      <p><b>Order Reference: </b>{{ partData.Purchase.OrderReference }}</p>
     </el-card>
 
     <el-card v-if="showItem">
@@ -150,6 +134,7 @@
 
     <el-card v-if="showItem" v-permission="['stock.delete']">
       <h3>Delete Item</h3>
+      <el-divider />
       <el-button type="danger" @click="openDeleteDialog()">Delete</el-button>
     </el-card>
 
@@ -182,7 +167,7 @@
     <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
     <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />
 
-    <locationTransferDialog :barcode="partData.Barcode" :visible.sync="locationTransferDialogVisible" @change="loadItem()" />
+    <locationTransferDialog :barcode="partData.ItemCode" :visible.sync="locationTransferDialogVisible" @change="loadItem()" />
   </div>
 </template>
 
@@ -226,19 +211,6 @@ const partDataEmpty = {
   Barcode: ''
 }
 
-const purchaseInformationData = {
-  PoNo: '',
-  Price: '',
-  Currency: '',
-  PurchaseDate: ''
-}
-
-const stockAccuracyData = {
-  CertaintyFactor: 0,
-  DaysSinceStocktaking: '',
-  LastStocktakingDate: ''
-}
-
 export default {
   name: 'LocationAssignment',
   components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory, locationTransferDialog, scale },
@@ -249,11 +221,9 @@ export default {
       showItem: false,
       partData: Object.assign({}, partDataEmpty),
       reservation: null,
-      purchaseInformation: Object.assign({}, purchaseInformationData),
-      stockAccuracy: Object.assign({}, stockAccuracyData),
       label: null,
       printer: {},
-      printData: {},
+      printData: Object.assign({}, printDialog.printData),
       selectedPrinterId: 0,
       selectedLabelId: 0,
       productionPartData: [],
@@ -277,8 +247,8 @@ export default {
   mounted() {
     this.reset()
 
-    if (this.$route.params.StockNo != null) {
-      this.inputStockId = this.$route.params.StockNo
+    if (this.$route.params.StockNumber != null) {
+      this.inputStockId = this.$route.params.StockNumber
       this.loadItem()
     } else {
       this.$refs.itemNrInput.focus()
@@ -298,12 +268,12 @@ export default {
       this.$refs.itemNrInput.focus()
       this.reset()
     },
-    setTitle(title) {
+    setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${title}`
+        title: `${this.partData.ItemCode}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-      document.title = `${this.partData.Barcode} - ${this.partData.ManufacturerPartNumber}`
+      document.title = `${this.partData.ItemCode} - ${this.partData.ManufacturerPartNumber}`
     },
     showLocationTransferDialog() {
       this.locationTransferDialogVisible = true
@@ -313,9 +283,6 @@ export default {
     },
     loadItem() {
       this.getStockItem()
-      this.getReservation()
-      this.getPurchaseInformation()
-      this.getStockAccuracy()
       this.showItem = true
       this.stockHistoryKey++
     },
@@ -341,46 +308,10 @@ export default {
         })
       })
     },
-    getStockAccuracy() {
-      stock.item.accuracy(this.inputStockId).then(response => {
-        this.stockAccuracy = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    getReservation() {
-      stock.item.reservation(this.inputStockId).then(response => {
-        this.reservation = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
-    getPurchaseInformation() {
-      stock.item.purchaseInformation(this.inputStockId).then(response => {
-        if (response.length) this.purchaseInformation = response[0]
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
-    },
     getProductionPartData() {
-      if (this.partData.ManufacturerPartNumberId === null && this.partData.SpecificationPartRevisionId === null) return
+      if (this.partData.Part.ManufacturerPartNumberId === null && this.partData.Part.SpecificationPartRevisionId === null) return
 
-      productionPart.search(null, this.partData.ManufacturerPartNumberId, this.partData.SpecificationPartRevisionId).then(response => {
+      productionPart.search(null, this.partData.Part.ManufacturerPartNumberId, this.partData.Part.SpecificationPartRevisionId).then(response => {
         this.productionPartData = response
       }).catch(response => {
         this.$message({
@@ -410,8 +341,18 @@ export default {
       })
     },
     openPrintDialog() {
-      this.printData = structuredClone(this.partData)
-      if (this.partData.Description === null || this.partData.Description === '') this.printData.Description = this.productionPartData[0].Description
+      this.printData.ManufacturerName = this.partData.Part.ManufacturerName
+      this.printData.ManufacturerPartNumber = this.partData.Part.ManufacturerPartNumber
+      this.printData.OrderReference = this.partData.Purchase.OrderReference
+      this.printData.Description = this.partData.Description
+      this.printData.StockNumber = this.partData.StockNumber
+      this.printData.ItemCode = this.partData.ItemCode
+
+      if (this.productionPartData.length) {
+        this.printData.OrderReference = this.productionPartData[0].ItemCode
+        this.printData.Description = this.productionPartData[0].Description
+      }
+
       this.printDialogVisible = true
     },
     getPrinter() {
@@ -430,8 +371,8 @@ export default {
     },
     async print(printData) {
       var labelData = {
-        $Barcode: printData.Barcode,
-        $StockId: printData.StockNo,
+        $Barcode: printData.ItemCode,
+        $StockId: printData.StockNumber,
         $Mfr: printData.ManufacturerName,
         $MPN: printData.ManufacturerPartNumber,
         $PartNo: printData.OrderReference,

@@ -7,10 +7,24 @@
 # *************************************************************************************************
 import eerp
 from schema_validation_helper import validate_schema
+from test_location import schema_item_location
 
 eerp = eerp.Eerp()
 eerp.login()
 
+schema_item_attribute = {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": [{
+        "type": "object",
+        "properties": {
+            "Name": {"type": "string"},
+            "Value": {"type": "string"}
+        },
+        "additionalProperties": False,
+        "minProperties": 2
+    }]
+}
 
 def test_inventory_list_schema():
     schema = {
@@ -54,9 +68,9 @@ def test_inventory_item_schema():
             "Type": {"type": "string"},
             "SerialNumber": {"type": "string"},
             "Status": {"type": "string"},
-            "Attribute": {"type": "array"},
+            "Attribute": schema_item_attribute,
             "CategoryName": {"type": "string"},
-            "Location": {"type": "object"},
+            "Location":  schema_item_location,
             "PurchaseInformation": {"type": "object"},
             "Accessory": {"type": "array"},
             "Documents": {"type": "array"},
