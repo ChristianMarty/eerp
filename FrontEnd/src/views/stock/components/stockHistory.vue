@@ -3,12 +3,17 @@
 
     <template v-if="history != null">
       <el-timeline :reverse="true">
-        <el-timeline-item v-for="(line, index) in history" :key="index" :color="line.color" :timestamp="line.Date">
+        <el-timeline-item
+          v-for="(line, index) in history"
+          :key="index"
+          :color="line.color"
+          :timestamp="line.ItemCode+', '+line.Date+', by '+line.NameInitials"
+        >
           {{ line.Description }}
-          <template v-if="line.WorkOrderBarcode != NULL">
+          <template v-if="line.WorkOrderCode != NULL">
             <span>, Work Order: </span>
-            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderBarcode" class="link-type">
-              <span>{{ line.WorkOrderBarcode }}</span>
+            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderCode" class="link-type">
+              <span>{{ line.WorkOrderCode }}</span>
             </router-link>
             {{ line.WorkOrderTitle }}
           </template>

@@ -30,7 +30,7 @@ if($api->isPost())
 		$workOrder = $database->query($query)[0];
 	}
 
-	// validate data
+	$historyIdList = [];
 	foreach($data->Items as $key => $line)
     {
         $note = null;
@@ -57,6 +57,44 @@ if($api->isPost())
         if ($workOrder !== null) $sqlData['WorkOrderId'] = $workOrder->Id;
 
         $database->insert("partStock_history", $sqlData);
+        $historyIdList[] = $database->lastInsertId();
     }
-    $api->returnEmpty();
+
+    $historyIdStr = implode(',',$historyIdList);
+    $query = <<<STR
+        SELECT 
+            partStock.StockNumber,
+            partStock_history.ChangeType, 
+            partStock_history.Quantity, 
+            partStock_history.CreationDate AS  Date, 
+            workOrder.Name AS WorkOrderTitle, 
+            workOrder.WorkOrderNumber, 
+            partStock_history.Note, 
+            partStock_history.EditToken,
+            user.Initials,
+            partStock_history.Cache_ChangeIndex AS ChangeIndex
+        FROM partStock_history 
+        LEFT JOIN partStock ON partStock.Id = partStock_history.StockId
+        LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId 
+        LEFT JOIN user ON user.Id = partStock_history.CreationUserId
+        WHERE partStock_history.Id IN($historyIdStr)
+        ORDER BY partStock_history.Id ASC
+    STR;
+
+    $result = $database->query($query);
+
+    $output = [];
+    foreach($result as $line)
+    {
+        $item = new stdClass();
+        $item->ItemCode = barcodeFormatter_StockHistoryNumber($line->StockNumber, $line->ChangeIndex);
+        $item->ManufacturerName = "";
+        $item->ManufacturerPartNumber = "";
+        $item->Note = $line->Note??"";
+        $item->Quantity = $line->Quantity;
+        
+        $output[] = $item;
+    }
+
+    $api->returnData($output);
 }

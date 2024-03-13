@@ -9,10 +9,10 @@ const inventoryRouter = {
   },
   children: [
     {
-      path: 'search',
-      component: () => import('@/views/location/search'),
-      name: 'locationSearch',
-      meta: { title: 'Search', icon: 'search' }
+      path: '',
+      component: () => import('@/views/location/list'),
+      name: 'locationList',
+      meta: { title: 'Location List', icon: 'search' }
     },
     {
       path: 'summary/:LocationNr(.*)',
@@ -31,7 +31,7 @@ const inventoryRouter = {
       path: 'item/:LocationBarcode(.*)',
       component: () => import('@/views/location/item'),
       name: 'locationItem',
-      meta: { title: 'Location Item', noCache: true, icon: 'list' },
+      meta: { title: 'Item', noCache: true, icon: 'list' },
       hidden: true
     },
     {

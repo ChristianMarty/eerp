@@ -267,4 +267,51 @@ class stock
 
         return $output;
     }
+/*
+    function formatHistoryItem(\stdClass $itemData): \stdClass|null
+    {
+        $description = "";
+        $type = null;
+
+        if($itemData->ChangeType == 'Relative')
+        {
+            if($itemData->Quantity >0 )
+            {
+                $description = "Add ".$itemData->Quantity."pcs";
+                $type = "add";
+                $quantity += intval($item->Quantity,10);
+            }
+            else
+            {
+                $description = "Remove ".abs($itemData->Quantity)."pcs";
+                $type = "remove";
+                $quantity += intval($item->Quantity,10);
+            }
+        }
+        else if($itemData->ChangeType == 'Absolute')
+        {
+            $description = "Stocktaking";
+            $type = "count";
+            $quantity = intval($itemData->Quantity,10);
+        }
+        else if($itemData->ChangeType == 'Create')
+        {
+            $description = "Create";
+            $type = "create";
+            $quantity = intval($item->Quantity,10);
+        }
+
+        $description .= ", New Quantity: ".$quantity;
+
+        $output = new \stdClass();
+        $output->ItemCode = barcodeFormatter_StockHistoryNumber($stockNumber, $itemData->ChangeIndex);
+        $output->Type = $type;
+        $output->Date = $item->Date;
+        $output->Note = $item->Note;
+        $output->Description = trim($description);
+        $output->WorkOrderCode = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+        $output->NameInitials = $item->Initials;
+
+        return $output;
+    }*/
 }

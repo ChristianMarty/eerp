@@ -41,3 +41,34 @@ def test_vendor_list_schema():
 
     data = eerp.vendor.list()
     validate_schema(instance=data, schema=schema)
+
+def test_vendor_item_schema():
+    schema = {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {
+            "Id": {"type": "integer"},
+            "FullName": {"type": "string"},
+            "ShortName": {"type":  "string"},
+            "AbbreviatedName": {"type":  "string"},
+            "DisplayName": {"type": "string"},
+            "CustomerNumber": {"type": "string"},
+            "IsSupplier": {"type": "boolean"},
+            "IsManufacturer": {"type": "boolean"},
+            "IsContractor": {"type": "boolean"},
+            "IsCarrier": {"type": "boolean"},
+            "IsCustomer": {"type": "boolean"},
+            "Note": {"type": "string"},
+            "ParentId": {"type": ["null", "integer"]},
+            "ParentName": {"type": ["null", "string"]},
+            "Alias": {"type":  "array"},
+            "Children": {"type":  "array"},
+            "Address": {"type":  "array"},
+            "Contact": {"type":  "array"}
+        },
+        "additionalProperties": False,
+        "minProperties": 18
+    }
+
+    data = eerp.vendor.item(14)
+    validate_schema(instance=data, schema=schema)

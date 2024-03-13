@@ -26,7 +26,7 @@
         :options="locations"
         :props="{
           emitPath: false,
-          value: 'LocationBarcode',
+          value: 'ItemCode',
           label: 'Name',
           children: 'Children',
           checkStrictly: true

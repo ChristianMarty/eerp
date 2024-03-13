@@ -11,25 +11,25 @@
         border
         :tree-props="{ children: 'Children' }"
       >
-        <el-table-column prop="LocationBarcode" label="Location Nr" width="250px">
+        <el-table-column prop="ItemCode" label="Location Number" width="250px">
           <template slot-scope="{ row }">
             <router-link
-              :to="'/location/item/' + row.LocationBarcode"
+              :to="'/location/item/' + row.ItemCode"
               class="link-type"
             >
-              <span>{{ row.LocationBarcode }}</span>
+              <span>{{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>
         <el-table-column prop="Name" label="Name" width="200px" />
         <el-table-column prop="Title" label="Title" width="200px" />
         <el-table-column prop="Description" label="Description" />
-        <el-table-column prop="Attributes.EsdSave" label="ESD Save">
+        <el-table-column prop="Attribute.EsdSave" label="ESD Save">
           <template slot-scope="scope">
-            <span v-if="scope.row.Attributes.EsdSave == true">
+            <span v-if="scope.row.Attribute.EsdSave == true">
               Yes
             </span>
-            <span v-if="scope.row.Attributes.EsdSave == false">
+            <span v-if="scope.row.Attribute.EsdSave == false">
               No
             </span>
           </template>

@@ -36,7 +36,8 @@ if($api->isGet())
             ShippingProhibited,
             ShippingClearance,
             assembly_unit_history.Date AS Date,
-            EditToken
+            EditToken,
+            assembly_unit.SerialNumber
         FROM assembly_unit_history
         LEFT JOIN assembly_unit ON assembly_unit.Id = assembly_unit_history.AssemblyUnitId
         WHERE assembly_unit_history.AssemblyUnitHistoryNumber = '$assemblyHistoryNumber'

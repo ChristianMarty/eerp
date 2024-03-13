@@ -37,7 +37,7 @@ if($api->isPost())
 		$workOrderNumber =  barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 		if($workOrderNumber !== null)
 		{
-			$query = "SELECT * FROM workOrder WHERE WorkOrderNumber ='$workOrderNumber' LIMIT 1;";
+			$query = "SELECT WorkOrderNumber, Name FROM workOrder WHERE WorkOrderNumber ='$workOrderNumber' LIMIT 1;";
 			$workOrder = $database->query($query)[0] ?? null;
 		}
 	}
@@ -65,13 +65,13 @@ if($api->isPost())
 				$printer -> setTextSize(1, 1);
 				$printer -> text("Work Order: ");
 				
-				$printer -> text(barcodeFormatter_WorkOrderNumber($workOrder->WorkOrderNumber)." - ".$workOrder->Title."\n");
+				$printer -> text(barcodeFormatter_WorkOrderNumber($workOrder->WorkOrderNumber)." - ".$workOrder->Name."\n");
 				$printer -> feed(1);
 			}
 			
 			$printer -> selectPrintMode(Printer::MODE_FONT_A);
 			$printer -> setTextSize(2, 2);
-			$printer -> text($line->Barcode."\n");
+			$printer -> text($line->ItemCode."\n");
 			$printer -> feed(1);
 			
 			$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
@@ -96,7 +96,7 @@ if($api->isPost())
 			
 			$printer -> feed(1);
 			$printer -> setBarcodeHeight(80);
-			$printer -> barcode($line->Barcode);
+			$printer -> barcode($line->ItemCode);
 			
 			$printer -> text(str_repeat("-",$lineLength)."\n");
 			$printer -> setJustification(Printer::JUSTIFY_CENTER);

@@ -13,3 +13,7 @@ class Vendor(object):
     def list(self):
         data = self._eerp.get('vendor')
         return data
+
+    def item(self, vendor_id:  int):
+        data = self._eerp.get('vendor/item', {"VendorId": vendor_id})
+        return data

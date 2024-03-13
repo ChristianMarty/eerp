@@ -34,7 +34,7 @@ if($api->isGet())
             ShippingProhibited,
             ShippingClearance,
             EditToken,
-            Date 
+            Date
         FROM assembly_unit_history
         WHERE AssemblyUnitId = (SELECT Id FROM assembly_unit WHERE AssemblyUnitNumber = '$assemblyUnitNumber')
         ORDER BY CreationDate DESC

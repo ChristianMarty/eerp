@@ -12,9 +12,9 @@ const vendorRouter = {
   children: [
     {
       path: '',
-      component: () => import('@/views/vendor/browser'),
+      component: () => import('@/views/vendor/list'),
       name: 'vendor',
-      meta: { title: 'Vendor Search', icon: 'search' }
+      meta: { title: 'Vendor List', icon: 'search' }
     },
     {
       path: 'create',
@@ -28,7 +28,7 @@ const vendorRouter = {
       path: 'view/:vendorNo(.*)',
       component: () => import('@/views/vendor/item/'),
       name: 'vendorView',
-      meta: { title: 'Vendor View', icon: 'el-icon-sold-out' },
+      meta: { title: 'Item', icon: 'el-icon-sold-out' },
       hidden: true
     }
 

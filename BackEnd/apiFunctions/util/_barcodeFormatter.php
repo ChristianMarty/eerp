@@ -13,6 +13,11 @@ function barcodeFormatter_StockNumber(string|int $input): string
     return "STK-".strtoupper($input);
 }
 
+function barcodeFormatter_StockHistoryNumber(string $stockNumber, int $index): string
+{
+    return  barcodeFormatter_StockNumber($stockNumber)."-".$index;
+}
+
 function barcodeFormatter_InventoryNumber(string|int $input, string|int|null $accessory = null): string
 {
     $output = "Inv-".$input;

@@ -25,9 +25,8 @@ if($api->isGet("vendor.view"))
 
     $query = <<< STR
         SELECT
-            vendor.Id as VendorId,
+            vendor.Id as Id,
             vendor.FullName as FullName,
-            vendor.ParentId as VendorParentId,
             vendor.CustomerNumber as CustomerNumber,
             vendor_displayName(vendor.Id) as DisplayName,
             vendor.ShortName as ShortName,
@@ -38,6 +37,7 @@ if($api->isGet("vendor.view"))
             vendor.IsCarrier AS IsCarrier,
             vendor.IsCustomer AS IsCustomer,
             vendor.ParentId as ParentId,
+            vendor.Note AS Note,
             vendor_displayName(parent.Id) AS ParentName
         FROM vendor 
         LEFT JOIN vendor parent on parent.Id = vendor.ParentId
@@ -46,8 +46,11 @@ if($api->isGet("vendor.view"))
     STR;
 
     $output = $database->query($query)[0];
-	
-	$output->Id = $output->VendorId;
+
+    $output->CustomerNumber = $output->CustomerNumber??"";
+    $output->ShortName = $output->ShortName??"";
+    $output->AbbreviatedName = $output->AbbreviatedName??"";
+    $output->Note = $output->Note??"";
 
 	if($output->ParentId == 0){
         $output->ParentId = null;

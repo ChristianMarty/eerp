@@ -117,6 +117,9 @@ const workOrder = new WorkOrder()
 import Stock from '@/api/stock'
 const stock = new Stock()
 
+import Print from '@/api/print'
+const print = new Print()
+
 import Peripheral from '@/api/peripheral'
 const peripheral = new Peripheral()
 

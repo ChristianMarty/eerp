@@ -25,8 +25,7 @@ if($api->isPost())
 
 	global $companyName;
 
-    $data = $data->Data[0];
-	
+    $data = $data->Data;
 	$printData = $data->Data;
 
 	$query = "SELECT * FROM peripheral WHERE Id = '$printerId' LIMIT 1";
@@ -97,7 +96,7 @@ if($api->isPost())
 	$printer -> feed(1);
 	$printer -> setBarcodeHeight(80);
 	$printer->setBarcodeTextPosition(Printer::BARCODE_TEXT_BELOW);
-	$printer -> barcode($data->AssemblyUnitHistoryBarcode);
+	$printer -> barcode($data->ItemCode);
 
 	$printer -> cut();
 	$printer -> close();

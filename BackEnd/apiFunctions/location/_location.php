@@ -106,8 +106,8 @@ class Location
 				$temp->LocationNumber = intval($row->LocationNumber);
 				$temp->ItemCode = barcodeFormatter_LocationNumber($row->LocationNumber);
 
-				$temp->Attributes = new stdClass;
-				$temp->Attributes->EsdSave = boolval($row->ESD);
+				$temp->Attribute = new stdClass;
+				$temp->Attribute->EsdSave = boolval($row->ESD);
 
 				if ($this->hasChild($row->Id)) $temp->Children = $this->tree($row->Id);
 
