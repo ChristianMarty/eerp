@@ -32,6 +32,31 @@ function barcodeParser_StockNumber(null|string|int $input): null|string
     return $stockNumberParts[1];
 }
 
+function barcodeParser_StockHistoryNumber(null|string|int $input): null|int
+{
+    if($input === null) return null;
+    if(is_int($input)) $input = strval($input);
+
+    $stockNumber = trim($input);
+    $stockNumber = strtolower($stockNumber);
+    $stockNumberParts = explode('-',$stockNumber);
+
+    if(count($stockNumberParts)!==2 && count($stockNumberParts)!==3){
+        return null;
+    }
+
+    if( count($stockNumberParts)===3 && $stockNumberParts[0] !== "stk"){
+        return null;
+    }
+
+    $historyIndex = intval(end($stockNumberParts));
+    if($historyIndex === 0){
+        return null;
+    }
+
+    return $historyIndex;
+}
+
 function barcodeParser_InventoryNumber(null|string|int $input): null|int
 {
     if($input === null) return null;

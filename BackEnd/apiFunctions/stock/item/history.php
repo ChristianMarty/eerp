@@ -32,7 +32,7 @@ if($api->isGet())
 			partStock_history.Note, 
 			partStock_history.EditToken,
 		    user.Initials,
-		    ROW_NUMBER() OVER (ORDER BY partStock_history.CreationDate) AS ChangeIndex
+		    Cache_ChangeIndex AS ChangeIndex
 		FROM partStock_history 
 		LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId 
 		LEFT JOIN user ON user.Id = partStock_history.CreationUserId
@@ -87,6 +87,7 @@ if($api->isGet())
 		$r['Description'] = trim($description);
 		$r['WorkOrderCode'] = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
         $r['NameInitials'] = $item->Initials;
+        $r['EditToken'] = $item->EditToken;
 
 		$output[] = $r;
 	}

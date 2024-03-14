@@ -92,7 +92,7 @@ if($api->isPost())
         $item->ManufacturerPartNumber = "";
         $item->Note = $line->Note??"";
         $item->Quantity = $line->Quantity;
-        
+
         $output[] = $item;
     }
 

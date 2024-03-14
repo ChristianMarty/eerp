@@ -1,6 +1,11 @@
 <template>
   <div class="edit-stock-history-dialog">
-    <el-dialog title="Edit Stock History" :visible.sync="visible" :before-close="closeDialog">
+    <el-dialog
+      title="Edit Stock History"
+      :visible.sync="visible"
+      :before-close="closeDialog"
+      @open="onOpen"
+    >
       {{ data.Date }}
       <el-form label-width="150px">
 
@@ -8,13 +13,13 @@
           <el-input-number v-model="data.Quantity" />
         </el-form-item>
 
-        <el-form-item v-if="data.Type == 'remove'" label="Work Order:">
+        <el-form-item v-if="data.Type == 'Remove'" label="Work Order:">
           <el-select v-model="data.WorkOrderNumber" filterable>
             <el-option
               v-for="wo in workOrders"
-              :key="wo.WorkOrderBarcode"
-              :label="wo.WorkOrderBarcode + ' - ' + wo.Title"
-              :value="wo.WorkOrderBarcode"
+              :key="wo.WorkOrderNumber"
+              :label="wo.ItemCode + ' - ' + wo.Name"
+              :value="wo.ItemCode"
             />
           </el-select>
         </el-form-item>
@@ -32,24 +37,22 @@
 </template>
 <script>
 
-const itemData = {
-  Quantity: 0,
-  WorkOrderNumber: null,
-  Note: ''
-}
-
 import requestBN from '@/utils/requestBN'
+
+import Stock from '@/api/stock'
+const stock = new Stock()
 
 export default {
   props: {
-    data: { type: Object, default: itemData },
+    stockHistoryCode: { type: String, default: '' },
     visible: { type: Boolean, default: false }
   },
   emits: ['change'],
   data() {
     return {
       workOrders: null,
-      workOrderNumber: null
+      workOrderNumber: null,
+      data: {}
 
     }
   },
@@ -57,6 +60,18 @@ export default {
     this.getWorkOrders()
   },
   methods: {
+    onOpen() {
+      stock.item.history.item(this.$props.stockHistoryCode).then(response => {
+        this.data = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
     closeDialog() {
       this.visible = false
       this.$emit('update:visible', this.visible)
@@ -69,7 +84,7 @@ export default {
         data: {
           EditToken: this.data.EditToken,
           Quantity: this.data.Quantity,
-          WorkOrderNumber: this.data.WorkOrderNumber,
+          WorkOrderNumber: this.data.WorkOrderCode,
           Note: this.data.Note,
           Type: this.data.Type
         }

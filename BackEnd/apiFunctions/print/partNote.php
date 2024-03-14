@@ -32,7 +32,7 @@ if($api->isPost())
 	global $companyName;
 
 	$workOrder = null;
-	if($data->WorkOrderNumber)
+	if(isset($data->WorkOrderNumber))
 	{
 		$workOrderNumber =  barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 		if($workOrderNumber !== null)
@@ -71,19 +71,19 @@ if($api->isPost())
 			
 			$printer -> selectPrintMode(Printer::MODE_FONT_A);
 			$printer -> setTextSize(2, 2);
-			$printer -> text($line->ItemCode."\n");
+			$printer -> text($line->StockCode."\n");
 			$printer -> feed(1);
 			
 			$printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
 			$printer -> text('Quantity : ');
 			$printer -> selectPrintMode(Printer::MODE_FONT_A);
-			$printer -> text(number_format($line->RemoveQuantity)."\n");
+			$printer -> text(number_format($line->Quantity)."\n");
 			$printer -> feed(1);
 			
 			$printer -> setJustification(Printer::JUSTIFY_LEFT);
 			
 			
-			$printer -> text($line->ManufacturerName." ".$line->ManufacturerPartNumber."\n");
+			$printer -> text($line->Part->ManufacturerName." ".$line->Part->ManufacturerPartNumber."\n");
 			
 	
 			if(isset($line->Note) && $line->Note != null && $line->Note != "")
@@ -96,8 +96,9 @@ if($api->isPost())
 			
 			$printer -> feed(1);
 			$printer -> setBarcodeHeight(80);
-			$printer -> barcode($line->ItemCode);
-			
+            $printer -> setJustification(Printer::JUSTIFY_CENTER);
+			$printer -> barcode($line->ItemCode, Printer::BARCODE_CODE93);
+
 			$printer -> text(str_repeat("-",$lineLength)."\n");
 			$printer -> setJustification(Printer::JUSTIFY_CENTER);
 			$printer -> text(date("Y-m-d H:i:s")."\n");

@@ -13,8 +13,97 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isPatch())
+if($api->isGet()) {
+    $parameter = $api->getGetData();
+
+    if (!isset($parameter->StockHistoryCode)) $api->returnParameterMissingError("StockHistoryCode");
+    $stockNumber = barcodeParser_StockNumber($parameter->StockHistoryCode);
+    $historyIndex = barcodeParser_StockHistoryNumber($parameter->StockHistoryCode);
+    if ($stockNumber === null) $api->returnParameterError("StockCode");
+    if ($historyIndex === null) $api->returnParameterError("StockCode History Index");
+
+    $query = <<<STR
+    SELECT
+        partStock.StockNumber,
+        Cache_ChangeIndex AS ChangeIndex,
+        partStock_history.ChangeType, 
+        partStock_history.Quantity, 
+        partStock_history.CreationDate AS  Date, 
+        workOrder.Name AS WorkOrderTitle, 
+        workOrder.WorkOrderNumber, 
+        partStock_history.Note, 
+        partStock_history.EditToken,
+        user.Initials,
+        vendor_displayName(vendor.Id) AS ManufacturerName,
+        vendor.Id AS ManufacturerId,
+        manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
+        manufacturerPart_partNumber.Id AS ManufacturerPartNumberId,
+        manufacturerPart_item.Id AS ManufacturerPartItemId,
+        partStock.SpecificationPartRevisionId AS SpecificationPartRevisionId
+    FROM partStock_history 
+    LEFT JOIN partStock ON partStock_history.StockId = partStock.Id
+    LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId
+    LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+    LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+    LEFT JOIN vendor ON vendor.Id <=> manufacturerPart_partNumber.VendorId OR  vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
+    LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId 
+    LEFT JOIN user ON user.Id = partStock_history.CreationUserId
+    WHERE StockId = (SELECT Id FROM partStock WHERE StockNumber = '$stockNumber')  
+        AND partStock_history.Cache_ChangeIndex = '$historyIndex'
+    STR;
+    $result = $database->query($query);
+
+    if(count($result) == 0) {
+        $api->returnError("Stock history code not found");
+    }
+    $output = $result[0];
+
+    $output->ItemCode = barcodeFormatter_StockHistoryNumber($output->StockNumber, $output->ChangeIndex);
+    $output->StockCode = barcodeFormatter_StockNumber($output->StockNumber);
+    $output->WorkOrderCode = barcodeFormatter_WorkOrderNumber($output->WorkOrderNumber);
+
+    if($output->ChangeType === "Relative"){
+        if($output->Quantity < 0){
+            $output->Type = "Remove";
+            $output->Quantity = floatval($output->Quantity);
+        }else{
+            $output->Type = "Add";
+            $output->Quantity = floatval($output->Quantity)*-1;
+        }
+    }else if($output->ChangeType === "Absolute"){
+        $output->Type = "Count";
+        $output->Quantity = floatval($output->Quantity);
+
+    }else if($output->ChangeType === "Create"){
+        $output->Type = "Count";
+        $output->Quantity = floatval($output->Quantity);
+    }
+    unset($output->ChangeType);
+
+    // Add part information
+    $part = new stdClass();
+    $part->ManufacturerName = $output->ManufacturerName;
+    unset($output->ManufacturerName);
+    $part->ManufacturerId = intval($output->ManufacturerId);
+    unset($output->ManufacturerId);
+    $part->ManufacturerPartNumber = $output->ManufacturerPartNumber;
+    unset($output->ManufacturerPartNumber);
+    if($output->ManufacturerPartNumberId !== null) $part->ManufacturerPartNumberId = intval($output->ManufacturerPartNumberId);
+    else $part->ManufacturerPartNumberId = null;
+    unset($output->ManufacturerPartNumberId);
+    if($output->ManufacturerPartItemId !== null) $part->ManufacturerPartItemId = intval($output->ManufacturerPartItemId);
+    else $part->ManufacturerPartItemId = null;
+    unset($output->ManufacturerPartItemId);
+    if($output->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($output->ManufacturerPartItemId);
+    else $part->SpecificationPartRevisionId = null;
+    unset($output->SpecificationPartRevisionId);
+    $output->Part = $part;
+
+    $api->returnData($output);
+}
+else if($api->isPatch())
 {
 	$data = $api->getPostData();
 	if(!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
