@@ -101,7 +101,7 @@
       <stockHistory :key="stockHistoryKey" :stock-code="inputStockId" />
     </el-card>
 
-    <el-card v-if="showItem">
+    <el-card v-if="showItem && partData.Purchase !== null">
       <h3>Supplier & Purchase Information</h3>
       <el-divider />
       <p><b>Supplier: </b>{{ partData.Supplier.Name }}</p>
@@ -379,9 +379,8 @@ export default {
         $Description: printData.Description
       }
 
-      //this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
-      //this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
-
+      // this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
+      // this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
 
       print.print(this.selectedLabelId, this.selectedPrinterId, labelData).then(response => {
         this.printer = response
