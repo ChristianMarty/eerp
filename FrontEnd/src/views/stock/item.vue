@@ -329,7 +329,7 @@ export default {
       this.setTitle('Stock Item')
     },
     getLabel() {
-      print.label.search('Stock').then(response => {
+      renderer.list(true, renderer.Dataset.Stock).then(response => {
         this.label = response
       }).catch(response => {
         this.$message({
@@ -379,12 +379,11 @@ export default {
         $Description: printData.Description
       }
 
-      var labelTemplateObject = await renderer.item(this.selectedLabelId)// this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
-      var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
+      //this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
+      //this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
 
-      print.print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
-        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+
+      print.print(this.selectedLabelId, this.selectedPrinterId, labelData).then(response => {
         this.printer = response
       }).catch(response => {
         this.$message({

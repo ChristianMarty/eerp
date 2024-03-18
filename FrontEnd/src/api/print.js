@@ -1,14 +1,13 @@
 import eerpApi from '@/api/apiQuery'
 
 class Print {
-  print(Driver, Language, PrinterId, Data) {
+  print(RendererId, PrinterId, Data) {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
         url: '/print/print',
         data: {
-          Driver: Driver,
-          Language: Language,
+          RendererId: RendererId,
           PrinterId: PrinterId,
           Data: Data
         }

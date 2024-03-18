@@ -113,7 +113,7 @@ if($api->isGet("stock.view"))
     if($r->ManufacturerPartItemId !== null) $part->ManufacturerPartItemId = intval($r->ManufacturerPartItemId);
     else $part->ManufacturerPartItemId = null;
     unset($r->ManufacturerPartItemId);
-    if($r->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($r->ManufacturerPartItemId);
+    if($r->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($r->SpecificationPartRevisionId);
     else $part->SpecificationPartRevisionId = null;
     unset($r->SpecificationPartRevisionId);
     $r->Part = $part;
@@ -154,13 +154,6 @@ else if($api->isPost("stock.create"))
         if(strlen($lotNumber) == 0)$lotNumber = null;
     }
 
-    if($data->OrderReference == null){
-        $orderReference = null;
-    } else {
-        $orderReference = trim($data->OrderReference);
-        if(strlen($orderReference) == 0)$orderReference = null;
-    }
-
     if($data->Date == null){
         $date = null;
     } else {
@@ -183,8 +176,7 @@ else if($api->isPost("stock.create"))
             $location,
             $quantity,
             $date,
-            $lotNumber,
-            $orderReference
+            $lotNumber
         );
 	}
 	else // If new part is created
@@ -201,7 +193,6 @@ else if($api->isPost("stock.create"))
             $quantity,
             $date,
             $lotNumber,
-            $orderReference,
             $supplierId,
             $supplierPartNumber
         );
@@ -209,8 +200,7 @@ else if($api->isPost("stock.create"))
 
     $stockPart = $database->query(_stockPartQuery("'$stockNumber'"))[0];
 
-    $orderReference = $stockPart->OrderReference;
-    $stockPart->Barcode = barcodeFormatter_StockNumber($stockPart->StockNumber);
+    $stockPart->ItemCode = barcodeFormatter_StockNumber($stockPart->StockNumber);
 
     $api->returnData($stockPart);
 }

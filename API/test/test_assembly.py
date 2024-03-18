@@ -154,6 +154,7 @@ def test_schema_assembly_unit_history_item(db_connection, eerp_connection):
             "AssemblyUnitHistoryNumber": {"type": "integer"},
             "Title": {"type": "string"},
             "Description": {"type": "string"},
+            'SerialNumber': {"type": "string"},
             "Type": {"type": "string"},
             "ShippingProhibited": {"type": "boolean"},
             "ShippingClearance": {"type": "boolean"},
@@ -163,7 +164,7 @@ def test_schema_assembly_unit_history_item(db_connection, eerp_connection):
             "AssemblyUnitCode": {"type": "string", },
         },
         "additionalProperties": False,
-        "minProperties": 11
+        "minProperties": 12
     }
     data = eerp_connection.assembly.unit.history.item(44512)
     validate_schema(instance=data, schema=schema_history_item)

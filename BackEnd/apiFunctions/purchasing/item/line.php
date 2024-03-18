@@ -41,7 +41,7 @@ function save_line($purchaseOrderNumber, $line): int
 
    if($line['SpecificationPartNumber'] !== null) {
         $specificationPartNumber = barcodeParser_SpecificationPart($line['SpecificationPartNumber']);
-        $sqlData['SpecificationPartId']['raw'] = "(SELECT Id FROM specificationPart WHERE  Number = $specificationPartNumber)";
+        $sqlData['SpecificationPartId']['raw'] = "(SELECT Id FROM specificationPart WHERE  SpecificationPartNumber = $specificationPartNumber)";
     } else {
         $sqlData['SpecificationPartId'] = null;
     }

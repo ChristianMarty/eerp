@@ -146,8 +146,8 @@ import documentsList from '@/views/document/components/documentsList'
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
-import Print from '@/api/print'
-const print = new Print()
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
 
 export default {
   name: 'PurchaseOrder',
@@ -171,7 +171,7 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   mounted() {
-    print.label.search('PurchaseOrder').then(response => {
+    renderer.list(true, renderer.Dataset.PurchaseOrder).then(response => {
       this.rendererList = response
       this.rendererSelected = this.rendererList[0].Code
     }).catch(response => {
@@ -202,7 +202,7 @@ export default {
     },
     setTagsViewTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: 'PO-' + `${this.orderData.PurchaseOrderNumber}`
+        title: this.orderData.ItemCode
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },

@@ -57,7 +57,7 @@
           label="Description"
         />
         <el-table-column
-          prop="Location"
+          prop="LocationName"
           label="Current Location"
         />
       </el-table>

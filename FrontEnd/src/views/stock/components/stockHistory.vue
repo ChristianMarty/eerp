@@ -18,7 +18,7 @@
             {{ line.WorkOrderTitle }}
           </template>
           <template v-if="line.EditToken != NULL">
-            <el-button style="margin-left: 20px" type="primary" icon="el-icon-edit" circle @click="openEditDialog(line)" />
+            <el-button style="margin-left: 20px" type="info" icon="el-icon-edit" circle @click="openEditDialog(line)" />
           </template>
           <el-button style="margin-left: 20px" type="primary" icon="el-icon-printer" circle @click="openPrintDialog(line)" />
           <p>{{ line.Note }}</p>

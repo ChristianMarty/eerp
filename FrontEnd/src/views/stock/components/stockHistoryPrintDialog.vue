@@ -99,7 +99,7 @@ export default {
       })
     },
     getLabel() {
-      print.label.search('Stock').then(response => {
+      renderer.list(true, renderer.Dataset.Stock).then(response => {
         this.label = response
       }).catch(response => {
         this.$message({

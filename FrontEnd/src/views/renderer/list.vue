@@ -9,8 +9,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="Description" label="Description" />
-      <el-table-column prop="Tag" label="Tags" sortable width="240" />
-      <el-table-column prop="Render" label="Render" sortable width="120" />
+      <el-table-column prop="DatasetName" label="Dataset" sortable width="240" />
+      <el-table-column prop="MediumName" label="Medium" sortable width="300" />
       <el-table-column prop="Language" label="Language" sortable width="120" />
     </el-table>
   </div>

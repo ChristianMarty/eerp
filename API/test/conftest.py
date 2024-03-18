@@ -45,7 +45,7 @@ def db_connection():
         host="192.168.1.200",
         port=3366,
         user="root",
-        password="test1234"
+        password="test12345"
     )
     load_standard_db(db_connection)
     yield db_connection  # Yield the connection object

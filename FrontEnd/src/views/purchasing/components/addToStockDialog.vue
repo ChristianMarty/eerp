@@ -55,7 +55,7 @@
               :options="locations"
               :props="{
                 emitPath: false,
-                value: 'LocNr',
+                value: 'ItemCode',
                 label: 'Name',
                 children: 'Children',
                 checkStrictly: true
@@ -174,7 +174,7 @@ export default {
     },
     saveToStock() {
       stock.item.create(this.data).then(response => {
-        this.$router.push('/stock/item/' + response.StockNo)
+        this.$router.push('/stock/item/' + response.ItemCode)
       }).catch(response => {
         this.$message({
           showClose: true,

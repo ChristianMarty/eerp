@@ -10,8 +10,7 @@ class stock
         int         $locationNumber,
         int         $quantity,
         string|null $date,
-        string|null $lotNumber,
-        string|null $orderReference
+        string|null $lotNumber
     ): string
     {
         global $database;
@@ -29,7 +28,6 @@ class stock
         $insertData['ManufacturerPartNumberId']['raw'] = "($queryManufacturerPartNumberId)";
         $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocationNumber`= $locationNumber)";
         $insertData['Date'] = $date;
-        $insertData['OrderReference'] = $orderReference;
         $insertData['ReceivalId'] = $receivalId;
         $insertData['LotNumber'] = $lotNumber;
         $insertData['CreationUserId'] = $user->userId();
@@ -69,7 +67,6 @@ class stock
         int         $quantity,
         string|null $date,
         string|null $lotNumber,
-        string|null $orderReference,
         int|null    $supplierId,
         string|null $supplierPartNumber
     ): string
@@ -140,7 +137,6 @@ class stock
         $insertData['ManufacturerPartNumberId'] = $manufacturerPartNumberId;
         $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocationNumber`= $locationNumber)";
         $insertData['Date'] = $date;
-        $insertData['OrderReference'] = $orderReference;
         $insertData['ReceivalId'] = null;
         $insertData['SupplierPartId'] = $supplierPartId;
         $insertData['LotNumber'] = $lotNumber;

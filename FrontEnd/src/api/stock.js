@@ -65,7 +65,6 @@ class Stock {
       SupplierId: null,
       SupplierPartNumber: null,
       LotNumber: null,
-      OrderReference: null,
       Quantity: 0,
       Date: null
     },

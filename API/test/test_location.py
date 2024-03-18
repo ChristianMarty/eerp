@@ -39,7 +39,7 @@ def test_location_list_schema():
                 "ItemCode": {"type": "string"},
                 "Title": {"type": ["string", "null"]},
                 "Description": {"type": ["string", "null"]},
-                "Attributes": {
+                "Attribute": {
                     "type": "object",
                     "properties": {
                         "EsdSave": {"type": "boolean"},
