@@ -21,7 +21,7 @@ abstract class renderer
 {
     protected \renderer\language|null $method = null;
 
-    static public function render(\stdClass $input) : string|null
+    static public function render(\stdClass|array $data, int|null $printerId = null) : string|null
     {
         return null;
     }

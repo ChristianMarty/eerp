@@ -8,7 +8,7 @@
     >
       <p>asdasdasads</p>
       <span slot="footer" class="dialog-footer">
-        <el-select v-model="selectedLabelId">
+        <el-select v-model="selectedRendererId">
           <el-option v-for="item in label" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
         <el-select v-model="selectedPrinterId">
@@ -48,7 +48,7 @@ export default {
       label: null,
       printer: {},
       selectedPrinterId: 0,
-      selectedLabelId: 0
+      selectedRendererId: 0
     }
   },
   mounted() {
@@ -74,7 +74,7 @@ export default {
       this.$emit('change')
     },
     print() {
-      print.template.partNote(this.selectedPrinterId, [this.data], this.selectedWorkOrderNumber).then(response => {
+      print.print(this.selectedRendererId, this.selectedPrinterId, [this.$props.stockHistoryCode]).then(response => {
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -99,7 +99,7 @@ export default {
       })
     },
     getLabel() {
-      renderer.list(true, renderer.Dataset.Stock).then(response => {
+      renderer.list(true, renderer.Dataset.StockHistory).then(response => {
         this.label = response
       }).catch(response => {
         this.$message({

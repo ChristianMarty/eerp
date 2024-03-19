@@ -270,10 +270,10 @@ export default {
     },
     setTitle() {
       const route = Object.assign({}, this.tempRoute, {
-        title: `${this.partData.ItemCode}`
+        title: this.partData.ItemCode
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-      document.title = `${this.partData.ItemCode} - ${this.partData.ManufacturerPartNumber}`
+      document.title = this.partData.ItemCode
     },
     showLocationTransferDialog() {
       this.locationTransferDialogVisible = true

@@ -37,7 +37,9 @@ class PartNumberPreprocess
             global $database;
             $query = "SELECT PartNumberPreprocessor FROM vendor WHERE Id = '$partNumberPreprocessing';";
             $return = $database->query($query);
-            if(!empty($return) && $return[0] !== null) $partNumberPreprocessingName = $return[0]->PartNumberPreprocessor;
+            if(!empty($return) && $return[0] !== null){
+                $partNumberPreprocessingName = $return[0]->PartNumberPreprocessor;
+            }
         }
         else if(is_string($partNumberPreprocessing)){
             $partNumberPreprocessingName = trim($partNumberPreprocessing);

@@ -11,6 +11,8 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+require_once __DIR__ . "/../renderer/_item/_renderer.php";
+
 if($api->isPost())
 {
     $data = $api->getPostData();
@@ -45,7 +47,6 @@ if($api->isPost())
     else $language = "";
 
 
-
     $output = array();
 	$output['Printer'] = $printer;
     $data = $data->Data;
@@ -60,7 +61,15 @@ if($api->isPost())
         }
         $printCode = $template;
     }else if($renderer->Render == "PHP"){
-        $api->returnError("PHP Renderer not implemented.");
+        $rendererClassName = $renderer->Code;
+        $filePath = __DIR__.'/../renderer/_item/'.$rendererClassName.'.php';
+        if (!file_exists($filePath)) {
+            $api->returnError("The requested renderer class does not exist");
+        }
+        require_once($filePath);
+        $rendererClass = new $rendererClassName();
+        $rendererClass->render($data, $printer->Id);
+        $api->returnEmpty();
     }
 
 	/*if(strtoupper($language) == 'ESCPOS')
