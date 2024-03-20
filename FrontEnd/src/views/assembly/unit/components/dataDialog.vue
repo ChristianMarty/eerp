@@ -32,11 +32,16 @@
         <el-table-column prop="value" label="Value" sortable />
       </el-table>
 
-      <el-select v-model="selectedPrinterId">
-        <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
-      </el-select>
-      <el-button type="primary" style="margin-left: 20px" @click="print()">Print</el-button>
-
+      <span slot="footer" class="dialog-footer">
+        <el-select v-model="selectedRendererId" style="margin-left: 20px">
+          <el-option v-for="item in rendererList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+        </el-select>
+        <el-select v-model="selectedPrinterId" style="margin-left: 20px">
+          <el-option v-for="item in printerList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+        </el-select>
+        <el-button type="primary" style="margin-left: 20px" @click="print()">Print</el-button>
+        <el-button style="margin-left: 50px" @click="closeDialog">Cancel</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -46,6 +51,9 @@ import * as defaultSetting from '@/utils/defaultSetting'
 
 import Assembly from '@/api/assembly'
 const assembly = new Assembly()
+
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
 
 import Print from '@/api/print'
 const print = new Print()
@@ -60,13 +68,18 @@ export default {
     return {
       data: {},
       tableData: [],
+
+      printerList: [],
       selectedPrinterId: 0,
-      printer: null
+
+      rendererList: [],
+      selectedRendererId: 0
+
     }
   },
   mounted() {
-    this.getPrintTemplate()
     this.getPrinter()
+    this.getRenderer()
   },
   methods: {
     onOpen() {
@@ -98,9 +111,8 @@ export default {
         })
       })
     },
-    getPrintTemplate() {
-      print.label.search('Assembly').then(response => {
-        this.printTemplate = response
+    print() {
+      print.print(this.selectedRendererId, this.selectedPrinterId, [this.$props.assemblyUnitHistoryNumber]).then(response => {
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -110,24 +122,23 @@ export default {
         })
       })
     },
-    print() {
-      assembly.unit.history.item(this.$props.assemblyUnitHistoryNumber).then(response => {
-        print.template.assemblyHistoryItem(this.selectedPrinterId, response).then(response => {
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
+    getPrinter() {
+      peripheral.list(peripheral.Type.Printer).then(response => {
+        this.selectedPrinterId = defaultSetting.defaultSetting().AssemblyUnitHistory.PrinterId
+        this.selectedRendererId = defaultSetting.defaultSetting().AssemblyUnitHistory.RendererId
+        this.printerList = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
         })
       })
     },
-    getPrinter() {
-      peripheral.list(peripheral.Type.Printer).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
-        // this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
-        this.printer = response
+    getRenderer() {
+      renderer.list(true, renderer.Dataset.AssemblyUnitHistory).then(response => {
+        this.rendererList = response
       }).catch(response => {
         this.$message({
           showClose: true,

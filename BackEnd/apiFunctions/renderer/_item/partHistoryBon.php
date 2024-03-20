@@ -19,7 +19,7 @@ use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use \Mike42\Escpos\Printer;
 
 
-class partNote extends \renderer\renderer
+class partHistoryBon extends \renderer\renderer
 {
     protected ?\renderer\language $method = \renderer\language::ESCPOS;
 
@@ -30,13 +30,7 @@ class partNote extends \renderer\renderer
 
         if(!is_array($data))$api->returnParameterError("Data");
 
-        $query = "SELECT * FROM peripheral WHERE Id ='$printerId' LIMIT 1;";
-        $printer = $database->query($query)[0];
-
-        /*if(!isset($input->Items)) $api->returnParameterMissingError("Items");
-        if(!isset($input->PrinterId)) $api->returnParameterMissingError("PrinterId");
-        $printerId = intval($input->PrinterId);
-        if($printerId == 0) $api->returnParameterError("PrinterId");*/
+        $printer = self::printer($printerId);
 
         $items = [];
         foreach ($data as $item){
@@ -62,6 +56,7 @@ class partNote extends \renderer\renderer
                 partStock_history.Cache_ChangeIndex AS ChangeIndex,
                 partStock_history.ChangeType,
                 partStock_history.Quantity,
+                partStock_history.Note,
                 workOrder.WorkOrderNumber,
                 workOrder.Name AS WorkOrderName
             FROM partStock_history
@@ -134,15 +129,14 @@ class partNote extends \renderer\renderer
                 $printer -> text($line->Note."\n");
             }
 
-            $printer->setBarcodeTextPosition(Printer::BARCODE_TEXT_BELOW);
-
             $printer->feed(1);
+            $printer->setBarcodeTextPosition(Printer::BARCODE_TEXT_BELOW);
             $printer->setBarcodeHeight(80);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->barcode($itemCode, Printer::BARCODE_CODE93);
 
-            $printer->text(str_repeat("-",$lineLength)."\n");
             $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->text(str_repeat("-",$lineLength)."\n");
             $printer->text(date("Y-m-d H:i:s")."\n");
 
             $printer->cut();

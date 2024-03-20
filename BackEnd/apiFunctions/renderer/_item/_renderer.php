@@ -26,4 +26,16 @@ abstract class renderer
         return null;
     }
 
+    static protected function printer(int|null $printerId = null): \stdClass|null
+    {
+        if($printerId===null) return null;
+
+        global $database;
+        $query = "SELECT * FROM peripheral WHERE Id ='$printerId' LIMIT 1;";
+        $printer = $database->query($query);
+
+        if(count($printer) === 0) return null;
+        return $printer[0];
+    }
+
 }

@@ -23,6 +23,17 @@
     <p v-if="assemblyUnitData.ShippingClearance" class="shippingClearance">This unit is ready for shipment.</p>
 
     <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
+
+    <el-divider />
+    <spam>
+      <el-select v-model="selectedRendererId" style="margin-left: 20px">
+        <el-option v-for="item in rendererList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+      </el-select>
+      <el-select v-model="selectedPrinterId" style="margin-left: 20px">
+        <el-option v-for="item in printerList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+      </el-select>
+      <el-button type="primary" style="margin-left: 20px" @click="print()">Print</el-button>
+    </spam>
     <el-divider />
 
     <h2>History</h2>
@@ -101,8 +112,19 @@ import permission from '@/directive/permission/index.js'
 import assemblyDataDialog from './components/dataDialog'
 import locationTransferDialog from '@/components/Location/locationTransferDialog'
 
+import * as defaultSetting from '@/utils/defaultSetting'
+
 import Assembly from '@/api/assembly'
 const assembly = new Assembly()
+
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
+
+import Print from '@/api/print'
+const print = new Print()
+
+import Peripheral from '@/api/peripheral'
+const peripheral = new Peripheral()
 
 import dateFormat from 'date-format'
 
@@ -121,7 +143,13 @@ export default {
       assemblyUnitHistoryNumber: 0,
       historyTypeOptions: [],
 
-      locationTransferDialogVisible: false
+      locationTransferDialogVisible: false,
+
+      printerList: [],
+      selectedPrinterId: 0,
+
+      rendererList: [],
+      selectedRendererId: 0
     }
   },
   created() {
@@ -133,6 +161,8 @@ export default {
   async mounted() {
     this.getAssemblyItem()
     this.setTitle()
+    this.getPrinter()
+    this.getRenderer()
     this.historyTypeOptions = await assembly.unit.history.types()
   },
   methods: {
@@ -249,6 +279,43 @@ export default {
               element.color = '#909399' // Gray
               break
           }
+        })
+      })
+    },
+    print() {
+      print.print(this.selectedRendererId, this.selectedPrinterId, [this.$route.params.AssemblyUnitNumber]).then(response => {
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getPrinter() {
+      peripheral.list(peripheral.Type.Printer).then(response => {
+        this.selectedPrinterId = defaultSetting.defaultSetting().AssemblyUnit.PrinterId
+        this.selectedRendererId = defaultSetting.defaultSetting().AssemblyUnit.RendererId
+        this.printerList = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    getRenderer() {
+      renderer.list(true, renderer.Dataset.AssemblyUnit).then(response => {
+        this.rendererList = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
         })
       })
     }

@@ -8,7 +8,8 @@ class Renderer {
     PurchaseOrder: 4,
     InventoryItem: 5,
     LocationItem: 6,
-    StockReceipt: 7
+    StockReceipt: 7,
+    AssemblyUnit: 8
   }
 
   list(Flat = true, DatasetId = 0) {

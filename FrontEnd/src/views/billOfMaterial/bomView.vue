@@ -30,14 +30,14 @@
         @change="onQuantityChange"
       />
     </p>
-    <el-button
+    <!--<el-button
       v-permission="['bom.print']"
       type="primary"
       plain
       icon="el-icon-printer"
       style="float: right;"
       @click="onPrint"
-    >Print</el-button>
+    >Print</el-button>-->
 
     <el-table
       :data="bom"

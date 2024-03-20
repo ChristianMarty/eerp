@@ -21,8 +21,8 @@ class userSettings
         "StockLabelPrinter": 1,
         "StockLabel": 1,
         "BomPrinter": 2,
-        "AssemblyReportPrinter": 2, 
-        "AssemblyReportTemplate": 3, 
+        "AssemblyUnitHistory": {"PrinterId": 2, "RendererId": 3},
+        "AssemblyUnit": {"PrinterId": 2, "RendererId": 12},
         "PartReceiptPrinter":2, 
         "PurchaseOrder": {"UoM": 29, "VAT": 1}}
     }

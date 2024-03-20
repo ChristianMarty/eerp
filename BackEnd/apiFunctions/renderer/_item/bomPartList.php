@@ -1,19 +1,20 @@
 <?php
 //*************************************************************************************************
-// FileName : bonPrint.php
-// FilePath : apiFunctions/print
+// FileName : bomPartList.php
+// FilePath : apiFunctions/renderer/_item
 // Author   : Christian Marty
 // Date		: 21.11.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
-global $api;
+require_once "_renderer.php";
+require_once __DIR__ . "/../../util/_barcodeParser.php";
+require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 require_once __DIR__ . "/../../util/escpos/autoload.php";
-use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
-use Mike42\Escpos\Printer;
+use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
+use \Mike42\Escpos\Printer;
 
 if($api->isPost())
 {
