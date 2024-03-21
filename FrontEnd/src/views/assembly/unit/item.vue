@@ -24,16 +24,16 @@
 
     <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
 
-    <el-divider />
-    <spam>
-      <el-select v-model="selectedRendererId" style="margin-left: 20px">
+    <p />
+    <span>
+      <el-select v-model="selectedRendererId">
         <el-option v-for="item in rendererList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
       </el-select>
       <el-select v-model="selectedPrinterId" style="margin-left: 20px">
         <el-option v-for="item in printerList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
       </el-select>
       <el-button type="primary" style="margin-left: 20px" @click="print()">Print</el-button>
-    </spam>
+    </span>
     <el-divider />
 
     <h2>History</h2>

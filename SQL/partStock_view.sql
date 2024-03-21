@@ -1,7 +1,6 @@
 SELECT 
 	supplier.Name AS SupplierName, 
 	supplierPart.SupplierPartNumber, 
-	partStock.OrderReference, 
 	partStock.StockNumber, 
 	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
 	manufacturer.Id AS ManufacturerId, 
@@ -12,7 +11,6 @@ SELECT
 	-- location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId,
 	hc.CreateQuantity,  
 	h.HistoryQuantity AS Quantity, 
-	r.ReservedQuantity AS ReservedQuantity, 
 	h.LastCountDate AS LastCountDate, 
 	hc.CreateData
 FROM partStock
@@ -28,7 +26,6 @@ LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPa
 LEFT JOIN (SELECT Id, vendor_displayName(Id) as Name FROM vendor)manufacturer ON manufacturer.Id <=> manufacturerPart_series.VendorId OR manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId
 LEFT JOIN (SELECT Id, vendor_displayName(Id) as Name FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
 
-LEFT JOIN (SELECT SUM(Quantity) AS ReservedQuantity, StockId FROM partStock_reservation GROUP BY StockId)r ON r.StockId = partStock.Id
 LEFT JOIN (SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create')hc ON  hc.StockId = partStock.Id
 
 LEFT JOIN (

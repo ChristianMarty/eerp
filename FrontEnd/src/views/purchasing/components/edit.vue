@@ -202,6 +202,7 @@ import Finance from '@/api/finance'
 const finance = new Finance()
 
 import * as defaultSetting from '@/utils/defaultSetting'
+
 const emptyAdditionalChargesLine = {
   AdditionalChargesLineId: 0,
   LineNumber: 0,
@@ -231,7 +232,7 @@ export default {
 
       editOrderLineId: 0,
       allExpectedDate: null,
-      allVatId: 0,
+      allVatId: Number(defaultSetting.defaultSetting().PurchaseOrder.VAT),
       additionalChargesLine: {},
 
       additionalChargesDialogVisible: false,
@@ -301,7 +302,12 @@ export default {
       this.saveLines()
     },
     setVat(vatId) {
-      this.poData.Lines.forEach(element => { element.VatTaxId = vatId })
+      console.log(vatId)
+      console.log(this.poData.Lines)
+      const vatValue = this.vat.find(x => x.Id === vatId)
+      console.log(vatValue)
+      this.poData.Lines.forEach(element => { element.VatTaxId = vatId; element.VatValue = vatValue.Value })
+      console.log(this.poData.Lines)
       this.saveLines()
     },
     showSuccessMessage(message) {
