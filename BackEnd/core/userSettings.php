@@ -23,6 +23,7 @@ class userSettings
         "BomPrinter": 2,
         "AssemblyUnitHistory": {"PrinterId": 2, "RendererId": 3},
         "AssemblyUnit": {"PrinterId": 2, "RendererId": 12},
+        "LocationInventoryList": {"PrinterId": 2, "RendererId": 17},
         "PartReceiptPrinter":2, 
         "PurchaseOrder": {"UoM": 29, "VAT": 1}}
     }

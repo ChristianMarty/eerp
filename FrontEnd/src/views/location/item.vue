@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ itemList.Name }}  - {{ LocationBarcode }}</h1>
+    <h1>{{ itemList.Name }}  - {{ itemList.ItemCode }}</h1>
     <el-divider />
 
     <p><b>Name:</b> {{ itemList.Name }}</p>
@@ -10,22 +10,28 @@
     <p><b>Virtual:</b> {{ itemList.Virtual }}</p>
     <p><b>ESD:</b> {{ itemList.ESD }}</p>
 
-    <template v-if="checkPermission(['location.edit'])">
-      <el-button
-        size="mini"
-        type="primary"
-        icon="el-icon-edit"
-        circle
-        style="margin-top: 00px; margin-bottom: 00px"
-        @click="showEditDialog()"
-      />
-    </template>
-
+    <el-button
+      v-permission="['location.edit']"
+      size="mini"
+      type="primary"
+      icon="el-icon-edit"
+      circle
+      style="margin-top: 00px; margin-bottom: 00px"
+      @click="showEditDialog()"
+    />
     <el-divider />
-    <h2>Display</h2>
+
+    <h2>Location</h2>
     <p><b>Name:</b> {{ itemList.DisplayName }}</p>
     <p><b>Location:</b> {{ itemList.DisplayLocation }}</p>
     <p><b>Path:</b> {{ itemList.DisplayPath }}</p>
+
+    <el-button
+      v-permission="['location.transfer']"
+      type="primary"
+      @click="locationTransferDialogVisible = true"
+    >Location Transfer
+    </el-button>
     <el-divider />
 
     <h2>Relationships</h2>
@@ -62,6 +68,15 @@
 
     <h2>Items</h2>
     <p>{{ itemList.Items.length }} Items Found</p>
+
+    <el-select v-model="selectedRendererId">
+      <el-option v-for="item in rendererList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+    </el-select>
+    <el-select v-model="selectedPrinterId" style="margin-left: 20px">
+      <el-option v-for="item in printerList" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+    </el-select>
+    <el-button type="primary" style="margin-left: 20px" @click="print()">Print</el-button>
+    <p />
     <el-table
       v-loading="loading"
       element-loading-text="Loading location data"
@@ -84,32 +99,61 @@
       @change="update()"
     />
 
+    <locationTransferDialog
+      :barcode="itemList.ItemCode"
+      :visible.sync="locationTransferDialogVisible"
+      @change="getLocationItems()"
+    />
+
   </div>
 </template>
 
 <script>
 import checkPermission from '@/utils/permission'
-
+import * as defaultSetting from '@/utils/defaultSetting'
 import editDialog from './components/editDialog'
 
 import Location from '@/api/location'
 const location = new Location()
 
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
+
+import Print from '@/api/print'
+const print = new Print()
+
+import Peripheral from '@/api/peripheral'
+const peripheral = new Peripheral()
+
+import locationTransferDialog from '@/components/Location/locationTransferDialog'
+
 export default {
   name: 'LocationItem',
-  components: { editDialog },
+  components: { editDialog, locationTransferDialog },
   data() {
     return {
       loading: true,
       itemList: [],
       LocationBarcode: '',
-      editDialogVisible: false
+      editDialogVisible: false,
+      locationTransferDialogVisible: false,
+
+      printerList: [],
+      selectedPrinterId: 0,
+
+      rendererList: [],
+      selectedRendererId: 0
     }
   },
-  mounted() {
+  async mounted() {
     this.LocationBarcode = this.$route.params.LocationBarcode
     this.getLocationItems()
     this.setTitle()
+    this.printerList = await peripheral.list(peripheral.Type.Printer)
+    this.rendererList = await renderer.list(true, renderer.Dataset.LocationInventoryList)
+
+    this.selectedPrinterId = defaultSetting.defaultSetting().LocationInventoryList.PrinterId
+    this.selectedRendererId = defaultSetting.defaultSetting().LocationInventoryList.RendererId
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -146,6 +190,17 @@ export default {
     },
     showEditDialog() {
       this.editDialogVisible = true
+    },
+    print() {
+      print.print(this.selectedRendererId, this.selectedPrinterId, [this.$route.params.LocationBarcode]).then(response => {
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
     }
   }
 }
