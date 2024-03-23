@@ -131,10 +131,10 @@ else if($api->isPatch())
     if($vendorId === 0) $api->returnParameterError("VendorId");
 
 	$insertData = array();
-    $insertData['FullName']  = $data->FullName!==null ? trim($data->FullName):null;
-    $insertData['ShortName']  = $data->ShortName!==null ? trim($data->ShortName):null;
-    $insertData['AbbreviatedName']  = $data->AbbreviatedName!==null ? trim($data->AbbreviatedName):null;
-    $insertData['CustomerNumber']  = $data->CustomerNumber!==null ? trim($data->CustomerNumber):null;
+    $insertData['FullName']  = $data->FullName!==null&&strlen($data->FullName) !== 0 ? trim($data->FullName):null;
+    $insertData['ShortName']  = $data->ShortName!==null&&strlen($data->ShortName) !== 0 ? trim($data->ShortName):null;
+    $insertData['AbbreviatedName']  = $data->AbbreviatedName!==null&&strlen($data->AbbreviatedName) !== 0 ? trim($data->AbbreviatedName):null;
+    $insertData['CustomerNumber']  = $data->CustomerNumber!==null&&strlen($data->CustomerNumber) !== 0 ? trim($data->CustomerNumber):null;
 
     $insertData['IsSupplier'] = $data->IsSupplier;
     $insertData['IsManufacturer'] = $data->IsManufacturer;

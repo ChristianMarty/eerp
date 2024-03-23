@@ -16,6 +16,7 @@ class vendor
     static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor, bool $isCarrier, bool $isCustomer): int
     {
         global $database;
+        global $user;
 
         $insertData = [];
         $insertData['FullName'] = $fullName;
@@ -24,6 +25,7 @@ class vendor
         $insertData['IsContractor'] = $isContractor;
         $insertData['IsCarrier'] = $isCarrier;
         $insertData['IsCustomer'] = $isCustomer;
+        $insertData['CreationUserId'] = $user->userId();
 
         try {
             return $database->insert("vendor", $insertData);

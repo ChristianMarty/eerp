@@ -14,10 +14,10 @@
         </el-form-item>
 
         <el-form-item v-if="data.Type == 'Remove'" label="Work Order:">
-          <el-select v-model="data.WorkOrderNumber" filterable>
+          <el-select v-model="data.WorkOrderCode" filterable>
             <el-option
               v-for="wo in workOrders"
-              :key="wo.WorkOrderNumber"
+              :key="wo.ItemCode"
               :label="wo.ItemCode + ' - ' + wo.Name"
               :value="wo.ItemCode"
             />
