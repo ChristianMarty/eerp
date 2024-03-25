@@ -25,7 +25,7 @@ const stockRouter = {
       path: 'create',
       component: () => import('@/views/stock/create'),
       name: 'create',
-      meta: { title: 'Create', icon: 'edit', roles: ['stock.create'] }
+      meta: { title: 'Create', icon: 'el-icon-plus', roles: ['stock.create'] }
     },
     {
       path: 'bulkRemove',

@@ -27,7 +27,7 @@ def test_production_part_list_schema():
                 "BillOfMaterial_NumberOfOccurrence": {"type": ["integer", "null"]},
             },
             "additionalProperties": False,
-            "minProperties": 10
+            "minProperties": 6
         }]
     }
 

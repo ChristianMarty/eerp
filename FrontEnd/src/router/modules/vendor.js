@@ -21,7 +21,7 @@ const vendorRouter = {
       component: () => import('@/views/vendor/create'),
       name: 'vendorCreate',
       meta: {
-        title: 'Create', icon: 'edit', roles: ['vendor.create']
+        title: 'Create', icon: 'el-icon-plus', roles: ['vendor.create']
       }
     },
     {

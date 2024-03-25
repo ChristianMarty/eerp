@@ -25,7 +25,7 @@ const inventoryRouter = {
       path: 'inventoryCreate/:invNo(.*)',
       component: () => import('@/views/inventory/inventoryCreate'),
       name: 'inventoryCreate',
-      meta: { title: 'Create ', noCache: true, icon: 'component' },
+      meta: { title: 'Create ', noCache: true, icon: 'el-icon-plus' },
       hidden: true
     },
     {

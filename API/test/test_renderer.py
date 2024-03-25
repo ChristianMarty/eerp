@@ -24,10 +24,12 @@ def test_renderer_list_schema():
                 "Description": {"type": "string"},
                 "Render": {"type": "string"},
                 "Language": {"type": "string"},
-                "Tag": {"type": "string"}
+                "Code": {"type": "string"},
+                "MediumName": {"type": "string"},
+                "DatasetName": {"type": "string"}
             },
             "additionalProperties": False,
-            "minProperties": 6
+            "minProperties": 8
         }]
     }
 

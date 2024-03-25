@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>{{ testSystemData.TestSystemBarcode }} - {{ testSystemData.Name }}</h1>
+    <h1>{{ testSystemData.ItemCode }} - {{ testSystemData.Name }}</h1>
     <p><b>Description: </b>{{ testSystemData.Description }}</p>
 
     <p><b>Test Date: </b><el-date-picker
@@ -16,15 +16,15 @@
     <h2>Equipment List</h2>
     <template>
       <el-table :data="testSystemData.Item" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
-        <el-table-column prop="InventoryNumber" label="Inventory No" width="140" sortable>
+        <el-table-column prop="InventoryCode" label="Inventory No" width="140" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/inventory/inventoryView/' + row.InventoryBarcode" class="link-type">
-              <span> {{ row.InventoryBarcode }}</span>
+            <router-link :to="'/inventory/inventoryView/' + row.InventoryCode" class="link-type">
+              <span> {{ row.InventoryCode }}</span>
             </router-link>
           </template>
         </el-table-column>
         <el-table-column label="Title" prop="Title" sortable />
-        <el-table-column label="Manufacturer" prop="Manufacturer" sortable />
+        <el-table-column label="Manufacturer" prop="ManufacturerName" sortable />
         <el-table-column label="Type" prop="Type" sortable />
         <el-table-column label="SerialNumber" prop="SerialNumber" sortable />
         <el-table-column label="Usage" prop="Usage" sortable />

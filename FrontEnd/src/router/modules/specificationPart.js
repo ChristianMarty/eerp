@@ -18,7 +18,7 @@ const specificationPartRouter = {
       path: 'create/',
       component: () => import('@/views/specificationPart/create'),
       name: 'create',
-      meta: { title: 'Create', icon: 'edit', roles: ['specificationPart.create'] }
+      meta: { title: 'Create', icon: 'el-icon-plus', roles: ['specificationPart.create'] }
     },
     {
       path: 'item/:SpecificationPartBarcode(.*)',

@@ -22,27 +22,37 @@ if($api->isGet())
     $testSystemNumber = barcodeParser_TestSystemNumber($parameter->TestSystemNumber);
     if($testSystemNumber == null) $api->returnParameterError("TestSystemNumber");
 
-	$testDate = null;
+	$testDate = date("Y-m-d");
 	if(isset($parameter->TestDate)) $testDate = $database->escape($parameter->TestDate);
 
     $query = <<<STR
         SELECT 
-            * 
+            Id,
+            TestSystemNumber,
+            Name,
+            Description
         FROM testSystem
         WHERE TestSystemNumber = '$testSystemNumber' 
         LIMIT 1
     STR;
 
-    $output = $database->query($query)[0];
+    $output = $database->query($query);
 
-	$output->TestSystemBarcode = barcodeFormatter_TestSystemNumber($output->TestSystemNumber);
+    if(count($output) == 0){
+        $api->returnError("Item not found");
+    }
+    $output = $output[0];
 
+	$output->ItemCode = barcodeFormatter_TestSystemNumber($output->TestSystemNumber);
+    $output->TestSystemNumber = intval($output->TestSystemNumber);
     $testSystemId = $output->Id;
+    unset($output->Id);
+
     $query = <<<STR
         SELECT 
             InventoryNumber, 
             inventory.Title, 
-            inventory.Manufacturer, 
+            inventory.Manufacturer AS ManufacturerName, 
             inventory.SerialNumber, 
             inventory.Type, 
             testSystem_item.Usage, 
@@ -62,7 +72,8 @@ if($api->isGet())
     $output->Item = array();
 	foreach ($result as $r)
 	{
-        $r->InventoryBarcode = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+        $r->InventoryCode = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+        $r->InventoryNumber = intval($r->InventoryNumber);
 
 		if($r->CalibrationRequired == 0)
 		{

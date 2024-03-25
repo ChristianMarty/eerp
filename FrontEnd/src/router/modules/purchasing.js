@@ -10,27 +10,21 @@ const purchasingRouter = {
   children: [
     {
       path: '',
-      component: () => import('@/views/purchasing/browser'),
-      name: 'purchaseBrowser',
-      meta: { title: 'PO Search', icon: 'search' }
+      component: () => import('@/views/purchasing/list'),
+      name: 'purchaseOrderList',
+      meta: { title: 'Order List', icon: 'search', roles: ['purchasing.view'] }
     },
     {
       path: 'create/',
       component: () => import('@/views/purchasing/create'),
       name: 'createPurchaseOrder',
-      meta: { title: 'Create', icon: 'edit', roles: ['purchasing.create'] }
-    },
-    {
-      path: 'orderRequest/',
-      component: () => import('@/views/purchasing/orderRequest'),
-      name: 'orderRequest',
-      meta: { title: 'Order Request', icon: 'list' }
+      meta: { title: 'Create Order', icon: 'el-icon-plus', roles: ['purchasing.create'] }
     },
     {
       path: 'edit/:PurchaseOrderNumber(.*)',
       component: () => import('@/views/purchasing/item'),
       name: 'editPurchaseOrder',
-      meta: { title: 'Edit PO', icon: 'el-icon-sold-out' },
+      meta: { title: 'Edit Order', icon: 'el-icon-sold-out', roles: ['purchasing.view'] },
       hidden: true
     }
   ]

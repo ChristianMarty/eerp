@@ -21,7 +21,7 @@ const metrologyRouter = {
       component: () => import('@/views/metrology/create'),
       name: 'metrologyCreate',
       meta: {
-        title: 'Create', icon: 'edit', roles: ['metrology.create']
+        title: 'Create', icon: 'el-icon-plus', roles: ['metrology.create']
       }
     },
     {

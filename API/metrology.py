@@ -13,3 +13,7 @@ class Metrology(object):
     def list(self):
         data = self._eerp.get('metrology')
         return data
+
+    def item(self, test_system_code: str | int, test_date: str | None = None):
+        data = self._eerp.get('metrology/item', {"TestSystemNumber": test_system_code, "TestDate": test_date})
+        return data
