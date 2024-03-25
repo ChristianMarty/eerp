@@ -96,7 +96,7 @@ if($api->isGet()) {
     if($output->ManufacturerPartItemId !== null) $part->ManufacturerPartItemId = intval($output->ManufacturerPartItemId);
     else $part->ManufacturerPartItemId = null;
     unset($output->ManufacturerPartItemId);
-    if($output->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($output->ManufacturerPartItemId);
+    if($output->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($output->SpecificationPartRevisionId);
     else $part->SpecificationPartRevisionId = null;
     unset($output->SpecificationPartRevisionId);
     $output->Part = $part;
