@@ -101,7 +101,7 @@ export default {
     },
     onSubmit() {
       inventory.create(this.postForm).then(response => {
-        this.$router.push('/inventory/inventoryView/' + response.InventoryBarcode)
+        this.$router.push('/inventory/item/' + response.ItemCode)
       }).catch(response => {
         this.$message({
           showClose: true,

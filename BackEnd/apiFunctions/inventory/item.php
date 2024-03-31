@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../location/_location.php";
 require_once __DIR__ . "/../util/_getDocuments.php";
@@ -241,6 +242,7 @@ else if($api->isPost())
 	$sqlData['SerialNumber'] = $data->SerialNumber;
 	$sqlData['LocationId']['raw'] = "(SELECT Id FROM location WHERE LocationNumber = ".$database->escape($data->LocationNumber).")";
 	$sqlData['InventoryCategoryId'] = intval($data->CategoryId);
+    $sqlData['CreationUserId'] = $user->userId();
 
 	$Id = $database->insert("inventory", $sqlData);
 
@@ -248,7 +250,7 @@ else if($api->isPost())
 
 	$output = [];
 	$output['InventoryNumber'] = $database->query($query)[0]->InventoryNumber;
-	$output['InventoryBarcode'] = barcodeFormatter_InventoryNumber($output['InventoryNumber']);
+	$output['ItemCode'] = barcodeFormatter_InventoryNumber($output['InventoryNumber']);
 
 	$api->returnData($output);
 }
