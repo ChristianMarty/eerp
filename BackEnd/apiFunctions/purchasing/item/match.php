@@ -102,7 +102,7 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
         $userId = $user->userId();
         $query = <<<STR
             INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number, CreationUserId)  
-            VALUES ('$manufacturerId', $manufacturerPartNumber, $userId)
+            VALUES ('$manufacturerId', $manufacturerPartNumber, '$userId')
         STR;
         $database->execute($query);
 
@@ -111,7 +111,7 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
 
     $query = <<<STR
         INSERT IGNORE INTO supplierPart (VendorId, SupplierPartNumber, ManufacturerPartNumberId, CreationUserId)  
-        VALUES ( '$supplierId', $supplierPartNumber, '$partNumberId', $userId)
+        VALUES ( '$supplierId', $supplierPartNumber, '$partNumberId', '$userId')
     STR;
     $database->execute($query);
 

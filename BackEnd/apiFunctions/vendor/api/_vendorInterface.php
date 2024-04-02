@@ -29,14 +29,32 @@ class vendorInterface
     {
         $output = array();
         $output['Authentication']= array();
+        
+        $this->authenticated =  $this->isAuthenticated();
+
+        if($this->authenticated){
+            $output['Authentication']['AuthenticationUrl'] = '';
+        }else{
+            $output['Authentication']['AuthenticationUrl'] = $this->authenticate();
+        }
+        
         $output['Authentication']['Authenticated'] = $this->authenticated;
-        $output['Authentication']['AuthenticationUrl'] = '';
 
         $output['Capability']= array();
         $output['Capability']['OrderImportSupported'] = $this->orderImportSupported;
         $output['Capability']['OrderUploadSupported'] = $this->orderUploadSupported;
         $output['Capability']['SkuSearchSupported'] = $this->skuSearchSupported;
         return $output;
+    }
+    
+    public function isAuthenticated(): bool
+    {
+        $this->authenticated;
+    }
+    
+    public function authenticate(): string|null
+    {
+        return '';
     }
 
     public function defaultApiData(): array

@@ -79,7 +79,7 @@ export default {
           break
         case 'Stock': this.$router.push('/stock/item/' + item.RedirectCode)
           break
-        case 'Inventory': this.$router.push('/Inventory/inventoryView/' + item.RedirectCode)
+        case 'Inventory': this.$router.push('/inventory/item/' + item.RedirectCode)
           break
         case 'PurchaseOrder': this.$router.push('/purchasing/edit/' + item.RedirectCode)
           break

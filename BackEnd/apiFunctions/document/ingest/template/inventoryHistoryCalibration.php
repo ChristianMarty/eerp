@@ -20,11 +20,6 @@ if($api->isPost())
 {
     $data = $api->getPostData();
 
-    $date = $database->escape($data->Date);
-    $description = $database->escape($data->Description);
-    $nextDate = $database->escape($data->NextDate);
-    $fileName = $database->escape($data->FileName);
-
     $invNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
     if($invNumber == 0) $api->returnParameterError("InventoryNumber");
 
@@ -35,17 +30,17 @@ if($api->isPost())
 
     if(!isset($inv->InventoryNumber)) $api->returnError("Inventory number not found");
 
-    $name = $inv->Manufacturer."_".$inv->Type."_".$inv->SerialNumber."_".$date;
+    $name = $inv->Manufacturer."_".$inv->Type."_".$inv->SerialNumber."_".$data->Date;
 	$name = str_replace(" ", "-",$name);
 	
 	$fileNameIllegalCharactersRegex = '/[ %:"*?<>|\\/]+/';
 	$name = preg_replace($fileNameIllegalCharactersRegex, '', $name);
 
     $ingestData = array();
-    $ingestData['FileName'] = $fileName;
+    $ingestData['FileName'] = $data->FileName;
     $ingestData['Name'] = $name;
     $ingestData['Type'] = 'Calibration';
-    $ingestData['Description'] = $description;
+    $ingestData['Description'] = $data->Description;
 
     $result = ingest($ingestData);
 
@@ -56,13 +51,15 @@ if($api->isPost())
 
     if (($key = array_search("", $docIds)) !== false) unset($docIds[$key]); // Remove empty string
 
-    $docIdStr = implode(",",$docIds);
-
     $invId = $inv['Id'];
+    $description = $database->escape($data->Description);
+    $docIdStr = implode(",",$docIds);
+    $date = $database->escape($data->Date);
+    $nextDate = $database->escape($data->NextDate);
     $userId = $user->userId();
     $query = <<<STR
         INSERT INTO inventory_history (InventoryId, Description, DocumentIds, Date, NextDate, Type, CreationUserId)
-        VALUES ($invId,'$description','$docIdStr','$date','$nextDate', 'Calibration', $userId); 
+        VALUES ($invId,$description,$docIdStr,$date,$nextDate, 'Calibration', $userId); 
     STR;
     $database->execute($query);
 

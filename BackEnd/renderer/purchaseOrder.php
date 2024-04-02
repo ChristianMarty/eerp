@@ -25,7 +25,7 @@ $poData = getPurchaseOrderData($_GET["PurchaseOrderNumber"]);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title><?php echo $poData["MetaData"]->PurchaseOrderBarcode." - ".$poData["MetaData"]->SupplierName; ?> </title>
+<title><?php echo $poData["MetaData"]->ItemCode." - ".$poData["MetaData"]->SupplierName; ?> </title>
 <link  media="print" />
  <link rel="stylesheet" href="../assets/documentTemplate_A4.css">
 </head>
@@ -185,7 +185,7 @@ $footer = \vendor\vendor::getAddress($addressId);
 
 $meta = new stdClass;
 
-$meta->PurchaseOrderBarcode = $poData["MetaData"]->PurchaseOrderBarcode;
+$meta->ItemCode = $poData["MetaData"]->ItemCode;
 
 $buyerName = $buyer->LastName;
 if(isset($buyer->FirstName))
@@ -304,7 +304,7 @@ function add_meta($meta): string
 	
 	$temp .= "<div style='grid-column: 1; grid-row: 1;'>";
 	$temp .= "<table class='header'>";
-	$temp .= "<tr><td class='header'><b>PO Number:</b></td><td class='header'>{$meta->PurchaseOrderBarcode}</td></tr>";
+	$temp .= "<tr><td class='header'><b>PO Number:</b></td><td class='header'>{$meta->ItemCode}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Date:</b></td><td class='header'>{$meta->date}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Payment Terms:</b></td><td class='header'>{$meta->paymentTerms}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Incoterms:</b></td><td class='header'>{$meta->incoterms}</td></tr>";
@@ -529,7 +529,7 @@ function add_page($metaData, $content): void
 	
 	echo "<div class='header'>";
 	echo "<div class='header_left'><h1 class='header'>Purchase Order</h1></div>";
-	echo "<div class='header_center'><h2 class='header_center'>{$metaData->PurchaseOrderBarcode}</h2>";
+	echo "<div class='header_center'><h2 class='header_center'>{$metaData->ItemCode}</h2>";
 	echo "<p class='header_center'>Page {$metaData->page->current} of {$metaData->page->total}</p></div>";
 	echo "<div class='header_right'><img class='header' src='{$assetsRootPath}/logo.png' alt='logo'></div>";
 	echo "</div>";

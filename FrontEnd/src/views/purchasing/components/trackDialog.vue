@@ -27,7 +27,7 @@
             </template>
             <template v-if="row.Type == 'Inventory'">
               <router-link
-                :to="'/inventory/inventoryView/' + row.Barcode"
+                :to="'/inventory/item/' + row.Barcode"
                 class="link-type"
               >
                 <span>{{ row.Barcode }} </span>

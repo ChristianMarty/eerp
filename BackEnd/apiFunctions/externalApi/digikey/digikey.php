@@ -10,55 +10,32 @@
 declare(strict_types=1);
 use vendorInterface\vendorInterface;
 
-require_once __DIR__ . "/../../../config.php";
-
 class digikey extends vendorInterface {
 
-    public function defaultApiData(): array
+    public function __construct(stdClass $apiData)
     {
-        global $domainRootPath;
-
-        $output = [];
-        $output["ApiPath"] = "";
-        $output["ClientId"] = "";
-        $output["ClientSecret"] = "";
-        $output["CallbackPath"] = $domainRootPath."/pushHandler/Digikey/oAuthCallback.php";
-
-        return $output;
+        parent::__construct($apiData);
+        $this->orderImportSupported = true;
+        $this->orderUploadSupported = false;
+        $this->skuSearchSupported = false;
+        $this->authenticated = $this->isAuthenticated();
+    }
+    
+    public function isAuthenticated(): bool
+    {
+        if(isset($_SESSION['digikeyAccessToken']) && isset($_SESSION['digikeyAccessTokenExpire']))
+        {
+            return!($_SESSION['digikeyAccessToken'] == null || $_SESSION['digikeyAccessTokenExpire'] <= time());
+        }
+        return false;
     }
 
-    public function information(): array
+    public function authenticate(): string|null
     {
-        $authentication = array();
-        if($this->isAuthenticated())
-        {
-            $authentication['Authenticated'] = true;
-            $authentication['AuthenticationUrl'] = '';
-        }
-        else
-        {
-            $authentication['Authenticated'] = false;
-            $authentication['AuthenticationUrl'] = $this->authenticate();
-        }
-
-        $data = array();
-        $data['Authentication'] = $authentication;
-
-        $capability = array();
-        $capability['OrderImportSupported'] = true;
-        $capability['SkuSearchSupported'] = true;
-
-        $data['Capability'] = $capability;
-
-        return $data ;
-    }
-
-    private function authenticate(): string|null
-    {
-        global $digikeyApiPath;
-        global $digikeyClientId;
-        global $digikeyClientSecret;
-        global $digikeyCallbackPath;
+        $digikeyApiPath = $this->apiData->ApiPath;
+        $digikeyClientId = $this->apiData->ClientId;
+        $digikeyClientSecret = $this->apiData->ClientSecret;
+        $digikeyCallbackPath = $this->apiData->CallbackPath;
 
         if(isset($_SESSION['digikeyAccessTokenExpire'])) $digikeyAccessTokenExpire = $_SESSION['digikeyAccessTokenExpire'];
         else $digikeyAccessTokenExpire = 0;
@@ -84,20 +61,11 @@ class digikey extends vendorInterface {
         return null;
     }
 
-    private function isAuthenticated(): bool
-    {
-        if(isset($_SESSION['digikeyAccessToken']) && isset($_SESSION['digikeyAccessTokenExpire']))
-        {
-            return!($_SESSION['digikeyAccessToken'] == null || $_SESSION['digikeyAccessTokenExpire'] <= time());
-        }
 
-        return false;
-    }
-
-    function getPartData(string $digikeyPartNumber): array|null
-    {
-        global $digikeyApiPath;
-        global $digikeyClientId;
+    public function getPartData(string $digikeyPartNumber): array|null
+    {   
+        $digikeyApiPath = $this->apiData->ApiPath;
+        $digikeyClientId = $this->apiData->ClientId;
 
         $url = $digikeyApiPath.'Search/v3/Products/'.$digikeyPartNumber;
         $curl = curl_init();
@@ -116,8 +84,8 @@ class digikey extends vendorInterface {
 
     public function getOrderHistory(): array|null
     {
-        global $digikeyApiPath;
-        global $digikeyClientId;
+        $digikeyApiPath = $this->apiData->ApiPath;
+        $digikeyClientId = $this->apiData->ClientId;
 
         $url = $digikeyApiPath.'OrderDetails/v3/History';
         $curl = curl_init();
@@ -152,12 +120,12 @@ class digikey extends vendorInterface {
         return $data;
     }
 
-    function getOrderInformation(string $salesOrderId): array
+    public function getOrderInformation(string $salesOrderId): array
     {
-        digikey_auth();
-
-        global $digikeyApiPath;
-        global $digikeyClientId;
+        $this->authenticate();
+        
+        $digikeyApiPath = $this->apiData->ApiPath;
+        $digikeyClientId = $this->apiData->ClientId;
         global $accountingCurrency;
 
         $salesOrderId = trim($salesOrderId, " \n\r");
@@ -183,7 +151,7 @@ class digikey extends vendorInterface {
         $data['ShippingPrice'] = 0;
         $data['MerchandisePrice'] = 0;
         $data['CurrencyCode'] = $digikeyData["Currency"];
-        $data['OrderDate'] = digikey_getOrderHistory()['Orders'][$salesOrderId]['OrderDate'];
+        $data['OrderDate'] = $this->getOrderHistory()['Orders'][$salesOrderId]['OrderDate'];
 
         $lineIndex = 1;
         $lines = array();
@@ -198,8 +166,7 @@ class digikey extends vendorInterface {
             $temp['Quantity'] = $line["Quantity"];
             $temp['Price'] = $line["UnitPrice"];
             $temp['TotalPrice'] = $line["TotalPrice"];
-            if($line["PoLineItemNumber"] == "") $temp['LineNumber'] = $lineIndex;
-            else $temp['LineNumber'] = $line["PoLineItemNumber"];
+            $temp['LineNumber'] = $lineIndex;
 
             $lineIndex++;
 

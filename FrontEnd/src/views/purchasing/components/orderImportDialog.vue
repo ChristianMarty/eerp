@@ -112,7 +112,7 @@ export default {
       })
     },
     importOrder() {
-      purchase.item.import.save(this.meat.PurchaseOrderBarcode, this.OrderNumber).then(response => {
+      purchase.item.import.save(this.meat.ItemCode, this.OrderNumber).then(response => {
         this.closeDialog()
       }).catch(response => {
         this.$message({

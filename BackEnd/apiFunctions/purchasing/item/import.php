@@ -48,16 +48,16 @@ else if($api->isPost())
 {
     $parameters = $api->getGetData();
 
-    if(!isset($parameters->PurchaseOrderNo)) $api->returnParameterMissingError("PurchaseOrderNo");
-    $purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNo);
-    if($purchaseOrderNo == null) $api->returnParameterError("PurchaseOrderNo");
+    if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
+    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    if($purchaseOrderNumber == null) $api->returnParameterError("PurchaseOrderNumber");
 
     if(!isset($parameters->OrderNumber)) $api->returnParameterMissingError("OrderNumber");
     $orderNumber = $parameters->OrderNumber;
 
     $data = $api->getPostData();
 
-    $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PurchaseOrderNumber = $purchaseOrderNo;";
+    $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PurchaseOrderNumber = $purchaseOrderNumber;";
     
     $result = $database->query($query)[0];
     
@@ -83,7 +83,7 @@ else if($api->isPost())
     $poData['PurchaseDate'] = $data['OrderDate'];
     $poData['CurrencyId']['raw'] = "(SELECT Id FROM finance_currency WHERE CurrencyCode = '".$data['CurrencyCode']."')";
     
-    $database->update("purchaseOrder", $poData, "PurchaseOrderNumber = ".$purchaseOrderNo);
+    $database->update("purchaseOrder", $poData, "PurchaseOrderNumber = ".$purchaseOrderNumber);
     
     foreach($data["Lines"] as $line) 
     {
@@ -105,6 +105,6 @@ else if($api->isPost())
         $database->insert("purchaseOrder_itemOrder", $sqlData);
     }
     $output = array();
-    $output["PurchaseOrderNo"] = $purchaseOrderNo;
+    $output["PurchaseOrderNumber"] = $purchaseOrderNumber;
     $api->returnData($output);
 }

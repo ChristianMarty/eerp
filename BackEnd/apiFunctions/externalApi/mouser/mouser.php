@@ -20,6 +20,11 @@ class mouser extends vendorInterface {
         $this->skuSearchSupported = false;
         $this->authenticated = true;
     }
+    
+    public function isAuthenticated(): bool
+    {
+        return true;
+    }
 
     function getPartData(string $mouserPartNumber): array|null
     {
