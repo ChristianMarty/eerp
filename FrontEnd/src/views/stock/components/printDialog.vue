@@ -7,7 +7,7 @@
       :before-close="closeDialog"
       @open="onOpen"
     >
-      <el-form label-width="150px">
+      <el-form label-width="200px">
         <el-form-item label="Manufacturer:">
           <el-input
             v-model="formData.ManufacturerName"
@@ -18,9 +18,9 @@
             v-model="formData.ManufacturerPartNumber"
           />
         </el-form-item>
-        <el-form-item label="Order Reference:">
+        <el-form-item label="Production Part Number:">
           <el-input
-            v-model="formData.OrderReference"
+            v-model="formData.ProductionPartNumber"
           />
         </el-form-item>
         <el-form-item label="Description:">
@@ -28,7 +28,7 @@
             v-model="formData.Description"
           />
         </el-form-item>
-        <el-form-item label="Stock No:">
+        <el-form-item label="Stock Number:">
           <el-input
             v-model="formData.StockNumber"
           />
@@ -52,7 +52,7 @@
 const printData = {
   ManufacturerName: '',
   ManufacturerPartNumber: '',
-  OrderReference: '',
+  ProductionPartNumber: '',
   Description: '',
   StockNumber: '',
   ItemCode: ''

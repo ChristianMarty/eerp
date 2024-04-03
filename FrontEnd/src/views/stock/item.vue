@@ -43,6 +43,9 @@
         </el-table-column>
         <el-table-column prop="Description" label="Description" sortable />
       </el-table>
+      <template v-if="partData.Purchase.ProductionPartNumber !== ''">
+        <p><b>Ordered as:</b> {{ partData.Purchase.ProductionPartNumber }}</p>
+      </template>
     </el-card>
 
     <el-card v-if="showItem">
@@ -343,10 +346,14 @@ export default {
     openPrintDialog() {
       this.printData.ManufacturerName = this.partData.Part.ManufacturerName
       this.printData.ManufacturerPartNumber = this.partData.Part.ManufacturerPartNumber
-      this.printData.OrderReference = this.partData.Purchase.OrderReference
+      this.printData.ProductionPartNumber = this.partData.Purchase.ProductionPartNumber
       this.printData.Description = this.partData.Description
       this.printData.StockNumber = this.partData.StockNumber
       this.printData.ItemCode = this.partData.ItemCode
+
+      if (this.printData.ProductionPartNumber === '') {
+        this.printData.ProductionPartNumber = this.partData.OrderReference
+      }
 
       if (this.productionPartData.length) {
         this.printData.OrderReference = this.productionPartData[0].ItemCode
@@ -375,7 +382,7 @@ export default {
         $StockId: printData.StockNumber,
         $Mfr: printData.ManufacturerName,
         $MPN: printData.ManufacturerPartNumber,
-        $PartNo: printData.OrderReference,
+        $PartNo: printData.ProductionPartNumber,
         $Description: printData.Description
       }
 

@@ -42,7 +42,10 @@ if($api->isGet())
 
     if($query == null) $api->returnError("This error should not happen!");
 
-    $api->returnData($database->query($query));
+    $result = $database->query($query);
+    if(count($result) === 0) $api->returnEmpty();
+
+    $api->returnData($result[0]);
 }
 else if($api->isPatch())
 {
@@ -82,5 +85,5 @@ else if($api->isPost())
 	
 	$query = "SELECT EditToken FROM inventory_history WHERE Id = $id;";
 
-    $api->returnData([$database->query($query)]);
+    $api->returnData($database->query($query)[0]);
 }

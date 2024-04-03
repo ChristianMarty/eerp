@@ -38,7 +38,7 @@
       <el-table-column prop="WorkOrderCode" label="Work Order" sortable width="300">
         <template slot-scope="{ row }">
           <router-link
-            :to="'/workOrder/workOrderView/' + row.WorkOrderCode"
+            :to="'/workOrder/item/' + row.WorkOrderCode"
             class="link-type"
           >
             <span>{{ row.WorkOrderCode }}</span>

@@ -231,6 +231,7 @@ class stock
                 finance_currency.CurrencyCode AS CurrencyCode, 
                 PurchaseDate,
                 OrderReference,
+                PartNo AS ProductionPartNumber,
                 Quantity,
                 purchaseOrder_itemOrder.Description AS Description,
                 VendorId AS SupplierId,
@@ -258,6 +259,7 @@ class stock
         $output->SupplierId = intval($output->SupplierId);
         $output->Quantity = floatval($output->Quantity);
         $output->OrderReference = $output->OrderReference ?? "";
+        $output->ProductionPartNumber = $output->ProductionPartNumber ?? "";
         $output->PurchaseDate = $output->PurchaseDate ?? "";
         $output->Description = $output->Description ?? "";
 

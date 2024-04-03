@@ -388,13 +388,13 @@ class Purchase {
           })
         })
       },
-      save(PurchaseOrderNumber , OrderNumber) {
+      save(PurchaseOrderNumber, OrderNumber) {
         return new Promise((resolve, reject) => {
           eerpApi({
             method: 'post',
             url: '/purchasing/item/import',
             params: {
-              PurchaseOrderNumber : PurchaseOrderNumber ,
+              PurchaseOrderNumber: PurchaseOrderNumber,
               OrderNumber: OrderNumber
             }
           }).then(response => {
