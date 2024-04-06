@@ -95,7 +95,7 @@ export default {
     }
   },
   mounted() {
-    print.label.search('InventoryLabel').then(response => {
+    renderer.list(true, renderer.Dataset.InventoryItem).then(response => {
       this.rendererList = response
       this.rendererSelected = this.rendererList[0]
     }).catch(response => {

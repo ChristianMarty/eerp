@@ -177,7 +177,6 @@
 <script>
 import permission from '@/directive/permission/index.js'
 
-import * as labelTemplate from '@/utils/labelTemplate'
 import * as defaultSetting from '@/utils/defaultSetting'
 
 import printDialog from './components/printDialog'
@@ -364,8 +363,8 @@ export default {
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
-        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+        this.selectedPrinterId = defaultSetting.defaultSetting().StockItem.PrinterId
+        this.selectedLabelId = defaultSetting.defaultSetting().StockItem.RendererId
         this.printer = response
       }).catch(response => {
         this.$message({

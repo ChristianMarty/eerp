@@ -18,13 +18,13 @@ class userSettings
     static private string $devModeSettings = <<< SETTINGS
     {	
         "Default": {
-        "StockLabelPrinter": 1,
-        "StockLabel": 1,
-        "BomPrinter": 2,
+        "StockItem": {"PrinterId": 3, "RendererId": 4},
+        "StockHistory": {"PrinterId": 2, "RendererId": 8},
         "AssemblyUnitHistory": {"PrinterId": 2, "RendererId": 3},
         "AssemblyUnit": {"PrinterId": 2, "RendererId": 12},
         "LocationInventoryList": {"PrinterId": 2, "RendererId": 17},
         "PartReceiptPrinter":2, 
+        "BomPrinter": 2,
         "PurchaseOrder": {"UoM": 29, "VAT": 1}}
     }
     SETTINGS;

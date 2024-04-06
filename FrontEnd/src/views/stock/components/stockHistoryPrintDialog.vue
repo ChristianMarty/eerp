@@ -6,12 +6,11 @@
       :before-close="closeDialog"
       @open="onOpen"
     >
-      <p>asdasdasads</p>
       <span slot="footer" class="dialog-footer">
-        <el-select v-model="selectedRendererId">
-          <el-option v-for="item in label" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
+        <el-select v-model="selectedRendererId" style="margin-right: 20px;">
+          <el-option v-for="item in renderer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
-        <el-select v-model="selectedPrinterId">
+        <el-select v-model="selectedPrinterId" style="margin-right: 20px;">
           <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
         </el-select>
         <el-button type="primary" @click="print">Print</el-button>
@@ -45,7 +44,7 @@ export default {
   data() {
     return {
       data: {},
-      label: null,
+      renderer: null,
       printer: {},
       selectedPrinterId: 0,
       selectedRendererId: 0
@@ -75,6 +74,7 @@ export default {
     },
     print() {
       print.print(this.selectedRendererId, this.selectedPrinterId, [this.$props.stockHistoryCode]).then(response => {
+        this.closeDialog()
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -86,8 +86,8 @@ export default {
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
-        this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
+        this.selectedPrinterId = defaultSetting.defaultSetting().StockHistory.PrinterId
+        this.selectedRendererId = defaultSetting.defaultSetting().StockHistory.RendererId
         this.printer = response
       }).catch(response => {
         this.$message({
@@ -100,7 +100,7 @@ export default {
     },
     getLabel() {
       renderer.list(true, renderer.Dataset.StockHistory).then(response => {
-        this.label = response
+        this.renderer = response
       }).catch(response => {
         this.$message({
           showClose: true,

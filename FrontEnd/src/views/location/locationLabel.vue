@@ -52,7 +52,7 @@
             v-for="item in rendererList"
             :key="item.Id"
             :label="item.Name"
-            :value="item"
+            :value="item.Id"
           />
         </el-select>
       </el-form>
@@ -93,7 +93,7 @@ export default {
     this.handleChange()
   },
   created() {
-    print.label.search('LocationLabel').then(response => {
+    renderer.list(true, renderer.Dataset.LocationItem).then(response => {
       this.rendererList = response
       this.rendererSelected = this.rendererList[0]
       this.handleChange()

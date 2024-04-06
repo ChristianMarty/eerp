@@ -89,6 +89,20 @@ class partHistoryBon extends \renderer\renderer
 
         foreach($stockHistoryItems as $item)
         {
+            $item->TypeDescription = "";
+            if($item->ChangeType == "Create"){
+                $item->TypeDescription = "Create";
+            }else if($item->ChangeType == 'Absolute') {
+                $item->TypeDescription = "Stocktaking";
+            }else if($item->ChangeType == 'Relative') {
+                if($item->Quantity > 0 ){
+                    $item->TypeDescription = "Add";
+                }else {
+                    $item->TypeDescription = "Remove";
+                    $item->Quantity = abs($item->Quantity);
+                }
+            }
+
             $itemCode = barcodeFormatter_StockHistoryNumber($item->StockNumber, $item->ChangeIndex);
 
             $printer -> selectPrintMode(Printer::MODE_FONT_B);
@@ -114,7 +128,7 @@ class partHistoryBon extends \renderer\renderer
             $printer -> feed(1);
 
             $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
-            $printer -> text('Quantity : ');
+            $printer -> text($item->TypeDescription.' Quantity : ');
             $printer -> selectPrintMode(Printer::MODE_FONT_A);
             $printer -> text(number_format($item->Quantity)."\n");
             $printer -> feed(1);

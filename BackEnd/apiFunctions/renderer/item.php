@@ -29,13 +29,8 @@ if($api->isGet("renderer.view"))
             Description,
             Render,
             Language,
-            Tag,
             Variables,
-            Code,
-            Hight,
-            Width,
-            Rotation,
-            Resolution
+            Code
         FROM renderer
     QUERY;
     $result = $database->query($query, $queryParameters, "LIMIT 1");
