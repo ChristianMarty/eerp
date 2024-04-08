@@ -56,7 +56,7 @@
             v-for="item in rendererList"
             :key="item.Id"
             :label="item.Name"
-            :value="item"
+            :value="item.Id"
           />
         </el-select>
 
@@ -77,9 +77,6 @@ const inventory = new Inventory()
 import Renderer from '@/api/renderer'
 const renderer = new Renderer()
 
-import Print from '@/api/print'
-const print = new Print()
-
 export default {
   name: 'InventoryView',
   components: {},
@@ -97,7 +94,7 @@ export default {
   mounted() {
     renderer.list(true, renderer.Dataset.InventoryItem).then(response => {
       this.rendererList = response
-      this.rendererSelected = this.rendererList[0]
+      this.rendererSelected = this.rendererList[0].Id
     }).catch(response => {
       this.showErrorMessage(response)
     })
@@ -108,7 +105,7 @@ export default {
   methods: {
     handleChange() {
       const numberList = this.itemList.map(element => element.ItemCode)
-      renderer.item(this.rendererSelected.Id).then(response => {
+      renderer.item(this.rendererSelected).then(response => {
         const printPath =
           process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + response.Code
 

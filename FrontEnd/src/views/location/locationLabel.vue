@@ -47,6 +47,7 @@
           v-model="rendererSelected"
           placeholder="Select Document"
           style="min-width: 200px; margin-left: 10px;"
+          @change="handleChange"
         >
           <el-option
             v-for="item in rendererList"
@@ -65,9 +66,6 @@
 </template>
 
 <script>
-
-import Print from '@/api/print'
-const print = new Print()
 
 import Renderer from '@/api/renderer'
 const renderer = new Renderer()
@@ -90,22 +88,20 @@ export default {
     }
   },
   mounted() {
-    this.handleChange()
   },
   created() {
     renderer.list(true, renderer.Dataset.LocationItem).then(response => {
       this.rendererList = response
-      this.rendererSelected = this.rendererList[0]
+      this.rendererSelected = this.rendererList[0].Id
       this.handleChange()
     }).catch(response => {
       this.showErrorMessage(response)
     })
   },
   methods: {
-
     handleChange() {
       const numberList = this.itemList.map(element => element.ItemCode)
-      renderer.item(this.rendererSelected.Id).then(response => {
+      renderer.item(this.rendererSelected).then(response => {
         const printPath =
           process.env.VUE_APP_BLUENOVA_BASE + '/renderer.php/' + response.Code
 
