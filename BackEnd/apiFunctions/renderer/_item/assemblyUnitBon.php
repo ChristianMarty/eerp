@@ -44,7 +44,7 @@ class assemblyUnitBon extends \renderer\renderer
                 assembly_unit.SerialNumber
             FROM assembly_unit
             LEFT JOIN assembly ON assembly.Id = assembly_unit.AssemblyId
-            WHERE assembly_unit.AssemblyUnitNumber IN (56756)
+            WHERE assembly_unit.AssemblyUnitNumber IN ($itemListString)
         STR;
         $assemblyItems = $database->query($query);
 

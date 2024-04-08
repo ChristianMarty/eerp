@@ -162,12 +162,14 @@ else if($api->isPost("stock.create"))
     }
 
 	$quantity = intval($data->Quantity);
-
-    $location = barcodeParser_LocationNumber($data->LocationCode ?? null);
-    if($location === null) {
+    
+    if($data->LocationCode == "") $data->LocationCode = null;
+    if($data->LocationCode === null) {
         global $defaultLocationBarcode;
-        $location = $defaultLocationBarcode;
+        $data->LocationCode = $defaultLocationBarcode;
     }
+    
+    $location = barcodeParser_LocationNumber($data->LocationCode ?? null);
 	
 	if(isset($data->ReceivalId))  // If part is created based on purchase receival id
 	{
