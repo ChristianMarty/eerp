@@ -76,11 +76,11 @@ if($api->isPost())
 
     $id = $database->insert("specificationPart", $sqlData);
     $query = <<< QUERY
-        SELECT Number FROM specificationPart WHERE Id = $id;
+        SELECT SpecificationPartNumber FROM specificationPart WHERE Id = $id;
     QUERY;
 
     $output = array();
-    $output['SpecificationPartNumber'] = $database->query($query)[0]->Number;
+    $output['SpecificationPartNumber'] = $database->query($query)[0]->SpecificationPartNumber;
     $output['ItemCode'] = barcodeFormatter_SpecificationPart($output['SpecificationPartNumber']);
     $api->returnData($output);
 }

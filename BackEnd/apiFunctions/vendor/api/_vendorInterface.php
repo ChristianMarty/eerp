@@ -49,7 +49,7 @@ class vendorInterface
     
     public function isAuthenticated(): bool
     {
-        $this->authenticated;
+        return $this->authenticated;
     }
     
     public function authenticate(): string|null
