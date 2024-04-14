@@ -84,7 +84,7 @@ export default {
   props: { meat: { type: Object, default: {}}, visible: { type: Boolean, default: false }},
   data() {
     return {
-      docUrl: process.env.VUE_APP_BLUENOVA_API + '/purchasing/item/upload?PurchaseOrderNo=' + this.meat.PurchaseOrderBarcode,
+      docUrl: process.env.VUE_APP_BLUENOVA_API + '/purchasing/item/upload?PurchaseOrderNo=' + this.meat.ItemCode,
       importData: {},
       OrderNumber: '',
       ApiInfo: {}
@@ -121,7 +121,7 @@ export default {
       this.$refs.upload.submit()
     },
     importOrder() {
-      purchase.item.import.upload(this.meat.PurchaseOrderBarcode, this.importData).then(response => {
+      purchase.item.import.upload(this.meat.ItemCode, this.importData).then(response => {
         this.closeDialog()
       }).catch(response => {
         this.$message({

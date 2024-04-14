@@ -1,4 +1,5 @@
 import eerpApi from '@/api/apiQuery'
+import ProductionPart from './productionPart'
 
 class ManufacturerPart {
   searchParameters = {
@@ -316,6 +317,26 @@ class ManufacturerPart {
           }
         })
       })
+    },
+    productionPart: {
+      saveMapping(ManufacturerPartNumberId, productionPart) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/part/manufacturerPart/partNumber/productionPart',
+            data: {
+              ManufacturerPartNumberId: ManufacturerPartNumberId,
+              ProductionPartList: productionPart
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
     }
   }
 }

@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 require_once __DIR__ . "/../_function.php";
 
@@ -61,13 +62,12 @@ else if($api->isPost())
     $vendorId = intval($data->VendorId);
     $partNumber = $data->PartNumber;//dbEscapeString($dbLink, $_GET["PartNumber"]);
 
-
     $partNumberCreate = array();
-    $partNumberCreate['VendorId'] = intval($data['VendorId']);
-    $partNumberCreate['PartNumber'] = trim($data['PartNumber']);
+    $partNumberCreate['VendorId'] = intval($data->VendorId);
+    $partNumberCreate['Number'] = trim($data->PartNumber);
+    $partNumberCreate['CreationUserId'] = $user->userId();
 
-    $manufacturerPartData = itemFromNumber($vendorId, $partNumber);
-
+    $manufacturerPartData = partNumberDataFromNumber($vendorId, $partNumber);
 
     if($manufacturerPartData !== null)
     {
@@ -78,9 +78,14 @@ else if($api->isPost())
         $api->returnData($output);
     }
 
+    $output = [];
+    $output["ManufacturerPartNumberId"] = $database->insert("manufacturerPart_partNumber", $partNumberCreate);
+
+
+
     //$partParameter = getParameter($dbLink, $manufacturerPartSeries['SeriesId']);
 
     //$manufacturerPartSeries['PartNumberDescription'] = descriptionFromNumber( $manufacturerPartSeries['NumberTemplate'],$partParameter,$partNumber);
 
-    $api->returnData($manufacturerPartSeries);
+    $api->returnData($output);
 }

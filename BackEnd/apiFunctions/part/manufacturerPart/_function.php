@@ -40,21 +40,22 @@ function seriesDataFromNumber(int $vendorId, string $partNumber) :array | null
     return null;
 }
 
-function partNumberDataFromNumber(int $vendorId, string $partNumber) :array | null
+function partNumberDataFromNumber(int $vendorId, string $partNumber) :stdClass | null
 {
     global $database;
     $partNumber = $database->escape(trim($partNumber));
     $query = <<<STR
         SELECT 
-               manufacturerPart_partNumber.Number,
-               manufacturerPart_partNumber.MarkingCode,
-               manufacturerPart_series.Id AS SeriesId,
-               manufacturerPart_item.Id AS ItemId,
-               manufacturerPart_item.Number AS NumberTemplate
+            manufacturerPart_partNumber.Id AS ManufacturerPartNumberId,
+            manufacturerPart_partNumber.Number,
+            manufacturerPart_partNumber.MarkingCode,
+            manufacturerPart_series.Id AS SeriesId,
+            manufacturerPart_item.Id AS ItemId,
+            manufacturerPart_item.Number AS NumberTemplate
         FROM manufacturerPart_partNumber
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-        WHERE (manufacturerPart_partNumber.VendorId = '$vendorId' OR manufacturerPart_item.VendorId = '$vendorId' OR manufacturerPart_series.VendorId = '$vendorId') AND manufacturerPart_partNumber.Number = $partNumber
+        WHERE (manufacturerPart_partNumber.VendorId <=> '$vendorId' OR manufacturerPart_item.VendorId <=> '$vendorId' OR manufacturerPart_series.VendorId = '$vendorId') AND manufacturerPart_partNumber.Number = $partNumber
     STR;
 
     $result = $database->query($query);
@@ -67,19 +68,20 @@ function partNumberDataFromNumber(int $vendorId, string $partNumber) :array | nu
     return $r;
 }
 
-function itemDataFromItemId($dbLink, int $itemId) :array | null
+function itemDataFromItemId(int|null $itemId) :stdClass | null
 {
+    if($itemId === null) return null;
+
+    global $database;
     $query = <<<STR
         SELECT * 
         FROM manufacturerPart_item
         WHERE manufacturerPart_item.Id = '$itemId'
     STR;
+    $result = $database->query($query);
+    if(count($result)== 0) return null;
 
-    $result = mysqli_query($dbLink,$query);
-
-    if(!$result) return null;
-
-    return  mysqli_fetch_assoc($result);
+    return $result[0];
 }
 
 function decodeNumberTemplateParameters($numberTemplate, $parameter) :array | null

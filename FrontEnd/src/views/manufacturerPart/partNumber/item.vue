@@ -22,6 +22,14 @@
     >
       <el-tab-pane label="Part">
         <h3>Production Parts</h3>
+        <template v-permission="['productionPart.edit']">
+          <el-button
+            type="primary"
+            icon="el-icon-plus"
+            circle
+            @click="showProductionPartDialog()"
+          />
+        </template>
         <el-table :data="productionPartData" style="width: 100%">
           <el-table-column prop="ItemCode" label="Part Number" sortable width="150">
             <template slot-scope="{ row }">
@@ -178,6 +186,12 @@
       </el-tab-pane>
     </el-tabs>
 
+    <productionPartDialog
+      :manufacturer-part-id="data.PartNumberId"
+      :visible.sync="productionPartDialogVisible"
+      @change="getProductionPart(data.PartNumberId)"
+    />
+
   </div>
 </template>
 
@@ -197,9 +211,11 @@ const purchase = new Purchase()
 import Stock from '@/api/stock'
 const stock = new Stock()
 
+import productionPartDialog from './components/productionPartDialog'
+
 export default {
   name: 'PartSeriesItem',
-
+  components: { productionPartDialog },
   data() {
     return {
       loading: true,
@@ -218,7 +234,9 @@ export default {
       availabilityDataRaw: null,
       availabilityAuthorizedOnly: true,
       availabilityBrokers: false,
-      flat: true
+      flat: true,
+
+      productionPartDialogVisible: false
     }
   },
   mounted() {
@@ -240,6 +258,9 @@ export default {
     },
     onTabChnage(TabPaneName) {
       console.log(TabPaneName)
+    },
+    showProductionPartDialog() {
+      this.productionPartDialogVisible = true
     },
     getManufacturerPartNumberItem() {
       manufacturerPart.PartNumber.get(this.$route.params.ManufacturerPartNumberId).then(response => {

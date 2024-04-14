@@ -162,7 +162,7 @@ class database
         $query = <<< QUERY
             INSERT $ignoreString INTO $tableName ($keys) VALUES ($values);
         QUERY;
-
+        
         try {
             $this->pdo->exec($query);
         }

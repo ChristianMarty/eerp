@@ -79,7 +79,7 @@ if($api->isGet())
     $vendorId = intval($parameters->VendorId);
     if($vendorId == 0) $api->returnParameterError('VendorId');
 
-    $partNumber = $database->escape($parameters->PartNumber);
+    $partNumber = $parameters->PartNumber;
 
     // Try to match manufacturer part series
     $manufacturerPartSeries = seriesDataFromNumber($vendorId, $partNumber);
@@ -101,7 +101,7 @@ if($api->isGet())
     // Try to match manufacturer part number
     $manufacturerPartNumberData = partNumberDataFromNumber($vendorId, $partNumber);
 
-    if($manufacturerPartNumberData == null)
+    if($manufacturerPartNumberData === null)
     {
         $output['PartNumberPreExisting'] = false;
         $output['PartNumberData'] = null;
@@ -113,7 +113,7 @@ if($api->isGet())
     {
         $output['PartNumberPreExisting'] = true;
         $output['PartNumberData'] = $manufacturerPartNumberData;
-        $output['ItemId'] = $manufacturerPartNumberData['ItemId'];
+        $output['ItemId'] = $manufacturerPartNumberData->ItemId;
         $output['ItemMatch'] = true;
         $output['ItemData'] = itemDataFromItemId($output['ItemId']);
     }

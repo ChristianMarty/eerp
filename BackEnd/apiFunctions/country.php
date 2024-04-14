@@ -14,12 +14,15 @@ global $api;
 if($api->isGet())
 {
     $query = <<< QUERY
-        SELECT 
+        SELECT
+            Id,
             PhonePrefix,
             Alpha2Code,
+            Alpha2Code AS CountryCode,
             Alpha3Code,
             NumericCode,
-            ShortName
+            ShortName,
+            ShortName AS Name
         FROM country
         ORDER BY ShortName ASC
     QUERY;

@@ -56,7 +56,7 @@
             <tr v-if="partSeriesData.PartNumberData != null">
               <th style="text-align: left; color:red;">This part number already exists:</th>
               <td>
-                <router-link :to="'/manufacturerPart/item/' + partSeriesData.PartNumberData.ItemId" class="link-type">
+                <router-link :to="'/manufacturerPart/partNumber/item/' + partSeriesData.PartNumberData.ManufacturerPartNumberId" class="link-type">
                   {{ partSeriesData.PartNumberData.Number }}
                 </router-link>
               </td>
@@ -141,7 +141,7 @@ export default {
     },
     onCreate() {
       manufacturerPart.PartNumber.create(this.vendorId, this.partNumber).then(response => {
-        // this.$router.push('/manufacturerPart/item/' + response['ManufacturerPartId'])
+        this.$router.push('/manufacturerPart/partNumber/item/' + response['ManufacturerPartNumberId'])
       }).catch(response => {
         this.$message({
           showClose: true,
