@@ -65,36 +65,7 @@
         </el-form-item>
         <el-divider />
         <p><b>Track</b></p>
-        <el-table
-          ref="itemTable"
-          :data="trackData"
-          border
-          style="width: 100%"
-          :header-cell-style="{ padding: '0', height: '20px' }"
-          :cell-style="{ padding: '0', height: '20px' }"
-        >
-          <el-table-column prop="Type" label="Type" width="120" sortable />
-
-          <el-table-column label="Reference" sortable>
-            <template slot-scope="{ row }">
-              <template v-if="row.Type == 'Part Stock'">
-                <router-link :to="'/stock/item/' + row.StockNo" class="link-type">
-                  <span>STK-{{ row.StockNo }}</span>
-                </router-link>
-                <span style="float: right;"> Original Quantity: {{ row.CreateQuantity }} </span>
-              </template>
-              <template v-if="row.Type == 'Inventory'">
-                <router-link
-                  :to="'/inventory/inventoryView/' + row.InvNo"
-                  class="link-type"
-                >
-                  <span>Inv-{{ row.InvNo }}</span>
-                </router-link>
-              </template>
-            </template>
-          </el-table-column>
-        </el-table>
-
+        <trackTable :data="trackData" />
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -128,6 +99,8 @@ const saveData = {
   LotNumber: ''
 }
 
+import trackTable from './trackTable.vue'
+
 import Stock from '@/api/stock'
 const stock = new Stock()
 
@@ -139,6 +112,7 @@ const purchase = new Purchase()
 
 export default {
   name: 'AddToStock',
+  components: { trackTable },
   props: { receivalData: { type: Object, default: receivedItemData }, visible: { type: Boolean, default: false }},
   data() {
     return {

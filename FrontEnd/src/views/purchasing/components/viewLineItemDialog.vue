@@ -43,37 +43,10 @@
       <el-descriptions title="Note:" />
       {{ line.Note }}
 
-      <el-descriptions title="Track:" />
       <p><b>Stock Part:</b> {{ line.StockPart }}</p>
-      <el-table
-        ref="itemTable"
-        :data="trackData"
-        border
-        style="width: 100%"
-        :cell-style="{ padding: '0', height: '30px' }"
-      >
-        <el-table-column prop="Type" label="Type" width="120" sortable />
-
-        <el-table-column label="Reference" sortable>
-          <template slot-scope="{ row }">
-            <template v-if="row.Type == 'Part Stock'">
-              <router-link :to="'/stock/item/' + row.Barcode" class="link-type">
-                <span>{{ row.Barcode }} </span>
-              </router-link>
-              <span style="float: right;"> Original Quantity: {{ row.CreateQuantity }} </span>
-            </template>
-            <template v-if="row.Type == 'Inventory'">
-              <router-link
-                :to="'/inventory/inventoryView/' + row.Barcode"
-                class="link-type"
-              >
-                <span>{{ row.Barcode }} </span>
-              </router-link>
-              <span style="float: right;"> {{ row.Description }} </span>
-            </template>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-descriptions title="Track:" />
+      <trackTable :data="trackData" />
+      <p><b>Stock Part:</b> {{ line.StockPart }}</p>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeDialog()">Close</el-button>
@@ -83,10 +56,14 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import trackTable from './trackTable.vue'
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 export default {
   name: 'ViewLineItemDialog',
+  components: { trackTable },
   props: {
     visible: { type: Boolean, default: false },
     line: { type: Object, default: null }
@@ -103,14 +80,15 @@ export default {
       this.getTrackData()
     },
     getTrackData() {
-      requestBN({
-        url: '/purchasing/item/track',
-        methood: 'get',
-        params: {
-          ReceivalId: this.$props.line.ReceivalId
-        }
-      }).then(response => {
-        this.trackData = response.data
+      purchase.item.track(this.$props.line.ReceivalId).then(response => {
+        this.trackData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     closeDialog() {

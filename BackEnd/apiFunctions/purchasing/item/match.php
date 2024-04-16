@@ -96,10 +96,10 @@ function supplierPart_create($supplierId, $supplierPartNumber, $manufacturerId, 
     global $user;
 
     $partNumberId = manufacturerPartNumberId($manufacturerId,$manufacturerPartNumber);
-
+    $userId = $user->userId();
+    
     if($partNumberId == NULL)
-    {
-        $userId = $user->userId();
+    {    
         $query = <<<STR
             INSERT IGNORE INTO manufacturerPart_partNumber (VendorId, Number, CreationUserId)  
             VALUES ('$manufacturerId', $manufacturerPartNumber, '$userId')

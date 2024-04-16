@@ -33,7 +33,7 @@ if($api->isGet())
     foreach($result as $r)
 	{
         $temp = array();
-        $temp['Barcode'] = barcodeFormatter_StockNumber($r->StockNumber);
+        $temp['ItemCode'] = barcodeFormatter_StockNumber($r->StockNumber);
         $temp['Type'] = "Part Stock";
         $temp['Description'] = null;
         $temp['CreateQuantity'] = $r->CreateQuantity;
@@ -51,7 +51,7 @@ if($api->isGet())
     foreach($result as $r)
     {
         $temp = array();
-        $temp['Barcode'] = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+        $temp['ItemCode'] = barcodeFormatter_InventoryNumber($r->InventoryNumber);
         $temp['Type'] = "Inventory";
         $temp['CreateQuantity'] = null;
         $temp['Description'] = $r->Title;

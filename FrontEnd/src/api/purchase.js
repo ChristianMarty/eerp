@@ -129,6 +129,12 @@ class Purchase {
         })
       })
     },
+    trackDataItem: {
+      ItemCode: '',
+      Type: '',
+      Description: '',
+      CreateQuantity: ''
+    },
     track(ReceivalId = null) {
       return new Promise((resolve, reject) => {
         eerpApi({

@@ -209,8 +209,8 @@ else if($api->isPost("stock.create"))
 else if($api->isDelete("stock.delete"))
 {
 	$data = $api->getPostData();
-    if(!isset($data->StockNumber)) $api->returnParameterMissingError("StockNumber");
-	$stockNumber = barcodeParser_StockNumber($data->StockNumber);
+    if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
+	$stockNumber = barcodeParser_StockNumber($data->StockCode);
 	if($stockNumber === false) $api->returnParameterError("StockNumber");
 
     $stockNumber = $database->escape($stockNumber);
