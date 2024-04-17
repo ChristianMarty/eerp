@@ -183,7 +183,7 @@
             <p>{{ line.Description }}</p>
             <p v-for="(doc, index2) in line.Documents" :key="index2">
               <a :href="doc.Path" target="blank">
-                <el-button icon="el-icon-document">{{ doc.Description }}</el-button>
+                <el-button icon="el-icon-document">{{ doc.Name }}</el-button>
               </a>
             </p>
             <p v-if="line.NextDate">Next {{ line.Type }}: {{ line.NextDate }}</p>
