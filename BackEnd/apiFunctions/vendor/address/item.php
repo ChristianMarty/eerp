@@ -46,10 +46,11 @@ else if($api->isPost())
     $data = $api->getPostData();
     if (!isset($data->VendorId)) $api->returnParameterMissingError("VendorId");
     $vendorId = intval($data->VendorId);
+    $countryNumericCode = intval($data->CountryNumericCode);
 
     $insertData = [];
     $insertData['VendorId'] = $vendorId;
-    $insertData['CountryId'] = intval($data->CountryId);
+    $insertData['CountryId']['raw'] = "(SELECT Id FROM country WHERE NumericCode = '$countryNumericCode')";
     $insertData['Street'] = $data->Street;
     $insertData['PostalCode'] = $data->PostalCode;
     $insertData['City'] = $data->City;
@@ -68,9 +69,10 @@ else if($api->isPatch())
     $data = $api->getPostData();
     if(!isset($data->AddressId))$api->returnParameterMissingError("AddressId");
     $addressId = intval($data->AddressId);
+    $countryNumericCode = intval($data->CountryNumericCode);
 
     $insertData = [];
-    $insertData['CountryId'] = intval($data->CountryId);
+    $insertData['CountryId']['raw'] = "(SELECT Id FROM country WHERE NumericCode = '$countryNumericCode')";
     $insertData['Street'] = $data->Street;
     $insertData['PostalCode'] = $data->PostalCode;
     $insertData['City'] = $data->City;

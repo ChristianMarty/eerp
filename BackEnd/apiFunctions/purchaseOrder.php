@@ -30,12 +30,10 @@ if($api->isGet())
 		    vendor.Id AS SupplierId, 
 		    purchaseOrder.AcknowledgementNumber, 
 		    purchaseOrder.OrderNumber, 
-		    -- finance_currency.CurrencyCode, 
-		    -- finance_currency.Id AS CurrencyId, 
-		    -- purchaseOrder.ExchangeRate, 
 		    purchaseOrder.QuotationNumber, 
 			SUM(purchaseOrder_itemOrder.Quantity) AS TotalQuantityOrdered, 
-			SUM(Received.TotalQuantityReceived) AS TotalQuantityReceived
+			SUM(Received.TotalQuantityReceived) AS TotalQuantityReceived,
+			MAX(purchaseOrder_itemOrder.ExpectedReceiptDate) AS ExpectedCompletionDate
 		FROM purchaseOrder
 		LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
 		LEFT JOIN finance_currency ON finance_currency.Id = purchaseOrder.CurrencyId

@@ -50,6 +50,12 @@
             <span v-else>{{ row.Status }}</span>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="ExpectedCompletionDate"
+          label="Exp. Completion"
+          width="170"
+          sortable
+        />
       </el-table>
     </template>
   </div>

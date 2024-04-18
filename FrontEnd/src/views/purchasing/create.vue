@@ -62,7 +62,7 @@ export default {
   data() {
     return {
       formData: Object.assign({}, purchase.createParameters),
-      suppliers: null
+      suppliers: []
     }
   },
   async mounted() {

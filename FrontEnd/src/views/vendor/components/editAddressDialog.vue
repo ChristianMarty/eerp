@@ -19,12 +19,12 @@
           <el-input v-model="addressData.PostalCode" />
         </el-form-item>
         <el-form-item label="Country">
-          <el-select v-model="addressData.CountryId" placeholder="Country" filterable>
+          <el-select v-model="addressData.CountryNumericCode" placeholder="Country" filterable>
             <el-option
               v-for="item in countries"
-              :key="item.Id"
-              :label="item.CountryCode + ' - '+item.Name"
-              :value="item.Id"
+              :key="item.NumericCode"
+              :label="item.Alpha2Code + ' - '+item.ShortName"
+              :value="item.NumericCode"
             />
           </el-select>
         </el-form-item>
@@ -93,7 +93,7 @@ export default {
       const saveParameters = {
         AddressId: addressId,
         VendorId: this.$props.vendorId,
-        CountryId: this.addressData.CountryId,
+        CountryNumericCode: this.addressData.CountryNumericCode,
         PostalCode: this.addressData.PostalCode,
         City: this.addressData.City,
         Street: this.addressData.Street,

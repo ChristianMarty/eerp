@@ -201,7 +201,7 @@ class Vendor {
     saveParameters: {
       AddressId: null,
       VendorId: null,
-      CountryId: 0,
+      CountryNumericCode: 0,
       PostalCode: '',
       City: '',
       Street: '',
