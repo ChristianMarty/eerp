@@ -305,7 +305,7 @@ function add_meta($meta): string
 	$temp .= "<div style='grid-column: 1; grid-row: 1;'>";
 	$temp .= "<table class='header'>";
 	$temp .= "<tr><td class='header'><b>PO Number:</b></td><td class='header'>{$meta->ItemCode}</td></tr>";
-	$temp .= "<tr><td class='header'><b>Date:</b></td><td class='header'>{$meta->date}</td></tr>";
+	$temp .= "<tr><td class='header'><b>Order Date:</b></td><td class='header'>{$meta->date}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Payment Terms:</b></td><td class='header'>{$meta->paymentTerms}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Incoterms:</b></td><td class='header'>{$meta->incoterms}</td></tr>";
 	$temp .= "<tr><td class='header'><b>Carrier:</b></td><td class='header'>{$meta->carrier}</td></tr>";
@@ -379,7 +379,7 @@ function table_start(): string
     $temp .= "<th class='lines' style='white-space: nowrap;'>Description</th>";
     $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Qty</th>";
 	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Unit</th>";
-	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Date</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Est. Date</th>";
 	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >Unit Price</th>";
 	if($hasDiscount) $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >%</th>";
 	if($hasVat) $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >VAT</th>";
