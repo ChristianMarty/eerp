@@ -2,6 +2,9 @@
   <div class="app-container">
     <template>
       <el-table
+        v-loading="loading"
+        element-loading-text="Loading Part Classes ..."
+        element-loading-spinner="el-icon-loading"
         :data="classes"
         style="width: 100%;"
         :cell-style="{ padding: '0', height: '20px' }"
@@ -18,14 +21,16 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Part from '@/api/part'
+const part = new Part()
 
 export default {
   name: 'ClassBrowser',
   components: {},
   data() {
     return {
-      classes: null
+      classes: [],
+      loading: true
     }
   },
   mounted() {
@@ -33,11 +38,16 @@ export default {
   },
   methods: {
     getClasses() {
-      requestBN({
-        url: '/part/class',
-        methood: 'get'
-      }).then(response => {
-        this.classes = response.data
+      part.class.list(0, false, true).then(response => {
+        this.classes = response
+        this.loading = false
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

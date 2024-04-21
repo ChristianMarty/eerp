@@ -79,22 +79,23 @@ if($api->isGet())
         $temp = $database->escape($parameter->ManufacturerPartNumber);
 		$queryParam[] = "manufacturerPart_partNumber.Number LIKE $temp ";
 	}
-	
-	if(isset($parameter->ClassId))
-	{
-		$temp = intval($parameter->ClassId);
-		$query = "CALL manufacturerPart_class_getChildrenRecursive('$temp')";
+
+    if(isset($parameter->ClassId))
+    {
+        $temp = intval($parameter->ClassId);
+        $query = "CALL manufacturerPart_class_getChildrenRecursive('$temp')";
         $result = $database->query($query);
 
         $classIdList = "";
-		foreach ($result as $r)
-		{
-			$classIdList .= "'".$r->Id."',";
-		}
-		$classIdList = substr($classIdList, 0, -1);
+        foreach ($result as $r) {
+            $classIdList .= "'" . $r->Id . "',";
+        }
+        $classIdList = substr($classIdList, 0, -1);
 
-		$queryParam[] = "PartClassId IN(" . $classIdList . ")";
-	}
+        $queryParam[] = "PartClassId IN(" . $classIdList . ")";
+	}else{
+        $queryParam[] = "manufacturerPart_item.PartClassId IS NULL AND manufacturerPart_series.ClassId IS NULL";
+    }
 
 	$result = $database->query($baseQuery,$queryParam," GROUP BY manufacturerPart_item.Id ");
 	$rows = array();

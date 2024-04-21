@@ -17,6 +17,9 @@ function _formatDocumentOutput(array $result): array
     global $documentPath;
     foreach($result as $item) {
         $item->File = $item->Path;
+        if($item->Name === null){
+            $item->Name = $item->Path;
+        }
         $item->DocumentNumber = intval($item->DocumentNumber);
         $item->Path = $dataRootPath.$documentPath."/".$item->Type."/".$item->Path;
         $item->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);

@@ -16,14 +16,42 @@ if($api->isGet())
     $parameter = $api->getGetData();
 
 	$classId = 0;
-	if(isset($parameter->classId)) $classId = intval($parameter->classId);
+	if(isset($parameter->ClassId)) $classId = intval($parameter->ClassId);
 
-    $query = "SELECT * FROM manufacturerPart_class ORDER BY `Name` ASC";
-    $classes = $database->query($query);
+    $showHidden = false;
+    if(isset($parameter->ShowHidden)) $showHidden = boolval($parameter->ShowHidden);
 
-	$classTree = buildTree($classes,$classId);
+    $includeParent = false;
+    if(isset($parameter->IncludeParent)) $includeParent = boolval($parameter->IncludeParent);
 
-    $api->returnData($classTree);
+    $query = "SELECT * FROM manufacturerPart_class ";
+    $parameters = [];
+    if(!$showHidden){
+        $parameters[] = "Hidden = b'0'";
+    }
+
+    $classes = $database->query($query,$parameters,"ORDER BY `Name` ASC");
+
+    if($includeParent){
+        $class = [];
+        $output = [];
+        foreach ($classes as $r)
+        {
+            if(intval($r->Id) == intval($classId))
+            {
+                $output['Id'] = intval($r->Id);
+                $output['ParentId'] = intval($r->ParentId);
+                $output['Name'] = $r->Name;
+                //$output['PicturePath'] = $r['PicturePath'];
+            }
+            $class[] = $r;
+        }
+
+        $output['Children'] = buildTree($class,$classId);
+    }else{
+        $output = buildTree($classes,$classId);
+    }
+    $api->returnData($output);
 }
 
 function hasChild(array $rows,int $id): bool
@@ -36,28 +64,30 @@ function hasChild(array $rows,int $id): bool
 }
 
 function buildTree(array $rows, int $parentId): array
-{  
-	$treeItem = array();
-	foreach ($rows as $row)
-	{
-		if ($row->ParentId == $parentId)
-		{
-			$temp = array();
-			
-			$temp['Name'] = $row->Name;
-			$temp['Id'] = $row->Id;
-			if($row->NoParts == 0) $temp['NoParts'] = false;
-			else $temp['NoParts'] = true;
-			$temp['Prefix'] = $row->Prefix;
+{
+    global $assetsRootPath;
 
-			if (hasChild($rows,$row->Id))
-			{
-				$temp['Children'] = array();
-				$temp['Children'] =  buildTree($rows,$row->Id);
-			}
-			$treeItem[] = $temp;
-		}
-	}
-	
-	return $treeItem;
+    $treeItem = array();
+    foreach ($rows as $row)
+    {
+        if ($row->ParentId == $parentId)
+        {
+            $temp = array();
+
+            $temp['Name'] = $row->Name;
+            $temp['Id'] = $row->Id;
+            $temp['PicturePath'] = $assetsRootPath."/".$row->SymbolPath;
+            if($row->NoParts == 0) $temp['NoParts'] = false;
+            else $temp['NoParts'] = true;
+            $temp['Prefix'] = $row->Prefix;
+
+
+            if (hasChild($rows,$row->Id))
+            {
+                $temp['Children'] =  buildTree($rows,$row->Id);
+            }
+            $treeItem[] = $temp;
+        }
+    }
+    return $treeItem;
 }

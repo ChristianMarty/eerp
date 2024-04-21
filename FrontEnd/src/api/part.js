@@ -16,7 +16,6 @@ class Part {
       })
     })
   }
-
   searchSupplierPart(SupplierId = null, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
@@ -34,6 +33,28 @@ class Part {
         }
       })
     })
+  }
+
+  class = {
+    list(baseClassId, includeParent = false, showHidden = false) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/part/class',
+          methood: 'get',
+          params: {
+            ClassId: baseClassId,
+            ShowHidden: showHidden,
+            IncludeParent: includeParent
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
   }
 }
 export default Part

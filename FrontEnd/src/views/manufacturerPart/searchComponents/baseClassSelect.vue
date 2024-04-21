@@ -6,7 +6,7 @@
     class="base-class-search-container"
   >
     <el-card
-      v-for="item in data.Children"
+      v-for="item in data"
       :key="item.Id"
       shadow="hover"
       class="small-box"
@@ -20,33 +20,56 @@
         <span> {{ subItem.Name }} </span>
       </div>
     </el-card>
+    <el-card
+      shadow="hover"
+      class="small-box"
+      @click.native="onClassSelect(null)"
+    >
+      <div slot="header" class="clearfix">
+        <span class="headerClass">Undefined</span>
+      </div>
+      <div class="text item">
+        <span>Parts not assigned to a class</span>
+      </div>
+    </el-card>
   </div>
 </template>
 
+
 <script>
+import Part from '@/api/part'
+const part = new Part()
+
 export default {
   name: 'BaseClassSearchContainer',
-  props: { data: { type: Object, default: null }},
   data() {
     return {
-      loading: false
-    }
-  },
-  watch: {
-    '$props.data': {
-      // if(this.$props.data !== null)
-      handler(newVal) {
-        if (newVal !== null) this.loading = false
-      }
+      loading: true,
+      data: []
     }
   },
   created() {
   },
   mounted() {
+    this.getManufacturerPartClass()
   },
   methods: {
     onClassSelect(ClassId = 0) {
-      this.$emit('select', ClassId)
+      if (ClassId === 0) this.$router.push({ query: { }})
+      else this.$router.push({ query: { ClassId: String(ClassId) }})
+    },
+    getManufacturerPartClass() {
+      part.class.list(0).then(response => {
+        this.data = response
+        this.loading = false
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
     }
   }
 }

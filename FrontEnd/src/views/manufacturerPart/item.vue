@@ -17,7 +17,16 @@
       <el-tab-pane label="Stock">TBD Stock</el-tab-pane>
     </el-tabs>-->
 
-    <h3>Electrical Characteristics</h3>
+    <h3>Part Characteristics</h3>
+    <template v-permission="['manufacturerPart.edit']">
+      <el-button
+        type="primary"
+        icon="el-icon-edit"
+        circle
+        @click="showPartCharacteristicsDialog()"
+      />
+    </template>
+    <p><b>Class: </b>{{ partData.PartClassPath }}</p>
     <el-table
       :data="partData.Attribute"
       style="width: 100%"
@@ -47,13 +56,13 @@
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="ProductionPartBarcode" label="Production Part Number">
+      <el-table-column prop="ProductionPartItemCode" label="Production Part Number">
         <template slot-scope="{ row }">
           <router-link
-            :to="'/productionPart/item/' + row.ProductionPartBarcode"
+            :to="'/productionPart/item/' + row.ProductionPartItemCode"
             class="link-type"
           >
-            <span>{{ row.ProductionPartBarcode }}</span>
+            <span>{{ row.ProductionPartItemCode }}</span>
           </router-link>
         </template>
       </el-table-column>
@@ -68,6 +77,12 @@
     />
     <documentsList :documents="partData.Documents" />
 
+    <partCharacteristicsDialog
+      :part-id="partData.PartId"
+      :visible.sync="partCharacteristicsDialogVisible"
+      @change="getManufacturerPartItem()"
+    />
+
   </div>
 </template>
 
@@ -79,11 +94,14 @@ const manufacturerPart = new ManufacturerPart()
 import documentsList from '@/views/document/components/documentsList'
 import editDocumentsList from '@/views/document/components/editDocumentsList'
 
+import partCharacteristicsDialog from './components/partCharacteristicsDialog'
+
 export default {
   name: 'PartSeriesBrowser',
-  components: { documentsList, editDocumentsList },
+  components: { partCharacteristicsDialog, documentsList, editDocumentsList },
   data() {
     return {
+      partCharacteristicsDialogVisible: false,
       loading: true,
       partData: {}
     }
@@ -106,17 +124,27 @@ export default {
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = title
     },
+    showPartCharacteristicsDialog() {
+      this.partCharacteristicsDialogVisible = true
+    },
     getManufacturerPartItem() {
-      manufacturerPart.item(this.$route.params.ManufacturerPartItemId).then(response => {
+      manufacturerPart.item.get(this.$route.params.ManufacturerPartItemId).then(response => {
         // Add key needed for table rendering
         let key = 1
         response.PartNumberItem.forEach(element => {
           element.key = key
           key++
-          element.ProductionPart.forEach(element2 => {
-            element2.key = key
-            key++
-          })
+          if (element.ProductionPart.length > 1) {
+            element.ProductionPart.forEach(element2 => {
+              element2.key = key
+              key++
+            })
+          } else if (element.ProductionPart.length > 0) {
+            const part = element.ProductionPart[0]
+            element.ProductionPartItemCode = part.ProductionPartItemCode
+            element.ManufacturerPartNumberDescription = part.ManufacturerPartNumberDescription
+            element.ProductionPart = []
+          }
         })
 
         this.partData = response

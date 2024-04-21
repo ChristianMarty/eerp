@@ -53,22 +53,61 @@ class ManufacturerPart {
     }
   }
 
-  item(ManufacturerPartItemId) {
-    return new Promise((resolve, reject) => {
-      eerpApi({
-        method: 'get',
-        url: '/part/manufacturerPart/item',
-        params: {
-          ManufacturerPartItemId: ManufacturerPartItemId
-        }
-      }).then(response => {
-        if (response.error == null) {
-          resolve(response.data)
-        } else {
-          reject(response.error)
-        }
+  item = {
+    get(ManufacturerPartItemId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/part/manufacturerPart/item',
+          params: {
+            ManufacturerPartItemId: ManufacturerPartItemId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
       })
-    })
+    },
+    characteristics: {
+      get(ManufacturerPartItemId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'get',
+            url: '/part/manufacturerPart/item/characteristics',
+            params: {
+              ManufacturerPartItemId: ManufacturerPartItemId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      save(ManufacturerPartItemId, ClassId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'patch',
+            url: '/part/manufacturerPart/item/characteristics',
+            data: {
+              ManufacturerPartItemId: ManufacturerPartItemId,
+              ClassId: ClassId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      }
+    }
   }
 
   attribute = {
@@ -94,21 +133,6 @@ class ManufacturerPart {
   }
 
   class = {
-    search(ClassId = 0) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          method: 'get',
-          url: '/part/manufacturerPart/class',
-          params: { ClassId: ClassId }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    },
     getFilterOption(ClassId = 0) {
       return new Promise((resolve, reject) => {
         eerpApi({

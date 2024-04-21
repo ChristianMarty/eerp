@@ -162,6 +162,8 @@ class apiRouter
             if($str === "true" || $str === "false")
             {
                 $item = filter_var($str, FILTER_VALIDATE_BOOLEAN);
+            }else if($str === "null"){
+                $item = null;
             }
         }
         return (object)$data;

@@ -1,13 +1,29 @@
 <template>
-  <div class="productionPart-dialog">
+  <div class="partCharacteristics-dialog">
     <el-dialog
-      title="Production Part Number Mapping"
+      title="Part Characteristics Edit"
       :visible.sync="visible"
       :before-close="closeDialog"
       center
       width="75%"
       @open="onOpen()"
     >
+      <h2>Class:</h2>
+      <el-cascader-panel
+        v-model="data.PartClassId"
+        :options="classes"
+        :props="{
+          emitPath: false,
+          value: 'Id',
+          label: 'Name',
+          children: 'Children',
+          checkStrictly: true
+        }"
+      />
+
+
+
+      <!--
       <el-input ref="prodPartSearchInput" v-model="prodPartSearchInput" placeholder="Production Part Number" @keyup.enter.native="searchProductionPart()">
         <el-button slot="append" icon="el-icon-plus" @click="searchProductionPart()" />
       </el-input>
@@ -36,9 +52,9 @@
           </el-tag>
         </el-popover>
       </span>
-      <el-divider />
+      <el-divider />-->
       <span>
-        <el-button type="primary" @click="save()">Save</el-button>
+        <el-button type="primary" @click="saveData()">Save</el-button>
         <el-button @click="closeDialog()">Cancel</el-button>
       </span>
 
@@ -48,33 +64,35 @@
 
 <script>
 
-import ProductionPart from '@/api/productionPart'
-const productionPart = new ProductionPart()
+import Part from '@/api/part'
+const part = new Part()
 
 import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
 export default {
-  name: 'ProductionPartMapping',
+  name: 'PartCharacteristicsDialog',
   props: {
     partId: { type: Number, default: 0 },
     visible: { type: Boolean, default: false }
   },
   data() {
     return {
-      productionPartList: [],
-      prodPartSearchInput: ''
+      classes: [],
+      classId: null,
+      data: {}
     }
   },
   mounted() {
+    this.getClasses()
   },
   methods: {
     async onOpen() {
-      this.getProductionPart()
+      this.getData()
     },
-    getProductionPart() {
-      productionPart.search(null, this.$props.manufacturerPartId).then(response => {
-        this.productionPartList = response
+    getClasses() {
+      part.class.list(0).then(response => {
+        this.classes = response
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -84,18 +102,21 @@ export default {
         })
       })
     },
-    searchProductionPart() {
-      productionPart.search(this.prodPartSearchInput).then(response => {
-        if (response.length === 0) {
-          this.$message({
-            showClose: true,
-            message: 'Production Part Number not found',
-            duration: 2000,
-            type: 'warning'
-          })
-        } else {
-          this.productionPartList.push(response[0])
-        }
+    getData() {
+      manufacturerPart.item.characteristics.get(this.$props.partId).then(response => {
+        this.data = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
+    saveData() {
+      manufacturerPart.item.characteristics.save(this.$props.partId, this.data.PartClassId).then(response => {
+        this.closeDialog()
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -106,20 +127,7 @@ export default {
       })
     },
     handleClose(tag) {
-      this.productionPartList.splice(this.productionPartList.indexOf(tag), 1)
-    },
-    save() {
-      var temp = this.productionPartList.map(item => item.ItemCode)
-      manufacturerPart.PartNumber.productionPart.saveMapping(this.$props.manufacturerPartId, temp).then(response => {
-        this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
+
     },
     closeDialog() {
       this.visible = false

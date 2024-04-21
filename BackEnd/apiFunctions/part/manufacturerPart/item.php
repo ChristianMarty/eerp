@@ -30,7 +30,8 @@ if($api->isGet())
             manufacturerPart_item.Number AS PartNumber, 
             Attribute,
             manufacturerPart_partPackage.name AS Package, 
-           -- manufacturerPart_class_getName(manufacturerPart_series.ClassId) AS PartClassName,
+            manufacturerPart_class.Name AS PartClassName,
+            manufacturerPart_class.Name AS PartClassPath,
             manufacturerPart_item.SeriesId AS SeriesId, 
             manufacturerPart_series.Id AS SeriesId,
             manufacturerPart_series.Title AS SeriesTitle, 
@@ -40,7 +41,7 @@ if($api->isGet())
             manufacturerPart_item.DocumentIds AS ItemDocumentIds
         FROM manufacturerPart_item
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-        LEFT JOIN manufacturerPart_class On manufacturerPart_class.Id = manufacturerPart_series.ClassId
+        LEFT JOIN manufacturerPart_class On manufacturerPart_class.Id <=> manufacturerPart_series.ClassId OR manufacturerPart_class.Id <=> manufacturerPart_item.PartClassId
         LEFT JOIN manufacturerPart_partPackage On manufacturerPart_partPackage.Id = manufacturerPart_item.PackageId
         LEFT JOIN vendor On vendor.Id <=> manufacturerPart_series.VendorId OR vendor.Id <=> manufacturerPart_item.VendorId
         WHERE manufacturerPart_item.Id = '$manufacturerPartItemId'
@@ -100,7 +101,8 @@ if($api->isGet())
             $partNumbers[$manufacturerPartNumber] = $temp;
         }
 
-        $r->ProductionPartBarcode = barcodeFormatter_ProductionPart($r->ProductionPartNumberPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartItemCode = barcodeFormatter_ProductionPart($r->ProductionPartNumberPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartBarcode = $r->ProductionPartItemCode; // TODO: legacy -> remove
         $partNumbers[$manufacturerPartNumber]['ProductionPart'][] = $r;
     }
     $output->PartNumberItem = array_values($partNumbers);

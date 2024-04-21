@@ -5,13 +5,13 @@
     element-loading-spinner="el-icon-loading"
     class="base-class-search-container"
   >
-    <p><b>{{ data.Name }}</b></p>
+    <p><b>{{ manufacturerPartClass.Name }}</b></p>
 
     <div class="filter-container">
-      <el-button type="info" plain @click="onClassSelect(data.ParentId)"> Back</el-button>
+      <el-button type="info" plain @click="onClassSelect(manufacturerPartClass.ParentId)">Back</el-button>
       <template>
         <el-button
-          v-for="row in data.Children"
+          v-for="row in manufacturerPartClass.Children"
           :key="row.Id"
           type="info"
           @click="onClassSelect(row.Id)"
@@ -135,32 +135,31 @@ const manufacturerPart = new ManufacturerPart()
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
 
+import Part from '@/api/part'
+const part = new Part()
+
 // :data="manufacturerPartClass" @select="onClassSelect"
 
 export default {
   name: 'BaseClassSearchContainer',
   components: { SearchSelectPanel },
-  props: { data: { type: Object, default: null }},
   data() {
     return {
       filterOptions: [],
       loading: true,
-      manufacturerPartClass: null,
+      manufacturerPartClass: [],
       manufacturerPartAttribute: null,
       manufacturers: [],
       partFilter: Object.assign({}, vendor.searchParameters),
       partData: null
-
     }
   },
   watch: {
-    '$props.data': {
-      // if(this.$props.data !== null)
+    '$route.query.ClassId': {
       handler(newVal) {
-        if (newVal !== null) {
-          this.getPartData(newVal.Id)
-          this.loading = false
-        }
+        this.getManufacturerPartClass(this.$route.query.ClassId)
+        this.getPartData(this.$route.query.ClassId)
+        this.loading = false
       }
     }
   },
@@ -168,6 +167,8 @@ export default {
   },
   mounted() {
     this.getManufacturers()
+    this.getManufacturerPartClass(this.$route.query.ClassId)
+    this.getPartData(this.$route.query.ClassId)
   },
   methods: {
     handleFilter() {
@@ -205,7 +206,10 @@ export default {
       })
     },
     getManufacturerPartClass(ClassId) {
-      manufacturerPart.class.search(ClassId).then(response => {
+      if (ClassId === null) return
+
+
+      part.class.list(ClassId, true).then(response => {
         this.manufacturerPartClass = response
       }).catch(response => {
         this.$message({
@@ -217,6 +221,8 @@ export default {
       })
     },
     getFilterOption(ClassId) {
+      if (ClassId === null || ClassId === 'null') return
+
       manufacturerPart.class.getFilterOption(ClassId).then(response => {
         this.filterOptions = response
       }).catch(response => {
@@ -254,7 +260,8 @@ export default {
       })
     },
     onClassSelect(ClassId = 0) {
-      this.$emit('select', ClassId)
+      if (ClassId === 0) this.$router.push({ query: { }})
+      else this.$router.push({ query: { ClassId: String(ClassId) }})
     },
     getAttributeColumnName(attribute) {
       var out = attribute.Name
