@@ -208,7 +208,6 @@ export default {
     getManufacturerPartClass(ClassId) {
       if (ClassId === null) return
 
-
       part.class.list(ClassId, true).then(response => {
         this.manufacturerPartClass = response
       }).catch(response => {

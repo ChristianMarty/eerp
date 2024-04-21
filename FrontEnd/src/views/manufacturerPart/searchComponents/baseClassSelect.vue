@@ -35,7 +35,6 @@
   </div>
 </template>
 
-
 <script>
 import Part from '@/api/part'
 const part = new Part()

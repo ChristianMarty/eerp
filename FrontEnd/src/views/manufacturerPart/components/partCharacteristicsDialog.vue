@@ -21,8 +21,6 @@
         }"
       />
 
-
-
       <!--
       <el-input ref="prodPartSearchInput" v-model="prodPartSearchInput" placeholder="Production Part Number" @keyup.enter.native="searchProductionPart()">
         <el-button slot="append" icon="el-icon-plus" @click="searchProductionPart()" />

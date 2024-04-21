@@ -12,7 +12,7 @@
           {{ line.Description }}
           <template v-if="line.WorkOrderCode != NULL">
             <span>, Work Order: </span>
-            <router-link :to="'/workOrder/workOrderView/' + line.WorkOrderCode" class="link-type">
+            <router-link :to="'/workOrder/item/' + line.WorkOrderCode" class="link-type">
               <span>{{ line.WorkOrderCode }}</span>
             </router-link>
             {{ line.WorkOrderTitle }}
