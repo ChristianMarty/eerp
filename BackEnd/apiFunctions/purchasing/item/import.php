@@ -100,8 +100,8 @@ else if($api->isPost())
         $sqlData['StockPart']['raw'] = "b'1'";
         $sqlData['VatTaxId'] = $user->vatIdDefault();
         $sqlData['Discount'] = 0;
-        
         $sqlData['PurchaseOrderId'] = $id;
+        $sqlData['CreationUserId'] = $user->userId();
         $database->insert("purchaseOrder_itemOrder", $sqlData);
     }
     $output = array();

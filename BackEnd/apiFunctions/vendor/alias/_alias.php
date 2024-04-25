@@ -50,11 +50,13 @@ class alias
     static function createAlias(int $vendorId, string $name, string|null $note = null): int
     {
         global $database;
+        global $user;
 
         $insertData = [];
         $insertData['VendorId']= $vendorId;
         $insertData['Name']  = $name;
         $insertData['Note']  = $note;
+        $insertData['CreationUserId'] = $user->userId();
 
         try {
             return $database->insert("vendor_alias", $insertData);

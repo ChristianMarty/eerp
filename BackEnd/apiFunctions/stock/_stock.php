@@ -63,7 +63,7 @@ class stock
     static function create(
         int         $manufacturerId,
         string      $manufacturerPartNumber,
-        string      $locationNumber,
+        int|null    $locationNumber,
         int         $quantity,
         string|null $date,
         string|null $lotNumber,
@@ -74,6 +74,12 @@ class stock
         global $database;
         global $user;
 
+        $manufacturerPartNumber = trim($manufacturerPartNumber);
+        $manufacturerPartNumberEscaped = $database->escape($manufacturerPartNumber);
+
+        $date = $date === null ? null : trim($date);
+        $supplierPartNumber = $supplierPartNumber === null ? null : trim($supplierPartNumber);
+
         $database->beginTransaction();
 
         $manufacturerPartNumberIdQuery = <<< QUERY
@@ -82,7 +88,7 @@ class stock
             LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
             LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
             WHERE (manufacturerPart_partNumber.VendorId <=> $manufacturerId OR manufacturerPart_item.VendorId <=> $manufacturerId OR manufacturerPart_series.VendorId <=> $manufacturerId)
-            AND manufacturerPart_partNumber.Number = $manufacturerPartNumber
+            AND manufacturerPart_partNumber.Number = $manufacturerPartNumberEscaped
         QUERY;
 
         $manufacturerPartNumberData = $database->query($manufacturerPartNumberIdQuery);
@@ -105,10 +111,10 @@ class stock
         }
 
         $supplierPartId = null;
-        if ($supplierId !== null) {
-            $supplierPartNumber = $database->escape($supplierPartNumber);
+        if ($supplierId !== null && $supplierId !== 0) {
+            $supplierPartNumberEscaped = $database->escape($supplierPartNumber);
             $query = <<< QUERY
-                SELECT Id FROM supplierPart WHERE supplierPart.VendorId = $supplierId AND supplierPart.SupplierPartNumber = $supplierPartNumber
+                SELECT Id FROM supplierPart WHERE supplierPart.VendorId = $supplierId AND supplierPart.SupplierPartNumber = $supplierPartNumberEscaped
             QUERY;
 
             $supplierPartData = $database->query($query);
@@ -141,8 +147,6 @@ class stock
         $insertData['SupplierPartId'] = $supplierPartId;
         $insertData['LotNumber'] = $lotNumber;
         $insertData['CreationUserId'] = $user->userId();
-
-        $database->beginTransaction();
 
         try {
             $database->insert("partStock", $insertData);

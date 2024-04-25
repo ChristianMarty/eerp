@@ -183,20 +183,15 @@ else if($api->isPost("stock.create"))
 	}
 	else // If new part is created
 	{
-        $manufacturerId = intval($data->ManufacturerId);
-        $manufacturerPartNumber = trim($data->ManufacturerPartNumber);
-        $supplierId = intval($data->SupplierId);
-        $supplierPartNumber = trim($data->SupplierPartNumber);
-
         $stockNumber = \stock\stock::create(
-            $manufacturerId,
-            $manufacturerPartNumber,
+            intval($data->ManufacturerId),
+            $data->ManufacturerPartNumber,
             $location,
             $quantity,
             $date,
             $lotNumber,
-            $supplierId,
-            $supplierPartNumber
+            intval($data->SupplierId),
+            $data->SupplierPartNumber
         );
 	}
 

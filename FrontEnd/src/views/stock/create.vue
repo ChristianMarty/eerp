@@ -35,10 +35,6 @@
         <el-input v-model="createParameter.SupplierPartNumber" placeholder="Please input" />
       </el-form-item>
 
-      <el-form-item label="Order Reference:" prop="OrderReference">
-        <el-input v-model="createParameter.OrderReference" placeholder="Please input" />
-      </el-form-item>
-
       <el-form-item label="Quantity:" prop="Quantity">
         <el-input-number v-model="createParameter.Quantity" placeholder="Please input" :controls="false" />
       </el-form-item>
@@ -60,7 +56,7 @@
           :options="locations"
           :props="{
             emitPath: false,
-            value: 'LocNr',
+            value: 'ItemCode',
             label: 'Name',
             children: 'Children',
             checkStrictly: true
@@ -68,35 +64,15 @@
         />
       </el-form-item>
 
-      <el-form-item label="Print settings:">
-
-        <el-select v-model="selectedLabelId">
-          <el-option v-for="item in label" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
-        </el-select>
-
-        <el-select v-model="selectedPrinterId">
-          <el-option v-for="item in printer" :key="Number(item.Id)" :label="item.Name" :value="Number(item.Id)" />
-        </el-select>
-
-        <el-checkbox v-model="autoPrint" style="margin-left: 20px">Print after Save</el-checkbox>
-      </el-form-item>
-
       <el-form-item>
-        <el-button type="primary" @click="save">Save</el-button>
-
-        <el-button type="danger" @click="resetForm">Clear</el-button>
+        <el-button type="primary" @click="save()">Save</el-button>
+        <el-button type="danger" @click="resetForm()">Clear</el-button>
       </el-form-item>
     </el-form>
-
-    <printDialog :visible.sync="printDialogVisible" :data="partData" @print="printHandler" />  </div>
+  </div>
 </template>
 
 <script>
-import * as labelTemplate from '@/utils/labelTemplate'
-import * as defaultSetting from '@/utils/defaultSetting'
-
-import printDialog from './components/printDialog'
-
 import Vendor from '@/api/vendor'
 const vendor = new Vendor()
 
@@ -109,12 +85,8 @@ const location = new Location()
 import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
-import Print from '@/api/print'
-const print = new Print()
-
 export default {
-  name: 'LocationAssignment',
-  components: { printDialog },
+  name: 'CreateStock',
   data() {
     return {
 
@@ -128,7 +100,7 @@ export default {
           { required: true, message: 'Please select the Manufacturer', trigger: 'change' }
         ],
         Date: [
-          { required: true, message: 'Please select the year and week', trigger: 'change' }
+          { required: false, message: 'Please select the year and week', trigger: 'change' }
         ],
         Quantity: [
           { required: true, message: 'Please input the quantity', trigger: 'change' }
@@ -143,14 +115,6 @@ export default {
       locations: null,
       partOptions: null,
       suppliers: null,
-
-      label: null,
-      printer: {},
-      selectedPrinterId: 0,
-      selectedLabelId: 0,
-
-      printDialogVisible: false,
-
       createParameter: Object.assign({}, stock.item.createParameter)
     }
   },
@@ -158,12 +122,6 @@ export default {
     this.suppliers = await vendor.search(true, false, false, false, false, true)
     this.locations = await location.search()
     this.manufacturer = await vendor.search(false, true, false, false, false)
-
-    this.label = await print.label.search('Stock')
-
-    this.selectedPrinterId = defaultSetting.defaultSetting().StockLabelPrinter
-    this.selectedLabelId = defaultSetting.defaultSetting().StockLabel
-    this.printer = await print.printer.search()
 
     this.resetForm()
   },
@@ -204,18 +162,13 @@ export default {
       if (this.isValid() === false) {
         this.$message({
           showClose: true,
-          message: 'Invalide Input',
+          message: 'Invalid input',
           duration: 3,
           type: 'error'
         })
       } else {
         stock.item.create(this.createParameter).then(response => {
-          this.partData = response
-          if (this.autoPrint === true) {
-            this.print(this.partData)
-          } else {
-            this.printDialogVisible = true
-          }
+          this.$router.push('/stock/item/' + response.ItemCode)
         }).catch(response => {
           this.$message({
             showClose: true,
@@ -229,29 +182,6 @@ export default {
     closeDialog() {
       this.printDialogVisible = false
       this.resetForm()
-    },
-    printHandler(printData) {
-      var labelData = {
-        $Barcode: printData.Barcode,
-        $StockId: printData.StockNo,
-        $Mfr: printData.ManufacturerName,
-        $MPN: printData.ManufacturerPartNumber,
-        $PartNo: printData.OrderReference,
-        $Description: printData.Description
-      }
-      var labelTemplateObject = this.label.find(element => { return Number(element.Id) === this.selectedLabelId })
-      var labelCode = labelTemplate.labelTemplate(labelTemplateObject.Code, labelData)
-
-      print.print('raw', labelTemplateObject.Language, this.selectedPrinterId, labelCode).then(response => {
-        this.resetForm()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
-      })
     }
   }
 }
