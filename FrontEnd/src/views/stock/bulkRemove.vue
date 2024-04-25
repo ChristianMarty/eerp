@@ -199,7 +199,7 @@ export default {
 
       // if not already in list
       if (!this.itemList.some((element) => element.ItemCode === data.ItemCode)) {
-        this.itemList.unshift(data)
+        this.itemList.unshift(structuredClone(data))
       } else {
         this.$message({
           showClose: true,

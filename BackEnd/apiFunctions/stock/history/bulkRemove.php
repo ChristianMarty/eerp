@@ -38,7 +38,6 @@ if($api->isPost())
         if (isset($line->Note)) {
             $note = trim($line->Note);
             if ($note == "") $note = null;
-            $note = $database->escape($note);
         }
 
         $stockNo = barcodeParser_StockNumber($line->ItemCode);
