@@ -31,7 +31,9 @@ class partReceiptBon extends \renderer\renderer
 
         $items = [];
         foreach ($data as $item){
-            $items[] = barcodeParser_AssemblyUnitHistoryNumber($item);
+            $stockNumber = barcodeParser_StockNumber($item);
+            $historyItem = barcodeParser_StockHistoryNumber($item);
+            $items[] = $stockNumber."-".$historyItem;
         }
 
         $itemListString = "'".implode("','",$items)."'";
@@ -41,7 +43,7 @@ class partReceiptBon extends \renderer\renderer
                 partStock_history.Cache_ChangeIndex AS ChangeIndex,
                 partStock_history.ChangeType,
                 partStock_history.Quantity,
-                partStock_history.Note
+                partStock_history.Note,
                 workOrder.WorkOrderNumber,
                 workOrder.Name AS WorkOrderName
             FROM partStock_history
@@ -51,7 +53,7 @@ class partReceiptBon extends \renderer\renderer
         STR;
         $stockHistoryItems = $database->query($query);
         if(count($stockHistoryItems) === 0){
-            $api->returnParameterError("Item not found");
+            $api->returnError("Item not found");
         }
 
         global $companyName;

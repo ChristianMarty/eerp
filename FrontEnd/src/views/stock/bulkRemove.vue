@@ -117,6 +117,9 @@ const workOrder = new WorkOrder()
 import Stock from '@/api/stock'
 const stock = new Stock()
 
+import Renderer from '@/api/renderer'
+const renderer = new Renderer()
+
 import Print from '@/api/print'
 const print = new Print()
 
@@ -147,7 +150,9 @@ export default {
       workOrders: [],
 
       selectedWorkOrderNumber: null,
-      selectedWorkOrderData: {}
+      selectedWorkOrderData: {},
+
+      completedData: []
     }
   },
   mounted() {
@@ -226,6 +231,7 @@ export default {
         })
         this.selectedWorkOrderData = this.findWorkOrder(this.selectedWorkOrderNumber)
         this.step = 3
+        this.completedData = response
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -236,7 +242,8 @@ export default {
       })
     },
     printReceipt() {
-      print.template.partReceipt(this.selectedPrinterId, this.itemList, this.selectedWorkOrderNumber).then(response => {
+      const itemCodes = this.completedData.map(x => x.ItemCode)
+      print.print(this.receiptRendererId, this.selectedPrinterId, itemCodes).then(response => {
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -247,7 +254,8 @@ export default {
       })
     },
     printAllNotes() {
-      print.template.partNote(this.selectedPrinterId, this.itemList, this.selectedWorkOrderNumber).then(response => {
+      const itemCodes = this.completedData.map(x => x.ItemCode)
+      print.print(this.historyRendererId, this.selectedPrinterId, itemCodes).then(response => {
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -259,8 +267,10 @@ export default {
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
+        this.selectedPrinterId = defaultSetting.defaultSetting().StockHistory.PrinterId
+        this.historyRendererId = defaultSetting.defaultSetting().StockHistory.RendererId
+        this.receiptRendererId = defaultSetting.defaultSetting().StockReceipt.RendererId
         this.printer = response
-        this.selectedPrinterId = defaultSetting.defaultSetting().PartReceiptPrinter
       }).catch(response => {
         this.$message({
           showClose: true,

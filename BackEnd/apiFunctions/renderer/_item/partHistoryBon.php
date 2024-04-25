@@ -78,7 +78,7 @@ class partHistoryBon extends \renderer\renderer
         $stockHistoryItems = $database->query($query);
 
         if(count($stockHistoryItems) === 0){
-            $api->returnParameterError("Item not found");
+            $api->returnError("Item not found");
         }
 
         $connector = new NetworkPrintConnector($printer->Ip, $printer->Port);

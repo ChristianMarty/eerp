@@ -20,10 +20,10 @@ class userSettings
         "Default": {
         "StockItem": {"PrinterId": 3, "RendererId": 4},
         "StockHistory": {"PrinterId": 2, "RendererId": 8},
+        "StockReceipt": {"PrinterId": 2, "RendererId": 11},
         "AssemblyUnitHistory": {"PrinterId": 2, "RendererId": 3},
         "AssemblyUnit": {"PrinterId": 2, "RendererId": 12},
         "LocationInventoryList": {"PrinterId": 2, "RendererId": 17},
-        "PartReceiptPrinter":2, 
         "BomPrinter": 2,
         "PurchaseOrder": {"UoM": 29, "VAT": 1}}
     }
