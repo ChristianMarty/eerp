@@ -25,7 +25,9 @@ class userSettings
         "AssemblyUnit": {"PrinterId": 2, "RendererId": 12},
         "LocationInventoryList": {"PrinterId": 2, "RendererId": 17},
         "BomPrinter": 2,
-        "PurchaseOrder": {"UoM": 29, "VAT": 1}}
+        "PurchaseOrder": {"UoM": 29, "VAT": 1},
+        "StockCountScale": {"PeripheralId":4}
+        }
     }
     SETTINGS;
 }

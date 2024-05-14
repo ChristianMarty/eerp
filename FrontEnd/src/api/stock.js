@@ -43,12 +43,23 @@ class Stock {
   }
 
   item = {
-    get(StockCode) {
+    itemDataEmpty: {
+      StockId: '',
+      Manufacturer: '',
+      ManufacturerPartNumber: '',
+      Date: '',
+      Quantity: '',
+      Location: '',
+      Barcode: '',
+      Purchase: {},
+      Part: {}
+    },
+    get(ItemCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/stock/item',
-          methood: 'get',
-          params: { StockCode: StockCode }
+          method: 'get',
+          params: { StockCode: ItemCode }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -68,6 +79,18 @@ class Stock {
       Quantity: 0,
       Date: null
     },
+    createResponse: {
+      StockId: '',
+      ManufacturerName: '',
+      Supplier: '',
+      ManufacturerPartNumber: '',
+      Date: '',
+      Quantity: '',
+      Location: '',
+      Barcode: '',
+      SupplierName: '',
+      SupplierPartNumber: ''
+    },
     create(CreateParameter) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -83,26 +106,37 @@ class Stock {
         })
       })
     },
-    createResponse: {
-      StockId: '',
-      ManufacturerName: '',
-      Supplier: '',
-      ManufacturerPartNumber: '',
-      Date: '',
+    countParameter: {
+      ItemCode: '',
       Quantity: '',
-      Location: '',
-      Barcode: '',
-      SupplierName: '',
-      SupplierPartNumber: ''
+      Note: ''
     },
-    delete(StockId, Note = null) {
+    count(countParameter) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/stock/history/item',
+          data: {
+            StockNumber: countParameter.ItemCode,
+            Quantity: countParameter.Quantity,
+            Note: countParameter.Note
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    delete(ItemCode, Note = null) {
       return new Promise((resolve, reject) => {
         eerpApi({
           method: 'delete',
           url: '/stock/item',
-          methood: 'get',
           data: {
-            StockCode: StockId,
+            StockCode: ItemCode,
             Note: Note
           }
         }).then(response => {

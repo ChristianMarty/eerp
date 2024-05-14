@@ -27,7 +27,10 @@
         </router-link>
       </p>
       <p><b>Part Number: </b>
-        <router-link :to="'/manufacturerPart/partNumber/item/' + partData.Part.ManufacturerPartNumberId" class="link-type">
+        <router-link
+          :to="'/manufacturerPart/partNumber/item/' + partData.Part.ManufacturerPartNumberId"
+          class="link-type"
+        >
           {{ partData.Part.ManufacturerPartNumber }}
         </router-link>
       </p>
@@ -66,7 +69,9 @@
         <p><b>Stock Certainty Factor: </b>{{ partData.Quantity.Certainty.Factor }}</p>
         <el-rate v-model="partData.Quantity.Certainty.Rating" disabled />
       </span>
-      <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">Location Transfer</el-button>
+      <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">
+        Location Transfer
+      </el-button>
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
       <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
@@ -75,28 +80,32 @@
         style="margin-right: 20px"
         icon="el-icon-plus"
         @click="addStockDialogVisible = true"
-      >Add</el-button>
+      >Add
+      </el-button>
 
       <el-button
         v-permission="['stock.remove']"
         style="margin-right: 20px"
         icon="el-icon-minus"
         @click="removeStockDialogVisible = true"
-      >Remove</el-button>
+      >Remove
+      </el-button>
 
       <el-button
         v-permission="['stock.count']"
         style="margin-right: 20px"
         icon="el-icon-finished"
         @click="countStockDialogVisible = true"
-      >Count</el-button>
+      >Count
+      </el-button>
 
       <el-button
         v-permission="['stock.count']"
         style="margin-right: 20px"
         icon="el-icon-finished"
         @click="scaleStockDialogVisible = true"
-      >Count by weight</el-button>
+      >Count by weight
+      </el-button>
 
       <el-divider />
 
@@ -142,17 +151,6 @@
     </el-card>
 
     <el-dialog
-      title="Count by weight"
-      :visible.sync="scaleStockDialogVisible"
-    >
-      <hl />
-      <scale />
-
-      <el-button @click="scaleStockDialogVisible = false">Cancel</el-button>
-
-    </el-dialog>
-
-    <el-dialog
       title="Delete Item ?"
       :visible.sync="deleteDialogVisible"
     >
@@ -169,8 +167,13 @@
     <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
     <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
     <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />
+    <countByWeight :visible.sync="scaleStockDialogVisible" :item="partData.ItemCode" />
 
-    <locationTransferDialog :barcode="partData.ItemCode" :visible.sync="locationTransferDialogVisible" @change="loadItem()" />
+    <locationTransferDialog
+      :barcode="partData.ItemCode"
+      :visible.sync="locationTransferDialogVisible"
+      @change="loadItem()"
+    />
   </div>
 </template>
 
@@ -184,9 +187,9 @@ import addStockDialog from './components/addStockDialog'
 import removeStockDialog from './components/removeStockDialog'
 import countStockDialog from './components/countStockDialog'
 import stockHistory from './components/stockHistory'
+import countByWeight from './components/countByWeight'
 
 import locationTransferDialog from '@/components/Location/locationTransferDialog'
-import scale from '@/components/Scale/scale'
 
 import Stock from '@/api/stock'
 const stock = new Stock()
@@ -203,25 +206,23 @@ const print = new Print()
 import Peripheral from '@/api/peripheral'
 const peripheral = new Peripheral()
 
-const partDataEmpty = {
-  StockId: '',
-  Manufacturer: '',
-  ManufacturerPartNumber: '',
-  Date: '',
-  Quantity: '',
-  Location: '',
-  Barcode: ''
-}
-
 export default {
   name: 'LocationAssignment',
-  components: { printDialog, addStockDialog, removeStockDialog, countStockDialog, stockHistory, locationTransferDialog, scale },
+  components: {
+    printDialog,
+    addStockDialog,
+    removeStockDialog,
+    countStockDialog,
+    stockHistory,
+    locationTransferDialog,
+    countByWeight
+  },
   directives: { permission },
   data() {
     return {
       inputStockId: null,
       showItem: false,
-      partData: Object.assign({}, partDataEmpty),
+      partData: Object.assign({}, stock.item.itemDataEmpty),
       reservation: null,
       label: null,
       printer: {},
@@ -242,9 +243,15 @@ export default {
     }
   },
   watch: {
-    addStockDialogVisible: function() { this.loadItem() },
-    removeStockDialogVisible: function() { this.loadItem() },
-    countStockDialogVisible: function() { this.loadItem() }
+    addStockDialogVisible: function() {
+      this.loadItem()
+    },
+    removeStockDialogVisible: function() {
+      this.loadItem()
+    },
+    countStockDialogVisible: function() {
+      this.loadItem()
+    }
   },
   mounted() {
     this.reset()
