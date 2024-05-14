@@ -46,7 +46,6 @@ if($api->isPost())
     if(isset($data->Language)) $language = $data->Language;
     else $language = "";
 
-
     $output = array();
 	$output['Printer'] = $printer;
     $data = $data->Data;
@@ -59,6 +58,11 @@ if($api->isPost())
                 $template = str_replace($key, $value??"", $template);
             }
         }
+
+        foreach (explode(",", $renderer->Variables) as $key){ // replace unused keys with nothing
+            $template = str_replace($key, "", $template);
+        }
+
         $printCode = $template;
     }else if($renderer->Render == "PHP"){
         $rendererClassName = $renderer->Code;
