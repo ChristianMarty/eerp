@@ -12,7 +12,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="Name" label="Name" />
-      <el-table-column prop="Note" label="Note" />
+      <el-table-column prop="Description" label="Description" />
       <el-table-column prop="Type" label="Type" width="100" />
       <el-table-column prop="Document" label="Document">
         <template slot-scope="{ row }">

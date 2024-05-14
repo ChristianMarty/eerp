@@ -52,7 +52,7 @@
       <el-form-item label="Location" prop="Location">
         <el-input ref="locNrInput" v-model="createParameter.LocationCode" placeholder="Please input" />
         <el-cascader-panel
-          v-model="createParameter.LocationCode"
+          v-model="createParameter.ItemCode"
           :options="locations"
           :props="{
             emitPath: false,

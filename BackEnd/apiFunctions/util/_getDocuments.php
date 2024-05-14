@@ -49,6 +49,7 @@ function getDocumentsFromIds(string|null $documentIds): array
             LinkType,
             Name,
             Hash,
+            Description,
             CreationDate
         FROM document
         WHERE Id IN($idList)
@@ -70,6 +71,7 @@ function getDocuments(): array
             LinkType,
             Name,
             Hash,
+            Description,
             CreationDate
         FROM document
         ORDER BY CreationDate DESC

@@ -30,7 +30,7 @@ if($api->isGet())
             DocumentNumber,
             Path,
             Name,
-            Note,
+            Description,
             Type,
             LinkType,
             Hash,

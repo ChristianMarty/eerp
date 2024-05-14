@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     getScales() {
-      peripheral.search('scale').then(response => {
+      peripheral.list(peripheral.Type.Scale).then(response => {
         this.scales = response
       }).catch(response => {
         this.$message({
