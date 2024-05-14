@@ -227,7 +227,7 @@ function ingest(array|stdClass $data): null|int|array
     $sqlData = array();
     $sqlData['Path'] = $dstFileName;
     $sqlData['Name'] = $data['Description'] ?? null;
-    $sqlData['Note'] = $data['Note']??null;
+    $sqlData['Description'] = $data['Note']??null;
     $sqlData['Type'] = $data['Type'];
     $sqlData['LinkType'] = "Internal";
     $sqlData['Hash'] = $fileHashCheck['hash'];
