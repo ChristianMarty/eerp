@@ -121,22 +121,6 @@ export default {
       billOfMaterial.getAnalyzeOptions().then(response => {
         this.analyzeOptions = response
       })
-    },
-    onPrint() {
-      requestBN({
-        method: 'post',
-        url: '/print/bonPrint',
-        data: { data: this.bom, PrinterId: 2 }
-      }).then(response => {
-        if (response.error !== null) {
-          this.$message({
-            showClose: true,
-            duration: 0,
-            message: response.error,
-            type: 'error'
-          })
-        }
-      })
     }
   }
 }

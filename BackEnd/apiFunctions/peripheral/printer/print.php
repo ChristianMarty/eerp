@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : print.php
-// FilePath : apiFunctions/print
+// FilePath : apiFunctions/peripheral/printer
 // Author   : Christian Marty
 // Date		: 21.11.2023
 // License  : MIT
@@ -11,7 +11,7 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../renderer/_item/_renderer.php";
+require_once __DIR__ . "/../../renderer/_item/_renderer.php";
 
 if($api->isPost())
 {
@@ -66,7 +66,7 @@ if($api->isPost())
         $printCode = $template;
     }else if($renderer->Render == "PHP"){
         $rendererClassName = $renderer->Code;
-        $filePath = __DIR__.'/../renderer/_item/'.$rendererClassName.'.php';
+        $filePath = __DIR__ . '/../renderer/_item/' .$rendererClassName.'.php';
         if (!file_exists($filePath)) {
             $api->returnError("The requested renderer class does not exist");
         }

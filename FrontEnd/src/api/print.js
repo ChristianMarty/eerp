@@ -5,7 +5,7 @@ class Print {
     return new Promise((resolve, reject) => {
       eerpApi({
         method: 'post',
-        url: '/print/print',
+        url: '/peripheral/printer/print',
         data: {
           RendererId: RendererId,
           PrinterId: PrinterId,
@@ -45,56 +45,6 @@ class Print {
           url: '/renderer',
           methood: 'get',
           params: { Tag: Type }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    }
-  }
-
-  template = {
-    partNote(PrinterId, StockItems, WorkOrderNumber) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          method: 'post',
-          url: '/print/partNote',
-          data: { PrinterId: PrinterId, Items: StockItems, WorkOrderNumber: WorkOrderNumber }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    },
-
-    partReceipt(PrinterId, StockItems, WorkOrderNumber) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          method: 'post',
-          url: '/print/partReceipt',
-          data: { PrinterId: PrinterId, Items: StockItems, WorkOrderNumber: WorkOrderNumber }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    },
-
-    assemblyHistoryItem(PrinterId, Data) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          method: 'post',
-          url: '/print/assemblyBonPrint',
-          data: { PrinterId: PrinterId, Data: Data }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
