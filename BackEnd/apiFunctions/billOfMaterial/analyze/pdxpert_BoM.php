@@ -123,14 +123,14 @@ if($api->isPost())
         {
             $productionPartData = getStockData($line["ProductionPartBarcode"]);
             unset($line['ProductionPartBarcode']);
-            $output[$i] = array_merge($productionPartData,$line);
+            $output[$i] = array_merge($productionPartData, $line);
         }
     }
 
 	$api->returnData($output);
 }
 
-function getStockData($productionPartNumber)
+function getStockData($productionPartNumber): array
 {
     global $database;
     $productionPartNumber = $database->escape($productionPartNumber);
@@ -156,7 +156,7 @@ function getStockData($productionPartNumber)
     $output = array();
 
     if (count($result)) {
-        $output = $result[0];
+        $output = (array)$result[0];
     }
     else
     {
