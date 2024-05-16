@@ -67,9 +67,8 @@
         <p><b>Track</b></p>
         <trackTable :data="trackData" />
       </el-form>
-
       <span slot="footer" class="dialog-footer">
-
+        <p v-if="allInStock" style="color: red;"><b>This part is already fully added to the stock!</b></p>
         <el-button type="primary" @click="saveToStock()">Save</el-button>
         <el-button @click="closeDialog">Close</el-button>
       </span>
@@ -119,7 +118,8 @@ export default {
       data: Object.assign({}, saveData),
       locations: null,
       dateCode: '',
-      trackData: null
+      trackData: null,
+      allInStock: false
     }
   },
   mounted() {
@@ -131,12 +131,17 @@ export default {
       this.locations = await location.search()
 
       this.data.ReceivalId = this.$props.receivalData.ReceivalId
-      this.data.Quantity = this.$props.receivalData.QuantityReceived
       this.data.OrderReference = this.$props.receivalData.OrderReference
     },
     getTrackData() {
       purchase.item.track(this.$props.receivalData.ReceivalId).then(response => {
         this.trackData = response
+        const trackedQuantity = this.trackData.reduce((sum, val) => sum + val.CreateQuantity, 0)
+        console.log(trackedQuantity)
+        this.data.Quantity = (this.$props.receivalData.QuantityReceived - trackedQuantity)
+        if (this.$props.receivalData.QuantityReceived === trackedQuantity) {
+          this.allInStock = true
+        }
       }).catch(response => {
         this.$message({
           showClose: true,
