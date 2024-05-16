@@ -15,6 +15,6 @@ require_once __DIR__."/../util/_files.php";
 
 if($api->isGet())
 {
-	$path = "billOfMaterial/analyze";
+	$path = "billOfMaterial/analyze/";
     $api->returnData(files_listFiles($path));
 }

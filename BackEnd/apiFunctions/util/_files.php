@@ -18,11 +18,11 @@ function files_listFiles(string $path, string|null $entrypoint = null): array
     $files = scandir($localPath);
     $files = array_diff($files, array('.', '..'));
 
-    foreach( $files as $file)
+    foreach($files as $file)
     {
         if(is_file($localPath.$file))
         {
-            if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php")
+            if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php" && !str_starts_with ($file,'_'))
             {
                 $output[] = files_getInfo($localPath, $path, $file, $entrypoint);
             }
@@ -34,7 +34,7 @@ function files_listFiles(string $path, string|null $entrypoint = null): array
 
             foreach( $files2 as $file2)
             {
-                if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php")
+                if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php" && !str_starts_with ($file,'_'))
                 {
                     $output[] = files_getInfo($localPath.$file,$path.$file, $file2, $entrypoint);
                 }
