@@ -33,6 +33,7 @@ function _stockPartQuery(string $stockNo): string
 			manufacturer.Id AS ManufacturerId, 
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
 			manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
+			manufacturerPart_partNumber.SinglePartWeight AS SinglePartWeight,
 			partStock.Date, 
 			manufacturerPart_partNumber.Description,
 			manufacturerPart_item.Id AS ManufacturerPartItemId,
@@ -116,6 +117,8 @@ if($api->isGet("stock.view"))
     if($r->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($r->SpecificationPartRevisionId);
     else $part->SpecificationPartRevisionId = null;
     unset($r->SpecificationPartRevisionId);
+    $part->SinglePartWeight = $r->SinglePartWeight;
+    unset($r->SinglePartWeight);
     $r->Part = $part;
 
     // Add Quantity

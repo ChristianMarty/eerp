@@ -55,15 +55,17 @@
               </td>
             </tr>
           </table>
+          <p><b>Calibrated Weight:</b> {{ calibratedWeightPerPiece }}</p>
           <el-button type="danger" @click="clear()">Clear</el-button>
+          <el-button type="primary" @click="saveCalibration()">Save Calibration</el-button>
         </el-form-item>
 
-        <el-form-item label="Weight per piece:">
-          {{ weightPerPiece }}
+        <el-form-item label="Part Weight:">
+          {{ partData.Part.SinglePartWeight }}
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="readScale()">Read weight</el-button>
+          <el-button type="primary" @click="readScale()">Read Scale</el-button>
         </el-form-item>
 
         <el-form-item label="Scale Reading:">
@@ -111,6 +113,9 @@ const peripheral = new Peripheral()
 import Stock from '@/api/stock'
 const stock = new Stock()
 
+import ManufacturerPart from '@/api/manufacturerPart'
+const manufacturerPart = new ManufacturerPart()
+
 import * as defaultSetting from '@/utils/defaultSetting'
 
 export default {
@@ -122,7 +127,7 @@ export default {
       selectedScaleId: defaultSetting.defaultSetting().StockCountScale.PeripheralId,
       reading: 0,
       readings: [],
-      weightPerPiece: 0,
+      calibratedWeightPerPiece: 0,
       quantity: 0,
       partData: Object.assign({}, stock.item.itemDataEmpty),
       newQuantity: Object.assign({}, stock.item.countParameter)
@@ -184,38 +189,56 @@ export default {
         })
       })
     },
+    saveCalibration() {
+      manufacturerPart.PartNumber.saveWeight(this.partData.Part.ManufacturerPartNumberId, this.calibratedWeightPerPiece).then(response => {
+        this.getStockItem(this.item)
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+    },
     clear() {
       this.readings = []
       this.$forceUpdate()
     },
     readScale(quantity) {
       peripheral.scale.read(this.selectedScaleId).then(response => {
+
         if (quantity === undefined) {
           this.reading = response.value
-          this.quantity = this.reading / this.weightPerPiece
+
+          if (this.calibratedWeightPerPiece === 0){
+            this.quantity = this.reading / this.partData.Part.SinglePartWeight
+          } else {
+            this.quantity = this.reading / this.calibratedWeightPerPiece
+          }
           this.newQuantity.Quantity = Math.round(this.quantity)
         } else {
           this.readings[quantity] = response.value
 
-          this.weightPerPiece = 0
+          this.calibratedWeightPerPiece = 0
           let numberOfItems = 0
           if (this.readings[1] !== undefined) {
-            this.weightPerPiece += this.readings[1]
+            this.calibratedWeightPerPiece += this.readings[1]
             numberOfItems++
           }
           if (this.readings[5] !== undefined) {
-            this.weightPerPiece += this.readings[5] / 5
+            this.calibratedWeightPerPiece += this.readings[5] / 5
             numberOfItems++
           }
           if (this.readings[10] !== undefined) {
-            this.weightPerPiece += this.readings[10] / 10
+            this.calibratedWeightPerPiece += this.readings[10] / 10
             numberOfItems++
           }
           if (this.readings[20] !== undefined) {
-            this.weightPerPiece += this.readings[20] / 20
+            this.calibratedWeightPerPiece += this.readings[20] / 20
             numberOfItems++
           }
-          this.weightPerPiece = this.weightPerPiece / numberOfItems
+          this.calibratedWeightPerPiece = this.calibratedWeightPerPiece / numberOfItems
         }
         this.$forceUpdate()
       }).catch(response => {

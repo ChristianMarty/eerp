@@ -251,6 +251,9 @@ export default {
     },
     countStockDialogVisible: function() {
       this.loadItem()
+    },
+    scaleStockDialogVisible: function() {
+      this.loadItem()
     }
   },
   mounted() {

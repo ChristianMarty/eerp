@@ -40,8 +40,6 @@ abstract class ScaleBase
     }
 }
 
-
-
 class Scale
 {
     private ScaleBase $scale;

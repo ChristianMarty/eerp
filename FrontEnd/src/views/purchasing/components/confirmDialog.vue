@@ -17,7 +17,6 @@
         </template>
         <el-form-item label="Description:">{{ line.Description }}</el-form-item>
         <el-form-item label="Order Reference:">{{ line.OrderReference }}</el-form-item>
-        <el-form-item label="Note:">{{ line.Note }}</el-form-item>
 
         <el-form-item label="Ordered Quantity:">{{ line.QuantityOrdered }}</el-form-item>
         <el-form-item label="Received Quantity:">
@@ -33,6 +32,7 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer">
+        <p v-if="line.Note!==null"><b>Note:</b> {{line.Note}}</p>
         <el-button v-if="line.StockPart === true" type="primary" @click="confirm(true)">Confirm and add to stock</el-button>
         <el-button type="primary" @click="confirm(false)">Confirm</el-button>
         <el-button @click="closeDialog()">Cancel</el-button>

@@ -27,7 +27,8 @@ if($api->isGet())
             supplierPart.SupplierPartNumber, 
             purchaseOrder_itemReceive.QuantityReceived, 
             purchaseOrder_itemOrder.OrderReference, 
-            purchaseOrder_itemOrder.SupplierPartId
+            purchaseOrder_itemOrder.SupplierPartId,
+            purchaseOrder_itemOrder.Note as OrderNote
         FROM purchaseOrder_itemReceive
         LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
         LEFT JOIN purchaseOrder ON purchaseOrder.Id = purchaseOrder_itemOrder.PurchaseOrderId

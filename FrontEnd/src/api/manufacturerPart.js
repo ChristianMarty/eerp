@@ -305,14 +305,14 @@ class ManufacturerPart {
         })
       })
     },
-    analyze(VendorId, PartNumber) {
+    saveWeight(PartNumberId, SinglePartWeight) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          method: 'get',
-          url: '/part/manufacturerPart/partNumber/analyze',
-          params: {
-            VendorId: VendorId,
-            PartNumber: PartNumber
+          method: 'patch',
+          url: '/part/manufacturerPart/partNumber/weight',
+          data: {
+            PartNumberId: PartNumberId,
+            SinglePartWeight: SinglePartWeight
           }
         }).then(response => {
           if (response.error == null) {
@@ -332,6 +332,24 @@ class ManufacturerPart {
             ManufacturerPartNumberId: ManufacturerPartNumberId,
             AuthorizedOnly: AuthorizedOnly,
             Brokers: Brokers
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    analyze(VendorId, PartNumber) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/part/manufacturerPart/partNumber/analyze',
+          params: {
+            VendorId: VendorId,
+            PartNumber: PartNumber
           }
         }).then(response => {
           if (response.error == null) {
