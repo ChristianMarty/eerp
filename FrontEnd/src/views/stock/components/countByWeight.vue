@@ -207,11 +207,10 @@ export default {
     },
     readScale(quantity) {
       peripheral.scale.read(this.selectedScaleId).then(response => {
-
         if (quantity === undefined) {
           this.reading = response.value
 
-          if (this.calibratedWeightPerPiece === 0){
+          if (this.calibratedWeightPerPiece === 0) {
             this.quantity = this.reading / this.partData.Part.SinglePartWeight
           } else {
             this.quantity = this.reading / this.calibratedWeightPerPiece

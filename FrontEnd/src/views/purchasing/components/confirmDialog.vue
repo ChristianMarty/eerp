@@ -32,7 +32,7 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <p v-if="line.Note!==null"><b>Note:</b> {{line.Note}}</p>
+        <p v-if="line.Note!==null"><b>Note:</b> {{ line.Note }}</p>
         <el-button v-if="line.StockPart === true" type="primary" @click="confirm(true)">Confirm and add to stock</el-button>
         <el-button type="primary" @click="confirm(false)">Confirm</el-button>
         <el-button @click="closeDialog()">Cancel</el-button>

@@ -379,7 +379,7 @@ function table_start(): string
     $temp .= "<th class='lines' style='white-space: nowrap;'>Description</th>";
     $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;'>Qty</th>";
 	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Unit</th>";
-	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Est. Date</th>";
+	$temp .= "<th class='lines' style='white-space: nowrap; text-align: center;'>Date</th>";
 	$temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >Unit Price</th>";
 	if($hasDiscount) $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >%</th>";
 	if($hasVat) $temp .= "<th class='lines' style='white-space: nowrap; text-align: right;' >VAT</th>";

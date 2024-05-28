@@ -68,7 +68,7 @@
         <trackTable :data="trackData" />
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <p v-if="receivalData.OrderNote!==null"><b>Note:</b> {{receivalData.OrderNote}}</p>
+        <p v-if="receivalData.OrderNote!==null"><b>Note:</b> {{ receivalData.OrderNote }}</p>
         <p v-if="allInStock" style="color: red;"><b>This part is already fully added to the stock!</b></p>
         <el-button type="primary" @click="saveToStock()">Save</el-button>
         <el-button @click="closeDialog">Close</el-button>

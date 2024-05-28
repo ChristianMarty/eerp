@@ -66,7 +66,7 @@ if($api->isPost())
         $printCode = $template;
     }else if($renderer->Render == "PHP"){
         $rendererClassName = $renderer->Code;
-        $filePath = __DIR__ . '/../renderer/_item/' .$rendererClassName.'.php';
+        $filePath = __DIR__ . '/../../renderer/_item/' .$rendererClassName.'.php';
         if (!file_exists($filePath)) {
             $api->returnError("The requested renderer class does not exist");
         }
