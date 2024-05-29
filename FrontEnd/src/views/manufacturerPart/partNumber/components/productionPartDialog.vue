@@ -57,7 +57,7 @@ const manufacturerPart = new ManufacturerPart()
 export default {
   name: 'ProductionPartMapping',
   props: {
-    partId: { type: Number, default: 0 },
+    manufacturerPartId: { type: Number, default: 0 },
     visible: { type: Boolean, default: false }
   },
   data() {

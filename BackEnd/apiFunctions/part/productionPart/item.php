@@ -115,6 +115,7 @@ if($api->isGet())
         $stock[] = $stockRow;
     }
     $output['Stock'] = $stock;
+    $output['TotalStockQuantity'] = $totalStockQuantity;
 
 // get Characteristics
 

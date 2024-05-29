@@ -45,6 +45,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="Description" label="Description" sortable />
+        <el-table-column prop="ApprovedUsage" label="Approved Usage" sortable width="200"/>
       </el-table>
       <template v-if="partData.Purchase !== null && partData.Purchase.ProductionPartNumber !== ''">
         <p><b>Ordered as:</b> {{ partData.Purchase.ProductionPartNumber }}</p>
@@ -369,7 +370,7 @@ export default {
       }
 
       if (this.productionPartData.length) {
-        this.printData.OrderReference = this.productionPartData[0].ItemCode
+        this.printData.ProductionPartNumber = this.productionPartData[0].ItemCode
         this.printData.Description = this.productionPartData[0].Description
       }
 

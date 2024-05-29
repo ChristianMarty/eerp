@@ -26,6 +26,7 @@ if($api->isGet())
             numbering.Prefix, 
             productionPart.Number, 
             Description,
+            ApprovedUsage,
             Cache_BillOfMaterial_TotalQuantityUsed AS BillOfMaterial_TotalQuantityUsed,
             Cache_BillOfMaterial_NumberOfOccurrence AS BillOfMaterial_NumberOfOccurrence
         FROM productionPart
