@@ -60,6 +60,56 @@ function moveItems($itemList, $locationNr, string $category, string $idName): st
 	return $database->getErrorMessage()??"";
 }
 
+function moveLocationItems($itemList, $locationNr): string
+{
+    global $database;
+
+    foreach($itemList as &$item)
+    {
+        $item = $database->escape(barcodeParser_LocationNumber($item));
+    }
+    $itemListStr = implode(",", $itemList);
+
+    $query = <<<STR
+		SELECT 
+		    Id, 
+		    Cache_IdPath
+		FROM location
+		WHERE LocationNumber = '$locationNr'
+	STR;
+    $newLocation = $database->query($query)[0];
+
+    $query = <<<STR
+		SELECT 
+		    Id
+		FROM location
+		WHERE LocationNumber IN($itemListStr)
+	STR;
+    $items = $database->query($query);
+
+    // check for circular location path
+    $newLocationPath = explode(',',$newLocation->Cache_IdPath);
+    $newLocationPath[] = $newLocation->Id;
+    $toMove = [];
+    foreach ($items as $pathItem)
+    {
+        if(in_array($pathItem->Id, $newLocationPath)) {
+            continue;
+        }
+        $toMove[] = $pathItem->Id;
+    }
+    $itemIdListStr = implode(",", $toMove);
+
+    $baseQuery = <<<STR
+		UPDATE location
+		SET LocationId = (SELECT `Id` FROM `location` WHERE `LocationNumber`= '$locationNr')
+		WHERE Id IN($itemIdListStr)
+	STR;
+
+    $database->execute($baseQuery);
+    return $database->getErrorMessage()??"";
+}
+
 
 if($api->isPost())
 {
@@ -80,9 +130,10 @@ if($api->isPost())
 	$asuList = array_filter($itemList, "filterAsu");
 	
 	$error = "";
+    if(!empty($locList)) $error .= moveLocationItems( $locList, $locationNr);
+
 	if(!empty($invList)) $error .= moveItems( $invList, $locationNr, "inventory", "InventoryNumber");
 	if(!empty($stkList)) $error .= moveItems( $stkList, $locationNr, "partStock", "StockNumber");
-	if(!empty($locList)) $error .= moveItems( $locList, $locationNr, "location", "LocationNumber");
 	if(!empty($asuList)) $error .= moveItems( $asuList, $locationNr, "assembly_unit", "AssemblyUnitNumber");
 	
 	if(empty($error)) $api->returnEmpty();
