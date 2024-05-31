@@ -20,7 +20,7 @@ if($api->isGet())
 {
 	$query  = <<<QUERY
 		SELECT partStock_view.*, 
-				GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number) ) AS PartNoList 
+				GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number) ) AS ProductionPartNumberList 
 		FROM  partStock_view
 		LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock_view.ManufacturerPartNumberId
 		LEFT JOIN productionPart ON  productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
@@ -30,14 +30,13 @@ if($api->isGet())
 	$result = $database->query($query);
 
 	$filename = "Stock Export ".date("Y-m-d H:i:s").".csv";
-	$header = "Order Reference;Stock No;Manufacturer;Manufacturer Part Number;Date;Quantity;Create Quantity;Stocktaking Date;Create Data;Location;Supplier;Supplier Part Number;PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
+	$header = "Stock Number;Manufacturer;Manufacturer Part Number;Date;Quantity;Create Quantity;Stocktaking Date;Create Data;Location;Supplier;Supplier Part Number;PartNo 1;PartNo 2;PartNo 3;PartNo 4;PartNo 5";
 	$output = $header.PHP_EOL;
     $location = new Location();
 	foreach($result as $line)
 	{
 		$r = (array)$line;
-		$line  = '"'.$r['OrderReference'].'";';
-		$line .= '"'.$r['StockNo'].'";';
+		$line  = '"'.$r['StockNumber'].'";';
 		$line .= '"'.$r['ManufacturerName'].'";';
 		$line .= '"'.$r['ManufacturerPartNumber'].'";';
 		$line .= '"'.$r['Date'].'";';
@@ -48,8 +47,8 @@ if($api->isGet())
 		$line .= '"'.$location->name($r['LocationId']).'";';
 		$line .= '"'.$r['SupplierName'].'";';
 		$line .= '"'.$r['SupplierPartNumber'].'";';
-		if($r['PartNoList'] !== null) {
-			foreach (explode(",", $r['PartNoList'], 5) as $partNo) {
+		if($r['ProductionPartNumberList'] !== null) {
+			foreach (explode(",", $r['ProductionPartNumberList'], 5) as $partNo) {
 				$line .= '"'.$partNo .'";';
 			}
 		}

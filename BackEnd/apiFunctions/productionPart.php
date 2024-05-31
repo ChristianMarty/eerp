@@ -26,7 +26,7 @@ if($api->isGet())
             numbering.Prefix, 
             productionPart.Number, 
             Description,
-            ApprovedUsage,
+            COALESCE(productionPart_manufacturerPart_mapping.ApprovedUsage, productionPart_specificationPart_mapping.ApprovedUsage) AS ApprovedUsage,
             Cache_BillOfMaterial_TotalQuantityUsed AS BillOfMaterial_TotalQuantityUsed,
             Cache_BillOfMaterial_NumberOfOccurrence AS BillOfMaterial_NumberOfOccurrence
         FROM productionPart

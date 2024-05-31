@@ -20,6 +20,7 @@ schema_item_purchase_line = {
         "LineNumber": {"type": "integer"},
         "Price": {"type": "number"},
         "PriceAfterDiscount": {"type": "number"},
+        "ProductionPartNumber": {"type": "string"},
         "Discount": {"type": "number"},
         "CurrencyCode": {"type": "string"},
         "SupplierName": {"type": "string"},
@@ -33,7 +34,7 @@ schema_item_purchase_line = {
         "CostType": {"type": "string"}
     },
     "additionalProperties": False,
-    "minProperties": 13
+    "minProperties": 14
 }
 
 def test_purchase_list_schema():
@@ -54,10 +55,11 @@ def test_purchase_list_schema():
                 "Status": {"type": "string"},
                 "SupplierName": {"type": "string"},
                 "SupplierId": {"type": "integer"},
-                "ReceiveProgress": {"type": "integer"}
+                "ReceiveProgress": {"type": "integer"},
+                "ExpectedCompletionDate": {"type": "string"},
             },
             "additionalProperties": False,
-            "minProperties": 12
+            "minProperties": 13
         }]
     }
 

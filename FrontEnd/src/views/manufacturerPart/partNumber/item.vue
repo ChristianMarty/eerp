@@ -42,7 +42,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="Description" label="Description" sortable />
-          <el-table-column prop="ApprovedUsage" label="Approved Usage" sortable width="200"/>
+          <el-table-column prop="ApprovedUsage" label="Approved Usage" sortable width="200" />
         </el-table>
 
         <el-divider />

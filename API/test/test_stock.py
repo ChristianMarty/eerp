@@ -72,7 +72,8 @@ def test_stock_item_schema():
             "ManufacturerPartNumber": {"type": "string"},
             "ManufacturerPartNumberId": {"type": "integer"},
             "ManufacturerPartItemId": {"type": ["integer", "null"]},
-            "SpecificationPartRevisionId": {"type": ["integer", "null"]}
+            "SpecificationPartRevisionId": {"type": ["integer", "null"]},
+            "SinglePartWeight": {"type": ["number", "null"]}
         },
         "additionalProperties": False,
         "minProperties": 6

@@ -23,11 +23,12 @@ def test_production_part_list_schema():
                 "Number": {"type": "string"},
                 "ItemCode": {"type": "string"},
                 "Description": {"type": "string"},
+                "ApprovedUsage": {"type": "string"},
                 "BillOfMaterial_TotalQuantityUsed": {"type": ["integer", "null"]},
-                "BillOfMaterial_NumberOfOccurrence": {"type": ["integer", "null"]},
+                "BillOfMaterial_NumberOfOccurrence": {"type": ["integer", "null"]}
             },
             "additionalProperties": False,
-            "minProperties": 6
+            "minProperties": 7
         }]
     }
 

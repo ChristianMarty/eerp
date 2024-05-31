@@ -24,7 +24,7 @@ if($api->isGet())
 
     if($scale->hasError()) $api->returnError($scale->getErrorString());
 
-    $output = new  stdClass();
+    $output = new stdClass();
     $output->value = $scale->read();
 
     if($scale->hasError()) $api->returnError($scale->getErrorString());

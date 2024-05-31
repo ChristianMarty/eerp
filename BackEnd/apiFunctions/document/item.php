@@ -51,6 +51,7 @@ if($api->isGet())
 	$output->ItemCode  = barcodeFormatter_DocumentNumber($output->DocumentNumber);
 	$output->Citations = getCitations($output->Id);
     $output->DocumentNumber = intval($output->DocumentNumber);
+    $output->Description = $output->Description??"";
     unset($output->Id);
 	
 	$api->returnData($output);
