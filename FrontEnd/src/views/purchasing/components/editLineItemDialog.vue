@@ -185,14 +185,13 @@
         </el-form-item>
 
         <el-form-item v-if="line.LineType != 'Specification Part'" label="Manufacturer:">
-          <el-select
+          <el-autocomplete
             v-model="line.ManufacturerName"
             placeholder="Manufacturer"
-            filterable
-            style="min-width: 200px; margin-right: 10px;"
-          >
-            <el-option v-for="item in partManufacturer" :key="item.Id" :label="item.DisplayName" :value="item.FullName" />
-          </el-select>
+            style="min-width: 500px; margin-right: 10px;"
+            :fetch-suggestions="searchManufacturer"
+            autosize
+          />
         </el-form-item>
 
         <el-form-item v-if="line.LineType != 'Specification Part'" label="MPN:">
@@ -304,6 +303,23 @@ export default {
       data.Note = row.Note
       data.Description = row.Description
       data.ManufacturerPartNumber = row.ManufacturerPartNumber
+    },
+    createManufacturerFilter(queryString) {
+      return (link) => {
+        return (link.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
+    },
+    searchManufacturer(queryString, cb) {
+      const options = this.partManufacturer
+      const out = []
+      options.forEach(element => {
+        out.push({ value: element.DisplayName })
+      })
+
+      const results = queryString ? out.filter(element =>
+        element.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+      ) : out
+      cb(results)
     },
     searchSku(sku) {
       purchase.item.skuSearch(this.$props.purchaseOrder.SupplierId, sku).then(response => {

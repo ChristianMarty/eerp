@@ -31,14 +31,15 @@ if($api->isGet())
         LEFT JOIN manufacturerPart_partNumber On manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId 
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id 
         LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId 
+        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
     STR;
 
 	$parameters = array();
-	if(isset($manufacturerPartNumberId)) $parameters[] = " supplierPart.ManufacturerPartNumberId = $manufacturerPartNumberId";
-	if(isset($supplierId)) $parameters[] = " supplierPart.VendorId = $supplierId";
-	if(isset($productionPartNo)) $parameters[] = " productionPart.PartNo = '$productionPartNo'";
+	if(isset($manufacturerPartNumberId)) $parameters[] = "supplierPart.ManufacturerPartNumberId = $manufacturerPartNumberId";
+	if(isset($supplierId)) $parameters[] = "supplierPart.VendorId = $supplierId";
+	if(isset($productionPartNo)) $parameters[] = "CONCAT(numbering.Prefix,'-',productionPart.Number) = $productionPartNo";
 
-    $supplierData = $database->query($query,$parameters);
+    $supplierData = $database->query($query, $parameters);
 	
 	$api->returnData($supplierData);
 }
