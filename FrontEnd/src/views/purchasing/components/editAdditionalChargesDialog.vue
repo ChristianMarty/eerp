@@ -65,7 +65,11 @@
 
 <script>
 
-import requestBN from '@/utils/requestBN'
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
+
+import Finance from '@/api/finance'
+const finance = new Finance()
 
 export default {
   name: 'EditAdditionalChargesDialog',
@@ -80,30 +84,11 @@ export default {
       vat: []
     }
   },
-  mounted() {
-    this.getAdditionalChargeType()
-    this.getVAT()
+  async mounted() {
+    this.additionalChargeTypes = await purchase.item.additionalChargesLine.listType()
+    this.vat = await finance.tax.list('VAT')
   },
   methods: {
-    getAdditionalChargeType() {
-      requestBN({
-        url: '/purchasing/additionalChargeType',
-        methood: 'get'
-      }).then(response => {
-        this.additionalChargeTypes = response.data
-      })
-    },
-    getVAT() {
-      requestBN({
-        url: '/finance/tax',
-        methood: 'get',
-        params: {
-          Type: 'VAT'
-        }
-      }).then(response => {
-        this.vat = response.data
-      })
-    },
     refresh() {
       this.$emit('refresh')
     },
@@ -112,28 +97,25 @@ export default {
       this.$emit('update:visible', this.visible)
     },
     saveLine() {
-      requestBN({
-        method: 'post',
-        url: '/purchasing/additionalCharge/edit',
-        data: { Lines: [this.$props.line], PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }
-      }).then(response => {
-        if (response.error == null) {
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      purchase.item.additionalChargesLine.save(
+        this.$props.purchaseOrder.ItemCode,
+        [this.$props.line]
+      ).then(() => {
+        this.$message({
+          showClose: true,
+          message: 'Changes saved successfully',
+          duration: 1500,
+          type: 'success'
+        })
         this.refresh()
         this.closeDialog()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     deleteLine() {
@@ -142,21 +124,19 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        requestBN({
-          method: 'delete',
-          url: '/purchasing/additionalCharge/edit',
-          data: { AdditionalChargeLineId: this.line.AdditionalChargesLineId, PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }
-        }).then(response => {
-          if (response.error != null) {
-            this.$message({
-              showClose: true,
-              message: response.error,
-              duration: 0,
-              type: 'error'
-            })
-          }
+        purchase.item.additionalChargesLine.delete(
+          this.$props.purchaseOrder.ItemCode,
+          this.line.AdditionalChargesLineId
+        ).then(() => {
           this.refresh()
           this.closeDialog()
+        }).catch(response => {
+          this.$message({
+            showClose: true,
+            message: response,
+            duration: 0,
+            type: 'error'
+          })
         })
       }).catch(() => {
         this.$message({

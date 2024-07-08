@@ -75,7 +75,6 @@ class Purchase {
       })
     })
   }
-
   item = {
     save(data) {
       return new Promise((resolve, reject) => {
@@ -244,6 +243,66 @@ class Purchase {
           })
         })
       }
+    },
+    additionalChargesLine: {
+      listType() {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            methood: 'get',
+            url: '/purchasing/additionalChargeType'
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      emptyLine: {
+        LineNumber: 0,
+        Type: 'Other',
+        Price: 0,
+        Quantity: 0,
+        VatTaxId: 0,
+        Description: ''
+      },
+      save(PurchaseOrderNumber, Lines) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/purchasing/additionalCharge/edit',
+            data: {
+              PurchaseOrderNumber: PurchaseOrderNumber,
+              Lines: Lines
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      delete(PurchaseOrderNumber, AdditionalChargeLineId) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'delete',
+            url: '/purchasing/additionalCharge/edit',
+            data: {
+              PurchaseOrderNumber: PurchaseOrderNumber,
+              AdditionalChargeLineId: AdditionalChargeLineId
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
     },
     line: {
       emptyLine: {
