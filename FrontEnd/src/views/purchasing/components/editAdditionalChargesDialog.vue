@@ -115,7 +115,7 @@ export default {
       requestBN({
         method: 'post',
         url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: [this.$props.line], PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }}
+        data: { Lines: [this.$props.line], PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }
       }).then(response => {
         if (response.error == null) {
           this.$message({
@@ -143,9 +143,9 @@ export default {
         type: 'warning'
       }).then(() => {
         requestBN({
-          method: 'post',
+          method: 'delete',
           url: '/purchasing/additionalCharge/edit',
-          data: { data: { Action: 'delete', AdditionalChargeLineId: this.line.AdditionalChargesLineId, PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }}
+          data: { AdditionalChargeLineId: this.line.AdditionalChargesLineId, PurchaseOrderNumber: this.$props.purchaseOrder.ItemCode }
         }).then(response => {
           if (response.error != null) {
             this.$message({

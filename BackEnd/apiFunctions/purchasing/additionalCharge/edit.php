@@ -18,55 +18,52 @@ require_once __DIR__ . "/../../util/_barcodeParser.php";
 if($api->isPost())
 {
 	$data = $api->getPostData();
+    if(!isset($data->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
+    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($data->PurchaseOrderNumber);
+    if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
-    // TODO: complete refactoring
+    $lines = $data->Lines;
+    foreach ($lines as $line)
+    {
+        $sqlData = array();
 
-	$action =  $data->data->Action;
+        $id = intval($line->AdditionalChargesLineId);
+        $sqlData['LineNumber'] = $line->LineNumber;
+        $sqlData['Type'] = $line->Type;
+        if($line->Price === null) $sqlData['Price'] = 0;
+        else $sqlData['Price'] = $line->Price;
+        $sqlData['Quantity'] = $line->Quantity;
+        $sqlData['VatTaxId'] = intval($line->VatTaxId);
+        $sqlData['Description'] = $line->Description;
+        $sqlData['CreationUserId'] = $user->userId();
 
-    $poNo = barcodeParser_PurchaseOrderNumber($data->data->PurchaseOrderNumber);
-	
-	if($action == "save")
-	{
-		$lines = $data->data->Lines;
+        if($id != 0)
+        {
+            $condition = "Id = ".$id;
+            $database->update("purchaseOrder_additionalCharges", $sqlData, $condition);
+        }
+        else
+        {
+            $sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '".$purchaseOrderNumber."' )";
+            $database->insert("purchaseOrder_additionalCharges", $sqlData);
+        }
+    }
 
-		foreach ($lines as $line) 
-		{
-			$sqlData = array();
-			
-			$id = intval($line->AdditionalChargesLineId);
-			$sqlData['LineNumber'] = $line->LineNumber;
-			$sqlData['Type'] = $line->Type;
-			if($line->Price === null) $sqlData['Price'] = 0;
-			else $sqlData['Price'] = $line->Price;
-			$sqlData['Quantity'] = $line->Quantity;
-			$sqlData['VatTaxId'] = intval($line->VatTaxId);
-			$sqlData['Description'] = $line->Description;
-            $sqlData['CreationUserId'] = $user->userId();
-					
-			if($id != 0)
-			{	
-				$condition = "Id = ".$id;
-				$database->update("purchaseOrder_additionalCharges", $sqlData, $condition);
-			}
-			else
-			{
-				$sqlData['PurchaseOrderId']['raw'] = "(SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '".$poNo."' )";
-                $database->insert("purchaseOrder_additionalCharges", $sqlData);
-			}
-		}
-	}
-	else if($action == "delete")
-	{
+	$api->returnData(getPurchaseOrderData($purchaseOrderNumber));
+}
+else if($api->isDelete())
+{
+    $data = $api->getPostData();
+    if(!isset($data->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
+    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($data->PurchaseOrderNumber);
+    if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
-		$lineId = intval($data->data['AdditionalChargeLineId']);
-		
-		if($lineId != 0)
-		{
-			$query = "DELETE FROM purchaseOrder_additionalCharges WHERE Id = ".$lineId." AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '".$poNo."' );";
-            $database->query($query);
-		}
-	}
-	
+    if(!isset($data->AdditionalChargeLineId))$api->returnParameterMissingError('AdditionalChargeLineId');
+    $lineId = intval($data->AdditionalChargeLineId);
+    if($lineId === 0) $api->returnParameterError('AdditionalChargeLineId');
 
-	$api->returnData(getPurchaseOrderData($poNo));
+    $query = "DELETE FROM purchaseOrder_additionalCharges WHERE Id = ".$lineId." AND PurchaseOrderId = (SELECT Id FROM purchaseOrder WHERE PurchaseOrderNumber = '".$purchaseOrderNumber."' );";
+    $database->query($query);
+
+    $api->returnData(getPurchaseOrderData($purchaseOrderNumber));
 }
