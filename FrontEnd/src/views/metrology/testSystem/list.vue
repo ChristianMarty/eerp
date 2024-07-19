@@ -4,7 +4,7 @@
       <el-table :data="testSystem" style="width: 100%">
         <el-table-column label="Test System No" width="150" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/metrology/item/' + row.ItemCode" class="link-type">
+            <router-link :to="'/metrology/testSystem/item/' + row.ItemCode" class="link-type">
               <span> {{ row.ItemCode }}</span>
             </router-link>
           </template>
@@ -29,7 +29,7 @@ export default {
     }
   },
   async mounted() {
-    this.testSystem = await metrology.search()
+    this.testSystem = await metrology.testSystem.search()
   },
   methods: {
   }

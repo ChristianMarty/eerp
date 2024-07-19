@@ -3,38 +3,37 @@
     <h1>{{ testSystemData.ItemCode }} - {{ testSystemData.Name }}</h1>
     <p><b>Description: </b>{{ testSystemData.Description }}</p>
 
-    <p><b>Test Date: </b><el-date-picker
-      v-model="date"
-      type="date"
-      placeholder="Pick a day"
-      value-format="yyyy-MM-dd"
-      @change="getData()"
-    /></p>
-    <p>Select the date of testing to verify the calibration.</p>
-
     <el-divider />
-    <h2>Equipment List</h2>
+    <h2>Instruments</h2>
     <template>
-      <el-table :data="testSystemData.Item" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
+      <el-table
+        :data="testSystemData.Item"
+        style="width: 100%"
+        border
+        :cell-style="{ padding: '0', height: '20px' }"
+        row-key="lineKey"
+        :tree-props="{ children: 'Equipment'}"
+        :default-expand-all="true"
+      >
+
+        <el-table-column label="Name" prop="Name" sortable />
+        <el-table-column label="Description" prop="Description" sortable />
+
         <el-table-column prop="InventoryCode" label="Inventory No" width="140" sortable>
           <template slot-scope="{ row }">
-            <router-link :to="'/inventory/inventoryView/' + row.InventoryCode" class="link-type">
-              <span> {{ row.InventoryCode }}</span>
+            <router-link :to="'/inventory/item/' + row.ItemCode" class="link-type">
+              <span> {{ row.ItemCode }}</span>
             </router-link>
           </template>
         </el-table-column>
-        <el-table-column label="Title" prop="Title" sortable />
+
         <el-table-column label="Manufacturer" prop="ManufacturerName" sortable />
         <el-table-column label="Type" prop="Type" sortable />
         <el-table-column label="SerialNumber" prop="SerialNumber" sortable />
-        <el-table-column label="Usage" prop="Usage" sortable />
-        <el-table-column label="Calibration Required" prop="CalibrationRequired" sortable>
-          <template slot-scope="{ row }">
-            {{ row.CalibrationRequired }}
-          </template>
-        </el-table-column>
-        <el-table-column label="Calibration Date" prop="CalibrationDate" sortable />
-        <el-table-column label="Next Calibration" prop="NextCalibrationDate" sortable />
+        <el-table-column label="Added" prop="AddedDate" sortable />
+        <el-table-column label="Removed" prop="RemovedDate" sortable />
+        <el-table-column label="Calibration" prop="CalibrationDate" sortable />
+        <el-table-column label="Calibration Exp." prop="CalibrationExpirationDate" sortable />
       </el-table>
     </template>
   </div>
@@ -50,14 +49,11 @@ export default {
   components: { },
   data() {
     return {
-      testSystemData: {},
-      date: ''
-
+      testSystemData: {}
     }
   },
   mounted() {
     this.setTitle()
-    this.date = new Date().toISOString().slice(0, 10)
     this.getData()
   },
   created() {
@@ -74,9 +70,26 @@ export default {
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = `${this.$route.params.TestSystemNumber}`
     },
+    prepareLines(data) {
+      let i = 0
+      data.forEach(line => {
+        line.lineKey = i
+        i++
+        if (line.Equipment.length === 1) {
+          Object.assign(line, line, line.Equipment[0])
+          delete line.Equipment
+        } else {
+          line.Equipment.forEach(subLine => {
+            subLine.lineKey = i
+            i++
+          })
+        }
+      })
+    },
     getData() {
-      metrology.system.item(this.$route.params.TestSystemNumber, this.date).then(response => {
+      metrology.testSystem.item(this.$route.params.TestSystemNumber, this.date).then(response => {
         this.testSystemData = response
+        this.prepareLines(this.testSystemData.Item)
       }).catch(response => {
         this.$message({
           showClose: true,

@@ -6,14 +6,20 @@
 # Website  : www.christian-marty.ch
 # *************************************************************************************************
 
+class TestSystem(object):
+    def __init__(self, metrology_instance):
+        self._metrology = metrology_instance
+
+    def list(self):
+        data = self._metrology.get('metrology/testSystem')
+        return data
+
+    def item(self, test_system_code: str | int):
+        data = self._metrology.get('metrology/testSystem/item', {"TestSystemNumber": test_system_code})
+        return data
+
+
 class Metrology(object):
     def __init__(self, eerp_instance):
         self._eerp = eerp_instance
-
-    def list(self):
-        data = self._eerp.get('metrology')
-        return data
-
-    def item(self, test_system_code: str | int, test_date: str | None = None):
-        data = self._eerp.get('metrology/item', {"TestSystemNumber": test_system_code, "TestDate": test_date})
-        return data
+        self.testSystem = TestSystem(eerp_instance)

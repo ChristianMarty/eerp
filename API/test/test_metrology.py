@@ -29,29 +29,43 @@ def test_metrology_list_schema():
         }]
     }
 
-    data = eerp.metrology.list()
+    data = eerp.metrology.testSystem.list()
     validate_schema(instance=data, schema=schema)
 
 def test_metrology_item_schema():
-    schema_item = {
+    schema_equipment = {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "array",
         "items": [{
             "type": "object",
             "properties": {
                 "InventoryNumber": {"type": "integer"},
-                "InventoryCode": {"type": "string"},
+                "ItemCode": {"type": "string"},
                 "Title": {"type": "string"},
                 "ManufacturerName": {"type": "string"},
                 "Type": {"type": "string"},
-                "SerialNumber": {"type": "string"},
-                "Usage": {"type": "string"},
-                "CalibrationRequired": {"type": "boolean"},
+                "SerialNumber": {"type": ["string", "null"]},
+                "AddedDate": {"type": ["string", "null"]},
+                "RemovedDate": {"type": ["string", "null"]},
                 "CalibrationDate": {"type": ["string", "null"]},
-                "NextCalibrationDate": {"type": ["string", "null"]},
+                "CalibrationExpirationDate": {"type": ["string", "null"]}
             },
             "additionalProperties": False,
             "minProperties": 10
+        }]
+    }
+    schema_item = {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "array",
+        "items": [{
+            "type": "object",
+            "properties": {
+                "Name": {"type": "string"},
+                "Description": {"type": ["string", "null"]},
+                "Equipment": schema_equipment
+            },
+            "additionalProperties": False,
+            "minProperties": 3
         }]
     }
     schema = {
@@ -68,8 +82,5 @@ def test_metrology_item_schema():
         "minProperties": 5
     }
 
-    data = eerp.metrology.item("TSY-97645")
-    validate_schema(instance=data, schema=schema)
-
-    data = eerp.metrology.item("TSY-97645", "2024-03-15")
+    data = eerp.metrology.testSystem.item("TSY-97645")
     validate_schema(instance=data, schema=schema)

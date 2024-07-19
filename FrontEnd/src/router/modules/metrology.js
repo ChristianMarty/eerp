@@ -11,24 +11,24 @@ const metrologyRouter = {
   },
   children: [
     {
-      path: 'metrology',
-      component: () => import('@/views/metrology/browser'),
-      name: 'metrologyBrowser',
-      meta: { title: 'Metrology', icon: 'el-icon-odometer' }
+      path: 'testSystem',
+      component: () => import('@/views/metrology/testSystem/list.vue'),
+      name: 'testSystemList',
+      meta: { title: 'Test System List', icon: 'el-icon-odometer' }
     },
     {
-      path: 'create',
-      component: () => import('@/views/metrology/create'),
-      name: 'metrologyCreate',
+      path: 'testSystem/create',
+      component: () => import('@/views/metrology/testSystem/create.vue'),
+      name: 'testSystemCreate',
       meta: {
-        title: 'Create', icon: 'el-icon-plus', roles: ['metrology.create']
+        title: 'Create Test System', icon: 'el-icon-plus', roles: ['metrology.create']
       }
     },
     {
-      path: 'item/:TestSystemNumber(.*)',
-      component: () => import('@/views/metrology/item/'),
-      name: 'metrologyView',
-      meta: { title: 'Item', icon: 'el-icon-sold-out' },
+      path: 'testSystem/item/:TestSystemNumber(.*)',
+      component: () => import('@/views/metrology/testSystem/item.vue'),
+      name: 'testSystemView',
+      meta: { title: 'Item' },
       hidden: true
     }
 

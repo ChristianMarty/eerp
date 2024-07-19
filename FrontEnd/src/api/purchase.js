@@ -302,7 +302,7 @@ class Purchase {
             }
           })
         })
-      },
+      }
     },
     line: {
       emptyLine: {
