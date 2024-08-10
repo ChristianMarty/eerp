@@ -12,6 +12,11 @@ require_once __DIR__ . "/core/entrypoint.php";
 global $api;
 global $user;
 
+if(isset($_GET["user"]) && isset($_GET["token"]))
+{
+    $user->loginWithToken($_GET["user"],$_GET["token"]);
+}
+
 $api = new apiRouter($user, entrypoint::API, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
 try {
