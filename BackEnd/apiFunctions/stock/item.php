@@ -72,7 +72,12 @@ if($api->isGet("stock.view"))
     $stockNumber = barcodeParser_StockNumber($parameter->StockCode);
     if($stockNumber === null) $api->returnParameterError("StockCode");
 
-	$r = $database->query(_stockPartQuery($database->escape($stockNumber)))[0];
+	$r = $database->query(_stockPartQuery($database->escape($stockNumber)));
+
+    if(empty($r)){
+        $api->returnEmpty();
+    }
+    $r = $r[0];
 
 	$r->ItemCode = barcodeFormatter_StockNumber($r->StockNumber);
 
