@@ -1,0 +1,125 @@
+@font-face {
+    font-family: jost;
+    src: url("assets/jost.light.otf") format("opentype");
+}
+
+body {
+    font-family: 'jost', sans-serif;
+}
+
+body {
+    background-color: rgb(156, 154, 154);
+    margin: 0;
+}
+
+div.header {
+    background-color: rgb(255, 255, 255);
+    width: 100%;
+    margin: 0 0 20px;
+    padding: 15px;
+    position: fixed;
+    top: 0;
+}
+
+.homeButton, .actionButton {
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    height: 40px;
+    width: 200px;
+    font-size: 30px;
+}
+
+div.homeButton {
+    background-color: #5f5e5e;
+    color: #fff;
+}
+
+div.actionButton {
+    background-color: #0000ff;
+    color: #fff;
+}
+
+.homeWrapper {
+    padding-top: 370px;
+
+    grid-gap: 20px;
+
+    display: grid;
+    place-items: center;
+    justify-content: center;
+    align-content: center;
+
+    grid-template-columns: repeat(auto-fill, 40%);
+}
+a:link{
+    text-decoration: none;
+}
+
+.box {
+    background-color: #5f5e5e;
+    color: #fff;
+    border-radius: 5px;
+    margin-top: 40px;
+    padding: 50px;
+    text-align: center;
+    height: 250px;
+    width: 250px;
+    font-size: 25px;
+}
+
+
+
+.contentWrapper {
+    padding: 20px;
+}
+
+.content {
+    margin-top: 30px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 5px;
+}
+.content h1{
+    font-size: 50px;
+}
+.content h2{
+    font-size: 40px;
+}
+.content h3{
+    font-size: 30px;
+}
+.content th{
+    font-size: 25px;
+    font-weight: bold;
+    width: 250px;
+    text-align: left;
+}
+.content tr{
+    font-size: 25px;
+}
+
+
+input[type=search], input[type=submit], input[type=number], textarea  {
+    font-size: 20px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+textarea {
+    width: 100%;
+}
+
+input[type=search] {
+    width: calc(80% - 5px);
+}
+
+input[type=submit] {
+    width: 20%;
+    cursor: pointer;
+
+}

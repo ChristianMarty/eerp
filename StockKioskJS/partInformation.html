@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>E-ERP Stock Kiosk</title>
+  <link rel="stylesheet" href="main.css">
+  <script src="component.js"></script>
+</head>
+<body>
+
+  <div class="contentWrapper">
+    <a href="index.html">
+      <div class="homeButton">Home</div>
+    </a>
+
+    <div class="content">
+      <h1>Part Information</h1>
+      <input type="search" id="stockNumberSearch" placeholder="Stock Number"/>
+      <input type="submit" onclick="triggerSearch()" value="Search"/>
+    </div>
+
+    <div class="content" id="hiddenContent">
+      <div style="display: flex; justify-content: space-between;">
+        <h2 id="stockNumber"></h2>
+        <input type="submit" onclick="triggerClear()" value="Close"/>
+      </div>
+
+      <span id="partInformation"></span>
+      <br/>
+      <span id="locationInformation"></span>
+      <br/>
+      <span id="stockInformation"></span>
+      <br/>
+    </div>
+  </div>
+
+</body>
+</html>
+
+<script type="module">
+  import {getStockInformation} from "./api.js";
+
+  window.onload = showInfo;
+  document.getElementById("stockNumberSearch").focus();
+  document.getElementById('stockNumberSearch').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      triggerSearch()
+    }
+  });
+
+  function showInfo(show){
+    let content = document.getElementById("hiddenContent");
+    if(show === true){
+      content.style.display = "block"
+    }else{
+      content.style.display = "none"
+    }
+  }
+
+  function setValue(id, value){
+    document.getElementById(id).innerText = value
+  }
+
+  window.triggerClear = function triggerClear(){
+    showInfo(false);
+    document.getElementById("stockNumberSearch").value = "";
+    document.getElementById("stockNumberSearch").focus();
+  }
+
+  window.triggerSearch = async function triggerSearch(){
+    const stockNumber = document.getElementById("stockNumberSearch").value;
+
+    const stockData = await getStockInformation(stockNumber);
+    if(stockData === null){
+      return;
+    }
+
+    setValue("stockNumber", stockData.ItemCode);
+
+    document.getElementById("partInformation").innerHTML = partInformation(stockData);
+    document.getElementById("locationInformation").innerHTML = locationInformation(stockData);
+    document.getElementById("stockInformation").innerHTML = stockInformation(stockData);
+
+    showInfo(true);
+  }
+</script>
