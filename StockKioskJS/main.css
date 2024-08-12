@@ -3,17 +3,23 @@
     src: url("assets/jost.light.otf") format("opentype");
 }
 
+:root {
+    --color-error: #ea9999;
+    --color-success: #b6d7a8;
+    --color-warning: #ffe599;
+    --color-action: #8395c1;
+    --color-abort: #8281A0;
+    --color-background: rgb(156, 154, 154);
+    --color-content: rgb(255, 255, 255);
+}
+
 body {
     font-family: 'jost', sans-serif;
-}
-
-body {
-    background-color: rgb(156, 154, 154);
+    background-color: var(--color-background);
     margin: 0;
 }
-
 div.header {
-    background-color: rgb(255, 255, 255);
+    background-color: var(--color-content);
     width: 100%;
     margin: 0 0 20px;
     padding: 15px;
@@ -31,12 +37,7 @@ div.header {
 }
 
 div.homeButton {
-    background-color: #5f5e5e;
-    color: #fff;
-}
-
-div.actionButton {
-    background-color: #0000ff;
+    background-color:  #5f5e5e;
     color: #fff;
 }
 
@@ -68,18 +69,33 @@ a:link{
     font-size: 25px;
 }
 
-
-
 .contentWrapper {
     padding: 20px;
 }
 
-.content {
+.content, .messageBox {
     margin-top: 30px;
     background-color: #ffffff;
     padding: 20px;
     border-radius: 5px;
 }
+
+.messageBox, .messageBoxError, .messageBoxSuccess {
+    height: 100px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+.messageBoxError {
+     background-color:var(--color-error);
+ }
+.messageBoxSuccess {
+    background-color:var(--color-success);
+}
+.messageBoxError p, .messageBoxSuccess p{
+    font-size: 35px;
+}
+
 .content h1{
     font-size: 50px;
 }

@@ -16,8 +16,7 @@ export async function getStockInformation(StockCode) {
     if (!response.ok) {
         return  null;
     }
-    let data =  await response.json();
-    return  data.data;
+    return await response.json();
 }
 
 export async function countStock(StockCode, Quantity, Note) {
@@ -46,8 +45,7 @@ export async function countStock(StockCode, Quantity, Note) {
     if (!response.ok) {
         return  null;
     }
-    let data =  await response.json();
-    return  data.data;
+    return await response.json();
 }
 
 export async function removeStock(StockCode, Quantity, Note) {
@@ -76,8 +74,7 @@ export async function removeStock(StockCode, Quantity, Note) {
     if (!response.ok) {
         return  null;
     }
-    let data =  await response.json();
-    return  data.data;
+    return await response.json();
 }
 
 
