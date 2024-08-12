@@ -23,11 +23,11 @@ function locationInformation(stockData){
         </tr>
         <tr>
           <th>Location Code:</th>
-          <td>${stockData.Location.Path}</td>
+          <td>${stockData.Location.ItemCode}</td>
         </tr>
         <tr>
           <th>Location Path:</th>
-          <td>${stockData.Location.ItemCode}</td>
+          <td>${stockData.Location.Path}</td>
         </tr>
       </table>
 `;

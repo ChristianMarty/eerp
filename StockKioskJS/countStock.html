@@ -5,6 +5,7 @@
     <title>E-ERP Stock Kiosk</title>
     <link rel="stylesheet" href="main.css">
     <script src="component.js"></script>
+    <script src="messageBox.js"></script>
 </head>
 
 <body>
@@ -18,6 +19,8 @@
             <input type="search" id="stockNumberSearch" placeholder="Stock Number"/>
             <input type="submit"  onclick="triggerSearch()" value="Search"/>
         </div>
+
+        <message-box id="messageBox"></message-box>
 
         <div class="content" id="hiddenContent">
             <div style="display: flex; justify-content: space-between;">
@@ -64,6 +67,19 @@
         document.getElementById(id).innerText = value
     }
 
+    function validateResult(result){
+        if(result === null) {
+            document.getElementById("messageBox").showError("Invalid input!", 3000);
+            return false;
+        }
+
+        if(result.error !== null) {
+            document.getElementById("messageBox").showError(result.error, 3000);
+            return false;
+        }
+        return true;
+    }
+
     window.stockNumber = null;
     window.triggerClear = function triggerClear(){
         showInfo(false);
@@ -78,19 +94,28 @@
         const newQuantity = document.getElementById("newQuantity").value;
         const newNote = document.getElementById("newNote").value;
 
-        let countResult = await countStock(window.stockNumber, newQuantity, newNote);
+        const result = await countStock(window.stockNumber, newQuantity, newNote);
 
-        triggerClear();
-
+        if(validateResult(result)) {
+            document.getElementById("messageBox").showSuccess("The item count was updated successfully.", 3000);
+            triggerClear();
+        }
     }
     window.triggerSearch = async function triggerSearch(){
         const stockNumber = document.getElementById("stockNumberSearch").value;
-        const stockData = await getStockInformation(stockNumber);
+        const result = await getStockInformation(stockNumber);
 
-        if(stockData === null){
+        if(!validateResult(result)) {
+            triggerClear();
             return;
         }
 
+        if(result.data === null) {
+            document.getElementById("messageBox").showError("Stock number not found.", 3000);
+            return false;
+        }
+
+        const stockData = result.data;
         window.stockNumber = stockData.ItemCode;
         setValue("stockNumber", stockData.ItemCode);
 

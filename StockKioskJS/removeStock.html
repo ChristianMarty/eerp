@@ -5,6 +5,7 @@
     <title>E-ERP Stock Kiosk</title>
     <link rel="stylesheet" href="main.css">
     <script src="component.js"></script>
+    <script src="messageBox.js"></script>
 </head>
 
 <body>
@@ -19,9 +20,7 @@
             <input type="submit" onclick="triggerSearch()" value="Search"/>
         </div>
 
-        <div class="messageBox" id="messageBox">
-            <p id="messageBoxText"></p>
-        </div>
+        <message-box id="messageBox"></message-box>
 
         <div class="content" id="hiddenContent">
             <div style="display: flex; justify-content: space-between;">
@@ -50,7 +49,6 @@
 <script type="module">
     import {getStockInformation, removeStock} from "./api.js";
 
-    hideMessageBox();
     window.onload = showInfo;
     document.getElementById("stockNumberSearch").focus();
     document.getElementById('stockNumberSearch').addEventListener('keydown', (event) => {
@@ -69,32 +67,15 @@
     function setValue(id, value){
         document.getElementById(id).innerText = value
     }
-    function showError(message) {
-        document.getElementById("messageBox").classList.add('messageBoxError');
-        document.getElementById("messageBox").style.display = "block"
-        document.getElementById("messageBoxText").innerText = message;
-    }
-    function showSuccess(message) {
-        document.getElementById("messageBox").classList.add('messageBoxSuccess');
-        document.getElementById("messageBox").style.display = "block"
-        document.getElementById("messageBoxText").innerText = message;
-    }
-    function hideMessageBox() {
-        document.getElementById("messageBox").style.display = "none"
-        document.getElementById("messageBox").classList.remove('messageBoxError');
-        document.getElementById("messageBox").classList.remove('messageBoxSuccess');
-    }
 
     function validateResult(result){
         if(result === null) {
-            showError("Input invalid!")
-            setTimeout(hideMessageBox, 3000);
+            document.getElementById("messageBox").showError("Invalid input!", 3000);
             return false;
         }
 
         if(result.error !== null) {
-            showError(result.error)
-            setTimeout(hideMessageBox, 3000);
+            document.getElementById("messageBox").showError(result.error, 3000);
             return false;
         }
         return true;
@@ -114,11 +95,10 @@
         const removeQuantity = document.getElementById("removeQuantity").value;
         const newNote = document.getElementById("newNote").value;
 
-        const countResult = await removeStock(window.stockNumber, removeQuantity, newNote);
+        const result = await removeStock(window.stockNumber, removeQuantity, newNote);
 
-        if(validateResult(countResult)) {
-            showSuccess("The items have been successfully removed from the stock.");
-            setTimeout(hideMessageBox, 3000);
+        if(validateResult(result)) {
+            document.getElementById("messageBox").showSuccess("The items have been successfully removed from the stock.", 3000);
             triggerClear();
         }
     }
@@ -129,6 +109,11 @@
         if(!validateResult(result)) {
             triggerClear();
             return;
+        }
+
+        if(result.data === null) {
+            document.getElementById("messageBox").showError("Stock number not found.", 3000);
+            return false;
         }
 
         const stockData = result.data;

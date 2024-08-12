@@ -5,6 +5,7 @@
   <title>E-ERP Stock Kiosk</title>
   <link rel="stylesheet" href="main.css">
   <script src="component.js"></script>
+  <script src="messageBox.js"></script>
 </head>
 <body>
 
@@ -18,6 +19,8 @@
       <input type="search" id="stockNumberSearch" placeholder="Stock Number"/>
       <input type="submit" onclick="triggerSearch()" value="Search"/>
     </div>
+
+    <message-box id="messageBox"></message-box>
 
     <div class="content" id="hiddenContent">
       <div style="display: flex; justify-content: space-between;">
@@ -68,12 +71,30 @@
   }
 
   window.triggerSearch = async function triggerSearch(){
+
+
     const stockNumber = document.getElementById("stockNumberSearch").value;
 
-    const stockData = await getStockInformation(stockNumber);
-    if(stockData === null){
+    const result = await getStockInformation(stockNumber);
+    if(result === null) {
+      document.getElementById("messageBox").showError("Invalid Input!", 3000);
+      triggerClear();
       return;
     }
+
+    if(result.error !== null) {
+      document.getElementById("messageBox").showError(result.error, 3000);
+      triggerClear();
+      return
+    }
+
+    if(result.data === null) {
+      document.getElementById("messageBox").showError("Stock number not found.", 3000);
+      triggerClear();
+      return
+    }
+
+    const stockData = result.data;
 
     setValue("stockNumber", stockData.ItemCode);
 
