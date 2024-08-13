@@ -46,7 +46,8 @@
 </html>
 
 <script type="module">
-    import {getStockInformation, countStock} from "./api.js";
+    import {Api} from "./api.js";
+    const api = new Api();
 
     window.onload = showInfo;
     document.getElementById("stockNumberSearch").focus();
@@ -94,7 +95,7 @@
         const newQuantity = document.getElementById("newQuantity").value;
         const newNote = document.getElementById("newNote").value;
 
-        const result = await countStock(window.stockNumber, newQuantity, newNote);
+        const result = await api.countStock(window.stockNumber, newQuantity, newNote);
 
         if(validateResult(result)) {
             document.getElementById("messageBox").showSuccess("The item count was updated successfully.", 3000);
@@ -103,7 +104,7 @@
     }
     window.triggerSearch = async function triggerSearch(){
         const stockNumber = document.getElementById("stockNumberSearch").value;
-        const result = await getStockInformation(stockNumber);
+        const result = await api.getStockInformation(stockNumber);
 
         if(!validateResult(result)) {
             triggerClear();

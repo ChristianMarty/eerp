@@ -67,6 +67,10 @@ a:link{
     height: 250px;
     width: 250px;
     font-size: 25px;
+
+    display: grid;
+    place-items: center;
+    text-align: center;
 }
 
 .contentWrapper {

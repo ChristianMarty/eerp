@@ -41,7 +41,8 @@
 </html>
 
 <script type="module">
-  import {getStockInformation} from "./api.js";
+  import {Api} from "./api.js";
+  const api = new Api();
 
   window.onload = showInfo;
   document.getElementById("stockNumberSearch").focus();
@@ -75,7 +76,7 @@
 
     const stockNumber = document.getElementById("stockNumberSearch").value;
 
-    const result = await getStockInformation(stockNumber);
+    const result = await api.getStockInformation(stockNumber);
     if(result === null) {
       document.getElementById("messageBox").showError("Invalid Input!", 3000);
       triggerClear();
