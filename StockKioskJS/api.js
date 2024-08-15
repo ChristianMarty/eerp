@@ -75,6 +75,33 @@ export class Api {
         return responseMessage;
     }
 
+    async printStockHistoryBon(StockHistoryCode) {
+        if (StockHistoryCode === "" || StockHistoryCode === null) {
+            return null;
+        }
+
+        const postData = {
+            Data: [StockHistoryCode],
+            PrinterId: config.bonPrinterId,
+            RendererId: config.stockHistoryBonRendererId
+        }
+        let response = await fetch(this.encodeUrl("/peripheral/printer/print"), {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Idempotency-Key": this.idempotency
+            },
+            body: JSON.stringify(postData)
+        })
+
+        if (!response.ok) {
+            return null;
+        }
+        const responseMessage = await response.json();
+        this.idempotency = responseMessage.idempotency;
+        return responseMessage;
+    }
+
 // Private --------------------------------------------------------------
 // Can't be declared as private because missing browser support!
     idempotency = "";

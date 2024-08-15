@@ -34,12 +34,9 @@
 
             <h3>New Quantity</h3>
             <hr/>
-
             <input type="number" id="removeQuantity" placeholder="Quantity"/><br>
             <textarea id="newNote" placeholder="Note"></textarea><br>
-
             <input type="submit"  onclick="saveQuantity()" value="Save"/><br>
-
         </div>
     </div>
 </body>
@@ -92,6 +89,7 @@
         document.getElementById("removeQuantity").value = "";
         document.getElementById("newNote").value = "";
     }
+    let stockHistoryItemCode = null;
     window.saveQuantity = async function saveQuantity(){
         const removeQuantity = document.getElementById("removeQuantity").value;
         const newNote = document.getElementById("newNote").value;
@@ -99,9 +97,11 @@
         const result = await api.removeStock(window.stockNumber, removeQuantity, newNote);
 
         if(validateResult(result)) {
-            document.getElementById("messageBox").showSuccess("The items have been successfully removed from the stock.", 3000);
+            document.getElementById("messageBox").showSuccess("The items have been successfully removed from the stock.", 10000, true);
             triggerClear();
         }
+
+        stockHistoryItemCode = result.data.ItemCode;
     }
     window.triggerSearch = async function triggerSearch(){
         const stockNumber = document.getElementById("stockNumberSearch").value;
@@ -126,6 +126,9 @@
 
         showInfo(true);
         document.getElementById("removeQuantity").focus();
+    }
+    window.print = async function print(){
+        await api.printStockHistoryBon(stockHistoryItemCode);
     }
 </script>
 

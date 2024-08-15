@@ -209,7 +209,22 @@ else if($api->isPost())
 
 	$sqlData['CreationUserId'] = $user->userId();
 
-    $database->insert("partStock_history", $sqlData);
+    $stockHistoryId = $database->insert("partStock_history", $sqlData);
 
-    $api->returnEmpty();
+
+    $query = <<<STR
+        SELECT 
+            partStock.StockNumber,
+            partStock_history.Cache_ChangeIndex AS ChangeIndex
+        FROM partStock_history 
+        LEFT JOIN partStock ON partStock.Id = partStock_history.StockId
+        WHERE partStock_history.Id IN($stockHistoryId)
+    STR;
+
+    $result = $database->query($query)[0];
+
+    $output = new stdClass();
+    $output->ItemCode = barcodeFormatter_StockHistoryNumber($result->StockNumber, $result->ChangeIndex);
+
+    $api->returnData($output);
 }

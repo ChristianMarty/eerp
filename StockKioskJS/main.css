@@ -77,7 +77,7 @@ a:link{
     padding: 20px;
 }
 
-.content, .messageBox {
+.content {
     margin-top: 30px;
     background-color: #ffffff;
     padding: 20px;
@@ -86,6 +86,10 @@ a:link{
 
 .messageBox, .messageBoxError, .messageBoxSuccess {
     height: 100px;
+    margin-top: 30px;
+    border-radius: 5px;
+    padding-top: 20px;
+    padding-bottom: 20px;
     display: grid;
     place-items: center;
     text-align: center;
@@ -119,7 +123,21 @@ a:link{
     font-size: 25px;
 }
 
+.buttonWarning, .buttonAction {
+    font-size: 30px;
+    margin-top: 30px;
+    margin-left: 30px;
+    padding: 40px 80px;
+    text-decoration: none;
+    border: none;
+}
 
+.buttonAction {
+    background-color:var(--color-action);
+}
+.buttonWarning{
+    background-color:var(--color-warning);
+}
 input[type=search], input[type=submit], input[type=number], textarea  {
     font-size: 20px;
     padding: 12px 20px;
