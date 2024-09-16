@@ -12,6 +12,7 @@ global $database;
 global $api;
 global $user;
 
+require_once __DIR__ . "/../../stock/_stock.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../_part.php";
@@ -79,6 +80,7 @@ if($api->isGet())
 // get stock
     $query = <<<STR
         SELECT
+            partStock.Id AS PartStockId,
             partStock.StockNumber,
             partStock.Date,
             partStock.LotNumber,
@@ -95,6 +97,7 @@ if($api->isGet())
 
     $stock = array();
     $totalStockQuantity = 0;
+    $totalStockCertainty = 0;
     $location = new Location();
     foreach ($result as $r)
     {
@@ -106,6 +109,9 @@ if($api->isGet())
         $stockRow['Quantity'] = intval($r->Quantity);
         $totalStockQuantity += $stockRow['Quantity'];
         $stockRow['LocationName'] = $location->name($r->LocationId);
+        $certainty =  \stock\stock::certainty(intval($r->PartStockId));
+        $stockRow['Certainty'] = $certainty;
+        $totalStockCertainty += $certainty->Factor*($r->Quantity);
 
         if(isset($parameter->HideEmptyStock) && $stockRow['Quantity'] == 0) {
             if (filter_var($parameter->HideEmptyStock, FILTER_VALIDATE_BOOLEAN)) {
@@ -116,6 +122,8 @@ if($api->isGet())
     }
     $output['Stock'] = $stock;
     $output['TotalStockQuantity'] = $totalStockQuantity;
+    $output['TotalStockCertainty'] = round($totalStockCertainty/$totalStockQuantity, 4);
+    $output['TotalStockRating'] = round($output['TotalStockCertainty'] * 5);
 
 // get Characteristics
 

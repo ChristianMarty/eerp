@@ -95,13 +95,25 @@
               </router-link>
             </template>
           </el-table-column>
-          <el-table-column prop="Date" label="Date" sortable width="150" />
+          <el-table-column prop="Date" label="Mfr. Date" sortable width="150" />
           <el-table-column prop="Lot" label="Lot" sortable width="150" />
           <el-table-column prop="Quantity" label="Quantity" sortable width="150" />
           <el-table-column prop="LocationName" label="Location" sortable />
+          <!--<el-table-column prop="Certainty.LastStocktakingDate" label="Last Stocktaking" sortable width="170"/>-->
+          <el-table-column prop="Certainty.DaysSinceStocktaking" label="Days Since Stocktaking" sortable width="210" />
+          <el-table-column prop="Certainty.Factor" label="Stock Certainty" width="150" sortable>
+            <template slot-scope="{ row }">
+              <el-rate
+                v-model="row.Certainty.Rating"
+                disabled
+              />
+            </template>
+          </el-table-column>
         </el-table>
 
-        <p><b>Total Stock Quantety:</b> {{ partData.TotalStockQuantity }}</p>
+        <p><b>Total Quantity:</b> {{ partData.TotalStockQuantity }}</p>
+        <p><b>Total Certainty:</b> {{ partData.TotalStockCertainty }}</p>
+        <p><b>Total Rating:</b> <el-rate v-model="partData.TotalStockRating" disabled /></p>
 
         <h3>Stock Notification</h3>
         <table>
