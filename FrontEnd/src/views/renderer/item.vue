@@ -81,15 +81,14 @@ export default {
   },
   methods: {
     prepairData() {
-      const vars = this.labelData.Variables.split(',')
-      vars.forEach(element => {
+      this.labelData.Dataset.Variables.forEach(element => {
         const line = { Name: element, Value: '' }
         this.variables.push(line)
       })
 
-      this.previewHeight = this.labelData.Hight * 2 + 'mm'
-      this.previewWidth = this.labelData.Width * 2 + 'mm'
-      this.rotation = this.labelData.Rotation
+      this.previewHeight = this.labelData.Medium.Hight * 2 + 'mm'
+      this.previewWidth = this.labelData.Medium.Width * 2 + 'mm'
+      this.rotation = this.labelData.Medium.Rotation
       this.updateCode()
     },
     getLabel() {
@@ -128,11 +127,11 @@ export default {
       if (this.labelData.Language !== 'ZPL') return
 
       this.previewPath = 'https://api.labelary.com/v1/printers/'
-      this.previewPath += this.labelData.Resolution
+      this.previewPath += this.labelData.Medium.Resolution
       this.previewPath += '/labels/'
-      this.previewPath += parseInt(this.labelData.Width) / 25.4
+      this.previewPath += parseInt(this.labelData.Medium.Width) / 25.4
       this.previewPath += 'x'
-      this.previewPath += parseInt(this.labelData.Hight) / 25.4
+      this.previewPath += parseInt(this.labelData.Medium.Hight) / 25.4
       this.previewPath += '/0/'
       this.previewPath += this.code
 
