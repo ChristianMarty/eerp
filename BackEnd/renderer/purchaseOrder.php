@@ -447,7 +447,7 @@ function table_total($total): string
 	if($hasVat) $temp .= "<b>Total VAT:</b></br>";
 	$temp .= "</td>";
 	
-	$temp .= "<td class='lines_total'>";
+	$temp .= "<td class='lines_total' style='white-space: nowrap;'>";
 	if($hasDiscount OR $hasVat OR count($additionalCharges)) $temp .= total_formater($total["Net"]).'<span style="color: White;">00</span></br>';
 	if($hasDiscount) $temp .= total_formater($total["Discount"]).'<span style="color: White;">00</span></br>';
 	if(count($additionalCharges)) $temp .= total_formater($total["AdditionalCharges"]).'<span style="color: White;">00</span></br>';
@@ -455,9 +455,9 @@ function table_total($total): string
 	$temp .= "</td></tr>";
 	
 	$temp .= "<tr class='lines_total'>";
-	$temp .= "<td class='lines_total' colspan='{$colTotalOffset}'>";
+	$temp .= "<td class='lines_total' style='white-space: nowrap;' colspan='{$colTotalOffset}'>";
 	$temp .= "<b>Total [{$total["CurrencyCode"]}]:</b></td>";
-	if($hasDiscount OR $hasVat) $temp .= "<td class='lines_total_sum'>";
+	if($hasDiscount OR $hasVat) $temp .= "<td class='lines_total_sum' style='white-space: nowrap;'>";
 	else $temp .= "<td class='lines_total' style='white-space: nowrap;'>";
 	$temp .= "<b>".total_formater($total["Total"]).'<span style="color: White;">00</span><b/></td>';
 	$temp .= "</tr>";

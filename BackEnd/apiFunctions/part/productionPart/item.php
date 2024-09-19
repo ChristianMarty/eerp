@@ -80,17 +80,24 @@ if($api->isGet())
 // get stock
     $query = <<<STR
         SELECT
-            partStock.Id AS PartStockId,
-            partStock.StockNumber,
-            partStock.Date,
-            partStock.LotNumber,
-            partStock_getQuantity(partStock.StockNumber) AS Quantity,
-            LocationId
+           partStock.Id AS PartStockId,
+           partStock.StockNumber,
+           partStock.Date,
+           partStock.LotNumber,
+           partStock_getQuantity(partStock.StockNumber) AS Quantity,
+           LocationId
         FROM partStock  
-        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId
-        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
-        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId OR productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
+
+        LEFT JOIN purchaseOrder_itemReceive ON partStock.ReceivalId  = purchaseOrder_itemReceive.Id
+        LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
+        LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
+        LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId <=> manufacturerPart_partNumber.Id OR manufacturerPart_partNumber.Id <=> partStock.ManufacturerPartNumberId 
+
+        LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
+        -- LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
+        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId -- OR productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
+    
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode' AND partStock.DeleteRequestUserId IS NULL 
     STR;
     $result = $database->query($query);

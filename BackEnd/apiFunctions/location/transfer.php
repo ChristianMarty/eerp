@@ -88,7 +88,11 @@ function moveLocationItems($itemList, $locationNr): string
     $items = $database->query($query);
 
     // check for circular location path
-    $newLocationPath = explode(',',$newLocation->Cache_IdPath);
+    if($newLocation->Cache_IdPath !== null){
+        $newLocationPath = explode(',',$newLocation->Cache_IdPath);
+    }else{
+        $newLocationPath = [];
+    }
     $newLocationPath[] = $newLocation->Id;
     $toMove = [];
     foreach ($items as $pathItem)

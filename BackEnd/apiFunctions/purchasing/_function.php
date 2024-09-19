@@ -132,9 +132,9 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 	ORDER BY LineNumber
 	STR;
     $additionalCharges = $database->query($query);
-	foreach ($result as $r)
+	foreach ($additionalCharges as $line)
 	{
-		$r->Total = floatval($r->Price??0 * intval($r->Quantity??0));
+		$line->Total = floatval($line->Price??0) * floatval($line->Quantity??0);
 	}
 
 	$output['AdditionalCharges'] = $additionalCharges;

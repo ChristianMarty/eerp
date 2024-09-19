@@ -21,18 +21,23 @@ if($api->isGet("stock.view"))
 
     $baseQuery = <<<STR
         SELECT
-            StockNumber, 
-            manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
-            manufacturerPart_item.Id AS ManufacturerPartItemId , 
-            vendor_displayName(vendor.Id) AS ManufacturerName, 
-            Cache_Quantity AS Quantity, 
-            LocationId, 
-            vendor.Id AS ManufacturerId
+           StockNumber, 
+           manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+           manufacturerPart_item.Id AS ManufacturerPartItemId , 
+           vendor_displayName(vendor.Id) AS ManufacturerName, 
+           Cache_Quantity AS Quantity, 
+           LocationId, 
+           vendor.Id AS ManufacturerId
         FROM partStock 
-        LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId 
+
+        LEFT JOIN purchaseOrder_itemReceive ON partStock.ReceivalId  = purchaseOrder_itemReceive.Id
+        LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
+        LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
+        LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId <=> manufacturerPart_partNumber.Id OR manufacturerPart_partNumber.Id <=> partStock.ManufacturerPartNumberId 
+
         LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-        LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId OR vendor.Id = manufacturerPart_partNumber.VendorId OR vendor.Id = manufacturerPart_series.VendorId
+        LEFT JOIN vendor ON vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_partNumber.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
     STR;
 
 	$queryParam = array();
