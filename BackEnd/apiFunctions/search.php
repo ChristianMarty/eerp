@@ -61,7 +61,8 @@ if($api->isGet())
 		search_assemblySerialNumber($search),
 		search_manufacturerPartItem($search),
 		manufacturerPartSeries($search),
-		search_vendor($search)
+		search_vendor($search),
+        search_supplierPartNumber($search)
 	);
 
 	$api->returnData($output);
@@ -207,4 +208,36 @@ function search_assemblySerialNumber(string $input): array
 		$output[] = $temp;
 	}
 	return $output;
+}
+
+function search_supplierPartNumber(string $input): array
+{
+    global $database;
+    $input = $database->escape($input);
+
+    $query = <<< QUERY
+        SELECT 
+            manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
+            SupplierPartNumber 
+        FROM supplierPart
+        LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
+        WHERE SupplierPartNumber LIKE $input
+    QUERY;
+
+
+    $result = $database->query($query);
+
+    $output = array();
+    foreach($result as $item)
+    {
+        $temp = array();
+        $temp["Category"] = 'SupplierPartNumber';
+        $temp["Item"] = $item->SupplierPartNumber;
+        $temp["RedirectCode"] = $item->ManufacturerPartNumberId;
+        $temp["Description"] = '';
+        $temp["LocationPath"] = '';
+
+        $output[] = $temp;
+    }
+    return $output;
 }

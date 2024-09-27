@@ -95,6 +95,8 @@ export default {
           break
         case 'ManufacturerPartNumber': this.$router.push('/manufacturerPart/partNumber/item/' + item.RedirectCode)
           break
+        case 'SupplierPartNumber': this.$router.push('/manufacturerPart/partNumber/item/' + item.RedirectCode)
+          break
       }
     },
     search(term) {
