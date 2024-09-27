@@ -26,14 +26,26 @@ if($api->isPost())
     $rendererId = intval($data->RendererId);
     if($rendererId == 0) $api->returnParameterError("RendererId");
 
-    $query = "SELECT * FROM peripheral WHERE Id ='$printerId' LIMIT 1;";
+    $query = <<<QUERY
+        SELECT 
+            * 
+        FROM peripheral 
+        WHERE Id ='$printerId' LIMIT 1;
+    QUERY;
     $printer = $database->query($query);
     if(count($printer) === 0){
         $api->returnParameterError("PrinterId not found");
     }
     $printer = $printer[0];
 
-    $query = "SELECT * FROM renderer WHERE Id ='$rendererId' LIMIT 1;";
+    $query = <<<QUERY
+        SELECT 
+            * 
+        FROM renderer
+        LEFT JOIN renderer_dataset ON renderer.DatasetId = renderer_dataset.Id
+        WHERE renderer.Id ='$rendererId' LIMIT 1;
+    QUERY;
+
     $renderer = $database->query($query);
     if(count($renderer) === 0){
         $api->returnParameterError("RendererId not found");
