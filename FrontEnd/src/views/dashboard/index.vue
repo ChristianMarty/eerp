@@ -107,7 +107,7 @@ export default {
       requestBN({
         url: '/purchaseOrder',
         methood: 'get',
-        params: { Status: 'Confirmed' }
+        params: { Status: 'Confirm' }
       }).then(response => {
         this.awitingShippments = response.data
       })

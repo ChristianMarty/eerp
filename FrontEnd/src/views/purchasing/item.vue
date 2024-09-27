@@ -3,28 +3,33 @@
     <h1>{{ orderData.Title }}, {{ orderData.ItemCode }}</h1>
     <el-steps :active="orderStatus" finish-status="success" align-center>
       <el-step title="Edit" />
+      <el-step title="Preview" />
+      <el-step title="Confirm" />
       <el-step title="Review" />
-      <el-step title="Confirme" />
       <el-step title="Closed" />
     </el-steps>
 
-    <template v-if="orderData.Status == 'Editing'" v-permission="['purchasing.edit']">
-      <el-button type="info" @click="place">Place Order</el-button>
+    <template v-if="orderData.Status === 'Editing'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="preview()">Preview Order</el-button>
     </template>
 
-    <template v-if="orderData.Status == 'Placed'" v-permission="['purchasing.edit']">
-      <el-button type="info" @click="edit">Edit Order</el-button>
-      <el-button type="info" @click="confirm">Confirm Order</el-button>
+    <template v-if="orderData.Status === 'Preview'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="edit()">Edit Order</el-button>
+      <el-button type="info" @click="confirm()">Confirm Order</el-button>
     </template>
 
-    <template v-if="orderData.Status == 'Confirmed'" v-permission="['purchasing.edit']">
-      <el-button type="info" @click="edit">Edit Order</el-button>
-      <el-button type="info" @click="place">Place Order</el-button>
-      <el-button type="info" @click="close">Close Order</el-button>
+    <template v-if="orderData.Status === 'Confirm'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="preview()">Preview Order</el-button>
+      <el-button type="info" @click="review()">Review Order</el-button>
     </template>
 
-    <template v-if="orderData.Status == 'Closed'" v-permission="['purchasing.edit']">
-      <el-button type="info" @click="confirm">Reopen Order</el-button>
+    <template v-if="orderData.Status === 'Review'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="confirm()">Confirm Order</el-button>
+      <el-button type="info" @click="close()">Close Order</el-button>
+    </template>
+
+    <template v-if="orderData.Status === 'Closed'" v-permission="['purchasing.edit']">
+      <el-button type="info" @click="review()">Reopen Order</el-button>
     </template>
 
     <template>
@@ -104,18 +109,18 @@
       type="primary"
       @click="openEditOrderMetaDialog()"
     >Edit</el-button>
-
     <el-divider />
 
-    <editOrder v-if="orderData.Status == 'Editing'" :order-data="orderData" />
-    <reviewOrder v-if="orderData.Status == 'Placed'" :order-data="orderData" />
-    <confirmedOrder v-if="orderData.Status == 'Confirmed'" :order-data="orderData" />
-    <closedOrder v-if="orderData.Status == 'Closed'" :order-data="orderData" />
-
+    <editOrder v-if="orderData.Status === 'Editing'" :order-data="orderData" />
+    <previewOrder v-if="orderData.Status === 'Preview'" :order-data="orderData" />
+    <confirmOrder v-if="orderData.Status === 'Confirm'" :order-data="orderData" />
+    <reviewOrder v-if="orderData.Status === 'Review'" :order-data="orderData" />
+    <closedOrder v-if="orderData.Status === 'Closed'" :order-data="orderData" />
     <el-divider />
+
     <h3>Documents</h3>
     <editDocumentsList
-      v-if="orderData.Status != 'Closed'"
+      v-if="orderData.Status !== 'Closed'"
       attach="PurchaseOrderDocument"
       :barcode="orderData.ItemCode"
       @change="getOrder()"
@@ -133,10 +138,11 @@
 <script>
 import permission from '@/directive/permission/index.js'
 
-import editOrder from './components/edit'
-import reviewOrder from './components/review'
-import confirmedOrder from './components/confirmed'
-import closedOrder from './components/closed'
+import editOrder from './components/state/edit.vue'
+import previewOrder from './components/state/preview.vue'
+import confirmOrder from './components/state/confirm.vue'
+import reviewOrder from './components/state/review.vue'
+import closedOrder from './components/state/closed.vue'
 
 import editOrderMetaDialog from './components/editOrderMetaDialog'
 
@@ -151,7 +157,7 @@ const renderer = new Renderer()
 
 export default {
   name: 'PurchaseOrder',
-  components: { editOrder, reviewOrder, confirmedOrder, closedOrder, editDocumentsList, documentsList, editOrderMetaDialog },
+  components: { editOrder, previewOrder, confirmOrder, reviewOrder, closedOrder, editDocumentsList, documentsList, editOrderMetaDialog },
   directives: { permission },
   data() {
     return {
@@ -184,11 +190,14 @@ export default {
     edit() {
       this.saveState('Editing')
     },
-    place() {
-      this.saveState('Placed')
+    preview() {
+      this.saveState('Preview')
     },
     confirm() {
-      this.saveState('Confirmed')
+      this.saveState('Confirm')
+    },
+    review() {
+      this.saveState('Review')
     },
     close() {
       this.saveState('Closed')
@@ -244,9 +253,10 @@ export default {
       purchase.item.search(this.$route.params.PurchaseOrderNumber).then(response => {
         this.orderData = response.MetaData
         if (this.orderData.Status === 'Editing') this.orderStatus = 0
-        else if (this.orderData.Status === 'Placed') this.orderStatus = 1
-        else if (this.orderData.Status === 'Confirmed') this.orderStatus = 2
-        else if (this.orderData.Status === 'Closed') this.orderStatus = 4
+        else if (this.orderData.Status === 'Preview') this.orderStatus = 1
+        else if (this.orderData.Status === 'Confirm') this.orderStatus = 2
+        else if (this.orderData.Status === 'Review') this.orderStatus = 3
+        else if (this.orderData.Status === 'Closed') this.orderStatus = 5
         this.documents = response.Documents
         this.setTagsViewTitle()
       }).catch(response => {

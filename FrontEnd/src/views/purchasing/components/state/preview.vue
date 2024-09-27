@@ -1,5 +1,5 @@
 <template>
-  <div class="placerd-container">
+  <div class="preview-container">
 
     <h2>Items:</h2>
     <span>
@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import permission from '@/directive/permission/index.js'
+import permission from '@/directive/permission'
 
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()

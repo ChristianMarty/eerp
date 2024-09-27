@@ -183,14 +183,14 @@
 <script>
 import requestBN from '@/utils/requestBN'
 
-import permission from '@/directive/permission/index.js'
+import permission from '@/directive/permission'
 import ElTableDraggable from 'el-table-draggable'
 
-import orderTotal from './orderTotal'
-import orderImportDialog from './orderImportDialog'
-import orderUploadDialog from './orderUploadDialog'
-import editLineItemDialog from './editLineItemDialog'
-import editAdditionalChargesDialog from './editAdditionalChargesDialog'
+import orderTotal from '../orderTotal.vue'
+import orderImportDialog from '../orderImportDialog.vue'
+import orderUploadDialog from '../orderUploadDialog.vue'
+import editLineItemDialog from '../editLineItemDialog.vue'
+import editAdditionalChargesDialog from '../editAdditionalChargesDialog.vue'
 
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()

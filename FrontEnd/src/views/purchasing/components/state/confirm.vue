@@ -105,11 +105,11 @@
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
-import addToStock from './addToStockDialog'
-import trackDialog from './trackDialog'
-import permission from '@/directive/permission/index.js'
-import viewLineItemDialog from './viewLineItemDialog'
-import confirmDialog from './confirmDialog'
+import addToStock from '../addToStockDialog.vue'
+import trackDialog from '../trackDialog.vue'
+import permission from '@/directive/permission'
+import viewLineItemDialog from '../viewLineItemDialog.vue'
+import confirmDialog from '../confirmDialog.vue'
 
 export default {
   components: { addToStock, trackDialog, viewLineItemDialog, confirmDialog },

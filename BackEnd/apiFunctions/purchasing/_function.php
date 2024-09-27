@@ -93,14 +93,14 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
             $query = purchaseOrderItem_getCostCenterQuery($r->OrderLineId);
             $lines[$r->OrderLineId]['CostCenter'] = purchaseOrderItem_getCostCenterData($database->query($query));
 
-			if($status == "Confirmed" or $status == "Closed")
+			if($status == "Confirm" or $status == "Review" or $status == "Closed")
             {
 				$lines[$r->OrderLineId]['QuantityReceived'] = 0;
 			}
             $r->Price = floatval($r->Price);
 		}
 		
-		if( $r->ReceiveId != null and ($status == "Confirmed" or $status == "Closed"))
+		if( $r->ReceiveId != null and ($status == "Confirm" or $status == "Review" or $status == "Closed"))
 		{
 			if(!array_key_exists("Received",$lines[$r->OrderLineId])) $lines[$r->OrderLineId]['Received'] = array();
 			

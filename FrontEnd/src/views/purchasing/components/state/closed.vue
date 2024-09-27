@@ -1,5 +1,5 @@
 <template>
-  <div class="placerd-container">
+  <div class="closed-container">
     <h2>Items:</h2>
     <el-table
       ref="itemTable"
@@ -12,7 +12,7 @@
       @cell-click="(row, column, cell, event) =>openViewLineItemDialog(row, column, cell, event)"
     >
       <el-table-column prop="LineNumber" label="Line" width="80" sortable />
-      <el-table-column prop="QuantityOrdered" label="Orderd Qty" width="140" sortable />
+      <el-table-column prop="QuantityOrdered" label="Ordered Qty" width="140" sortable />
       <el-table-column
         prop="QuantityReceived"
         label="Received Qty"
@@ -26,11 +26,11 @@
 
       <el-table-column label="Item">
         <template slot-scope="{ row }">
-          <template v-if="row.LineType == 'Generic'">
+          <template v-if="row.LineType === 'Generic'">
             {{ row.Description }}
           </template>
 
-          <template v-if="row.LineType == 'Part'">
+          <template v-if="row.LineType === 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
             {{ row.ManufacturerPartNumber }} - {{ row.Description }}
           </template>
@@ -83,9 +83,8 @@
 import Purchase from '@/api/purchase'
 const purchase = new Purchase()
 
-import orderTotal from './orderTotal'
-
-import viewLineItemDialog from './viewLineItemDialog'
+import orderTotal from '../orderTotal.vue'
+import viewLineItemDialog from '../viewLineItemDialog.vue'
 
 export default {
   components: { orderTotal, viewLineItemDialog },
