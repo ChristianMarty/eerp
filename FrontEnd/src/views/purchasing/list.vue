@@ -46,7 +46,7 @@
         />
         <el-table-column prop="Status" label="Status" width="140" sortable>
           <template slot-scope="{ row }">
-            <span v-if="row.Status == 'Confirmed'">{{ row.Status }} ({{ row.ReceiveProgress }}%)</span>
+            <span v-if="row.Status === 'Confirm'">{{ row.Status }} ({{ row.ReceiveProgress }}%)</span>
             <span v-else>{{ row.Status }}</span>
           </template>
         </el-table-column>
