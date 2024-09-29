@@ -36,16 +36,17 @@ if($api->isGet())
         WHERE manufacturerPart_series.Id = '$manufacturerPartSeriesId'
         LIMIT 1
     STR;
-
     $output = $database->query($query)[0];
 
     $parameter= getParameter($manufacturerPartSeriesId);
     $output->Parameter = $parameter;
 
-    if($parameter == null) $output->Parameter = array();
+    if($parameter == null){
+        $output->Parameter = [];
+    }
     foreach($output->Parameter  as &$p)
     {
-        if(!isset($p->Values)) $p->Values = array();
+        if(!isset($p['Values'])) $p['Values'] = [];
     }
 
     $query = <<<STR
