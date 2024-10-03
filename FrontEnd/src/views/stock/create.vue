@@ -127,17 +127,20 @@ export default {
   },
   methods: {
     searchManufacturerPartNumber(queryString, cb) {
-      const options = this.partOptions
       const out = []
-      options.forEach(element => {
+      this.partOptions.forEach(element => {
         out.push({ value: element.ManufacturerPartNumber })
       })
-      cb(
-        out.filter(
-          element =>
-            element.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+      if (queryString === null) {
+        cb(out)
+      } else {
+        cb(
+          out.filter(
+            element =>
+              element.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+          )
         )
-      )
+      }
     },
     getParts(ManufacturerId) {
       const searchParameters = Object.assign({}, manufacturerPart.searchParameters)

@@ -8,7 +8,7 @@
       @open="onOpen()"
     >
       <h2>New Location - {{ barcode }}</h2>
-      <p>Select the location to which the Items should be transfered.</p>
+      <p>Select the location to which the Items should be transferred.</p>
       <p>
         <el-input
           ref="locNrInput"
@@ -57,6 +57,7 @@ export default {
   methods: {
     async onOpen() {
       this.locations = await location.search()
+      this.$refs.locNrInput.focus()
     },
     transfer() {
       if (!this.inputLocNr) {
