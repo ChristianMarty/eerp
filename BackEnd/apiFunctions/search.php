@@ -23,7 +23,6 @@ if($api->isGet())
 	$parts = explode('-',$search);
 	
 	$data = array();
-
 	$found = false;
 
 	if(count($parts) >= 2)  // Search for barcodes
@@ -31,9 +30,13 @@ if($api->isGet())
 		$category = "";	
 		$prefix = "";
 
-		$query = "SELECT * FROM numbering ";
-
+        $query = <<<STR
+            SELECT
+                *
+            FROM numbering 
+        STR;
 		$result = $database->query($query);
+
 		foreach($result as $item)
 		{
 			if(strtolower($item->Prefix) == $parts[0])
@@ -142,7 +145,10 @@ function search_manufacturerPartItem(string $input): array
 	$input = $database->escape($input);
 
 	$query = <<<STR
-		SELECT manufacturerPart_item.Id, Number, vendor_displayName(vendor.Id) AS VendorName
+		SELECT 
+		    manufacturerPart_item.Id, 
+		    Number, 
+		    vendor_displayName(vendor.Id) AS VendorName
 		FROM manufacturerPart_item 
 		LEFT JOIN vendor on manufacturerPart_item.VendorId = vendor.Id
 		WHERE Number LIKE $input
@@ -169,8 +175,13 @@ function search_manufacturerPartNumber(string $input): array
 	global $database;
 	$input = $database->escape($input);
 
-	$query = "SELECT Id, Number FROM manufacturerPart_partNumber WHERE Number LIKE $input";
-
+    $query = <<< QUERY
+        SELECT 
+            Id, 
+            Number 
+        FROM manufacturerPart_partNumber 
+        WHERE Number LIKE $input
+    QUERY;
 	$result = $database->query($query);
 
 	$output = array();
@@ -193,8 +204,14 @@ function search_assemblySerialNumber(string $input): array
 	global $database;
 	$input = $database->escape($input);
 
-	$query = "SELECT Id, AssemblyUnitNumber, SerialNumber FROM assembly_unit WHERE SerialNumber LIKE $input";
-
+    $query = <<< QUERY
+        SELECT 
+            Id, 
+            AssemblyUnitNumber, 
+            SerialNumber 
+        FROM assembly_unit
+        WHERE SerialNumber LIKE $input
+    QUERY;
 	$result = $database->query($query);
 
 	$output = array();
@@ -220,13 +237,11 @@ function search_supplierPartNumber(string $input): array
     $query = <<< QUERY
         SELECT 
             manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
-            SupplierPartNumber 
+            supplierPart.SupplierPartNumber 
         FROM supplierPart
         LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-        WHERE SupplierPartNumber LIKE $input
+        WHERE supplierPart.SupplierPartNumber LIKE $input
     QUERY;
-
-
     $result = $database->query($query);
 
     $output = array();
