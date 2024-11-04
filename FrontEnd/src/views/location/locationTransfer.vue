@@ -96,7 +96,9 @@ export default {
       this.inputLocNr = null
       this.itemList = []
     },
-    selectLocation() {},
+    selectLocation() {
+      this.$refs.itemNrInput.focus()
+    },
     addItem() {
       utility.description(this.inputItemNr).then(response => {
         if (response.length === 0) {
