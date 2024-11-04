@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="main.css">
   <script src="component.js"></script>
   <script src="messageBox.js"></script>
+  <script type="text/javascript" src="utility.js"></script>
 </head>
 <body>
 
@@ -41,8 +42,11 @@
 </html>
 
 <script type="module">
+  preserveUrlParameters(document)
   import {Api} from "./api.js";
-  const api = new Api();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const api = new Api(urlParams.get('user'), urlParams.get('token'));
 
   window.onload = showInfo;
   document.getElementById("stockNumberSearch").focus();

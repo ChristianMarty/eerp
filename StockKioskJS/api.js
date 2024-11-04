@@ -1,6 +1,10 @@
 import config from "./config.js";
 
 export class Api {
+    constructor(user, token)  {
+        this.user = user
+        this.token = token
+    }
     async getStockInformation(StockCode) {
         if (StockCode === "" || StockCode === null) {
             return null;
@@ -107,10 +111,9 @@ export class Api {
     idempotency = "";
     encodeUrl(endpoint, params) {
         let auth = {
-            'user': config.userName,
-            'token': config.userToken
+            'user': this.user ,
+            'token': this.token
         };
         return config.apiUrl + endpoint + "?" + new URLSearchParams({...auth, ...params}).toString();
     }
 }
-
