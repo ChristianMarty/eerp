@@ -218,5 +218,12 @@ class database
         if($value) return "b'1'";
         else return "b'0'";
     }
+
+    static public function stringEmptyOrNull(string|null $value):bool
+    {
+        if($value === null) return true;
+        if(strlen(trim($value)) === 0) return true;
+        return false;
+    }
 }
 

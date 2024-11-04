@@ -62,7 +62,9 @@ if($api->isGet())
 		search_manufacturerPartItem($search),
 		manufacturerPartSeries($search),
 		search_vendor($search),
-        search_supplierPartNumber($search)
+        search_supplierPartNumber($search),
+        search_purchaseOrder($search),
+        search_inventory($search)
 	);
 
 	$api->returnData($output);
@@ -235,6 +237,79 @@ function search_supplierPartNumber(string $input): array
         $temp["Item"] = $item->SupplierPartNumber;
         $temp["RedirectCode"] = $item->ManufacturerPartNumberId;
         $temp["Description"] = '';
+        $temp["LocationPath"] = '';
+
+        $output[] = $temp;
+    }
+    return $output;
+}
+
+function search_purchaseOrder(string $input): array
+{
+    global $database;
+    $input = $database->escape($input);
+
+    $query = <<< QUERY
+        SELECT 
+            purchaseOrder_itemOrder.Sku,
+            purchaseOrder_itemOrder.ManufacturerName,
+            purchaseOrder_itemOrder.ManufacturerPartNumber,
+            purchaseOrder_itemOrder.Description, 
+            purchaseOrder.PurchaseOrderNumber,
+            purchaseOrder_itemOrder.LineNumber
+        FROM purchaseOrder_itemOrder
+        LEFT JOIN purchaseOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
+        WHERE purchaseOrder_itemOrder.Sku LIKE $input OR purchaseOrder_itemOrder.ManufacturerPartNumber LIKE $input
+    QUERY;
+    $result = $database->query($query);
+
+    $output = array();
+    foreach($result as $item)
+    {
+        $description = $item->Description;
+        if(!$database::stringEmptyOrNull($item->ManufacturerPartNumber)) $description = $item->ManufacturerPartNumber." - ".$description;
+        if(!$database::stringEmptyOrNull($item->ManufacturerName)) $description = $item->ManufacturerName." - ".$description;
+        if(!$database::stringEmptyOrNull($item->Sku)) $description = $item->Sku." - ".$description;
+
+        $temp = array();
+        $temp["Category"] = 'PurchaseOrder';
+        $temp["Item"] = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
+        $temp["RedirectCode"] = $item->PurchaseOrderNumber;
+        $temp["Description"]  = $description;
+        $temp["LocationPath"] = '';
+
+        $output[] = $temp;
+    }
+    return $output;
+}
+
+function search_inventory(string $input): array
+{
+    global $database;
+    $input = $database->escape($input);
+
+    $query = <<< QUERY
+        SELECT 
+            inventory.InventoryNumber,
+            inventory.Title,
+            inventory.Manufacturer,
+            inventory.Type
+        FROM inventory
+        WHERE inventory.Type LIKE $input
+    QUERY;
+    $result = $database->query($query);
+
+    $output = array();
+    foreach($result as $item)
+    {
+        $description = $item->Manufacturer." ".$item->Type;
+        if(!$database::stringEmptyOrNull($item->Title)) $description = $item->Title." - ".$description;
+
+        $temp = array();
+        $temp["Category"] = 'Inventory';
+        $temp["Item"] = barcodeFormatter_InventoryNumber($item->InventoryNumber);
+        $temp["RedirectCode"] = $item->InventoryNumber;
+        $temp["Description"]  = $description;
         $temp["LocationPath"] = '';
 
         $output[] = $temp;
