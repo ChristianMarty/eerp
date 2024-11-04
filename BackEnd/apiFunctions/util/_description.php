@@ -7,27 +7,27 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../location/_location.php";
 
 //Generates a universal description of an item of any category
-
-function description_generateSummary($locationNr): array
+function description_generateSummary(string $itemCode): array
 {
     global $database;
 
 	$response['data'] = null;
 	$response['error'] = null;
 
-	$temp = explode("-", $locationNr);
+	$temp = explode("-", $itemCode);
 	$itemPrefix = strtolower($temp[0]);
 	$itemNr = $database->escape(trim(strtolower($temp[1])));
 
 	$data = array();
 	$locationId = null;
-	
+
 	if($itemPrefix == "stk")
 	{
 		$query = <<< STR
@@ -45,26 +45,26 @@ function description_generateSummary($locationNr): array
 		STR;
 
 		$result = $database->query($query);
-		
+
 		if(count($result) == 0)
 		{
 			$response['error'] ="Item not found";
 			return $response;
-		}			
-		
+		}
+
 		$itemData = $result[0];
-		
+
 		$descriptor = $itemData->ManufacturerName." ".$itemData->ManufacturerPartNumber;
 		$descriptor .= ", ".$itemData->Date.", Qty: ".$itemData->Quantity;
-		
+
 		$locationId = $itemData->LocationId;
-		
+
 		$data["Item"] =  barcodeFormatter_StockNumber($itemData->StockNumber);
 		$data["Category"] = "Stock";
-		$data["Description"] = $descriptor; 
+		$data["Description"] = $descriptor;
 		$data["Movable"] = true;
 	}
-	else if($itemPrefix == "inv")  
+	else if($itemPrefix == "inv")
 	{
         $query = <<< STR
 		SELECT
@@ -88,15 +88,15 @@ function description_generateSummary($locationNr): array
 
 		$descriptor = $itemData->Title;
 		$descriptor .= " - ".$itemData->Manufacturer." ".$itemData->Type;
-		
+
 		$locationId = $itemData->LocationId;
-		
+
 		$data["Item"] = barcodeFormatter_InventoryNumber($itemData->InventoryNumber);
 		$data["Category"] = "Inventory";
-		$data["Description"] = $descriptor; 
+		$data["Description"] = $descriptor;
 		$data["Movable"] = true;
 	}
-	else if($itemPrefix == "asu")  
+	else if($itemPrefix == "asu")
 	{
 		$query = <<<STR
 			SELECT 
@@ -121,12 +121,12 @@ function description_generateSummary($locationNr): array
 
 		$descriptor = $itemData->Name;
 		$descriptor .= " - ".$itemData->Description." SN: ".$itemData->SerialNumber;
-		
+
 		$locationId = $itemData->LocationId;
-		
+
 		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($itemData->AssemblyUnitNumber);
 		$data["Category"] = "Assembly Item";
-		$data["Description"] = $descriptor; 
+		$data["Description"] = $descriptor;
 		$data["Movable"] = true;
 	}
 	else if($itemPrefix == "loc")
@@ -151,7 +151,7 @@ function description_generateSummary($locationNr): array
         $itemData = $result[0];
 
 		$location = new Location();
-		
+
 		$data["Item"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = $location->name($itemData->Id);
@@ -160,7 +160,7 @@ function description_generateSummary($locationNr): array
 		if($itemData->Movable == "1") $data["Movable"] = true;
 		else $data["Movable"] = false;
 	}
-	else 
+	else
 	{
 		$response['error'] ="Unknown Item Category";
 		return $response;
@@ -189,7 +189,7 @@ function description_generateSummary($locationNr): array
 		$data["LocationCode"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
 		$data["LocationName"] = (new Location())->name($itemData->Id);
 	}
-	
+
 	$response['data'] = $data;
 	return $response;
 }

@@ -63,7 +63,7 @@ class database
         else return $info[0]."-".$info[1]."-".$info[2];
     }
 
-    public function getEnumOptions(string $table, string$column):array|null
+    public function getEnumOptions(string $table, string $column):array|null
     {
         $table = $this->pdo->quote($table);
         $column = $this->pdo->quote($column);
@@ -105,9 +105,6 @@ class database
 
         $query .= " ".$postFix??"";
 
-        //echo $query;
-        //exit;
-
         try {
             $data = $this->pdo->query($query);
             $result = $data->fetchAll();
@@ -120,7 +117,7 @@ class database
         return $result;
     }
 
-    function execute(string $query)
+    function execute(string $query): void
     {
         try {
             $this->pdo->exec($query);
@@ -175,34 +172,26 @@ class database
 
     public function update(string $tableName, array $data, string|null $condition = null): void
     {
-        if($condition === null){
+        if($condition === null OR strlen($condition) == 0){
             trigger_error("DB Update -> will not run update without condition", E_USER_ERROR);
             return;
         }
 
         $pairs ="";
-
         foreach ($data as $key => $value)
         {
             $val = "";
-
-            if(is_array($value))
-            {
+            if(is_array($value)) {
                 $val .= $value['raw'];
-            }
-            else if(is_bool($value)){
+            } else if(is_bool($value)) {
                 if($value) $val .= "b'1'";
                 else $val .=  "b'0'";
-            }
-            else
-            {
+            } else {
                 if($value === null) $val = "NULL";
                 else $val =  $this->pdo->quote(strval($value));
             }
-
             $pairs .= $key." = ".$val.", ";
         }
-
         $pairs = rtrim($pairs, ", ");
 
         if($condition == NULL) $condition = "";

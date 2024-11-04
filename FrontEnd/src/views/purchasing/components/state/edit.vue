@@ -13,7 +13,7 @@
         />
         <el-button v-if="apiInfo.Capability.OrderImportSupported === true" @click="openOrderImport()">Import</el-button>
         <el-button v-if="apiInfo.Capability.OrderUploadSupported === true" @click="openOrderUpload()">Upload</el-button>
-        <el-button @click="orderReqestDialogVisible = true">Order Reqests</el-button>
+        <el-button @click="orderReqestDialogVisible = true">Order Requests</el-button>
         <el-button @click="setVatVisible = true">Set VAT</el-button>
         <el-button @click="setExpectedDateVisible = true">Set Expected Date</el-button>
       </el-form-item>
@@ -39,8 +39,8 @@
         <el-table-column label="SKU" prop="SupplierSku" width="220" />
         <el-table-column label="Item">
           <template slot-scope="{ row }">
-            <template v-if="row.LineType == 'Generic'">{{ row.Description }}</template>
-            <template v-if="row.LineType == 'Part'">
+            <template v-if="row.LineType === 'Generic'">{{ row.Description }}</template>
+            <template v-if="row.LineType === 'Part'">
               {{ row.PartNo }} - {{ row.ManufacturerName }} - {{
                 row.ManufacturerPartNumber
               }} - {{ row.Description }}

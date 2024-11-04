@@ -7,12 +7,12 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 // Extracts the content of a variable in a PHP file and returns it.
-
-function extractVariable($path, $variableName)
+function extractVariable(string $path, string $variableName): string
 {
-	$file_contents  = file_get_contents($path, $length = 1000);
+	$file_contents  = file_get_contents($path, false, null, 0, 1000);
 	$startPos = strpos($file_contents, $variableName);
 	if($startPos === false) return $variableName." not found";
 	

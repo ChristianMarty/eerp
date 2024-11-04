@@ -7,6 +7,7 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 require_once __DIR__ . "/../../config.php";
 include_once __DIR__ . "/../util/_barcodeFormatter.php";

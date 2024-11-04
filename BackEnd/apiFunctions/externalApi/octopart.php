@@ -111,7 +111,7 @@ function octopart_formatAvailabilityData(object|null $data, array $vendorList, b
 }
 
 
-function octopart_getPartData($octopartId)
+function octopart_getPartData($octopartId): stdClass|null
 {
     $octopartId = intval($octopartId);
 
@@ -121,7 +121,7 @@ function octopart_getPartData($octopartId)
 
     
     $query = <<<STR
-        SELECT Id, OctopartId, Timestamp, Data FROM octopart_cache WHERE OctopartId = $octopartId
+        SELECT Id, OctopartId, Timestamp, Data FROM cache_octopart WHERE OctopartId = $octopartId
     STR;
     $output = $database->query($query)[0];
 
@@ -129,7 +129,7 @@ function octopart_getPartData($octopartId)
     {
         $escaped_data = $database->escape(octopart_queryApiPartData($octopartId));
         $query = <<<STR
-            REPLACE INTO octopart_cache(OctopartId, Data) VALUES($octopartId, $escaped_data);
+            REPLACE INTO cache_octopart(OctopartId, Data) VALUES($octopartId, $escaped_data);
         STR;
         $database->query($query);
 
@@ -139,6 +139,7 @@ function octopart_getPartData($octopartId)
         $octopartData = $output->Data;
     }
 
+    if($octopartData=== '0') return null;
     return json_decode($octopartData);
 }
 
