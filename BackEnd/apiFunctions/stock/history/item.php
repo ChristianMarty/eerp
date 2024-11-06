@@ -116,14 +116,12 @@ else if($api->isPatch())
 	{
 		$workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
 	}
-	
-	$note = null;
-	if(isset($data->Note))
-	{
-		$note = trim($data->Note);
-		if($note == "") $note = null;
-		else $note = $database->escape($note);
-	}
+
+    $note = $data->Note??null;
+    if($note !== null){
+        $note = trim($note);
+        if($note == "") $note = null;
+    }
 	
 	$type = strtolower($data->Type);
 

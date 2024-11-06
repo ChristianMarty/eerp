@@ -137,10 +137,13 @@ class partHistoryBon extends \renderer\renderer
             $printer -> text($item->ManufacturerName."\n");
             $printer -> text($item->ManufacturerPartNumber."\n");
 
-            if(isset($line->Note) && $line->Note != null && $line->Note != "")
+            if(isset($item->Note) && $item->Note != null && $item->Note != "")
             {
                 $printer -> feed(1);
-                $printer -> text($line->Note."\n");
+                $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
+                $printer -> text("Note:\n");
+                $printer -> selectPrintMode(Printer::MODE_FONT_A);
+                $printer -> text($item->Note."\n");
             }
 
             $printer->feed(1);
