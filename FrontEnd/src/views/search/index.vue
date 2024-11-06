@@ -16,7 +16,9 @@
     >
       <el-table-column prop="Item" label="Item Nr." width="200">
         <template slot-scope="{ row }">
-          <span class="link-type" @click="redirect(row)">{{ row.Item }}</span>
+          <router-link :to="row.link" class="link-type">
+            <span @click="closeSearch()">{{ row.Item }}</span>
+          </router-link>
         </template>
       </el-table-column>
       <el-table-column prop="Category" label="Category" width="200" />
@@ -50,68 +52,64 @@ export default {
       this.search(this.$route.params.Search)
     }
   },
-  created() {
-    // Why need to make a copy of this.$route here?
-    // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
-    // https://github.com/PanJiaChen/vue-element-admin/issues/1221
-    //  this.tempRoute = Object.assign({}, this.$route)
-  },
   methods: {
-    /*
-      setTagsViewTitle() {
-        const route = Object.assign({}, this.tempRoute, {
-          title: `${this.supplierData.Name}`
-        })
-        this.$store.dispatch('tagsView/updateVisitedView', route)
-      },
-      setPageTitle() {
-        const title = 'Part View'
-        document.title = `${title} - ${this.supplierData.Name}`
-      }*/
-
-    redirect(item) {
+    setTitle(title) {
+      title = 'Search: ' + title
+      const route = Object.assign({}, this.$route, {
+        title: title
+      })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
+      document.title = title
+    },
+    closeSearch() {
       this.$store.dispatch('tagsView/delView', this.$route) // close search view
-
-      switch (item.Category) {
-        case 'Document': this.$router.push('/document/item/' + item.RedirectCode)
-          break
-        case 'Location': this.$router.push('/location/item/' + item.RedirectCode)
-          break
-        case 'Stock': this.$router.push('/stock/item/' + item.RedirectCode)
-          break
-        case 'Inventory': this.$router.push('/inventory/item/' + item.RedirectCode)
-          break
-        case 'PurchaseOrder': this.$router.push('/purchasing/edit/' + item.RedirectCode)
-          break
-        case 'WorkOrder': this.$router.push('/workOrder/workOrderView/' + item.RedirectCode)
-          break
-        case 'Vendor': this.$router.push('/vendor/view/' + item.RedirectCode)
-          break
-        case 'ProductionPart': this.$router.push('/productionPart/item/' + item.RedirectCode)
-          break
-        case 'AssemblyUnit': this.$router.push('/assembly/unit/item/' + item.RedirectCode)
-          break
-        case 'ManufacturerPartItem': this.$router.push('/manufacturerPart/item/' + item.RedirectCode)
-          break
-        case 'ManufacturerPartNumber': this.$router.push('/manufacturerPart/partNumber/item/' + item.RedirectCode)
-          break
-        case 'SupplierPartNumber': this.$router.push('/manufacturerPart/partNumber/item/' + item.RedirectCode)
-          break
-      }
     },
     search(term) {
       this.loading = true
       this.searchTerm = term
+      this.setTitle(term)
       requestBN({
         url: '/search',
-        methood: 'get',
+        methode: 'get',
         params: { search: term }
       }).then(response => {
         this.result = response.data
+
+        this.result.forEach((item) => {
+          switch (item.Category) {
+            case 'Document': item.link = '/document/item/'
+              break
+            case 'Location': item.link = '/location/item/'
+              break
+            case 'Stock': item.link = '/stock/item/'
+              break
+            case 'Inventory': item.link = '/inventory/item/'
+              break
+            case 'PurchaseOrder': item.link = '/purchasing/edit/'
+              break
+            case 'WorkOrder': item.link = '/workOrder/workOrderView/'
+              break
+            case 'Vendor': item.link = '/vendor/view/'
+              break
+            case 'ProductionPart': item.link = '/productionPart/item/'
+              break
+            case 'AssemblyUnit': item.link = '/assembly/unit/item/'
+              break
+            case 'ManufacturerPartItem': item.link = '/manufacturerPart/item/'
+              break
+            case 'ManufacturerPartNumber': item.link = '/manufacturerPart/partNumber/item/'
+              break
+            case 'SupplierPartNumber': item.link = '/manufacturerPart/partNumber/item/'
+              break
+          }
+          item.link += item.RedirectCode
+        })
+
         this.loading = false
 
         if (this.result.length === 1) {
-          this.redirect(this.result[0])
+          this.$router.push(this.result[0].link)
+          this.closeSearch()
         }
       })
     }
