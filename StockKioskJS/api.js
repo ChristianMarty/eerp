@@ -19,7 +19,20 @@ export class Api {
             return null;
         }
         const responseMessage = await response.json();
-        console.log(responseMessage);
+        this.idempotency = responseMessage.idempotency;
+        return responseMessage;
+    }
+
+    async getWorkOrders() {
+        const params = {
+            'Status': 'InProgress'
+        };
+        let response = await fetch(this.encodeUrl("/workOrder", params));
+
+        if (!response.ok) {
+            return null;
+        }
+        const responseMessage = await response.json();
         this.idempotency = responseMessage.idempotency;
         return responseMessage;
     }
@@ -52,15 +65,18 @@ export class Api {
         this.idempotency = responseMessage.idempotency;
         return responseMessage;
     }
-    async removeStock(StockCode, Quantity, Note) {
+    async removeStock(StockCode, Quantity, WorkOrder, Note) {
         if (StockCode === "" || StockCode === null || Quantity === "" || Quantity === null) {
             return null;
         }
-
+        if(WorkOrder === "null"){
+            WorkOrder = null;
+        }
         const postData = {
             StockNumber: StockCode,
             RemoveQuantity: Quantity,
-            Note: Note
+            Note: Note,
+            WorkOrderNumber: WorkOrder
         }
         let response = await fetch(this.encodeUrl("/stock/history/item"), {
             method: 'POST',

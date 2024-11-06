@@ -138,7 +138,7 @@ a:link{
 .buttonWarning{
     background-color:var(--color-warning);
 }
-input[type=search], input[type=submit], input[type=number], textarea  {
+input[type=search], input[type=submit], input[type=number], textarea, select  {
     font-size: 20px;
     padding: 12px 20px;
     margin: 8px 0;
@@ -146,6 +146,11 @@ input[type=search], input[type=submit], input[type=number], textarea  {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
+}
+
+select[value="null"] {
+    color: gray;
+    color: #ea9999;
 }
 
 textarea {

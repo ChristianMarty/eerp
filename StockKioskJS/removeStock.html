@@ -36,6 +36,8 @@
             <h3>New Quantity</h3>
             <hr/>
             <input type="number" id="removeQuantity" placeholder="Quantity"/><br>
+            <select  id="workOrderSelect" required>
+            </select>
             <textarea id="newNote" placeholder="Note"></textarea><br>
             <input type="submit"  onclick="saveQuantity()" value="Save"/><br>
         </div>
@@ -45,7 +47,7 @@
 </html>
 
 <script type="module">
-    preserveUrlParameters(document)
+    preserveUrlParameters(document);
     import {Api} from "./api.js";
     const urlParams = new URLSearchParams(window.location.search);
     const api = new Api(urlParams.get('user'), urlParams.get('token'));
@@ -57,6 +59,28 @@
             triggerSearch()
         }
     });
+    async function loadWorkOrders(){
+        const  wo = await api.getWorkOrders();
+        let select = document.getElementById('workOrderSelect');
+        select.options.length = 0;
+
+        const opt = document.createElement('option');
+
+        opt.value = null;
+        opt.selected = true;
+        opt.innerHTML = "No Work Order";
+        select.appendChild(opt);
+
+        wo.data.forEach((item) => {
+            const opt = document.createElement('option');
+            opt.value = item.ItemCode;
+            opt.innerHTML = item.ItemCode+" - "+item.Name;
+            select.appendChild(opt);
+        })
+
+        console.log(wo);
+    }
+
     function showInfo(show){
         let content = document.getElementById("hiddenContent");
         if(show === true){
@@ -96,8 +120,9 @@
     window.saveQuantity = async function saveQuantity(){
         const removeQuantity = document.getElementById("removeQuantity").value;
         const newNote = document.getElementById("newNote").value;
+        const workOrder = document.getElementById("workOrderSelect").value;
 
-        const result = await api.removeStock(window.stockNumber, removeQuantity, newNote);
+        const result = await api.removeStock(window.stockNumber, removeQuantity, workOrder, newNote);
 
         if(validateResult(result)) {
             document.getElementById("messageBox").showSuccess("The items have been successfully removed from the stock.", 10000, true);
@@ -119,6 +144,8 @@
             document.getElementById("messageBox").showError("Stock number not found.", 3000);
             return false;
         }
+
+        await loadWorkOrders();
 
         const stockData = result.data;
         window.stockNumber = stockData.ItemCode;
