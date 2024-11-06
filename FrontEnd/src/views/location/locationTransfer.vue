@@ -95,6 +95,7 @@ export default {
       this.inputItemNr = null
       this.inputLocNr = null
       this.itemList = []
+      this.$refs.locNrInput.focus()
     },
     selectLocation() {
       this.$refs.itemNrInput.focus()
