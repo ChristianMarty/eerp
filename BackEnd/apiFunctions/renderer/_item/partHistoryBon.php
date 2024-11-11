@@ -58,7 +58,9 @@ class partHistoryBon extends \renderer\renderer
                 partStock_history.Quantity,
                 partStock_history.Note,
                 workOrder.WorkOrderNumber,
-                workOrder.Name AS WorkOrderName
+                workOrder.Name AS WorkOrderName,
+                CONCAT(numbering.Prefix,"-",productionPart.Number) AS ProductionPartNumber,
+                productionPart.Description AS ProductionPartDescription
             FROM partStock_history
             LEFT JOIN partStock ON partStock_history.StockId = partStock.Id
             LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId
@@ -72,6 +74,9 @@ class partHistoryBon extends \renderer\renderer
             LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
             LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
             LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
+            LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
+            LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
+            LEFT JOIN numbering ON productionPart.NumberingPrefixId = numbering.Id
             WHERE CONCAT(partStock.StockNumber,"-",partStock_history.Cache_ChangeIndex ) IN ($itemListString)
         STR;
 
@@ -122,6 +127,14 @@ class partHistoryBon extends \renderer\renderer
                 $printer -> feed(1);
             }
 
+            if($item->ProductionPartNumber !== null)
+            {
+                $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
+                $printer -> setTextSize(3, 3);
+                $printer -> text($item->ProductionPartNumber."\n");
+                $printer -> feed(1);
+            }
+
             $printer -> selectPrintMode(Printer::MODE_FONT_A);
             $printer -> setTextSize(2, 2);
             $printer -> text($itemCode."\n");
@@ -136,17 +149,23 @@ class partHistoryBon extends \renderer\renderer
             $printer -> setJustification(Printer::JUSTIFY_CENTER);
             $printer -> text($item->ManufacturerName."\n");
             $printer -> text($item->ManufacturerPartNumber."\n");
+            $printer -> feed(1);
+
+            if($item->ProductionPartNumber !== null)
+            {
+                $printer -> text($item->ProductionPartDescription."\n");
+                $printer -> feed(1);
+            }
 
             if(isset($item->Note) && $item->Note != null && $item->Note != "")
             {
-                $printer -> feed(1);
                 $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
                 $printer -> text("Note:\n");
                 $printer -> selectPrintMode(Printer::MODE_FONT_A);
                 $printer -> text($item->Note."\n");
+                $printer->feed(1);
             }
 
-            $printer->feed(1);
             $printer->setBarcodeTextPosition(Printer::BARCODE_TEXT_BELOW);
             $printer->setBarcodeHeight(80);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
