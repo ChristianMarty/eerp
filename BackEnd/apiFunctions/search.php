@@ -313,7 +313,9 @@ function search_inventory(string $input): array
             inventory.Manufacturer,
             inventory.Type
         FROM inventory
-        WHERE inventory.Type LIKE $input
+        WHERE inventory.Title LIKE $input 
+           OR inventory.Manufacturer LIKE $input 
+           OR inventory.Type LIKE $input
     QUERY;
     $result = $database->query($query);
 
