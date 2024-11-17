@@ -37,7 +37,7 @@
         <el-button type="primary" plain icon="el-icon-printer">Print</el-button>
       </a>
 
-      <el-form :inline="true" :model="form">
+      <el-form :inline="true">
 
         <el-form-item label="Offset" />
         <el-input-number
@@ -88,21 +88,28 @@ export default {
 
       inputInventoryNumber: '',
       rendererList: [],
-      rendererSelected: null
+      rendererSelected: 0
     }
   },
   mounted() {
+  },
+  created() {
     renderer.list(true, renderer.Dataset.InventoryItem).then(response => {
       this.rendererList = response
       this.rendererSelected = this.rendererList[0].Id
     }).catch(response => {
       this.showErrorMessage(response)
     })
-    this.loadInventoryList()
-    this.handleChange()
   },
-  created() {},
   methods: {
+    showErrorMessage(error) {
+      this.$message({
+        showClose: true,
+        message: error,
+        duration: 0,
+        type: 'error'
+      })
+    },
     handleChange() {
       const numberList = this.itemList.map(element => element.ItemCode)
       renderer.item(this.rendererSelected).then(response => {
@@ -111,8 +118,8 @@ export default {
 
         this.printPreviewPath =
           printPath + '?Offset=' + this.offset + '&InventoryNumber=' + numberList
-      }).catch(response => {
-        this.showErrorMessage(response)
+      }).catch(error => {
+        this.showErrorMessage(error)
       })
     },
     addItem() {
@@ -120,13 +127,8 @@ export default {
         this.itemList.push(response)
         this.inputInventoryNumber = ''
         this.handleChange()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
+      }).catch(error => {
+        this.showErrorMessage(error)
       })
     },
     clearList() {
