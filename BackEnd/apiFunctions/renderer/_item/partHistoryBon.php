@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 require_once "_renderer.php";
+require_once __DIR__ . "/../_dataset/stock.php";
 
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
@@ -25,91 +26,25 @@ class partHistoryBon extends \renderer\renderer
 
     static public function render(array|stdClass $data, int|null $printerId = null) : string|null
     {
-        global $database;
         global $api;
+        global $companyName;
 
         if(!is_array($data))$api->returnParameterError("Data");
 
-        $printer = self::printer($printerId);
-
-        $items = [];
-        foreach ($data as $item){
-            $stockNumber = barcodeParser_StockNumber($item);
-            $historyItem = barcodeParser_StockHistoryNumber($item);
-            $items[] = $stockNumber."-".$historyItem;
-        }
-
-        global $companyName;
-
-        $itemListString = "'".implode("','",$items)."'";
-        $query = <<< STR
-            SELECT 
-                vendor_displayName(supplier.Id) AS SupplierName, 
-                supplierPart.SupplierPartNumber, 
-                partStock.StockNumber, 
-                vendor_displayName(manufacturer.Id) AS ManufacturerName, 
-                partStock.LotNumber,
-                manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
-                partStock.Date, 
-                manufacturerPart_partNumber.Description,
-                partStock_history.CreationDate,
-                partStock_history.Cache_ChangeIndex AS ChangeIndex,
-                partStock_history.ChangeType,
-                partStock_history.Quantity,
-                partStock_history.Note,
-                workOrder.WorkOrderNumber,
-                workOrder.Name AS WorkOrderName,
-                CONCAT(numbering.Prefix,"-",productionPart.Number) AS ProductionPartNumber,
-                productionPart.Description AS ProductionPartDescription
-            FROM partStock_history
-            LEFT JOIN partStock ON partStock_history.StockId = partStock.Id
-            LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId
-            LEFT JOIN (
-                    SELECT SupplierPartId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
-                    LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
-                    )poLine ON poLine.Id = partStock.ReceivalId
-            LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)   
-            LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartNumberId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
-            LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
-            LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-            LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
-            LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
-            LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-            LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
-            LEFT JOIN numbering ON productionPart.NumberingPrefixId = numbering.Id
-            WHERE CONCAT(partStock.StockNumber,"-",partStock_history.Cache_ChangeIndex ) IN ($itemListString)
-        STR;
-
-        $stockHistoryItems = $database->query($query);
-
-        if(count($stockHistoryItems) === 0){
+        $stockData = \renderer\Stock::getData($data);
+        if($stockData === null){
             $api->returnError("Item not found");
         }
 
+        $printer = self::printer($printerId);
         $connector = new NetworkPrintConnector($printer->Ip, $printer->Port);
         $printer = new Printer($connector);
 
         $lineLength = 42;
         $printer -> initialize();
 
-        foreach($stockHistoryItems as $item)
+        foreach($stockData as $item)
         {
-            $item->TypeDescription = "";
-            if($item->ChangeType == "Create"){
-                $item->TypeDescription = "Create";
-            }else if($item->ChangeType == 'Absolute') {
-                $item->TypeDescription = "Stocktaking";
-            }else if($item->ChangeType == 'Relative') {
-                if($item->Quantity > 0 ){
-                    $item->TypeDescription = "Add";
-                }else {
-                    $item->TypeDescription = "Remove";
-                    $item->Quantity = abs($item->Quantity);
-                }
-            }
-
-            $itemCode = barcodeFormatter_StockHistoryNumber($item->StockNumber, $item->ChangeIndex);
-
             $printer -> selectPrintMode(Printer::MODE_FONT_B);
             $printer -> setJustification(Printer::JUSTIFY_CENTER);
             $printer -> setTextSize(2, 2);
@@ -117,59 +52,60 @@ class partHistoryBon extends \renderer\renderer
             $printer -> feed(1);
 
             $printer -> selectPrintMode(Printer::MODE_FONT_A);
-            if($item->WorkOrderNumber !== null)
+            if($item->workOrderNumber !== null)
             {
                 $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
                 $printer -> setTextSize(1, 1);
                 $printer -> text("Work Order: ");
 
-                $printer -> text(barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber)." - ".$item->WorkOrderName."\n");
+                $printer -> text($item->workOrderNumber." - ".$item->workOrderName."\n");
                 $printer -> feed(1);
             }
 
-            if($item->ProductionPartNumber !== null)
-            {
-                $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
-                $printer -> setTextSize(3, 3);
-                $printer -> text($item->ProductionPartNumber."\n");
-                $printer -> feed(1);
+            if(!empty($item->productionPartNumber)) {
+                $printer->selectPrintMode(Printer::MODE_EMPHASIZED);
+                $printer->setTextSize(3, 3);
+                foreach ($item->productionPartNumber as $productionPartNumber) {
+                    $printer->text($productionPartNumber . "\n");
+                }
+                $printer->feed(1);
             }
 
             $printer -> selectPrintMode(Printer::MODE_FONT_A);
             $printer -> setTextSize(2, 2);
-            $printer -> text($itemCode."\n");
+            $printer -> text($item->itemCode."\n");
             $printer -> feed(1);
 
             $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
-            $printer -> text($item->TypeDescription.' Quantity : ');
+            $printer -> text($item->typeDescription.' Quantity : ');
             $printer -> selectPrintMode(Printer::MODE_FONT_A);
-            $printer -> text(number_format($item->Quantity)."\n");
+            $printer -> text(number_format($item->quantity)."\n");
             $printer -> feed(1);
 
             $printer -> setJustification(Printer::JUSTIFY_CENTER);
-            $printer -> text($item->ManufacturerName."\n");
-            $printer -> text($item->ManufacturerPartNumber."\n");
+            $printer -> text($item->manufacturerName."\n");
+            $printer -> text($item->manufacturerPartNumber."\n");
             $printer -> feed(1);
 
-            if($item->ProductionPartNumber !== null)
+            if($item->partDescription !== null)
             {
-                $printer -> text($item->ProductionPartDescription."\n");
+                $printer -> text($item->partDescription."\n");
                 $printer -> feed(1);
             }
 
-            if(isset($item->Note) && $item->Note != null && $item->Note != "")
+            if($item->note !== null)
             {
                 $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
                 $printer -> text("Note:\n");
                 $printer -> selectPrintMode(Printer::MODE_FONT_A);
-                $printer -> text($item->Note."\n");
+                $printer -> text($item->note."\n");
                 $printer->feed(1);
             }
 
             $printer->setBarcodeTextPosition(Printer::BARCODE_TEXT_BELOW);
             $printer->setBarcodeHeight(80);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->barcode($itemCode, Printer::BARCODE_CODE93);
+            $printer->barcode($item->itemCode, Printer::BARCODE_CODE93);
 
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->text(str_repeat("-",$lineLength)."\n");
