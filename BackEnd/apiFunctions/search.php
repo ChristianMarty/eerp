@@ -274,7 +274,10 @@ function search_purchaseOrder(string $input): array
             purchaseOrder_itemOrder.LineNumber
         FROM purchaseOrder_itemOrder
         LEFT JOIN purchaseOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
-        WHERE purchaseOrder_itemOrder.Sku LIKE $input OR purchaseOrder_itemOrder.ManufacturerPartNumber LIKE $input
+        WHERE purchaseOrder_itemOrder.Sku LIKE $input 
+           OR purchaseOrder_itemOrder.ManufacturerName LIKE $input
+           OR purchaseOrder_itemOrder.ManufacturerPartNumber LIKE $input
+           OR purchaseOrder_itemOrder.Description LIKE $input
     QUERY;
     $result = $database->query($query);
 
