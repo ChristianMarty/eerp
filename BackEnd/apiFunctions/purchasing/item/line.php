@@ -39,13 +39,24 @@ function save_line($purchaseOrderNumber, $line): int
     if($line['Price'] === null) $sqlData['Price'] = 0;
     else $sqlData['Price'] = $line['Price'];
 
-   if($line['SpecificationPartNumber'] !== null) {
-        $specificationPartNumber = barcodeParser_SpecificationPart($line['SpecificationPartNumber']);
-        $sqlData['SpecificationPartId']['raw'] = "(SELECT Id FROM specificationPart WHERE  SpecificationPartNumber = $specificationPartNumber)";
-    } else {
-        $sqlData['SpecificationPartId'] = null;
-    }
+    $sqlData['SpecificationPartRevisionId'] = null;
+   if($line['SpecificationPartRevisionCode'] !== null) {
+        $specificationPartNumber = barcodeParser_SpecificationPart($line['SpecificationPartRevisionCode']);
+        $specificationPartRevision = barcodeParser_SpecificationPartRevision($line['SpecificationPartRevisionCode']);
+        if($specificationPartNumber !== null and $specificationPartRevision !== null) {
 
+            $specificationPartRevision = $database->escape($specificationPartRevision);
+            $specificationPartQuery = <<<STR
+                SELECT 
+                    Id 
+                FROM specificationPart_revision 
+                WHERE  SpecificationPartId = 
+                       (SELECT Id FROM specificationPart WHERE SpecificationPartNumber = $specificationPartNumber)
+                        AND (specificationPart_revision.Revision = $specificationPartRevision)
+            STR;
+            $sqlData['SpecificationPartRevisionId']['raw'] = "($specificationPartQuery)";
+        }
+    }
     $sqlData['Note'] = $line['Note'];
     $type = $line['LineType'];
 

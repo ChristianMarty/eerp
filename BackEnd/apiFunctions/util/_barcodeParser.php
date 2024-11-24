@@ -130,9 +130,7 @@ function barcodeParser_ProductionPart(null|string|int $input): null|string
 function barcodeParser_SpecificationPart(null|string|int $input): null|int
 {
     if($input === null) return null;
-
-    $specificationPartCode = trim($input);
-    $specificationPartCode = strtolower($specificationPartCode);
+    $specificationPartCode = strtolower(trim($input));
 
     if( substr_count($specificationPartCode, '-') == 0) // if only number is given
     {
@@ -146,6 +144,31 @@ function barcodeParser_SpecificationPart(null|string|int $input): null|int
     if(!is_numeric($specificationPartNumberParts[1])) return null;
 
     return intval($specificationPartNumberParts[1]);
+}
+function barcodeParser_SpecificationPartRevision(null|string|int $input): null|string
+{
+    if($input === null) return null;
+    $specificationPartCode = strtolower(trim($input));
+
+    $specificationPartNumberParts = explode('-',$specificationPartCode);
+    if(count($specificationPartNumberParts) == 1) // if only number is given
+    {
+        return null;
+    }
+
+    if(count($specificationPartNumberParts) == 2)
+    {
+        if($specificationPartNumberParts[0] != "spec") return null;
+        return $specificationPartNumberParts[1];
+    }
+
+    if(count($specificationPartNumberParts) == 3)
+    {
+        if($specificationPartNumberParts[0] != "spec") return null;
+        return $specificationPartNumberParts[2];
+    }
+
+    return null;
 }
 
 function barcodeParser_BillOfMaterial(null|string|int $input): null|int

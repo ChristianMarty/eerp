@@ -45,6 +45,11 @@
                 row.ManufacturerPartNumber
               }} - {{ row.Description }}
             </template>
+            <template v-if="row.LineType === 'Specification Part'">
+              {{ row.PartNo }} - {{ row.ManufacturerName }} - {{
+                row.ManufacturerPartNumber
+              }} - {{ row.Description }}
+            </template>
           </template>
         </el-table-column>
         <el-table-column prop="ExpectedReceiptDate" label="Expected" width="100" />

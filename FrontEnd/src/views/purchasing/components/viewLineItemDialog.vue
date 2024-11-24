@@ -10,7 +10,7 @@
       <el-descriptions title="Details:" :column="2">
         <el-descriptions-item label-class-name="my-label" label="Type"> {{ line.LineType }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Price">{{ line.Price }}</el-descriptions-item>
-        <el-descriptions-item label-class-name="my-label" label="Quantity">{{ line.QuantityOrderd }}</el-descriptions-item>
+        <el-descriptions-item label-class-name="my-label" label="Quantity">{{ line.QuantityOrdered }}</el-descriptions-item>
         <el-descriptions-item label-class-name="my-label" label="Unit">{{ line.UnitOfMeasurement }}</el-descriptions-item>
 
         <el-descriptions-item label-class-name="my-label" label="VAT">{{ line.VatValue }}%</el-descriptions-item>

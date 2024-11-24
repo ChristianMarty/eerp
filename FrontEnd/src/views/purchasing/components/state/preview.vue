@@ -58,7 +58,7 @@
       style="width: 100%"
     >
       <el-table-column prop="LineNumber" label="Line" width="70" />
-      <el-table-column prop="SpecificationPartCode" label="Specification Part" width="150" />
+      <el-table-column prop="SpecificationPartRevisionCode" label="Specification Part" width="150" />
       <el-table-column prop="Description" label="Description" />
     </el-table>
 

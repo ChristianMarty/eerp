@@ -133,7 +133,7 @@
         </el-form-item>
         <el-form-item v-if="line.LineType == 'Specification Part'" label="Specification Part:">
           <el-select
-            v-model="line.SpecificationPartCode"
+            v-model="line.SpecificationPartRevisionCode"
             placeholder="Specification Part"
             filterable
             style="min-width: 200px; margin-right: 10px;"
@@ -141,7 +141,7 @@
             <el-option
               v-for="item in specificationPart"
               :key="item.ItemCode"
-              :label="item.ItemCode+' - '+item.Name"
+              :label="item.ItemCode+' - '+item.Description"
               :value="item.ItemCode"
             />
           </el-select>

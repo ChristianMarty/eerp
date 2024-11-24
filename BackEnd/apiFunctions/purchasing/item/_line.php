@@ -40,7 +40,8 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
         purchaseOrder_itemReceive.Id AS ReceiveId,
         purchaseOrder_itemReceive.QuantityReceived,
         purchaseOrder_itemReceive.ReceivalDate,
-        SpecificationPartNumber,
+        specificationPart.SpecificationPartNumber,
+        specificationPart_revision.Revision AS SpecificationPartRevision,
         partStock.AddedStockQuantity
     FROM purchaseOrder_itemOrder 
     LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id 
@@ -48,7 +49,8 @@ function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
     LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_itemOrder.VatTaxId 
     LEFT JOIN supplierPart ON purchaseOrder_itemOrder.SupplierPartId = supplierPart.Id
     LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
-    LEFT JOIN specificationPart ON purchaseOrder_itemOrder.SpecificationPartId = specificationPart.Id
+    LEFT JOIN specificationPart_revision ON specificationPart_revision.Id = purchaseOrder_itemOrder.SpecificationPartRevisionId
+    LEFT JOIN specificationPart ON specificationPart.Id = specificationPart_revision.SpecificationPartId
     LEFT JOIN (
         SELECT SUM(Quantity) AS AddedStockQuantity, partStock.ReceivalId
         FROM partStock
@@ -109,7 +111,6 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
 
     $output["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber, $lineNumber);
     $output['LineNumber'] = $lineNumber;
-    $output['LineNumber'] = $lineNumber;
     $output['Price'] = floatval($data['Price']);
     $output['SupplierSku'] = $data['Sku']; // TODO: legacy -> remove
     $output['SupplierPartNumber'] = $data['Sku'];
@@ -137,9 +138,10 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
     $output['Total'] = $output['LinePrice'] * intval($data['Quantity']);
     $output['FullTotal'] = round($output['Total'] *(1+($data['VatValue']/100)), 2, PHP_ROUND_HALF_UP);
 
-    if($data['SpecificationPartNumber'] !== null){
+    if($data['SpecificationPartRevision'] !== null){
         $output['SpecificationPartNumber'] = intval($data['SpecificationPartNumber']);
         $output['SpecificationPartCode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber']);
+        $output['SpecificationPartRevisionCode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber'], $data['SpecificationPartRevision']);
     }else{
         $output['SpecificationPartNumber'] = null;
         $output['SpecificationPartCode'] = null;

@@ -48,9 +48,13 @@ function barcodeFormatter_ProductionPart(string|int $number, string|null $prefix
     else return $prefix."-".$number;
 }
 
-function barcodeFormatter_SpecificationPart(string|int $input): string
+function barcodeFormatter_SpecificationPart(string|int $input, string|int|null $revision = null): string
 {
-    return "Spec-".$input;
+    $output =  "Spec-".$input;
+    if($revision != null) {
+        $output .= "-".$revision;
+    }
+    return $output;
 }
 
 function barcodeFormatter_WorkOrderNumber(string|int|null $input): string|null
