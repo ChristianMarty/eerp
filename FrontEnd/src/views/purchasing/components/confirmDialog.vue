@@ -83,7 +83,7 @@ export default {
   methods: {
     onOpen() {
       this.data.quantity = (this.$props.line.QuantityOrdered - this.$props.line.QuantityReceived)
-      this.maxConfirmQuantity = this.data.quantity * 1.5
+      this.maxConfirmQuantity = this.data.quantity * 3
 
       if (this.$props.date === null) {
         this.data.date = new Date().toISOString().substring(0, 10)

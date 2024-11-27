@@ -29,7 +29,9 @@
           <template v-if="row.LineType === 'Generic'">
             {{ row.Description }}
           </template>
-
+          <template v-if="row.LineType === 'Specification Part'">
+            {{ row.SpecificationPartRevisionCode	}} - {{ row.Description }}
+          </template>
           <template v-if="row.LineType === 'Part'">
             {{ row.PartNo }} - {{ row.ManufacturerName }} -
             {{ row.ManufacturerPartNumber }} - {{ row.Description }}

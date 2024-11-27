@@ -37,7 +37,7 @@ function _stockPartQuery(string $stockNo): string
 			partStock.Date, 
 			manufacturerPart_partNumber.Description,
 			manufacturerPart_item.Id AS ManufacturerPartItemId,
-			partStock.SpecificationPartRevisionId,
+			poLine.SpecificationPartRevisionId AS SpecificationPartRevisionId,
 			partStock.LocationId, 
 			partStock.HomeLocationId, 
 			hc.CreateQuantity,  
@@ -46,7 +46,7 @@ function _stockPartQuery(string $stockNo): string
 	FROM partStock 
 	    
 	LEFT JOIN (
-		SELECT SupplierPartId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
+		SELECT SupplierPartId, SpecificationPartRevisionId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
 		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
 		)poLine ON poLine.Id = partStock.ReceivalId
 	LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)   
