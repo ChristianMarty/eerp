@@ -1,0 +1,1 @@
+The GHS symbols are from wikimedia and are in the public domain.
