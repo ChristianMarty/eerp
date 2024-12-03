@@ -5,7 +5,7 @@ SELECT
 	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
 	manufacturer.Id AS ManufacturerId, 
 	manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
-	partStock.ManufacturerPartNumberId, 
+    manufacturerPart_partNumber.Id AS ManufacturerPartNumberId,
 	partStock.Date,
 	partStock.LocationId, 
 	-- location_getHomeLocationId_stock(partStock.Id) AS HomeLocationId,

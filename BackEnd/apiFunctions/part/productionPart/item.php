@@ -129,7 +129,11 @@ if($api->isGet())
     }
     $output['Stock'] = $stock;
     $output['TotalStockQuantity'] = $totalStockQuantity;
-    $output['TotalStockCertainty'] = round($totalStockCertainty/$totalStockQuantity, 4);
+    if($totalStockQuantity){
+        $output['TotalStockCertainty'] = round($totalStockCertainty/$totalStockQuantity, 4);
+    }else {
+        $output['TotalStockCertainty'] = 0;
+    }
     $output['TotalStockRating'] = round($output['TotalStockCertainty'] * 5);
 
 // get Characteristics

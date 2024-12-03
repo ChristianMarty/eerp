@@ -17,7 +17,7 @@ require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 class StockData {
     public string $itemCode;
     public string $stockNumber;
-    public string $changeIndex;
+    public int $changeIndex;
     public array  $productionPartNumber;
     public string $typeDescription;
     public float  $quantity;
