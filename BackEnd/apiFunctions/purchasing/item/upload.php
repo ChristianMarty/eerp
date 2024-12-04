@@ -87,6 +87,7 @@ else if($api->isPatch())
         $sqlData['StockPart']['raw'] = "b'1'";
         $sqlData['VatTaxId'] = $user->vatIdDefault();
         $sqlData['Discount'] = 0;
+        $sqlData['CreationUserId'] = $user->userId();
 
         $sqlData['PurchaseOrderId'] = $purchaseOrderId;
         $database->insert("purchaseOrder_itemOrder", $sqlData);
