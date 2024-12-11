@@ -126,6 +126,7 @@
       </p>
       <p><b>Price: </b>{{ partData.Purchase.PriceAfterDiscount }} {{ partData.Purchase.CurrencyCode }}</p>
       <p><b>Date: </b>{{ partData.Purchase.PurchaseDate }}</p>
+      <p><b>Description	: </b>{{ partData.Purchase.Description }}</p>
       <p><b>Order Reference: </b>{{ partData.Purchase.OrderReference }}</p>
     </el-card>
 
