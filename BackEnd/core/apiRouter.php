@@ -64,8 +64,6 @@ class apiRouter
             entrypoint::PROCESS => 'process.php/',
         };
 
-        $requestParts = explode($entryPath, $path);
-
         global $serverDataPath;
         $filePath = match ($entrypoint) {
             entrypoint::API => __DIR__.'/../apiFunctions/',
@@ -74,6 +72,11 @@ class apiRouter
             entrypoint::REPORT => __DIR__.'/../report/',
             entrypoint::PROCESS => __DIR__.'/../apiFunctions/process/',
         };
+
+        $requestParts = explode($entryPath, $path);
+        if(count($requestParts) < 2){
+            $this->returnNotFoundError();
+        }
 
         $request = explode('?', $requestParts[1])[0];
         $filePath .= $request;
