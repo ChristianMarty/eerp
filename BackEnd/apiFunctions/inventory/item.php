@@ -125,10 +125,10 @@ if($api->isGet())
 		$r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber, $r->LineNumber);
 		$r->PurchaseOrderNumber = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber);
 
-		$price = ($r->Price*$r->ExchangeRate)*$r->Quantity*((100 - intval($r->Discount))/100);
+		$price = $r->Price*$r->Quantity*((100 - intval($r->Discount))/100);
 		$r->Price = $price;
-		if($r->CostType == 'Purchase')  $totalPurchase += $price;
-		else $totalMaintenance += $price;
+		if($r->CostType == 'Purchase')  $totalPurchase += ($price*$r->ExchangeRate);
+		else $totalMaintenance += ($price*$r->ExchangeRate);
 	}
 	
 	if(count($purchase) == 0) // Fallback to legacy data
