@@ -116,9 +116,9 @@ export default {
     getLinkToPage(data) {
       let path = ''
       switch (data.Category) {
-        case 'Inventory' : path = '/inventory/inventoryView/'; break
+        case 'Inventory' : path = '/inventory/item/'; break
 
-        case 'Inventory History' : path = '/inventory/inventoryView/'; break
+        case 'Inventory History' : path = '/inventory/item/'; break
 
         case 'Manufacturer Part Series' : path = '/manufacturerPart/series/item/'; break
 

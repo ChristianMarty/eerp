@@ -51,6 +51,8 @@ if($api->isPost())
 
     if (($key = array_search("", $docIds)) !== false) unset($docIds[$key]); // Remove empty string
 
+    if(empty($data->NextDate)) $data->NextDate = null;
+
     $invId = $inv->Id;
     $description = $database->escape($data->Description);
     $docIdStr = implode(",",$docIds);

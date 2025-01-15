@@ -68,8 +68,12 @@ if($api->isGet("renderer.view"))
     unset($output->DatasetName);
     $output->Dataset->Description = $output->DatasetDescription;
     unset($output->DatasetDescription);
-
-    $output->Dataset->Variables = explode(',', $output->DatasetVariables);
+    
+    if($output->DatasetVariables === NULL){
+        $output->Dataset->Variables = [];
+    }else{
+        $output->Dataset->Variables = explode(',', $output->DatasetVariables);
+    }
     unset($output->DatasetVariables);
 
     $api->returnData($output);

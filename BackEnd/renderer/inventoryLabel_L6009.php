@@ -27,10 +27,19 @@ require_once __DIR__ . "/../config.php";
 </head>
 
 <style>
+    div.page{
+        position: absolute;
+        width:192.8mm;
+        height:254.4mm;
+
+        margin-top:19.5mm;
+        margin-left:6mm;
+    }
+    
 	table, th, td {
 		
 	}
-	div{
+	div.label{
 		table-layout: fixed;
 		width:45.7mm;
 		height:21.2mm;
@@ -41,14 +50,14 @@ require_once __DIR__ . "/../config.php";
 		margin-bottom:0;
 			
 	}
-	h1{
+	h1.label{
 		text-align: center;
 		font-size: 3mm;
 		margin-top:2mm;
 		margin-bottom:1mm;
 	}
 	
-	p{
+	p.label{
 		text-align: left;
 		font-size: 2mm;
 		margin-left: 3mm;
@@ -56,15 +65,14 @@ require_once __DIR__ . "/../config.php";
 		margin-bottom:0.5mm;
 		font-weight: bold;
 	}
-	img{
+	img.label{
 		display: block;
 		margin-left: auto; 
 		margin-right: auto;	
 	}
 </style>
 
-<div style="width:193mm;height:254mm;border: none;margin-top:14.5mm;margin-left:2mm;">
-
+<div class="page">
 <?php
 if($api->isGet())
 {
@@ -109,7 +117,7 @@ if($api->isGet())
     $rows = $database->query($query);
 
 	for ($i = 0; $i < $fieldOffset; $i++) {
-        echo "<div>";
+        echo "<div class='label'>";
         echo "</div>";
     }
 
@@ -122,13 +130,13 @@ if($api->isGet())
         $invNo = $row->InventoryNumber . " ";
         $title = $row->Title . " ";
 
-        $content = "<h1>" . $companyName . "</h1>";
-        $content .= "<p>" . $title . " </p>";
-        $content .= "<p>" . $category . " </p>";
-        $content .= "<p>Inv Nr. " . $invNo . " </p>";
-        $content .= "<img src='" . $rendererRootPath . "/barcode/barcode?text=Inv-" . $invNo . "'/>";
+        $content = "<h1 class='label'>" . $companyName . "</h1>";
+        $content .= "<p class='label'>" . $title . " </p>";
+        $content .= "<p class='label'>" . $category . " </p>";
+        $content .= "<p class='label'>Inv Nr. " . $invNo . " </p>";
+        $content .= "<img class='label' src='" . $rendererRootPath . "/barcode/barcode?text=Inv-" . $invNo . "'/>";
 
-        echo "<div>";
+        echo "<div class='label'>";
         echo $content;
         echo "</div>";
     }
