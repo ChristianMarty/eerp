@@ -124,7 +124,7 @@ export default {
   data() {
     return {
       scales: [],
-      selectedScaleId: defaultSetting.defaultSetting().StockCountScale.PeripheralId,
+      selectedScaleId: defaultSetting.defaultSetting().Stock.Measurement.CountingScale.PeripheralId,
       reading: 0,
       readings: [],
       calibratedWeightPerPiece: 0,

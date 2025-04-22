@@ -295,8 +295,8 @@ export default {
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().AssemblyUnit.PrinterId
-        this.selectedRendererId = defaultSetting.defaultSetting().AssemblyUnit.RendererId
+        this.selectedPrinterId = defaultSetting.defaultSetting().Assembly.Renderer.Item.PeripheralId
+        this.selectedRendererId = defaultSetting.defaultSetting().Assembly.Renderer.Item.RendererId
         this.printerList = response
       }).catch(response => {
         this.$message({

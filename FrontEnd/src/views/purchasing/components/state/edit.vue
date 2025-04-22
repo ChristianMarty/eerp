@@ -214,7 +214,7 @@ const emptyAdditionalChargesLine = {
   Type: 'Shipping',
   Quantity: 1,
   Price: 0,
-  VatTaxId: Number(defaultSetting.defaultSetting().PurchaseOrder.VAT),
+  VatTaxId: Number(defaultSetting.defaultSetting().PurchaseOrder.ValueAddedTaxId),
   Description: ''
 }
 
@@ -237,7 +237,7 @@ export default {
 
       editOrderLineId: 0,
       allExpectedDate: null,
-      allVatId: Number(defaultSetting.defaultSetting().PurchaseOrder.VAT),
+      allVatId: Number(defaultSetting.defaultSetting().PurchaseOrder.ValueAddedTaxId),
       additionalChargesLine: {},
 
       additionalChargesDialogVisible: false,
@@ -409,7 +409,7 @@ export default {
     getOrderRequests() {
       requestBN({
         url: '/purchasing/orderRequest',
-        methood: 'get',
+        method: 'get',
         params: { SupplierId: this.$props.orderData.SupplierId }
       }).then(response => {
         this.orderRequests = response.data

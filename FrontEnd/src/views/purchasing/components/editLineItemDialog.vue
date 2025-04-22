@@ -367,8 +367,8 @@ export default {
       this.line = {}
       if (this.$props.lineId === 0) { // in case of new Line
         this.line = Object.assign({}, purchase.item.line.emptyLine)
-        this.line.UnitOfMeasurementId = Number(defaultSetting.defaultSetting().PurchaseOrder.UoM)
-        this.line.VatTaxId = Number(defaultSetting.defaultSetting().PurchaseOrder.VAT)
+        this.line.UnitOfMeasurementId = Number(defaultSetting.defaultSetting().PurchaseOrder.UnitOfMeasurementId)
+        this.line.VatTaxId = Number(defaultSetting.defaultSetting().PurchaseOrder.ValueAddedTaxId)
         this.loading = false
         return
       }

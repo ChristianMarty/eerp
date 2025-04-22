@@ -8,16 +8,19 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 require_once __DIR__ . "/config.php";
-
-global $devMode;
+require_once __DIR__ . "/core/entrypoint.php";
+global $user;
 global $serverDataPath;
 
-session_start();
-
-if (!((isset($_SESSION['authenticated']) && $_SESSION['authenticated'] == true)||$devMode))
-{
-	echo "<p>User Session Invalid. Please Log In.<p>";
+if (!$user->loggedIn()) {
+	http_response_code(401);
+	echo "<p>Error 401 - User Session Invalid. Please Log In.<p>";
 	exit;
+}
+
+if($_SERVER['REQUEST_METHOD'] !== 'GET'){
+	http_response_code(405);
+	echo "<p>Error 405 - Method Not Allowed</p>";
 }
 
 $params = array();
@@ -27,31 +30,22 @@ $filePath = $serverDataPath."/";
 $apiRequest = explode('?',rawurldecode($apiRequestParts[1]))[0];
 $filePath .= $apiRequest;
 
-if(file_exists($filePath))
-{
-	if ((isset($_SESSION['authenticated']) && $_SESSION['authenticated'] == true)||$devMode) 
-	{
-		$filename = pathinfo($filePath)['filename'];
-		$extension = pathinfo($filePath, PATHINFO_EXTENSION);
-		
-		header('Content-Description: File Transfer');
-		header('Content-Type: application/'.$extension);
-		header('Content-Disposition: inline; filename="'.$filename.'"');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate');
-		header('Pragma: public');
-		header('Content-Length: ' . filesize($filePath));
-		readfile($filePath);
-		exit;
-	}
-	else
-	{
-		echo "<p>User Authentication Failed</p>";
-	}
-}
-else
-{
-	echo "<p>File not found</p>";
+if(file_exists($filePath)) {
+	$filename = pathinfo($filePath)['filename'];
+	$extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+	header('Content-Description: File Transfer');
+	header('Content-Type: application/'.$extension);
+	header('Content-Disposition: inline; filename="'.$filename.'"');
+	header('Expires: 0');
+	header('Cache-Control: must-revalidate');
+	header('Pragma: public');
+	header('Content-Length: ' . filesize($filePath));
+	readfile($filePath);
+	exit;
+} else {
+	http_response_code(404);
+	echo "<p>Error 404 - File not found</p>";
 }
 
 ?>

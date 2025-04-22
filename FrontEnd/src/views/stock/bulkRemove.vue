@@ -267,9 +267,10 @@ export default {
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().StockHistory.PrinterId
-        this.historyRendererId = defaultSetting.defaultSetting().StockHistory.RendererId
-        this.receiptRendererId = defaultSetting.defaultSetting().StockReceipt.RendererId
+        this.selectedPrinterId = defaultSetting.defaultSetting().Stock.Renderer.History.PeripheralId
+
+        this.historyRendererId = defaultSetting.defaultSetting().Stock.Renderer.History.RendererId
+        this.receiptRendererId = defaultSetting.defaultSetting().Stock.Receipt.History.RendererId
         this.printer = response
       }).catch(response => {
         this.$message({

@@ -4,15 +4,20 @@
 // FilePath : /
 // Author   : Christian Marty
 // Date		: 01.08.2020
-// License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-$adServer = "ldap://localhost";
+$adServer = "ldap://192.168.1.34";
+$ldapBase = "cn=users,dc=admin";
 
-// All paths without trailing /
+//$adServer = "ldap://192.168.1.200";
+//$ldapBase = "ou=users,dc=example,dc=org";
 
-$serverDataPath = "/volume1/web/eerp/data"; 
+//$adServer = "ldap://192.168.1.200:9389";
+//$ldapBase = "DC=ldap,DC=goauthentik,DC=io";
+
+$serverPath = "http://192.168.1.138:8461/";
+$serverDataPath = "W:/eerp/data"; // Path without trailing /
 
 $documentPath = "/documents";
 $picturePath = "/pictures";
@@ -20,45 +25,35 @@ $ingestPath = "/ingest";
 $assetPath = "/assets";
 
 
-$databaseServerAddress = 'localhost';
+$databaseServerAddress = '192.168.1.34';
 $databasePort = '3306';
+$databaseName = 'BlueNova';
+$databaseUser = 'BlueNova';
+$databasePassword = 'tC?gt7=y*9P+BFbZ';
+//*/
+/*
+$databaseServerAddress = '192.168.1.200';
+$databasePort = '3366';
 $databaseName = 'eerp';
-$databaseUser = 'eerp';
-$databasePassword = 'My Safe DB Password'; 
+$databaseUser = 'root';
+$databasePassword = 'test1234';
+//*/
 
-$domainRootPath = $_SERVER['SERVER_NAME'].pathinfo($_SERVER['PHP_SELF'], 1);
+$domainRootPath = "https://my domain.ch"; // Path without trailing /
 
-$apiRootPath      = $domainRootPath.'/api.php';
-$documentRootPath = $domainRootPath.'/document.php';
-$dataRootPath     = $domainRootPath.'/data.php';
-$rendererRootPath = $domainRootPath.'/renderer';
+$apiRootPath      =  $serverPath.'api.php';
+$dataRootPath     =  $serverPath.'data.php';
+$rendererRootPath =  $serverPath.'renderer.php';
 $assetsRootPath   = $dataRootPath.'/assets';
 
-
-$companyName = "My Company Name"; // Should not be longer than 30 characters
+$companyName = "Eigentum von Christian Marty";
 $accountingCurrencyId = 1;
 
+$defaultLocationBarcode = 'Loc-00000';
+$vendorId = 161;
+$addressId = 1;
+
 $showPhpError = true;
-$devMode = false; // If true-> Disables user authentification
-
-
-// Octopart API
-$enableOctopart   = false;
-$octopartApiPath  = 'https://octopart.com/api/v4/';
-$octopartApiToken = '';
-
-// Mouser API
-$enableMouser  = false;
-$mouserApiPath = 'https://api.mouser.com/api/v1';
-$mouserApiKey  = '';
-$mouserSupplierId = 0;
-
-// Digikey API
-$enableDigikey  = false;
-$digikeyApiPath = '';
-$digikeyClientId = '';
-$digikeyClientSecret = '';
-$digikeyCallbackPath = '';
-$digikeySupplierId = 0;
+$devMode = true; // If true-> Disables user authentication
 
 ?>

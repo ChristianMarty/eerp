@@ -152,8 +152,8 @@ export default {
     this.printerList = await peripheral.list(peripheral.Type.Printer)
     this.rendererList = await renderer.list(true, renderer.Dataset.LocationInventoryList)
 
-    this.selectedPrinterId = defaultSetting.defaultSetting().LocationInventoryList.PrinterId
-    this.selectedRendererId = defaultSetting.defaultSetting().LocationInventoryList.RendererId
+    this.selectedPrinterId = defaultSetting.defaultSetting().Location.Renderer.InventoryList.PeripheralId
+    this.selectedRendererId = defaultSetting.defaultSetting().Location.Renderer.InventoryList.RendererId
   },
   created() {
     // Why need to make a copy of this.$route here?

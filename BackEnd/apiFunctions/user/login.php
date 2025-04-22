@@ -14,9 +14,11 @@ global $api;
 if($api->isPost())
 {
 	$data = $api->getPostData();
-    $user->login($data->username,$data->password);
+    $login = $user->login($data->username,$data->password);
 
-    if(!$user->loggedIn()) $api->returnError("Username or Password Wrong");
+    if(is_string($login)){
+        $api->returnError($login);
+    }
 
     $returnData = array();
     $returnData['DisplayName'] = $user->displayName();

@@ -12,7 +12,7 @@ declare(strict_types=1);
 use JetBrains\PhpStorm\NoReturn;
 
 require_once __DIR__ . "/../config.php";
-require_once __DIR__ . "/userAuthentication.php";
+require_once __DIR__ . "/user/userAuthentication.php";
 
 enum apiMethod
 {
@@ -36,7 +36,6 @@ class apiRouter
     private apiMethod $method;
     private array|null $options = null;
     private string|null $runPath = null;
-    private userAuthentication $user;
 
     private bool $hasGet = false;
     private bool $hasPost = false;
@@ -46,7 +45,7 @@ class apiRouter
 
     function __construct(userAuthentication $user, entrypoint $entrypoint, string $path, string $methodString)
     {
-        $this->user = $user;
+        global $user;
 
         $this->method = match ($methodString) {
             'GET' => apiMethod::GET,
@@ -92,12 +91,17 @@ class apiRouter
         if (str_starts_with(end($tmp), "_")) {
             $this->returnNotFoundError();
         }
+        /*
+        if($this->isOptions()) {
+            header("Allow: ".$this->optionsString());
+            exit;
+        }*/
 
         if ($request == "user/login" || $request == "user/logout")
         {
             $this->runPath = $filePath;
         } 
-		else if ($user->loggedIn()) 
+		else if ($user->loggedIn())
 		{
             $idempotencyToken = null;
             $headers = array_change_key_case(getallheaders(),CASE_LOWER);
@@ -264,7 +268,12 @@ class apiRouter
 
     #[NoReturn] function returnParameterMissingError(string $parameterName): void
     {
-        $this->returnData(null, $parameterName." is not specified");
+        $bt = debug_backtrace();
+        $caller = array_shift($bt);
+
+        $meta = $caller['file']." - ".$caller['line'];
+
+        $this->returnData(null, $meta." - ".$parameterName." is not specified");
     }
 
     #[NoReturn] function returnParameterError(string $parameterName): void
@@ -281,19 +290,19 @@ class apiRouter
     #[NoReturn] function returnNotFoundError(string $message = ""):void
     {
         http_response_code(404);
-        $this->returnError("Error 404 - Not Found ".$message);
+        $this->returnError("Error 404 - Not Found:  ".$message);
     }
 
     #[NoReturn] function returnUnauthorizedError(string $message = ""):void
     {
         http_response_code(401);
-        $this->returnError("Error 401 - Unauthorized".$message);
+        $this->returnError("Error 401 - Unauthorized: ".$message);
     }
 
     #[NoReturn] function returnMethodNotAllowedError(string $message = ""):void
     {
         http_response_code(405);
-        $this->returnError("Error 405 - Method Not Allowed".$message);
+        $this->returnError("Error 405 - Method Not Allowed: ".$message);
     }
 
     static private function generateIdempotenceToken(): string
