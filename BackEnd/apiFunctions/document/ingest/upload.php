@@ -22,22 +22,18 @@ if($api->isPost())
 	global $ingestPath;
 	
 	$fileName = basename($_FILES["file"]["name"]);
-
 	$file = $_FILES["file"]["tmp_name"];
 	
 	// Check if file already exists
-	$fileMd5 = md5_file ($file);
+	$fileMd5 = md5_file($file);
 	
 	$query = "SELECT * FROM `document` WHERE `Hash`='$fileMd5'";
 	$result = $database->query($query);
 
-    if(count($result) == 0)
-	{
+    if(count($result) == 0) {
 		move_uploaded_file($file, $serverDataPath.$ingestPath."/".$fileName);
 		$output["message"]= "File uploaded successfully.";
-	}
-	else
-	{
+	} else {
 		$output["message"]= "The uploaded file already exists.";
 		$error= "The uploaded file already exists.";
 	}	

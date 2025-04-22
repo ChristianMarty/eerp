@@ -192,7 +192,7 @@ else if($api->isPost())
 	}
 	else if(isset($data->Quantity))
 	{
-        if(!is_numeric($data->Quantity)) $api->returnParameterError("RemoveQuantity");
+        if(!is_numeric($data->Quantity)) $api->returnParameterError("Quantity");
         $quantity = intval($data->Quantity);
 
 		if($quantity <0) $api->returnError("Quantity can not by below 0");
