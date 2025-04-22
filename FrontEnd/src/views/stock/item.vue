@@ -35,6 +35,19 @@
         </router-link>
       </p>
       <el-divider />
+
+      <el-row>
+        <el-col :span="12">
+          <p><b>Lot Number: </b>{{ partData.LotNumber }}</p>
+          <p><b>Date Code: </b>{{ partData.DateCode }}</p>
+        </el-col>
+        <el-col :span="12">
+          <p><b>Part Weight: </b>{{ partData.Part.Weight.SinglePartWeight }}{{ partData.Part.Weight.UnitOfMeasurement.Symbol }}</p>
+          <p><b>Country of Origin: </b>{{ partData.Part.CountryOfOrigin.Alpha2Code }} - {{ partData.Part.CountryOfOrigin.Name }}</p>
+        </el-col>
+      </el-row>
+
+      <el-divider />
       <h4>Production Parts:</h4>
       <el-table :data="productionPartData" style="width: 100%">
         <el-table-column prop="ItemCode" label="Part Number" sortable width="150">
@@ -53,26 +66,42 @@
     </el-card>
 
     <el-card v-if="showItem">
-      <h3>Stock Information {{ partData.Barcode }}</h3>
+      <h3>Location</h3>
       <el-divider />
-      <p><b>Location: </b>{{ partData.Location.Name }}</p>
-      <p><b>Location Path: </b>{{ partData.Location.Path }}</p>
-      <p><b>Home Location: </b>{{ partData.Location.HomeName }}</p>
-      <p><b>Home Location Path: </b>{{ partData.Location.HomePath }}</p>
-      <p><b>Lot Number: </b>{{ partData.LotNumber }}</p>
-      <p><b>Date Code: </b>{{ partData.DateCode }}</p>
-      <p><b>Quantity: </b>{{ partData.Quantity.Quantity }}</p>
-      <p><b>Create Quantity: </b>{{ partData.Quantity.CreateQuantity }}</p>
-      <p><b>Create Data: </b>{{ partData.Quantity.CreateData }}</p>
-      <p><b>Last Counted Date: </b>{{ partData.Quantity.Certainty.LastStocktakingDate }}</p>
-      <p><b>Days Since Stocktaking: </b>{{ partData.Quantity.Certainty.DaysSinceStocktaking }}</p>
-      <span>
-        <p><b>Stock Certainty Factor: </b>{{ partData.Quantity.Certainty.Factor }}</p>
-        <el-rate v-model="partData.Quantity.Certainty.Rating" disabled />
-      </span>
+      <el-row>
+        <el-col :span="12">
+          <p><b>Location: </b>{{ partData.Location.Name }}</p>
+          <p><b>Location Path: </b>{{ partData.Location.Path }}</p>
+        </el-col>
+        <el-col :span="12">
+          <p><b>Home Location: </b>{{ partData.Location.HomeName }}</p>
+          <p><b>Home Location Path: </b>{{ partData.Location.HomePath }}</p>
+        </el-col>
+      </el-row>
+
       <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">
         Location Transfer
       </el-button>
+    </el-card>
+
+    <el-card v-if="showItem">
+      <h3>Quantity</h3>
+      <el-divider />
+
+      <el-row>
+        <el-col :span="12">
+          <p><b>Quantity: </b>{{ partData.Quantity.Quantity }}</p>
+          <p><b>Last Counted: </b>{{ partData.Quantity.Certainty.LastStocktakingDate }}</p>
+          <p><b>Days Since Stocktaking: </b>{{ partData.Quantity.Certainty.DaysSinceStocktaking }}</p>
+        </el-col>
+        <el-col :span="12">
+          <p><b>Created Quantity: </b>{{ partData.Quantity.CreateQuantity }}</p>
+          <p><b>Created Data: </b>{{ partData.Quantity.CreateData }}</p>
+          <p><b>Stock Certainty Factor: </b>{{ partData.Quantity.Certainty.Factor }}</p>
+        </el-col>
+      </el-row>
+      <el-rate v-model="partData.Quantity.Certainty.Rating" disabled />
+
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
       <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
 
@@ -379,8 +408,8 @@ export default {
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
-        this.selectedPrinterId = defaultSetting.defaultSetting().StockItem.PrinterId
-        this.selectedLabelId = defaultSetting.defaultSetting().StockItem.RendererId
+        this.selectedPrinterId = defaultSetting.defaultSetting().Stock.Renderer.Item.PeripheralId
+        this.selectedLabelId = defaultSetting.defaultSetting().Stock.Renderer.Item.RendererId
         this.printer = response
       }).catch(response => {
         this.$message({

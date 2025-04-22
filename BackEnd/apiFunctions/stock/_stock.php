@@ -269,6 +269,53 @@ class stock
 
         return $output;
     }
+
+    static function createCountingRequest(
+        int|null    $stockId,
+        string|null $stockNumber = null
+    ): void
+    {
+        if($stockId === null and $stockNumber === null){
+            return;
+        }
+
+        global $database;
+        global $user;
+
+        $sqlData['CountingRequestUserId'] = $user->userId();
+        $sqlData['CountingRequestDate']['raw'] = "current_timestamp()";
+
+        if($stockId !== null){
+            $database->update("partStock", $sqlData, "Id = $stockId");
+        }else if($stockNumber !== null){
+            $stockNumber = $database->escape($stockNumber);
+            $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
+        }
+    }
+
+    static function clearCountingRequest(
+        int|null    $stockId,
+        string|null $stockNumber = null
+    ): void
+    {
+        if($stockId === null and $stockNumber === null){
+            return;
+        }
+
+        global $database;
+
+        $sqlData['CountingRequestUserId'] = null;
+        $sqlData['CountingRequestDate'] = null;
+
+        if($stockId !== null){
+            $database->update("partStock", $sqlData, "Id = $stockId");
+        }else if($stockNumber !== null){
+            $stockNumber = $database->escape($stockNumber);
+            $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
+        }
+
+        $stockNumber = $database->escape($stockNumber);
+    }
 /*
     function formatHistoryItem(\stdClass $itemData): \stdClass|null
     {

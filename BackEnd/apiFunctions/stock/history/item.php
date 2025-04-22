@@ -14,8 +14,10 @@ global $user;
 
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
+require_once __DIR__ . "/../_stock.php";
 
 if($api->isGet()) {
+
     $parameter = $api->getGetData();
 
     if (!isset($parameter->StockHistoryCode)) $api->returnParameterMissingError("StockHistoryCode");
@@ -145,10 +147,12 @@ else if($api->isPost())
 {
 	$data = $api->getPostData();
 	if(!isset($data->StockNumber)) $api->returnParameterMissingError("StockNumber");
-	$stockNo = barcodeParser_StockNumber($data->StockNumber);
-    if($stockNo === null) $api->returnParameterError("StockNumber");
+    $stockNumber = barcodeParser_StockNumber($data->StockNumber);
+    if($stockNumber === null) $api->returnParameterError("StockNumber");
 
-	$query = "SELECT Id FROM partStock WHERE StockNumber = '$stockNo'";
+    $stockNumber = $database->escape($stockNumber);
+
+	$query = "SELECT Id FROM partStock WHERE StockNumber = $stockNumber";
     $r = $database->query($query);
     if(count($r) === 0) {
         $api->returnError("StockNumber not found");
@@ -199,6 +203,8 @@ else if($api->isPost())
 		
 		$sqlData['Quantity'] = abs($quantity);
 		$sqlData['ChangeType']['raw'] = '"Absolute"';
+
+        \stock\stock::clearCountingRequest(null, $stockNumber);
 	}
 	else
 	{

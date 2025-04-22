@@ -42,9 +42,10 @@ function _stockPartQuery(string $stockNo): string
 			partStock.HomeLocationId, 
 			hc.CreateQuantity,  
 			partStock_getQuantity(partStock.StockNumber) AS Quantity, 
-			hc.CreateData 
+			hc.CreateData,
+			country.ShortName as CountryOfOriginName,
+			country.Alpha2Code as CountryOfOriginCode
 	FROM partStock 
-	    
 	LEFT JOIN (
 		SELECT SupplierPartId, SpecificationPartRevisionId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
 		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
@@ -55,7 +56,7 @@ function _stockPartQuery(string $stockNo): string
 	LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
 	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
 	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
-
+	LEFT JOIN country On country.Id = partStock.CountryOfOriginCountryId
 	LEFT JOIN (
 		SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNumber = $stockNo)
 		)hc ON  hc.StockId = partStock.Id
@@ -122,8 +123,23 @@ if($api->isGet("stock.view"))
     if($r->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($r->SpecificationPartRevisionId);
     else $part->SpecificationPartRevisionId = null;
     unset($r->SpecificationPartRevisionId);
-    $part->SinglePartWeight = $r->SinglePartWeight;
+
+    $weight = new stdClass();
+    $weight->SinglePartWeight = $r->SinglePartWeight;
     unset($r->SinglePartWeight);
+    $unitOfMeasurement = new stdClass();
+    $unitOfMeasurement->Unit = "Gram";
+    $unitOfMeasurement->Symbol = "g";
+    $weight->UnitOfMeasurement = $unitOfMeasurement;
+    $part->Weight = $weight;
+
+    $country = new stdClass();
+    $country->Name = $r->CountryOfOriginName;
+    unset($r->CountryOfOriginName);
+    $country->Alpha2Code = $r->CountryOfOriginCode;
+    unset($r->CountryOfOriginCode);
+    $part->CountryOfOrigin = $country;
+
     $r->Part = $part;
 
     // Add Quantity
