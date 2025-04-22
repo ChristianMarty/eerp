@@ -45,7 +45,7 @@ class Scale
     private ScaleBase $scale;
     private ScaleError $error = ScaleError::NoError;
 
-    public function __construct(int $scaleId = null)
+    public function __construct(int|null $scaleId = null)
     {
         global $database;
         $query = <<<QUERY

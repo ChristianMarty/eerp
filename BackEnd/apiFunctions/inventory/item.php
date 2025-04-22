@@ -161,6 +161,7 @@ if($api->isGet())
 
     $total = new stdClass();
     $total->PurchaseCost =  round($totalPurchase, 2);
+    $total->MaintenanceCost =  round($totalMaintenance, 2);
     $total->CostOfOwnership =  round($totalPurchase+$totalMaintenance, 2);
     $total->Currency = "CHF"; //TODO: Fix  $purchase[0]["Currency"];
 
