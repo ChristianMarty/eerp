@@ -57,7 +57,7 @@ export default {
     getPartNotificationData() {
       requestBN({
         url: '/productionPart/notification',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.partData = response.data
       })

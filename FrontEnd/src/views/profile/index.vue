@@ -50,7 +50,7 @@ export default {
     getUserData() {
       requestBN({
         url: 'user/info',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.userData = response.data
       })

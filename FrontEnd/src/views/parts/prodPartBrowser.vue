@@ -78,7 +78,7 @@ export default {
 
       requestBN({
         url: '/productionPart',
-        methood: 'get',
+        method: 'get',
         params: filterList
       }).then(response => {
         this.partData = response.data

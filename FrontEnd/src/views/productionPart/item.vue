@@ -410,7 +410,7 @@ export default {
     getPurchaseOrder() {
       requestBN({
         url: '/purchasing/partPurchase',
-        methood: 'get',
+        method: 'get',
         params: { ProductionPartNumber: this.$route.params.productionPartNumber }
       }).then(response => {
         this.purchaseOrder = response.data

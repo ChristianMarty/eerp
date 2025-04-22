@@ -37,7 +37,7 @@ export default {
     getAttributes() {
       requestBN({
         url: '/part/attribute',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.attributes = response.data
       })

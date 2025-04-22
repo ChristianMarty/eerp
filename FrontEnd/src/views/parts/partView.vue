@@ -318,7 +318,7 @@ export default {
     getPartData() {
       requestBN({
         url: '/part/item',
-        methood: 'get',
+        method: 'get',
         params: { PartId: this.$route.params.partId }
       }).then(response => {
         this.partData = response.data[0]
@@ -346,7 +346,7 @@ export default {
     getStockItems() {
       requestBN({
         url: '/stock',
-        methood: 'get',
+        method: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.stockData = response.data
@@ -355,7 +355,7 @@ export default {
     getProductionPartData() {
       requestBN({
         url: '/productionPart',
-        methood: 'get',
+        method: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.productionPartData = response.data
@@ -375,7 +375,7 @@ export default {
     getSupplierPart() {
       requestBN({
         url: '/supplier/supplierPart',
-        methood: 'get',
+        method: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.supplierPartData = response.data
@@ -384,7 +384,7 @@ export default {
     getAvailabilityData() {
       requestBN({
         url: '/part/availability',
-        methood: 'get',
+        method: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.availabilityData = response.data
@@ -393,7 +393,7 @@ export default {
     getOrderRequests() {
       requestBN({
         url: '/purchasing/orderRequest',
-        methood: 'get',
+        method: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.orderRequests = response.data
@@ -402,7 +402,7 @@ export default {
     getPurchaseOrder() {
       requestBN({
         url: '/purchasing/partPurchase',
-        methood: 'get',
+        method: 'get',
         params: { ManufacturerPartId: this.partData.PartId }
       }).then(response => {
         this.purchaseOrder = response.data

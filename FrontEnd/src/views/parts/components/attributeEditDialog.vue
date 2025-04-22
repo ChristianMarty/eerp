@@ -78,7 +78,7 @@ export default {
     getAttributes(classId) {
       requestBN({
         url: '/part/attribute/',
-        methood: 'get',
+        method: 'get',
         params: { classId: classId }
       }).then(response => {
         this.attributes = response.data
@@ -87,7 +87,7 @@ export default {
     getPartClasses() {
       requestBN({
         url: '/part/class/',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.partClasses = response.data
       })
@@ -95,7 +95,7 @@ export default {
     getPartData() {
       requestBN({
         url: '/part/item',
-        methood: 'get',
+        method: 'get',
         params: { PartId: this.$route.params.partId }
       }).then(response => {
         this.partData = response.data[0]

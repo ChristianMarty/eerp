@@ -51,7 +51,7 @@ export default {
     getManufacturers() {
       requestBN({
         url: '/part/manufacturer/',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.manufacturers = response.data
       })

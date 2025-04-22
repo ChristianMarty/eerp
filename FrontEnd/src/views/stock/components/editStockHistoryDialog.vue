@@ -104,7 +104,7 @@ export default {
     getWorkOrders() {
       requestBN({
         url: '/workOrder',
-        methood: 'get',
+        method: 'get',
         params: { Status: 'InProgress' }
       }).then(response => {
         this.workOrders = response.data

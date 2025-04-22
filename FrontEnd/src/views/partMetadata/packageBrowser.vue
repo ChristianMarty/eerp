@@ -46,7 +46,7 @@ export default {
     getPackages() {
       requestBN({
         url: '/part/package',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.packages = response.data
       })

@@ -166,7 +166,7 @@ export default {
 
       requestBN({
         url: '/part',
-        methood: 'get',
+        method: 'get',
         params: filterList
       }).then(response => {
         this.partData = this.flattenPartData(response.data)
@@ -188,7 +188,7 @@ export default {
     getManufacturers() {
       requestBN({
         url: '/part/manufacturer',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.manufacturers = response.data
       })
@@ -196,7 +196,7 @@ export default {
     getClassData(Id) {
       requestBN({
         url: '/part/class',
-        methood: 'get',
+        method: 'get',
         params: { classId: Id }
       }).then(response => {
         this.partsClasses = response.data
@@ -205,7 +205,7 @@ export default {
 
       requestBN({
         url: '/part/attribute',
-        methood: 'get',
+        method: 'get',
         params: { classId: Id, children: false, parents: true }
       }).then(response => {
         this.partAttributes = response.data

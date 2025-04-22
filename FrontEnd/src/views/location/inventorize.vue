@@ -125,7 +125,7 @@ export default {
     getLocations() {
       requestBN({
         url: '/location',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.locations = response.data
       })
@@ -134,7 +134,7 @@ export default {
     addItem() {
       requestBN({
         url: '/util/itemDescription',
-        methood: 'get',
+        method: 'get',
         params: { Item: this.inputItemNr }
       }).then(response => {
         if (response.error != null) {

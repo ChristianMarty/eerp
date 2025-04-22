@@ -98,7 +98,7 @@ export default {
     getStockNotification() {
       requestBN({
         url: '/productionPart/notification/summary',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         this.StockNotification = response.data
       })
@@ -106,7 +106,7 @@ export default {
     getOrderStatus() {
       requestBN({
         url: '/purchaseOrder',
-        methood: 'get',
+        method: 'get',
         params: { Status: 'Confirm' }
       }).then(response => {
         this.awitingShippments = response.data
