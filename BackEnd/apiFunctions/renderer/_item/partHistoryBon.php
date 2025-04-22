@@ -93,6 +93,28 @@ class partHistoryBon extends \renderer\renderer
                 $printer -> feed(1);
             }
 
+            if($item->countryOfOriginName !== null)
+            {
+                $coo = $item->countryOfOriginCode." - ".$item->countryOfOriginName;
+
+                $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
+                $printer -> text('Country of Origin : ');
+                $printer -> selectPrintMode(Printer::MODE_FONT_A);
+                $printer -> text($coo."\n");
+                $printer -> feed(1);
+            }
+            if($item->singlePartWeight !== null)
+            {
+                $weight = $item->singlePartWeight.$item->singlePartWeightSymbol." per pcs / ";
+                $weight .= ($item->quantity*$item->singlePartWeight).$item->singlePartWeightSymbol." total";
+
+                $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
+                $printer -> text('Weight : ');
+                $printer -> selectPrintMode(Printer::MODE_FONT_A);
+                $printer -> text($weight."\n");
+                $printer -> feed(1);
+            }
+
             if($item->note !== null)
             {
                 $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);

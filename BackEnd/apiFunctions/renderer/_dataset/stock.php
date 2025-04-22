@@ -27,6 +27,11 @@ class StockData {
     public string|null $workOrderName;
     public string|null $partDescription;
     public string|null $note;
+
+    public float|null $singlePartWeight;
+    public string|null $singlePartWeightSymbol;
+    public string|null $countryOfOriginName;
+    public string|null $countryOfOriginCode;
 }
 
 class Stock extends \renderer\dataset
@@ -71,7 +76,12 @@ class Stock extends \renderer\dataset
                 workOrder.WorkOrderNumber,
                 workOrder.Name AS WorkOrderName,
                 GROUP_CONCAT(CONCAT(numbering.Prefix,'-',productionPart.Number) ) AS ProductionPartNumberList,
-                productionPart.Description AS ProductionPartDescription
+                productionPart.Description AS ProductionPartDescription,
+            
+                manufacturerPart_partNumber.SinglePartWeight AS SinglePartWeight,
+                country.ShortName as CountryOfOriginName,
+                country.Alpha2Code as CountryOfOriginCode
+            
             FROM partStock_history
             LEFT JOIN partStock ON partStock_history.StockId = partStock.Id
             LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId
@@ -87,6 +97,7 @@ class Stock extends \renderer\dataset
             LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
             LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId
             LEFT JOIN numbering ON productionPart.NumberingPrefixId = numbering.Id
+            LEFT JOIN country On country.Id = partStock.CountryOfOriginCountryId
             WHERE CONCAT(partStock.StockNumber,"-",partStock_history.Cache_ChangeIndex ) IN ($itemListString)
             GROUP BY partStock_history.Id
         STR;
@@ -111,8 +122,8 @@ class Stock extends \renderer\dataset
                 }else {
                     $stockData->typeDescription = "Remove";
                 }
-                $stockData->quantity = abs($item->Quantity);
             }
+            $stockData->quantity = abs($item->Quantity);
 
             $stockData->itemCode = barcodeFormatter_StockHistoryNumber($item->StockNumber, $item->ChangeIndex);
             $stockData->stockNumber = $item->StockNumber;
@@ -141,6 +152,11 @@ class Stock extends \renderer\dataset
             }
 
             $stockData->note = $item->Note;
+
+            $stockData->singlePartWeight = $item->SinglePartWeight;
+            $stockData->singlePartWeightSymbol = "g";
+            $stockData->countryOfOriginName = $item->CountryOfOriginName;
+            $stockData->countryOfOriginCode = $item->CountryOfOriginCode;
 
             $return[] = $stockData;
         }
