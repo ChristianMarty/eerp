@@ -6,7 +6,7 @@ class Metrology {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/metrology/testSystem',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -39,7 +39,7 @@ class Metrology {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/metrology/testSystem/item',
-          methood: 'get',
+          method: 'get',
           params: {
             TestSystemNumber: TestSystemNumber
           }

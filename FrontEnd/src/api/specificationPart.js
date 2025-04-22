@@ -5,7 +5,7 @@ class SpecificationPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/specificationPart',
-        methood: 'get',
+        method: 'get',
         params: {
           SpecificationPartBarcode: SpecificationPartBarcode
         }
@@ -23,7 +23,7 @@ class SpecificationPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/part/specificationPart/item',
-        methood: 'get',
+        method: 'get',
         params: {
           SpecificationPartBarcode: SpecificationPartBarcode
         }
@@ -41,7 +41,7 @@ class SpecificationPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/part/specificationPart/type',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

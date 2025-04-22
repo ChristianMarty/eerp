@@ -8,7 +8,7 @@ class Project {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/project',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -24,7 +24,7 @@ class Project {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/project/item',
-          methood: 'get',
+          method: 'get',
           params: { ProjectNumber: ProjectNumber }
         }).then(response => {
           if (response.error == null) {

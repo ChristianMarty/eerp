@@ -8,7 +8,7 @@ class Report {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/report',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

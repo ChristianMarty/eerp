@@ -8,7 +8,7 @@ class Document {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/document',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -23,7 +23,7 @@ class Document {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/document/type',
-        methood: 'get',
+        method: 'get',
         params: { documents: '0' }
       }).then(response => {
         if (response.error == null) {
@@ -39,7 +39,7 @@ class Document {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/document/item',
-        methood: 'get',
+        method: 'get',
         params: { DocumentNumber: DocumentNumber }
       }).then(response => {
         if (response.error == null) {
@@ -60,7 +60,7 @@ class Document {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/document/attachment',
-          methood: 'get',
+          method: 'get',
           params: attachSearchParameters
         }).then(response => {
           if (response.error == null) {
@@ -98,7 +98,7 @@ class Document {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/document/ingest/list',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)

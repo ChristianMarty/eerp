@@ -22,7 +22,7 @@ class Location {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/location',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -38,7 +38,7 @@ class Location {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/location/item',
-          methood: 'get',
+          method: 'get',
           params: { LocationNumber: LocationNumber, Items: Items }
         }).then(response => {
           if (response.error == null) {
@@ -81,7 +81,7 @@ class Location {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/location/summary',
-        methood: 'get',
+        method: 'get',
         params: { LocationNumber: LocationNumber }
       }).then(response => {
         if (response.error == null) {

@@ -37,7 +37,7 @@ class Peripheral {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/peripheral/scale/read',
-          methood: 'get',
+          method: 'get',
           params: {
             PeripheralId: PeripheralId
           }

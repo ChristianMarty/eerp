@@ -5,7 +5,7 @@ class UnitOfMeasurement {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/unitOfMeasurement',
-        methood: 'get',
+        method: 'get',
         params: {
           Countable: Countable
         }

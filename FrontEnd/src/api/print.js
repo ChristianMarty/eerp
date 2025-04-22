@@ -26,7 +26,7 @@ class Print {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/printer',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -43,7 +43,7 @@ class Print {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/renderer',
-          methood: 'get',
+          method: 'get',
           params: { Tag: Type }
         }).then(response => {
           if (response.error == null) {

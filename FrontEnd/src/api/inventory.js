@@ -25,7 +25,7 @@ class Inventory {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/inventory',
-        methood: 'get',
+        method: 'get',
         params: {
           InventoryNumber: searchParameters.InventoryNumber,
           LocationNumber: searchParameters.LocationNumber,
@@ -73,7 +73,7 @@ class Inventory {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/inventory/item',
-        methood: 'get',
+        method: 'get',
         params: {
           InventoryNumber: InventoryNumber
         }
@@ -122,7 +122,7 @@ class Inventory {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/inventory/category',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -145,7 +145,7 @@ class Inventory {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/inventory/accessory/item',
-          methood: 'get',
+          method: 'get',
           params: {
             ItemCode: ItemCode
           }
@@ -186,7 +186,7 @@ class Inventory {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/inventory/purchase/item',
-          methood: 'get',
+          method: 'get',
           params: {
             InventoryNumber: InventoryNumber
           }
@@ -236,7 +236,7 @@ class Inventory {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/inventory/history/type',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -250,7 +250,7 @@ class Inventory {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/inventory/history/item',
-          methood: 'get',
+          method: 'get',
           params: {
             InventoryNumber: InventoryNumber,
             EditToken: EditToken
@@ -277,7 +277,7 @@ class Inventory {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/inventory/history/item',
-          methood: 'get',
+          method: 'get',
           params: { EditToken: EditToken }
         }).then(response => {
           if (response.error == null) {

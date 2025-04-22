@@ -26,7 +26,7 @@ class WorkOrder {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/workOrder',
-        methood: 'get',
+        method: 'get',
         params: { Status: Status, HideClosed: HideClosed }
       }).then(response => {
         if (response.error == null) {
@@ -58,7 +58,7 @@ class WorkOrder {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/workOrder/status',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

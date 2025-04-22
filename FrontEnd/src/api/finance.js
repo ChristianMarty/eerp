@@ -6,7 +6,7 @@ class Finance {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/finance/tax',
-          methood: 'get',
+          method: 'get',
           params: {
             Type: 'VAT'
           }
@@ -25,7 +25,7 @@ class Finance {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/finance/currency',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -39,7 +39,7 @@ class Finance {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/finance/exchangeRate',
-          methood: 'get',
+          method: 'get',
           params: {
             CurrencyId: CurrencyId
           }
@@ -59,7 +59,7 @@ class Finance {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/finance/purchaseOrder',
-          methood: 'get',
+          method: 'get',
           params: { Year: Year }
         }).then(response => {
           if (response.error == null) {
@@ -77,7 +77,7 @@ class Finance {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/finance/costCenter',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -92,7 +92,7 @@ class Finance {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/finance/costCenter/item',
-          methood: 'get',
+          method: 'get',
           params: { CostCenterNumber: CostCenterNumber }
         }).then(response => {
           if (response.error == null) {

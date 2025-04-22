@@ -8,7 +8,7 @@ class Utility {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/util/itemDescription',
-        methood: 'get',
+        method: 'get',
         params: { Item: Barcode }
       }).then(response => {
         if (response.error == null) {

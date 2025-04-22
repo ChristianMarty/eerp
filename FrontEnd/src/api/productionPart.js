@@ -5,7 +5,7 @@ class ProductionPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/productionPart',
-        methood: 'get',
+        method: 'get',
         params: {
           ProductionPartNumber: ProductionPartNumber,
           ManufacturerPartNumberId: ManufacturerPartNumberId,
@@ -26,7 +26,7 @@ class ProductionPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/part/productionPart/item',
-        methood: 'get',
+        method: 'get',
         params: {
           ProductionPartBarcode: ProductionPartNumber,
           HideEmptyStock: HideEmptyStock
@@ -65,7 +65,7 @@ class ProductionPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/part/productionPart/prefix',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)

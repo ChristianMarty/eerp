@@ -4,7 +4,7 @@ class Part {
   search(ManufacturerId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
-        methood: 'get',
+        method: 'get',
         url: '/part',
         params: { ManufacturerId: ManufacturerId }
       }).then(response => {
@@ -19,7 +19,7 @@ class Part {
   searchSupplierPart(SupplierId = null, ManufacturerPartNumberId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
-        methood: 'get',
+        method: 'get',
         url: '/part/supplierPart',
         params: {
           SupplierId: SupplierId,
@@ -40,7 +40,7 @@ class Part {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/part/class',
-          methood: 'get',
+          method: 'get',
           params: {
             ClassId: baseClassId,
             ShowHidden: showHidden,

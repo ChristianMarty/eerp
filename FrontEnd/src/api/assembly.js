@@ -9,7 +9,7 @@ class Assembly {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/assembly',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -24,7 +24,7 @@ class Assembly {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/assembly/item',
-        methood: 'get',
+        method: 'get',
         params: {
           AssemblyNumber: AssemblyNumber
         }
@@ -63,7 +63,7 @@ class Assembly {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/assembly/unit/item',
-          methood: 'get',
+          method: 'get',
           params: {
             AssemblyUnitNumber: AssemblyUnitNumber
           }
@@ -103,7 +103,7 @@ class Assembly {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/assembly/unit/history/item',
-            methood: 'get',
+            method: 'get',
             params: {
               AssemblyUnitHistoryNumber: AssemblyUnitHistoryNumber
             }
@@ -120,7 +120,7 @@ class Assembly {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/assembly/unit/history/type',
-            methood: 'get'
+            method: 'get'
           }).then(response => {
             if (response.error == null) {
               resolve(response.data)

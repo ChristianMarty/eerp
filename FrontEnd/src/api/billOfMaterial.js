@@ -5,7 +5,7 @@ class BillOfMaterial {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/billOfMaterial',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -20,7 +20,7 @@ class BillOfMaterial {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/billOfMaterial/analyzeOptions',
-        methood: 'get'
+        method: 'get'
       }).then(response => {
         if (response.error == null) {
           resolve(response.data)
@@ -53,7 +53,7 @@ class BillOfMaterial {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/billOfMaterial/item',
-          methood: 'get',
+          method: 'get',
           params: { BillOfMaterialBarcode: BillOfMaterialBarcode }
         }).then(response => {
           if (response.error == null) {
@@ -68,7 +68,7 @@ class BillOfMaterial {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/billOfMaterial/availability',
-          methood: 'get',
+          method: 'get',
           params: { RevisionId: BillOfMaterialRevisionId }
         }).then(response => {
           if (response.error == null) {
@@ -83,7 +83,7 @@ class BillOfMaterial {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/billOfMaterial/placement',
-          methood: 'get',
+          method: 'get',
           params: { RevisionId: BillOfMaterialRevisionId }
         }).then(response => {
           if (response.error == null) {
@@ -98,7 +98,7 @@ class BillOfMaterial {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/billOfMaterial/purchasing',
-          methood: 'get',
+          method: 'get',
           params: {
             RevisionId: BillOfMaterialRevisionId,
             Quantity: Quantity,
@@ -120,7 +120,7 @@ class BillOfMaterial {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/billOfMaterial/analysis',
-          methood: 'get',
+          method: 'get',
           params: { RevisionId: BillOfMaterialRevisionId }
         }).then(response => {
           if (response.error == null) {

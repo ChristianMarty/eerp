@@ -114,7 +114,7 @@ class Purchase {
     search(PurchaseOrderNumber = null) {
       return new Promise((resolve, reject) => {
         eerpApi({
-          methood: 'get',
+          method: 'get',
           url: '/purchasing/item',
           params: {
             PurchaseOrderNumber: PurchaseOrderNumber
@@ -138,7 +138,7 @@ class Purchase {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/purchasing/item/track',
-          methood: 'get',
+          method: 'get',
           params: {
             ReceivalId: ReceivalId
           }
@@ -155,7 +155,7 @@ class Purchase {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/purchasing/item/skuSearch',
-          methood: 'get',
+          method: 'get',
           params: {
             SupplierId: SupplierId, SKU: sku
           }
@@ -172,7 +172,7 @@ class Purchase {
       get(ReceivalId) {
         return new Promise((resolve, reject) => {
           eerpApi({
-            methood: 'get',
+            method: 'get',
             url: 'purchasing/item/received',
             params: {
               ReceivalId: ReceivalId
@@ -211,7 +211,7 @@ class Purchase {
       get(PurchaseOrderNumber) {
         return new Promise((resolve, reject) => {
           eerpApi({
-            methood: 'get',
+            method: 'get',
             url: '/purchasing/item/meta',
             params: {
               PurchaseOrderNumber: PurchaseOrderNumber
@@ -248,7 +248,7 @@ class Purchase {
       listType() {
         return new Promise((resolve, reject) => {
           eerpApi({
-            methood: 'get',
+            method: 'get',
             url: '/purchasing/additionalChargeType'
           }).then(response => {
             if (response.error == null) {
@@ -384,7 +384,7 @@ class Purchase {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/purchasing/item/line/type',
-            methood: 'get'
+            method: 'get'
           }).then(response => {
             if (response.error == null) {
               resolve(response.data)
@@ -439,7 +439,7 @@ class Purchase {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/purchasing/item/import',
-            methood: 'get',
+            method: 'get',
             params: {
               SupplierId: SupplierId,
               OrderNumber: OrderNumber
@@ -497,7 +497,7 @@ class Purchase {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/purchasing/orderRequest',
-          methood: 'get'
+          method: 'get'
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -514,7 +514,7 @@ class Purchase {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/purchasing/supplierPartNumber',
-          methood: 'get',
+          method: 'get',
           params: {
             VendorId: VendorId
           }

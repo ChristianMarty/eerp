@@ -5,7 +5,7 @@ class Stock {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/stock',
-        methood: 'get',
+        method: 'get',
         params: {
           HideEmpty: HideEmpty,
           StockCode: StockCode,
@@ -153,7 +153,7 @@ class Stock {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/stock/item/history',
-            methood: 'get',
+            method: 'get',
             params: { StockCode: StockCode }
           }).then(response => {
             if (response.error == null) {
@@ -168,7 +168,7 @@ class Stock {
         return new Promise((resolve, reject) => {
           eerpApi({
             url: '/stock/history/item',
-            methood: 'get',
+            method: 'get',
             params: { StockHistoryCode: StockHistoryCode }
           }).then(response => {
             if (response.error == null) {

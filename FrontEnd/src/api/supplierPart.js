@@ -5,7 +5,7 @@ class SupplierPart {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/part/supplierPart',
-        methood: 'get',
+        method: 'get',
         params: {
           ProductionPartNo: ProductionPartNumber,
           SupplierId: SupplierId,

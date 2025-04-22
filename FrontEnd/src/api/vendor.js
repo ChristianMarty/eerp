@@ -5,7 +5,7 @@ class Vendor {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/vendor',
-        methood: 'get',
+        method: 'get',
         params: {
           Supplier: Supplier,
           Manufacturer: Manufacturer,
