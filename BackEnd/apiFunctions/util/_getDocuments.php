@@ -22,7 +22,7 @@ function _formatDocumentOutput(array $result): array
             $item->Name = $item->Path;
         }
         $item->DocumentNumber = intval($item->DocumentNumber);
-        $item->Path = $dataRootPath.$documentPath."/".$item->Type."/".$item->Path;
+        $item->Path = $dataRootPath.$documentPath."/".$item->Type."/".urlencode($item->Path);
         $item->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
         $item->Description = $item->Description??'';
     }
