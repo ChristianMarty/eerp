@@ -165,10 +165,12 @@ namespace userRoles {
     class stock {
         public bool $view = false;
         public bool $create = false;
+        public bool $edit = false;
+        public bool $delete = false;
+
         public bool $add = false;
         public bool $remove = false;
         public bool $count = false;
-        public bool $delete = false;
         public bool $countingRequest = false;
     }
 

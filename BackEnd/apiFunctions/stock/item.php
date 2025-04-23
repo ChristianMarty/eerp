@@ -44,7 +44,8 @@ function _stockPartQuery(string $stockNo): string
 			partStock_getQuantity(partStock.StockNumber) AS Quantity, 
 			hc.CreateData,
 			country.ShortName as CountryOfOriginName,
-			country.Alpha2Code as CountryOfOriginCode
+			country.Alpha2Code as CountryOfOriginCode,
+	        country.NumericCode as CountryOfOriginNumericCode
 	FROM partStock 
 	LEFT JOIN (
 		SELECT SupplierPartId, SpecificationPartRevisionId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
@@ -80,92 +81,79 @@ if($api->isGet("stock.view"))
     }
     $r = $r[0];
 
-	$r->ItemCode = barcodeFormatter_StockNumber($r->StockNumber);
+    $output = new stdClass();
 
-    $r->LotNumber = $r->LotNumber??"";
-    $r->Date = $r->Date??"";
-    $r->Description = $r->Description??"";
+    $output->ItemCode = barcodeFormatter_StockNumber($r->StockNumber);
+
+    $output->LotNumber = $r->LotNumber??"";
+    $output->Description = $r->Description??"";
 
 	if($r->Date) {
 		$date = new DateTime($r->Date);
-		$r->DateCode = $date->format("yW");
+        $output->DateCode = $date->format("yW");
+        $output->Date = $date->format("Y-m-d");
 	}else{
-		$r->DateCode = "";
+        $output->DateCode = "";
+        $output->Date = null;
 	}
+
+    // Add CountryOfOrigin information
+    $country = new stdClass();
+    $country->Name = $r->CountryOfOriginName;
+    $country->Alpha2Code = $r->CountryOfOriginCode;
+    $country->NumericCode = $r->CountryOfOriginNumericCode;
+
+    $output->CountryOfOrigin = $country;
 
     // Add supplier information
     $supplier = new stdClass();
     $supplier->Name = $r->SupplierName;
-    unset($r->SupplierName);
     $supplier->PartNumber = $r->SupplierPartNumber??"";
-    unset($r->SupplierPartNumber);
     $supplier->VendorId = intval($r->SupplierId);
-    unset($r->SupplierId);
-    $r->Supplier = $supplier;
+
+    $output->Supplier = $supplier;
 
     // Add purchase Information
-    $r->Purchase = \stock\stock::purchaseInformation(intval($r->PartStockId));
+    $output->Purchase = \stock\stock::purchaseInformation(intval($r->PartStockId));
 
     // Add part information
     $part = new stdClass();
     $part->ManufacturerName = $r->ManufacturerName;
-    unset($r->ManufacturerName);
     $part->ManufacturerId = intval($r->ManufacturerId);
-    unset($r->ManufacturerId);
     $part->ManufacturerPartNumber = $r->ManufacturerPartNumber;
-    unset($r->ManufacturerPartNumber);
     if($r->ManufacturerPartNumberId !== null) $part->ManufacturerPartNumberId = intval($r->ManufacturerPartNumberId);
     else $part->ManufacturerPartNumberId = null;
-    unset($r->ManufacturerPartNumberId);
     if($r->ManufacturerPartItemId !== null) $part->ManufacturerPartItemId = intval($r->ManufacturerPartItemId);
     else $part->ManufacturerPartItemId = null;
-    unset($r->ManufacturerPartItemId);
     if($r->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($r->SpecificationPartRevisionId);
     else $part->SpecificationPartRevisionId = null;
-    unset($r->SpecificationPartRevisionId);
 
     $weight = new stdClass();
     $weight->SinglePartWeight = $r->SinglePartWeight;
-    unset($r->SinglePartWeight);
     $unitOfMeasurement = new stdClass();
     $unitOfMeasurement->Unit = "Gram";
     $unitOfMeasurement->Symbol = "g";
     $weight->UnitOfMeasurement = $unitOfMeasurement;
     $part->Weight = $weight;
 
-    $country = new stdClass();
-    $country->Name = $r->CountryOfOriginName;
-    unset($r->CountryOfOriginName);
-    $country->Alpha2Code = $r->CountryOfOriginCode;
-    unset($r->CountryOfOriginCode);
-    $part->CountryOfOrigin = $country;
-
-    $r->Part = $part;
+    $output->Part = $part;
 
     // Add Quantity
     $quantity = new stdClass();
     $quantity->Quantity = floatval($r->Quantity);
-    unset($r->Quantity);
     $quantity->CreateQuantity = floatval($r->CreateQuantity);
-    unset($r->CreateQuantity);
     $quantity->CreateData = $r->CreateData;
-    unset($r->CreateData);
     $quantity->Certainty = \stock\stock::certainty(intval($r->PartStockId));
-    $r->Quantity = $quantity;
+    $output->Quantity = $quantity;
 
     // Add Location
     $location = new Location();
-    $r->Location = $location->locationItem($r->LocationId, $r->HomeLocationId);
-    unset($r->LocationId);
-    unset($r->HomeLocationId);
+    $output->Location = $location->locationItem($r->LocationId, $r->HomeLocationId);
 
-	if($r->DeleteRequestUserId !== null)$r->Deleted = true;
-	else $r->Deleted = false;
-	unset($r->DeleteRequestUserId);
+	if($r->DeleteRequestUserId !== null)$output->Deleted = true;
+	else $output->Deleted = false;
 
-    unset($r->PartStockId);
-
-    $api->returnData($r);
+    $api->returnData($output);
 }
 else if($api->isPost("stock.create"))
 {
@@ -224,6 +212,26 @@ else if($api->isPost("stock.create"))
     $stockPart->ItemCode = barcodeFormatter_StockNumber($stockPart->StockNumber);
 
     $api->returnData($stockPart);
+}
+else if($api->isPatch("stock.edit"))
+{
+    $data = $api->getPostData();
+    if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
+    $stockNumber = barcodeParser_StockNumber($data->StockCode);
+    if($stockNumber === false) $api->returnParameterError("StockNumber");
+
+    $stockNumber = $database->escape($stockNumber);
+    $countryNumericCode = intval($data->CountryOfOriginNumericCode);
+    $data->LotNumber = $data->LotNumber??null;
+    $data->Date = $data->Date??null;
+
+    $sqlData['CountryOfOriginCountryId']['raw'] = "(SELECT Id FROM country WHERE NumericCode = '$countryNumericCode')";
+    $sqlData['LotNumber	'] = $data->LotNumber;
+    $sqlData['Date'] = $data->Date;
+
+    $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
+
+    $api->returnEmpty();
 }
 else if($api->isDelete("stock.delete"))
 {

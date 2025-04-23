@@ -69,6 +69,27 @@ class Stock {
         })
       })
     },
+    itemEditDataEmpty: {
+      StockCode: '',
+      CountryOfOriginNumericCode: null,
+      Date: '',
+      LotNumber: ''
+    },
+    edit(ItemEditData) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          url: '/stock/item',
+          method: 'patch',
+          data: ItemEditData
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
     createParameter: {
       ManufacturerId: null,
       ManufacturerPartNumber: null,

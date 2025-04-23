@@ -37,16 +37,33 @@
       <el-divider />
 
       <el-row>
-        <el-col :span="12">
-          <p><b>Lot Number: </b>{{ partData.LotNumber }}</p>
-          <p><b>Date Code: </b>{{ partData.DateCode }}</p>
+        <el-col :span="4">
+          <p><b>Lot Number:</b></p>
+          <p><b>Date Code:</b></p>
         </el-col>
-        <el-col :span="12">
-          <p><b>Part Weight: </b>{{ partData.Part.Weight.SinglePartWeight }}{{ partData.Part.Weight.UnitOfMeasurement.Symbol }}</p>
-          <p><b>Country of Origin: </b>{{ partData.Part.CountryOfOrigin.Alpha2Code }} - {{ partData.Part.CountryOfOrigin.Name }}</p>
+        <el-col :span="8">
+          <p>{{ partData.LotNumber }}</p>
+          <p>{{ partData.DateCode }}</p>
+        </el-col>
+        <el-col :span="4">
+          <p><b>Part Weight:</b></p>
+          <p><b>Country of Origin:</b></p>
+        </el-col>
+        <el-col :span="8">
+          <p>{{ partData.Part.Weight.SinglePartWeight }}{{ partData.Part.Weight.UnitOfMeasurement.Symbol }}</p>
+          <p>{{ partData.CountryOfOrigin.Alpha2Code }} - {{ partData.CountryOfOrigin.Name }}</p>
         </el-col>
       </el-row>
 
+      <el-button
+        v-permission="['stock.edit']"
+        size="mini"
+        type="primary"
+        icon="el-icon-edit"
+        circle
+        style="margin-top: 00px; margin-bottom: 00px"
+        @click="showEditDialog()"
+      />
       <el-divider />
       <h4>Production Parts:</h4>
       <el-table :data="productionPartData" style="width: 100%">
@@ -69,13 +86,21 @@
       <h3>Location</h3>
       <el-divider />
       <el-row>
-        <el-col :span="12">
-          <p><b>Location: </b>{{ partData.Location.Name }}</p>
-          <p><b>Location Path: </b>{{ partData.Location.Path }}</p>
+        <el-col :span="4">
+          <p><b>Location: </b></p>
+          <p><b>Location Path: </b></p>
         </el-col>
-        <el-col :span="12">
-          <p><b>Home Location: </b>{{ partData.Location.HomeName }}</p>
-          <p><b>Home Location Path: </b>{{ partData.Location.HomePath }}</p>
+        <el-col :span="8">
+          <p>{{ partData.Location.Name }}</p>
+          <p>{{ partData.Location.Path }}</p>
+        </el-col>
+        <el-col :span="4">
+          <p><b>Home Location: </b></p>
+          <p><b>Home Location Path: </b></p>
+        </el-col>
+        <el-col :span="8">
+          <p>{{ partData.Location.HomeName }}</p>
+          <p>{{ partData.Location.HomePath }}</p>
         </el-col>
       </el-row>
 
@@ -89,22 +114,30 @@
       <el-divider />
 
       <el-row>
-        <el-col :span="12">
-          <p><b>Quantity: </b>{{ partData.Quantity.Quantity }}</p>
-          <p><b>Last Counted: </b>{{ partData.Quantity.Certainty.LastStocktakingDate }}</p>
-          <p><b>Days Since Stocktaking: </b>{{ partData.Quantity.Certainty.DaysSinceStocktaking }}</p>
+        <el-col :span="4">
+          <p><b>Quantity:</b></p>
+          <p><b>Last Counted:</b></p>
+          <p><b>Days Since Counted:</b></p>
         </el-col>
-        <el-col :span="12">
-          <p><b>Created Quantity: </b>{{ partData.Quantity.CreateQuantity }}</p>
-          <p><b>Created Data: </b>{{ partData.Quantity.CreateData }}</p>
-          <p><b>Stock Certainty Factor: </b>{{ partData.Quantity.Certainty.Factor }}</p>
+        <el-col :span="8">
+          <p>{{ partData.Quantity.Quantity }}</p>
+          <p>{{ partData.Quantity.Certainty.LastStocktakingDate }}</p>
+          <p>{{ partData.Quantity.Certainty.DaysSinceStocktaking }}</p>
+        </el-col>
+        <el-col :span="4">
+          <p><b>Created Quantity: </b></p>
+          <p><b>Created Date: </b></p>
+          <p><b>Stock Certainty Factor: </b></p>
+        </el-col>
+        <el-col :span="8">
+          <p>{{ partData.Quantity.CreateQuantity }}</p>
+          <p>{{ partData.Quantity.CreateData }}</p>
+          <p>{{ partData.Quantity.Certainty.Factor }}</p>
         </el-col>
       </el-row>
       <el-rate v-model="partData.Quantity.Certainty.Rating" disabled />
 
       <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
-      <h4 v-permission="['stock.add', 'stock.remove', 'stock.count']">Stock Movement</h4>
-
       <el-button
         v-permission="['stock.add']"
         style="margin-right: 20px"
@@ -146,17 +179,34 @@
     <el-card v-if="showItem && partData.Purchase !== null">
       <h3>Supplier & Purchase Information</h3>
       <el-divider />
-      <p><b>Supplier: </b>{{ partData.Supplier.Name }}</p>
-      <p><b>Part Number: </b>{{ partData.Supplier.PartNumber }}</p>
-      <p><b>Purchase Order: </b>
-        <router-link :to="'/purchasing/edit/' + partData.Purchase.ItemCode" class="link-type">
-          <span>{{ partData.Purchase.ItemCode }}</span>
-        </router-link>
-      </p>
-      <p><b>Price: </b>{{ partData.Purchase.PriceAfterDiscount }} {{ partData.Purchase.CurrencyCode }}</p>
-      <p><b>Date: </b>{{ partData.Purchase.PurchaseDate }}</p>
-      <p><b>Description	: </b>{{ partData.Purchase.Description }}</p>
-      <p><b>Order Reference: </b>{{ partData.Purchase.OrderReference }}</p>
+
+      <el-row>
+        <el-col :span="4">
+          <p><b>Supplier:</b></p>
+          <p><b>Price:</b></p>
+          <p><b>Purchase Order:</b></p>
+        </el-col>
+        <el-col :span="8">
+          <p>{{ partData.Supplier.Name }}</p>
+          <p>{{ partData.Purchase.PriceAfterDiscount }} {{ partData.Purchase.CurrencyCode }}</p>
+          <p>
+            <router-link :to="'/purchasing/edit/' + partData.Purchase.ItemCode" class="link-type">
+              <span>{{ partData.Purchase.ItemCode }}</span>
+            </router-link>
+          </p>
+        </el-col>
+        <el-col :span="4">
+          <p><b>Part Number:</b></p>
+          <p><b>Date:</b></p>
+          <p><b>Order Reference:</b></p>
+        </el-col>
+        <el-col :span="8">
+          <p>{{ partData.Supplier.PartNumber }}</p>
+          <p>{{ partData.Purchase.PurchaseDate }}</p>
+          <p>{{ partData.Purchase.OrderReference }}</p>
+        </el-col>
+      </el-row>
+      <p><b>Description	:</b> {{ partData.Purchase.Description }}</p>
     </el-card>
 
     <el-card v-if="showItem">
@@ -195,6 +245,8 @@
 
     <printDialog :visible.sync="printDialogVisible" :data="printData" @print="print" />
 
+    <editItemDialog :visible.sync="editDialogVisible" :stock-code="partData.ItemCode" @change="loadItem()" />
+
     <addStockDialog :visible.sync="addStockDialogVisible" :item="partData" />
     <removeStockDialog :visible.sync="removeStockDialogVisible" :item="partData" />
     <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />
@@ -212,6 +264,8 @@
 import permission from '@/directive/permission/index.js'
 
 import * as defaultSetting from '@/utils/defaultSetting'
+
+import editItemDialog from './components/editItemDialog.vue'
 
 import printDialog from './components/printDialog'
 import addStockDialog from './components/addStockDialog'
@@ -246,7 +300,8 @@ export default {
     countStockDialog,
     stockHistory,
     locationTransferDialog,
-    countByWeight
+    countByWeight,
+    editItemDialog
   },
   directives: { permission },
   data() {
@@ -270,7 +325,8 @@ export default {
       stockHistoryKey: 0,
       locationTransferDialogVisible: false,
       deleteDialogVisible: false,
-      deleteNote: ''
+      deleteNote: '',
+      editDialogVisible: false
     }
   },
   watch: {
@@ -320,6 +376,9 @@ export default {
     },
     showLocationTransferDialog() {
       this.locationTransferDialogVisible = true
+    },
+    showEditDialog() {
+      this.editDialogVisible = true
     },
     setItem() {
       this.$router.push('/stock/item/' + this.inputStockId)
