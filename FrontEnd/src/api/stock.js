@@ -44,15 +44,19 @@ class Stock {
 
   item = {
     itemDataEmpty: {
-      StockId: '',
-      Manufacturer: '',
-      ManufacturerPartNumber: '',
+      ItemCode: '',
+      StockNumber: '',
+      LotNumber: '',
+      Description: '',
+      DateCode: '',
       Date: '',
-      Quantity: '',
-      Location: '',
-      Barcode: '',
+      CountryOfOrigin: {},
+      Supplier: {},
       Purchase: {},
-      Part: {}
+      Part: {},
+      Quantity: {},
+      Location: {},
+      Deleted: false
     },
     get(ItemCode) {
       return new Promise((resolve, reject) => {

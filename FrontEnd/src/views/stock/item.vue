@@ -38,20 +38,30 @@
 
       <el-row>
         <el-col :span="4">
-          <p><b>Lot Number:</b></p>
-          <p><b>Date Code:</b></p>
+          <p style="margin-top: 0"><b>Lot Number:</b></p>
         </el-col>
         <el-col :span="8">
-          <p>{{ partData.LotNumber }}</p>
-          <p>{{ partData.DateCode }}</p>
+          <p style="margin-top: 0">{{ partData.LotNumber }}</p>
         </el-col>
         <el-col :span="4">
-          <p><b>Part Weight:</b></p>
-          <p><b>Country of Origin:</b></p>
+          <p style="margin-top: 0"><b>Part Weight:</b></p>
         </el-col>
         <el-col :span="8">
-          <p>{{ partData.Part.Weight.SinglePartWeight }}{{ partData.Part.Weight.UnitOfMeasurement.Symbol }}</p>
-          <p>{{ partData.CountryOfOrigin.Alpha2Code }} - {{ partData.CountryOfOrigin.Name }}</p>
+          <p style="margin-top: 0">{{ partData.Part.Weight.SinglePartWeight }}{{ partData.Part.Weight.UnitOfMeasurement.Symbol }}</p>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <p style="margin-top: 0"><b>Date Code:</b></p>
+        </el-col>
+        <el-col :span="8">
+          <p style="margin-top: 0">{{ partData.DateCode }}</p>
+        </el-col>
+        <el-col :span="4">
+          <p style="margin-top: 0"><b>Country of Origin:</b></p>
+        </el-col>
+        <el-col :span="8">
+          <p style="margin-top: 0">{{ partData.CountryOfOrigin.Alpha2Code }} - {{ partData.CountryOfOrigin.Name }}</p>
         </el-col>
       </el-row>
 
@@ -399,7 +409,7 @@ export default {
         } else {
           this.partData = response
           this.getProductionPartData()
-          this.setTitle(this.partData.Barcode)
+          this.setTitle(this.partData.ItemCode)
         }
       }).catch(response => {
         this.$message({

@@ -84,6 +84,7 @@ if($api->isGet("stock.view"))
     $output = new stdClass();
 
     $output->ItemCode = barcodeFormatter_StockNumber($r->StockNumber);
+    $output->StockNumber = $r->StockNumber;
 
     $output->LotNumber = $r->LotNumber??"";
     $output->Description = $r->Description??"";
