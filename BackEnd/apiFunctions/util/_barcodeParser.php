@@ -332,7 +332,7 @@ function barcodeParser_LocationNumber(null|string|int $input): null|int
     return intval($woCodeParts[1]);
 }
 
-function barcodeParser_CostCenter(null|string|int $input): null|string
+function barcodeParser_CostCenter(null|string|int $input): null|int
 {
     if($input === null) return null;
 
@@ -353,7 +353,7 @@ function barcodeParser_CostCenter(null|string|int $input): null|string
     return intval($inventoryNumberParts[1]);
 }
 
-function barcodeParser_Project(null|string|int $input): null|string
+function barcodeParser_Project(null|string|int $input): null|int
 {
     if($input === null) return null;
 
