@@ -18,24 +18,24 @@ if($api->isGet())
     $year = $database->escape($parameter->Year);
 
     $query = <<<STR
-        SELECT  MONTH(PurchaseDate) AS Month, SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price) AS Merchandise,
-        SUM(purchaseOrder_itemOrder.Quantity*purchaseOrder_itemOrder.Price*(finance_tax.Value/100)) + shipping.VAT AS VAT,
-        shipping.Shipping
-        
+        SELECT  
+           MONTH(PurchaseDate) AS Month, 
+           SUM(purchaseOrder_itemOrder.Quantity * purchaseOrder_itemOrder.Price / purchaseOrder.ExchangeRate ) AS Merchandise,
+            SUM(purchaseOrder_itemOrder.Quantity * purchaseOrder_itemOrder.Price * (finance_tax.Value/100) / purchaseOrder.ExchangeRate ) + COALESCE(shipping.VAT,0)  AS VAT,
+            COALESCE(shipping.Shipping, 0) AS Shipping
         FROM purchaseOrder
         LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemOrder.PurchaseOrderId = purchaseOrder.Id
         LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_itemOrder.VatTaxId
-        
         LEFT JOIN  (
-            SELECT  
-                MONTH(PurchaseDate) AS Month, 
-                SUM(purchaseOrder_additionalCharges.Quantity* purchaseOrder_additionalCharges.Price) AS Shipping, 
-                SUM(purchaseOrder_additionalCharges.Quantity*purchaseOrder_additionalCharges.Price*(finance_tax.Value/100)) AS VAT 
-            FROM purchaseOrder
-            LEFT JOIN purchaseOrder_additionalCharges ON purchaseOrder_additionalCharges.PurchaseOrderId  = purchaseOrder.Id
-            LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_additionalCharges.VatTaxId
-            WHERE purchaseOrder_additionalCharges.Type = 'Shipping' AND YEAR(PurchaseDate) = $year
-            GROUP BY MONTH(PurchaseDate)
+           SELECT  
+               MONTH(PurchaseDate) AS Month, 
+               SUM(purchaseOrder_additionalCharges.Quantity * purchaseOrder_additionalCharges.Price) AS Shipping, 
+               SUM(purchaseOrder_additionalCharges.Quantity * purchaseOrder_additionalCharges.Price * (finance_tax.Value/100)) AS VAT 
+           FROM purchaseOrder
+           LEFT JOIN purchaseOrder_additionalCharges ON purchaseOrder_additionalCharges.PurchaseOrderId  = purchaseOrder.Id
+           LEFT JOIN finance_tax ON finance_tax.Id = purchaseOrder_additionalCharges.VatTaxId
+           WHERE purchaseOrder_additionalCharges.Type = 'Shipping' AND YEAR(PurchaseDate) = $year
+           GROUP BY MONTH(PurchaseDate)
         )shipping ON shipping.Month = MONTH(PurchaseDate)
         WHERE  YEAR(PurchaseDate) = $year
         GROUP BY MONTH(PurchaseDate)
@@ -76,10 +76,10 @@ if($api->isGet())
         $month[$item->Month] = $item;
     }
 
-    $output['TotalMerchandise'] = $totalMerchandise;
-    $output['TotalShipping'] = $totalShipping;
-    $output['TotalVAT'] = $totalVAT;
-    $output['TotalTotal'] = $totalTotal;
+    $output['TotalMerchandise'] = round($totalMerchandise, 4);
+    $output['TotalShipping'] = round($totalShipping, 4);
+    $output['TotalVAT'] = round($totalVAT, 4);
+    $output['TotalTotal'] = round($totalTotal, 4);
 
     $output['MonthTotal'] = $month;
 
