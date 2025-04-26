@@ -67,6 +67,7 @@ export default {
     search(term) {
       this.loading = true
       this.searchTerm = term
+      this.searchInput = term
       this.setTitle(term)
       requestBN({
         url: '/search',

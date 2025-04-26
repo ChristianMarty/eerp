@@ -60,6 +60,7 @@ if($api->isGet())
 
 	// Search everywhere else
 	$output = array_merge(
+        search_productionPart($search),
 		search_manufacturerPartNumber($search),
 		search_assemblySerialNumber($search),
 		search_manufacturerPartItem($search),
@@ -199,6 +200,39 @@ function search_manufacturerPartNumber(string $input): array
 	return $output;
 }
 
+function search_productionPart(string $input): array
+{
+    global $database;
+    $input = $database->escape($input);
+
+    $query = <<< QUERY
+        SELECT 
+            productionPart.Number, 
+            productionPart.Description,
+            numbering.Prefix,
+            numbering.Category
+        FROM productionPart
+        LEFT JOIN numbering on numbering.Id = productionPart.NumberingPrefixId
+        WHERE productionPart.Number LIKE $input 
+           OR productionPart.Description LIKE $input
+    QUERY;
+    $result = $database->query($query);
+
+    $output = array();
+    foreach($result as $item)
+    {
+        $temp = array();
+        $temp["Category"] = 'ProductionPart';
+        $temp["Item"] = barcodeFormatter_ProductionPart($item->Number, $item->Prefix);
+        $temp["RedirectCode"] = $temp["Item"];
+        $temp["Description"]  = $item->Description;
+        $temp["LocationPath"] = '';
+
+        $output[] = $temp;
+    }
+    return $output;
+}
+
 function search_assemblySerialNumber(string $input): array
 {
 	global $database;
@@ -336,3 +370,4 @@ function search_inventory(string $input): array
     }
     return $output;
 }
+
