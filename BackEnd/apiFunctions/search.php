@@ -20,6 +20,9 @@ if($api->isGet())
 	if(!isset($parameter->search)) $api->returnParameterMissingError("search");
 
 	$search = trim(strtolower($parameter->search));
+    if(strlen($search) === 0){
+        $api->returnData([]);
+    }
 	$parts = explode('-',$search);
 	
 	$data = array();
@@ -78,7 +81,6 @@ if($api->isGet())
 function manufacturerPartSeries(string $input): array
 {
 	global $database;
-
 	$input = $database->escape($input);
 
 	$query = <<<STR
