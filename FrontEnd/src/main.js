@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
+import enLang from 'element-ui/lib/locale/lang/en'
 
 import Element from 'element-ui'
 import './styles/element-variables.scss'
@@ -15,7 +16,7 @@ import './permission' // permission control
 
 import * as filters from './filters' // global filters
 
-Vue.use(Element)
+Vue.use(Element, { locale: enLang })
 
 // register global utility filters
 Object.keys(filters).forEach(key => {
