@@ -16,10 +16,10 @@
       <el-menu-item index="purchasing">Purchasing</el-menu-item>
     </el-menu>
 
-    <availability v-if="activeIndex == 'stockAvailability'" :revision-id="projectData.Revisions[0].Id" />
-    <analysis v-if="activeIndex == 'analysis'" :revision-id="projectData.Revisions[0].Id" />
-    <placement v-if="activeIndex == 'placement'" :revision-id="projectData.Revisions[0].Id" />
-    <purchasing v-if="activeIndex == 'purchasing'" :revision-id="projectData.Revisions[0].Id" />
+    <availability v-if="activeIndex === 'stockAvailability'" :revision-id="projectData.Revisions[0].Id" />
+    <analysis v-if="activeIndex === 'analysis'" :revision-id="projectData.Revisions[0].Id" />
+    <placement v-if="activeIndex === 'placement'" :revision-id="projectData.Revisions[0].Id" />
+    <purchasing v-if="activeIndex === 'purchasing'" :revision-id="projectData.Revisions[0].Id" />
 
     <el-dialog title="Bom Upload" :visible.sync="showUploadDialog">
       <bomUpload :revision-id="projectData.Revisions[0].Id" />
@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
 import availability from './components/availability'
 import placement from './components/placement'
 import analysis from './components/analysis'
@@ -87,26 +87,16 @@ export default {
     tableAnalyzer({ row, rowIndex }) {
       if (row.PartNo.includes('Unknown')) {
         return 'error-row'
-      }
-      if (row.TotalQuantity > row.Stock) {
+      } else if (row.TotalQuantity > row.Stock) {
         return 'warning-row'
+      } else {
+        return ''
       }
-      return ''
     },
     onQuantityChange() {
       this.bom.forEach(
         row => (row.TotalQuantity = row.Quantity * this.buildQuantity)
       )
-    },
-    onSubmit() {
-      requestBN({
-        method: 'post',
-        url: '/productionPart/bomView',
-        data: { csv: this.csv, BuildQuantity: this.buildQuantity }
-      }).then(response => {
-        this.bom = response.data.bom
-        this.onQuantityChange()
-      })
     },
     upload() {
       this.showUploadDialog = true

@@ -3,7 +3,6 @@
     <h1>Stock Notification</h1>
     <el-table
       :data="partData"
-      :default-sort="{ prop: 'Package', order: 'descending' }"
       height="80vh"
       border
       style="width: 100%"
@@ -30,18 +29,19 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
+import ProductionPart from '@/api/productionPart'
+const productionPart = new ProductionPart()
 
 export default {
   name: 'ProdPartBrowser',
   data() {
     return {
-      partData: null,
-      ProdPartNoFilter: ''
+      partData: null
     }
   },
-  mounted() {
-    this.getPartNotificationData()
+  async mounted() {
+    this.partData = await productionPart.notification.list()
   },
   methods: {
     tableAnalyzer({ row, rowIndex }) {
@@ -53,14 +53,6 @@ export default {
         return 'maximum-row'
       }
       return ''
-    },
-    getPartNotificationData() {
-      requestBN({
-        url: '/productionPart/notification',
-        method: 'get'
-      }).then(response => {
-        this.partData = response.data
-      })
     }
   }
 }

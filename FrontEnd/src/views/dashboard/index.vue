@@ -2,7 +2,7 @@
   <div class="dashboard-container">
 
     <el-card class="mid-box">
-      <h3 style="text-align:center">Barcode Search</h3>
+      <h3 style="text-align:center">Search</h3>
       <template style="text-align:center">
         <el-input ref="searchInput" v-model="searchInput" placeholder="Search" @keyup.enter.native="search()">
           <el-button slot="append" icon="el-icon-search" @click="search()" />
@@ -13,26 +13,13 @@
     <el-card class="small-box">
       <h3 style="text-align:center">Week Number</h3>
       <p style="text-align:center">
-        {{ weeknumber }}
+        {{ weekNumber }}
       </p>
     </el-card>
-
-    <!-- <el-card class="small-box">
-      <h3 style="text-align:center">Stock Notifications</h3>
-      <p style="text-align:center">{{ StockNotification.Minimum }} / {{ StockNotification.Warning }} </p>
-
-    </el-card>-->
-
-    <el-card class="small-box">
-      <h3 style="text-align:center">Part Pick List</h3>
-      <p style="text-align:center"> 0 </p>
-
-    </el-card>
-
     <el-card class="mid-box">
       <h3 style="text-align:center">Pending Orders</h3>
       <template>
-        <el-table :data="awitingShippments" style="width: 100%">
+        <el-table :data="pendingOrders" style="width: 100%">
           <el-table-column prop="ItemCode" label="PO Number" width="150" sortable>
             <template slot-scope="{ row }">
               <router-link :to="'/purchasing/edit/' + row.ItemCode" class="link-type">
@@ -59,24 +46,23 @@
 import Various from '@/api/various'
 const various = new Various()
 
-import requestBN from '@/utils/requestBN'
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 export default {
   name: 'Dashboard',
   data() {
     return {
-      weeknumber: 0,
-      StockNotification: 0,
-      awitingShippments: null,
-      searchInput: ''
+      weekNumber: 0,
+      searchInput: '',
+      pendingOrders: null
     }
   },
   computed: {},
   created() { },
   mounted() {
     this.getWeekNumber()
-    // this.getStockNotification()
-    this.getOrderStatus()
+    this.getPurchaseOrders()
     this.$refs.searchInput.focus()
   },
   updated() {
@@ -85,7 +71,7 @@ export default {
   methods: {
     getWeekNumber() {
       various.WeekNumber().then(response => {
-        this.weeknumber = response.WeekNumber
+        this.weekNumber = response.WeekNumber
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -95,21 +81,16 @@ export default {
         })
       })
     },
-    getStockNotification() {
-      requestBN({
-        url: '/productionPart/notification/summary',
-        method: 'get'
-      }).then(response => {
-        this.StockNotification = response.data
-      })
-    },
-    getOrderStatus() {
-      requestBN({
-        url: '/purchaseOrder',
-        method: 'get',
-        params: { Status: 'Confirm' }
-      }).then(response => {
-        this.awitingShippments = response.data
+    getPurchaseOrders() {
+      purchase.listOpenOrders().then(response => {
+        this.pendingOrders = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     search() {

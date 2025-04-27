@@ -149,9 +149,6 @@ class userAuthentication
 
         $returnData=[];
 
-        $returnData['introduction'] = "legacy -> remove"; // Todo: remove
-        $returnData['avatar'] =""; // Todo: remove
-
         $returnData['settingsNew'] = $user->settings->encode();
 
         $roles_array = [];

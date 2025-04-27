@@ -1,16 +1,14 @@
 <template>
   <div class="app-container">
-    <h1>Hallo {{ user.name }}</h1>
+    <h1>Hallo {{ userData.name }}</h1>
 
     <h2>Roles</h2>
-
     <p v-for="(value, name) in userData.rolesJson">
       {{ name }} {{ value }}
     </p>
 
     <h2>Settings</h2>
-
-    <p v-for="(value, name) in userData.settings">
+    <p v-for="(value, name) in userData.settings.Default">
       {{ name }} {{ value }}
     </p>
 
@@ -19,40 +17,30 @@
 
 <script>
 
-import requestBN from '@/utils/requestBN'
-
-import { mapGetters } from 'vuex'
+import { User } from '@/api/user'
+const user = new User()
 
 export default {
   name: 'Profile',
   data() {
     return {
-      user: {},
-      userData: {},
-      settings: {}
+      userData: {}
     }
   },
-  computed: {
-    ...mapGetters(['name', 'avatar', 'roles'])
-  },
   created() {
-    this.getUser()
     this.getUserData()
   },
   methods: {
-    getUser() {
-      this.user = {
-        name: this.name,
-        role: this.roles.join(' | '),
-        avatar: this.avatar
-      }
-    },
     getUserData() {
-      requestBN({
-        url: 'user/info',
-        method: 'get'
-      }).then(response => {
-        this.userData = response.data
+      user.info().then(response => {
+        this.userData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

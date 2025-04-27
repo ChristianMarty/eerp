@@ -270,7 +270,7 @@ export default {
         this.selectedPrinterId = defaultSetting.defaultSetting().Stock.Renderer.History.PeripheralId
 
         this.historyRendererId = defaultSetting.defaultSetting().Stock.Renderer.History.RendererId
-        this.receiptRendererId = defaultSetting.defaultSetting().Stock.Receipt.History.RendererId
+        this.receiptRendererId = defaultSetting.defaultSetting().Stock.Renderer.Receipt.RendererId
         this.printer = response
       }).catch(response => {
         this.$message({

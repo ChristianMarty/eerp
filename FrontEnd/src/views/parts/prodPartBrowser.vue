@@ -32,7 +32,6 @@
 
     <el-table
       :data="partData"
-      :default-sort="{ prop: 'Package', order: 'descending' }"
       height="80vh"
       border
       style="width: 100%"
@@ -53,7 +52,8 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import ProductionPart from '@/api/productionPart'
+const productionPart = new ProductionPart()
 
 export default {
   name: 'ProdPartBrowser',
@@ -69,19 +69,15 @@ export default {
   },
   methods: {
     getPartData() {
-      var filterList = {}
-
-      if (this.ProdPartNoFilter.length !== 0) {
-        this.$set(filterList, 'ProductionPartNumber', this.ProdPartNoFilter)
-      }
-      filterList.HideNoManufacturerPart = this.fliterNoMfp
-
-      requestBN({
-        url: '/productionPart',
-        method: 'get',
-        params: filterList
-      }).then(response => {
-        this.partData = response.data
+      productionPart.search(this.ProdPartNoFilter, null, null, this.fliterNoMfp).then(response => {
+        this.partData = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
     handleFilter() {

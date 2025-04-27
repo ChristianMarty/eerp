@@ -203,6 +203,108 @@ class Stock {
             }
           })
         })
+      },
+      updateDateEmpty: {
+        EditToken: '',
+        Quantity: 0,
+        WorkOrderCode: null,
+        Note: '',
+        Type: ''
+      },
+      update(updateData) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'patch',
+            url: '/stock/history/item',
+            data: {
+              EditToken: updateData.EditToken,
+              Quantity: updateData.Quantity,
+              WorkOrderNumber: updateData.WorkOrderCode,
+              Note: updateData.Note,
+              Type: updateData.Type
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      removeDataEmpty: {
+        ItemCode: '',
+        RemoveQuantity: 0,
+        WorkOrderNumber: null,
+        Note: ''
+      },
+      remove(removeData) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/stock/history/item',
+            data: {
+              StockNumber: removeData.ItemCode,
+              RemoveQuantity: removeData.RemoveQuantity,
+              WorkOrderNumber: removeData.WorkOrderNumber,
+              Note: removeData.Note
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      addDataEmpty: {
+        ItemCode: '',
+        AddQuantity: 0,
+        Note: ''
+      },
+      add(addData) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/stock/history/item',
+            data: {
+              StockNumber: addData.ItemCode,
+              AddQuantity: addData.AddQuantity,
+              Note: addData.Note
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
+      },
+      countDataEmpty: {
+        ItemCode: '',
+        NewQuantity: 0,
+        Note: ''
+      },
+      count(addData) {
+        return new Promise((resolve, reject) => {
+          eerpApi({
+            method: 'post',
+            url: '/stock/history/item',
+            data: {
+              StockNumber: addData.ItemCode,
+              Quantity: addData.NewQuantity,
+              Note: addData.Note
+            }
+          }).then(response => {
+            if (response.error == null) {
+              resolve(response.data)
+            } else {
+              reject(response.error)
+            }
+          })
+        })
       }
     }
   }

@@ -95,6 +95,22 @@ class ProductionPart {
       })
     })
   }
+  notification = {
+    list() {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/part/productionPart/notification'
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
 }
 
 export default ProductionPart

@@ -75,7 +75,6 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
 import permission from '@/directive/permission/index.js'
 
 import BillOfMaterial from '@/api/billOfMaterial'

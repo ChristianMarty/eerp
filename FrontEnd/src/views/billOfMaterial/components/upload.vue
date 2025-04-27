@@ -35,8 +35,6 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
-
 import BillOfMaterial from '@/api/billOfMaterial'
 const billOfMaterial = new BillOfMaterial()
 
@@ -60,12 +58,7 @@ export default {
       })
     },
     save() {
-      requestBN({
-        method: 'post',
-        url: '/billOfMaterial/bom',
-        data: { Bom: this.bom, RevisionId: this.$props.revisionId }
-      }).then(response => {
-
+      billOfMaterial.save(this.bom, this.$props.revisionId).then(response => {
       })
     },
     analyse() {

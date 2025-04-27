@@ -20,6 +20,24 @@ class Purchase {
     })
   }
 
+  listOpenOrders() {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'get',
+        url: '/purchaseOrder',
+        params: {
+          Status: 'Confirm'
+        }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
   partPurchase(ManufacturerPartNumberId) {
     return new Promise((resolve, reject) => {
       eerpApi({
@@ -27,6 +45,24 @@ class Purchase {
         url: '/purchasing/partPurchase',
         params: {
           ManufacturerPartNumberId: ManufacturerPartNumberId
+        }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
+  productionPartPurchase(ProductionPartNumber) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        method: 'get',
+        url: '/purchasing/partPurchase',
+        params: {
+          ProductionPartNumber: ProductionPartNumber
         }
       }).then(response => {
         if (response.error == null) {

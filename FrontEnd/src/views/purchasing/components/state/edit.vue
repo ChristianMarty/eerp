@@ -13,7 +13,6 @@
         />
         <el-button v-if="apiInfo.Capability.OrderImportSupported === true" @click="openOrderImport()">Import</el-button>
         <el-button v-if="apiInfo.Capability.OrderUploadSupported === true" @click="openOrderUpload()">Upload</el-button>
-        <el-button @click="orderReqestDialogVisible = true">Order Requests</el-button>
         <el-button @click="setVatVisible = true">Set VAT</el-button>
         <el-button @click="setExpectedDateVisible = true">Set Expected Date</el-button>
       </el-form-item>
@@ -129,31 +128,7 @@
         @closed="getOrderLines()"
         @refresh="refreshPage()"
       />
-
     </template>
-
-    <el-dialog width="85%" title="Pending Order Request" :visible.sync="orderReqestDialogVisible" @open="getOrderRequests()">
-      <el-table ref="itemTable" :data="orderRequests" border style="width: 100%">
-        <el-table-column prop="ManufacturerName" label="Manufacturer" width="150" />
-
-        <el-table-column prop="ManufacturerPartNumber" label="Manufacturer Part Number" width="250">
-          <template slot-scope="{ row }">
-            <router-link :to="'/mfrParts/partView/' + row.ManufacturerPartId" class="link-type">
-              <span>{{ row.ManufacturerPartNumber }}</span>
-            </router-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="SupplierPartNumber" label="Supplier Part Number" width="250" />
-        <el-table-column prop="Quantity" label="Quantity" width="100" />
-        <el-table-column prop="PartNoList" label="Production Part" />
-        <el-table-column width="100">
-          <template slot-scope="{ row }">
-            <el-button style="float: right;" type="text" size="mini" @click="addRequestToOrder(row)">Add To Order
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
 
     <el-dialog title="Set All Expected Dates" :visible.sync="setExpectedDateVisible">
       <el-date-picker
@@ -186,7 +161,6 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
 
 import permission from '@/directive/permission'
 import ElTableDraggable from 'el-table-draggable'
@@ -233,7 +207,6 @@ export default {
       itemLineIndex: 0,
       additionalChargesLineIndex: 0,
       orderStatus: 0,
-      orderRequests: null,
 
       editOrderLineId: 0,
       allExpectedDate: null,
@@ -245,7 +218,6 @@ export default {
       setVatVisible: false,
       importDialogVisible: false,
       uploadDialogVisible: false,
-      orderReqestDialogVisible: false,
       setExpectedDateVisible: false,
 
       vat: []
@@ -335,29 +307,13 @@ export default {
       })
     },
     saveAdditionalCharges() {
-      requestBN({
-        method: 'post',
-        url: '/purchasing/additionalCharge/edit',
-        data: { data: { Action: 'save', Lines: this.poData.AdditionalCharges, PoNo: this.$props.orderData.ItemCode }}
-      }).then(response => {
-        if (response.error == null) {
-          this.poData = response.data
-          this.itemLineIndex = this.poData.Lines.length
-          this.additionalChargesLineIndex = this.AdditionalCharges.length
-          this.$message({
-            showClose: true,
-            message: 'Changes saved successfully',
-            duration: 1500,
-            type: 'success'
-          })
-        } else {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        }
+      purchase.item.additionalChargesLine.save(this.$props.orderData.ItemCode, this.poData.AdditionalCharges).then(response => {
+        this.poData = response
+        this.itemLineIndex = this.poData.Lines.length
+        this.additionalChargesLineIndex = this.poData.AdditionalCharges.length
+        this.showSuccessMessage()
+      }).catch(response => {
+        this.showErrorMessage(response)
       })
     },
     reorderItemLines() {
@@ -374,18 +330,6 @@ export default {
         this.additionalChargesLineIndex++
       })
     },
-    /* addRequestToOrder(orderRequestData) {
-      this.itemLineIndex++
-      const newLine = Object.assign({}, emptyOrderLine)
-      newLine.QuantityOrderd = orderRequestData.Quantity
-      newLine.SupplierSku = orderRequestData.SupplierPartNumber
-      newLine.PartNo = orderRequestData.PartNoList
-      newLine.ManufacturerName = orderRequestData.ManufacturerName
-      newLine.ManufacturerPartNumber = orderRequestData.ManufacturerPartNumber
-
-      this.poData.Lines.push(newLine)
-      this.save([newLine])
-    },*/
     refreshPage() {
       this.getOrderLines()
     },
@@ -404,15 +348,6 @@ export default {
           duration: 0,
           type: 'error'
         })
-      })
-    },
-    getOrderRequests() {
-      requestBN({
-        url: '/purchasing/orderRequest',
-        method: 'get',
-        params: { SupplierId: this.$props.orderData.SupplierId }
-      }).then(response => {
-        this.orderRequests = response.data
       })
     },
     getImportApiInfo() {

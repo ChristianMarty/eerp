@@ -14,8 +14,7 @@
 </template>
 
 <script>
-import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
+import { AppMain, Navbar, Sidebar, TagsView } from './components'
 import { mapState } from 'vuex'
 
 export default {
@@ -23,11 +22,9 @@ export default {
   components: {
     AppMain,
     Navbar,
-    Settings,
     Sidebar,
     TagsView
   },
-  mixins: [ResizeMixin],
   computed: {
     ...mapState({
       sidebar: state => state.app.sidebar,

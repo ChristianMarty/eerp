@@ -34,9 +34,42 @@ class Part {
       })
     })
   }
+  attribute = {
+    list() {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/part/attribute'
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
+
+  package = {
+    list() {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'get',
+          url: '/part/package'
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
+  }
 
   class = {
-    list(baseClassId, includeParent = false, showHidden = false) {
+    list(baseClassId = 0, includeParent = false, showHidden = false) {
       return new Promise((resolve, reject) => {
         eerpApi({
           url: '/part/class',

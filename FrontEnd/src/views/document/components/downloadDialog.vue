@@ -1,10 +1,9 @@
 <template>
-  <div class="document-download-dialog">
-
+  <div>
     <el-dialog
       title="Document Download"
       :visible.sync="visible"
-      :before-close="closeDialog"
+      :before-close="close"
       center
     >
       <p>Download a PDF file from the Internet.</p>
@@ -35,12 +34,11 @@ export default {
       downloadURL: ''
     }
   },
-  mounted() {
-  },
   methods: {
     onDownload() {
       document.ingest.download(this.downloadURL).then(response => {
-        this.closeDialog()
+        this.downloadURL = ''
+        this.close()
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -50,7 +48,7 @@ export default {
         })
       })
     },
-    closeDialog() {
+    close() {
       this.visible = false
       this.$emit('update:visible', this.visible)
       this.$emit('change')

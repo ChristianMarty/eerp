@@ -1,12 +1,13 @@
 /**
- * @param {}
- * @returns {int}
+ * @returns {string}
+ * @param value
+ * @param unit
  */
 export default function siFormatter(value, unit) {
   if (isNaN(value)) return value
 
-  var output = ''
-  var si = ''
+  let output = ''
+  let si = ''
 
   if (value === 0) {
     output = 0

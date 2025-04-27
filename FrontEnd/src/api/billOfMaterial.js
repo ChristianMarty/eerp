@@ -16,6 +16,22 @@ class BillOfMaterial {
     })
   }
 
+  save(Bom, RevisionId) {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        url: '/billOfMaterial/bom',
+        method: 'post',
+        data: { Bom: Bom, RevisionId: RevisionId }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
+
   getAnalyzeOptions() {
     return new Promise((resolve, reject) => {
       eerpApi({

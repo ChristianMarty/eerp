@@ -2,6 +2,9 @@
   <div class="app-container">
     <template>
       <el-table
+        v-loading="loading"
+        element-loading-text="Loading Part Packages ..."
+        element-loading-spinner="el-icon-loading"
         :data="packages"
         style="width: 100%;"
         :cell-style="{ padding: '0', height: '20px' }"
@@ -29,14 +32,16 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+import Part from '@/api/part'
+const part = new Part()
 
 export default {
   name: 'PackageBrowser',
   components: {},
   data() {
     return {
-      packages: null
+      packages: [],
+      loading: true
     }
   },
   mounted() {
@@ -44,11 +49,16 @@ export default {
   },
   methods: {
     getPackages() {
-      requestBN({
-        url: '/part/package',
-        method: 'get'
-      }).then(response => {
-        this.packages = response.data
+      part.package.list().then(response => {
+        this.packages = response
+        this.loading = false
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

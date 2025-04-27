@@ -2,6 +2,9 @@
   <div class="app-container">
     <template>
       <el-table
+        v-loading="loading"
+        element-loading-text="Loading Part Attributes ..."
+        element-loading-spinner="el-icon-loading"
         :data="attributes"
         style="width: 100%;"
         :cell-style="{ padding: '0', height: '20px' }"
@@ -20,14 +23,17 @@
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
+import Part from '@/api/part'
+const part = new Part()
 
 export default {
   name: 'AttributeBrowser',
   components: {},
   data() {
     return {
-      attributes: null
+      attributes: [],
+      loading: true
     }
   },
   mounted() {
@@ -35,11 +41,16 @@ export default {
   },
   methods: {
     getAttributes() {
-      requestBN({
-        url: '/part/attribute',
-        method: 'get'
-      }).then(response => {
-        this.attributes = response.data
+      part.attribute.list().then(response => {
+        this.attributes = response
+        this.loading = false
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

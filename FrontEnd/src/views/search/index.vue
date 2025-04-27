@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
     <h1> Search Result for : {{ searchTerm }}</h1>
-
     <el-input ref="searchInput" v-model="searchInput" placeholder="Search" @keyup.enter.native="search(searchInput)">
       <el-button slot="append" icon="el-icon-search" @click="search(searchInput)" />
     </el-input>
@@ -17,27 +16,27 @@
       <el-table-column prop="Item" label="Item Nr." width="200">
         <template slot-scope="{ row }">
           <router-link :to="row.link" class="link-type">
-            <span @click="closeSearch()">{{ row.Item }}</span>
+            <span @click="close()">{{ row.Item }}</span>
           </router-link>
         </template>
       </el-table-column>
       <el-table-column prop="Category" label="Category" width="200" />
       <el-table-column prop="Description" label="Description" />
       <el-table-column prop="LocationPath" label="Current Location" />
-    </el-table>  </div>
+    </el-table>
+  </div>
 </template>
 
 <script>
-import requestBN from '@/utils/requestBN'
+
+import Search from '@/api/search'
+const search = new Search()
 
 export default {
   name: 'SearchResult',
   components: {},
   props: {
-    isEdit: {
-      type: Boolean,
-      default: false
-    }
+    isEdit: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -61,7 +60,7 @@ export default {
       this.$store.dispatch('tagsView/updateVisitedView', route)
       document.title = title
     },
-    closeSearch() {
+    close() {
       this.$store.dispatch('tagsView/delView', this.$route) // close search view
     },
     search(term) {
@@ -69,13 +68,10 @@ export default {
       this.searchTerm = term
       this.searchInput = term
       this.setTitle(term)
-      requestBN({
-        url: '/search',
-        methode: 'get',
-        params: { search: term }
-      }).then(response => {
-        this.result = response.data
 
+      search.search(term).then(response => {
+        this.loading = false
+        this.result = response
         this.result.forEach((item) => {
           switch (item.Category) {
             case 'Document': item.link = '/document/item/'
@@ -105,13 +101,17 @@ export default {
           }
           item.link += item.RedirectCode
         })
-
-        this.loading = false
-
         if (this.result.length === 1) {
           this.$router.push(this.result[0].link)
-          this.closeSearch()
+          this.close()
         }
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

@@ -1,79 +1,69 @@
 <template>
-  <div class="add-stock-dialog">
-
-    <el-dialog title="Add Stock" :visible.sync="visible" :before-close="closeDialog">
+  <div>
+    <el-dialog
+      title="Add Stock"
+      :visible.sync="visible"
+      :before-close="close"
+      @open="onOpen"
+    >
       <el-form label-width="150px">
         <el-form-item label="Stock Quantity:">
           {{ item.Quantity.Quantity }}
         </el-form-item>
 
         <el-form-item label="Add Quantity:">
-          <el-input-number v-model="addQuantity" :min="1" :max="100000" />
+          <el-input-number v-model="formData.AddQuantity" :min="1" :max="100000" />
         </el-form-item>
         <el-form-item label="Note">
-          <el-input v-model="note" type="textarea" />
+          <el-input v-model="formData.Note" type="textarea" />
         </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="addStock">Add</el-button>
-        <el-button @click="closeDialog">Close</el-button>
+        <el-button @click="close">Close</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
 
-const itemData = {
-  ItemCode: '',
-  Quantity: 0
-}
-
-import requestBN from '@/utils/requestBN'
+import Stock from '@/api/stock'
+const stock = new Stock()
 
 export default {
-  props: { item: { type: Object, default: itemData }, visible: { type: Boolean, default: false }},
+  props: {
+    item: { type: Object, default: stock.item.itemDataEmpty },
+    visible: { type: Boolean, default: false }
+  },
   data() {
     return {
-      addQuantity: 0,
-      workOrders: null,
-      workOrderId: null,
-      note: ''
+      formData: Object.assign({}, stock.item.history.addDataEmpty)
     }
   },
-  mounted() {
-
-  },
   methods: {
-    closeDialog() {
+    onOpen() {
+      this.formData = Object.assign({}, stock.item.history.addDataEmpty)
+      this.formData.ItemCode = this.$props.item.ItemCode
+    },
+    close() {
       this.visible = false
       this.$emit('update:visible', this.visible)
     },
     addStock() {
-      requestBN({
-        method: 'post',
-        url: '/stock/history/item',
-        data: {
-          StockNumber: this.item.ItemCode,
-          AddQuantity: this.addQuantity,
-          Note: this.note
-        }
-      }).then(response => {
-        if (response.error != null) {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 0,
-            type: 'error'
-          })
-        } else {
-          this.$message({
-            message: 'Quantity updated successfully',
-            type: 'success'
-          })
-
-          this.closeDialog()
-        }
+      stock.item.history.add(this.formData).then(response => {
+        this.$message({
+          message: 'Quantity updated successfully',
+          type: 'success'
+        })
+        this.close()
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response.error,
+          duration: 0,
+          type: 'error'
+        })
       })
     }
   }

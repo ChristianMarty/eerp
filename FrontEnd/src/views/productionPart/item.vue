@@ -213,42 +213,6 @@
             label="Note"
           />
         </el-table>
-        <!--  <table>
-      <tr>
-        <td><b>Minimum:</b></td>
-        <td>{{ leadTime.Statistics.Minimum }}</td>
-      </tr>
-      <tr>
-        <td><b>Maximum:</b></td>
-        <td>{{ leadTime.Statistics.Maximum }}</td>
-      </tr>
-      <tr>
-        <td><b>Average:</b></td>
-        <td>{{ leadTime.Statistics.Average }}</td>
-      </tr>
-      <tr>
-        <td><b>Weighted Average:</b></td>
-        <td>{{ leadTime.Statistics.WeightedAverage }}</td>
-      </tr>
-    </table> -->
-        <!--<table>
-      <tr>
-        <td><b>Minimum:</b></td>
-        <td>{{ price.Statistics.Minimum }}</td>
-      </tr>
-      <tr>
-        <td><b>Maximum:</b></td>
-        <td>{{ price.Statistics.Maximum }}</td>
-      </tr>
-      <tr>
-        <td><b>Average:</b></td>
-        <td>{{ price.Statistics.Average }}</td>
-      </tr>
-      <tr>
-        <td><b>Weighted Average:</b></td>
-        <td>{{ price.Statistics.WeightedAverage }}</td>
-      </tr>
-    </table>-->
 
         <h2>Purchase Orders</h2>
 
@@ -328,10 +292,12 @@
 
 <script>
 import siFormatter from '@/utils/siFormatter'
-import requestBN from '@/utils/requestBN'
 
 import ProductionPart from '@/api/productionPart'
 const productionPart = new ProductionPart()
+
+import Purchase from '@/api/purchase'
+const purchase = new Purchase()
 
 import availability from './components/availability'
 
@@ -348,9 +314,7 @@ export default {
   },
   mounted() {
     this.getPartData()
-    this.setTagsViewTitle()
-    this.setPageTitle()
-    this.getPartLookup()
+    this.setTitle()
   },
   created() {
     // Why need to make a copy of this.$route here?
@@ -366,8 +330,6 @@ export default {
       productionPart.item(this.$route.params.productionPartNumber, this.hideEmptyStock).then(response => {
         this.partData = response
         this.getPurchaseOrder()
-        this.getLeadTime()
-        this.getPrice()
       }).catch(response => {
         this.$message({
           showClose: true,
@@ -377,53 +339,24 @@ export default {
         })
       })
     },
-    getPartLookup() {
-      this.partLookup = []
-      /* requestBN({
-        url: '/productionPart/partLookup',
-        methood: 'get',
-        params: { ProductionPartNumber: this.$route.params.productionPartNumber }
-      }).then(response => {
-        this.partLookup = response.data
-      })*/
-    },
-    getLeadTime() {
-      this.leadTime = []
-      /* requestBN({
-        url: '/productionPart/leadTime',
-        methood: 'get',
-        params: { ProductionPartNumber: this.$route.params.productionPartNumber }
-      }).then(response => {
-        this.leadTime = response.data
-      })*/
-    },
-    getPrice() {
-      this.price = []
-      /* requestBN({
-        url: '/productionPart/price',
-        methood: 'get',
-        params: { ProductionPartNumber: this.$route.params.productionPartNumber }
-      }).then(response => {
-        this.price = response.data
-      })*/
-    },
     getPurchaseOrder() {
-      requestBN({
-        url: '/purchasing/partPurchase',
-        method: 'get',
-        params: { ProductionPartNumber: this.$route.params.productionPartNumber }
-      }).then(response => {
-        this.purchaseOrder = response.data
+      purchase.productionPartPurchase(this.$route.params.productionPartNumber).then(response => {
+        this.purchaseOrder = response
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
       })
     },
-    setTagsViewTitle() {
+    setTitle() {
+      document.title = `${this.$route.params.productionPartNumber}`
       const route = Object.assign({}, this.tempRoute, {
         title: `${this.$route.params.productionPartNumber}`
       })
       this.$store.dispatch('tagsView/updateVisitedView', route)
-    },
-    setPageTitle() {
-      document.title = `${this.$route.params.productionPartNumber}`
     },
     siRowFormater(row, column, cellValue, index) {
       return siFormatter(cellValue, '')
