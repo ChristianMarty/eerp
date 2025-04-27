@@ -146,16 +146,6 @@ export const asyncRoutes = [
   rendererRouter,
   processRouter,
   reportRouter,
-  /* {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://www.office.com/',
-        meta: { title: 'Office 365', icon: 'link' }
-      }
-    ]
-  },*/
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

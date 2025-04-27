@@ -230,7 +230,6 @@ class apiRouter
 
         $response['data'] = $data;
         $response['error'] = $errorMessage;
-        $response['loggedin'] = $loginState; // deprecated -> replaced by 'authenticated'
         $response['authenticated'] = $loginState;
         $response['idempotency'] = $_SESSION['idempotency'];
 
@@ -238,7 +237,6 @@ class apiRouter
         if(!$json_response)
         {
             $errorResponse['error'] = "JSON encoding error";
-            $errorResponse['loggedin'] = $_SESSION['authenticated'];
 
             echo json_encode($errorResponse);
             exit;
