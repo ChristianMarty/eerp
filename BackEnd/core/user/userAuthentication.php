@@ -130,7 +130,7 @@ class userAuthentication
             return 0;
         }
 
-        return $_SESSION['user']->settings->default->purchaseOrder->valueAddedTaxId;
+        return $_SESSION['user']->settings->settings->Default->PurchaseOrder->ValueAddedTaxId;
     }
 
     function userData(): user|null
