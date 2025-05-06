@@ -37,7 +37,7 @@ if($api->isGet())
 		LEFT JOIN workOrder ON workOrder.Id = partStock_history.WorkOrderId 
 		LEFT JOIN user ON user.Id = partStock_history.CreationUserId
 		WHERE StockId = (SELECT Id FROM partStock WHERE StockNumber = '$stockNumber') 
-		ORDER BY partStock_history.Id ASC
+		ORDER BY partStock_history.CreationDate ASC
 	STR;
 
 	$result = $database->query($query);

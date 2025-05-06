@@ -217,7 +217,7 @@ if($api->isGet())
 			$documents = $database->query($baseQuery);
 			foreach ($documents as $doc)
 			{
-				$doc->Path = $documentRootPath."/".$doc->Type."/".$doc->Path;
+				$doc->Path = $documentRootPath."/".$doc->Type."/".urlencode($doc->Path);
 			}
 		}
 		$r->Documents = $documents;

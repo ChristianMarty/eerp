@@ -61,7 +61,7 @@
         </el-form-item>
 
         <el-form-item label="Part Weight:">
-          {{ partData.Part.SinglePartWeight }}
+          {{ partData.Part.Weight.SinglePartWeight }}
         </el-form-item>
 
         <el-form-item>
@@ -211,7 +211,7 @@ export default {
           this.reading = response.value
 
           if (this.calibratedWeightPerPiece === 0) {
-            this.quantity = this.reading / this.partData.Part.SinglePartWeight
+            this.quantity = this.reading / this.partData.Part.Weight.SinglePartWeight
           } else {
             this.quantity = this.reading / this.calibratedWeightPerPiece
           }
