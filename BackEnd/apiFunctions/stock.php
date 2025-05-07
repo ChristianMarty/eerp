@@ -27,14 +27,16 @@ if($api->isGet("stock.view"))
            vendor_displayName(vendor.Id) AS ManufacturerName, 
            Cache_Quantity AS Quantity, 
            LocationId, 
-           vendor.Id AS ManufacturerId
+           vendor.Id AS ManufacturerId,
+           user.Initials AS CountingRequest,
+           partStock.CountingRequestDate
         FROM partStock 
 
         LEFT JOIN purchaseOrder_itemReceive ON partStock.ReceivalId  = purchaseOrder_itemReceive.Id
         LEFT JOIN purchaseOrder_itemOrder ON purchaseOrder_itemReceive.ItemOrderId = purchaseOrder_itemOrder.Id
         LEFT JOIN supplierPart ON supplierPart.Id = purchaseOrder_itemOrder.SupplierPartId
         LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId <=> manufacturerPart_partNumber.Id OR manufacturerPart_partNumber.Id <=> partStock.ManufacturerPartNumberId 
-
+        LEFT JOIN user ON user.Id = partStock.CountingRequestUserId
         LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
         LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         LEFT JOIN vendor ON vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_partNumber.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
@@ -61,6 +63,11 @@ if($api->isGet("stock.view"))
 	{
 		$queryParam[] = "partStock.Cache_Quantity != '0'";
 	}
+
+    if(isset($parameters->CountingRequest) && $parameters->CountingRequest === true)
+    {
+        $queryParam[] = "partStock.CountingRequestUserId IS NOT NULL";
+    }
 
     $queryParam[] = "partStock.DeleteRequestUserId IS NULL";
 

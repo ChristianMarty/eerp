@@ -20,6 +20,23 @@ class Stock {
       })
     })
   }
+  countingRequest() {
+    return new Promise((resolve, reject) => {
+      eerpApi({
+        url: '/stock',
+        method: 'get',
+        params: {
+          CountingRequest: true
+        }
+      }).then(response => {
+        if (response.error == null) {
+          resolve(response.data)
+        } else {
+          reject(response.error)
+        }
+      })
+    })
+  }
 
   bulkRemove(StockItems, WorkOrderNumber = null) {
     const data = {
@@ -145,6 +162,23 @@ class Stock {
             StockNumber: countParameter.ItemCode,
             Quantity: countParameter.Quantity,
             Note: countParameter.Note
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    requestCounting(ItemCode) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/stock/item/requestCounting',
+          data: {
+            StockCode: ItemCode
           }
         }).then(response => {
           if (response.error == null) {

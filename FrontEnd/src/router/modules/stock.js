@@ -34,6 +34,12 @@ const stockRouter = {
       meta: { title: 'Bulk Remove', icon: 'el-icon-minus', roles: ['stock.remove'] }
     },
     {
+      path: 'countingRequest',
+      component: () => import('@/views/stock/countingRequest'),
+      name: 'countingRequest',
+      meta: { title: 'Counting Requests', icon: 'el-icon-files', roles: ['stock.count'] }
+    },
+    {
       path: 'item/:StockNumber(.*)',
       component: () => import('@/views/stock/item'),
       name: 'item',

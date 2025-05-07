@@ -180,6 +180,14 @@
       >Count by weight
       </el-button>
 
+      <el-button
+        v-permission="['stock.countingRequest']"
+        style="float: right; margin-right: 20px"
+        icon="el-icon-files"
+        @click="requestCounting()"
+      >Request Counting
+      </el-button>
+
       <el-divider />
 
       <h3>History</h3>
@@ -397,6 +405,23 @@ export default {
       this.getStockItem()
       this.showItem = true
       this.stockHistoryKey++
+    },
+    requestCounting() {
+      stock.item.requestCounting(this.partData.ItemCode).then(response => {
+        this.$message({
+          showClose: true,
+          message: 'Counting request added.',
+          type: 'success'
+        })
+      }).catch(response => {
+        this.$message({
+          showClose: true,
+          message: response,
+          duration: 0,
+          type: 'error'
+        })
+      })
+      this.loadItem()
     },
     getStockItem() {
       stock.item.get(this.inputStockId).then(response => {
