@@ -37,19 +37,24 @@ class userAuthentication
         $token = $database->escape($token);
 
         $query =  <<< QUERY
-            SELECT * 
+            SELECT 
+                `Id`,
+                `UserId`,
+                `Initials`,
+                `Roles`,
+                `Settings`
             FROM `user` 
             WHERE `UserId` = $username and `Token` =$token
             LIMIT 1;
         QUERY;
-
         $results = $database->query($query);
 
-        if(!$results) return false;
-
-        self::getUserInfoFromDb($results[0]->UserId);
-
-        return $_SESSION['authenticated'];
+        if(!$results){
+            $this->logout();
+            return false;
+        }
+        self::setUserSession($results[0]);
+        return $this->loggedIn();
     }
 
     function login(string $username, #[\SensitiveParameter] string $password ): string|bool
@@ -186,24 +191,24 @@ class userAuthentication
         QUERY;
 
         $results = $database->query($query);
-        if(!$results)
-        {
+        if(!$results) {
             unset($_SESSION["user"]);
             return false;
         }
+        self::setUserSession($results[0]);
+        return true;
+    }
 
-        $result = $results[0];
-
+    private function setUserSession(stdClass $userQueryResult) :void
+    {
         $user = new user();
-        $user->id = intval($result->Id);
-        $user->name = $result->UserId;
-        $user->initials = $result->Initials;
-        $user->settings->decode($result->Settings);
-        $user->rights->decode($result->Roles);
+        $user->id = intval($userQueryResult->Id);
+        $user->name = $userQueryResult->UserId;
+        $user->initials = $userQueryResult->Initials;
+        $user->settings->decode($userQueryResult->Settings);
+        $user->rights->decode($userQueryResult->Roles);
 
         $_SESSION["user"] = $user;
-
-        return true;
     }
 
     private function buildRolesForFrontend_recursive($rolesObject, &$roleStringArray, $roleStringPart): string
@@ -224,6 +229,4 @@ class userAuthentication
         }
         return $categoryStringPart;
     }
-
-
 }
