@@ -20,50 +20,53 @@ require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 function _stockPartQuery(string $stockNo): string
 {
-	return <<<STR
-	SELECT 	partStock.Id AS PartStockId, 
-	        partStock.DeleteRequestUserId, 
-	        supplier.Id AS SupplierId,
-	        vendor_displayName(supplier.Id) AS SupplierName, 
-	        supplierPart.SupplierPartNumber, 
-	       	partStock.StockNumber, 
-	       	vendor_displayName(manufacturer.Id) AS ManufacturerName, 
-	       	manufacturer.Id AS ManufacturerId, 
-	       	partStock.LotNumber, 
-			manufacturer.Id AS ManufacturerId, 
-			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
-			manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
-			manufacturerPart_partNumber.SinglePartWeight AS SinglePartWeight,
-			partStock.Date, 
-			manufacturerPart_partNumber.Description,
-			manufacturerPart_item.Id AS ManufacturerPartItemId,
-			poLine.SpecificationPartRevisionId AS SpecificationPartRevisionId,
-			partStock.LocationId, 
-			partStock.HomeLocationId, 
-			hc.CreateQuantity,  
-			partStock_getQuantity(partStock.StockNumber) AS Quantity, 
-			hc.CreateData,
-			country.ShortName as CountryOfOriginName,
-			country.Alpha2Code as CountryOfOriginCode,
-	        country.NumericCode as CountryOfOriginNumericCode
-	FROM partStock 
-	LEFT JOIN (
-		SELECT SupplierPartId, SpecificationPartRevisionId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
-		LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
-		)poLine ON poLine.Id = partStock.ReceivalId
-	LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)   
-	LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartNumberId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
-	LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
-	LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
-	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
-	LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
-	LEFT JOIN country On country.Id = partStock.CountryOfOriginCountryId
-	LEFT JOIN (
-		SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNumber = $stockNo)
-		)hc ON  hc.StockId = partStock.Id
-
-	WHERE partStock.StockNumber = $stockNo
-	STR;
+    return <<<STR
+        SELECT
+            partStock.Id AS PartStockId, 
+            partStock.DeleteRequestUserId, 
+            user.Initials AS CountingRequest,
+            partStock.CountingRequestDate,
+            supplier.Id AS SupplierId,
+            vendor_displayName(supplier.Id) AS SupplierName, 
+            supplierPart.SupplierPartNumber, 
+            partStock.StockNumber, 
+            vendor_displayName(manufacturer.Id) AS ManufacturerName, 
+            manufacturer.Id AS ManufacturerId, 
+            partStock.LotNumber, 
+            manufacturer.Id AS ManufacturerId, 
+            manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+            manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
+            manufacturerPart_partNumber.SinglePartWeight AS SinglePartWeight,
+            partStock.Date, 
+            manufacturerPart_partNumber.Description,
+            manufacturerPart_item.Id AS ManufacturerPartItemId,
+            poLine.SpecificationPartRevisionId AS SpecificationPartRevisionId,
+            partStock.LocationId, 
+            partStock.HomeLocationId, 
+            hc.CreateQuantity,  
+            partStock_getQuantity(partStock.StockNumber) AS Quantity, 
+            hc.CreateData,
+            country.ShortName as CountryOfOriginName,
+            country.Alpha2Code as CountryOfOriginCode,
+            country.NumericCode as CountryOfOriginNumericCode
+        FROM partStock 
+        LEFT JOIN (
+            SELECT SupplierPartId, SpecificationPartRevisionId, purchaseOrder_itemReceive.Id FROM purchaseOrder_itemOrder
+            LEFT JOIN purchaseOrder_itemReceive ON purchaseOrder_itemOrder.Id = purchaseOrder_itemReceive.ItemOrderId
+        )poLine ON poLine.Id = partStock.ReceivalId
+        LEFT JOIN user ON user.Id = partStock.CountingRequestUserId
+        LEFT JOIN supplierPart ON (supplierPart.Id = partStock.SupplierPartId AND partStock.ReceivalId IS NULL) OR (supplierPart.Id = poLine.SupplierPartId)   
+        LEFT JOIN manufacturerPart_partNumber ON (manufacturerPart_partNumber.Id = partStock.ManufacturerPartNumberId AND supplierPart.ManufacturerPartNumberId IS NULL) OR manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId
+        LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+        LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId
+        LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)manufacturer ON manufacturer.Id = manufacturerPart_item.VendorId OR manufacturer.Id = manufacturerPart_partNumber.VendorId OR manufacturer.Id = manufacturerPart_series.VendorId
+        LEFT JOIN (SELECT Id, vendor_displayName(id) FROM vendor)supplier ON supplier.Id = supplierPart.VendorId
+        LEFT JOIN country On country.Id = partStock.CountryOfOriginCountryId
+        LEFT JOIN (
+            SELECT StockId, Quantity AS CreateQuantity, CreationDate AS CreateData FROM partStock_history WHERE ChangeType = 'Create' AND StockId = (SELECT ID FROM partStock WHERE StockNumber = $stockNo)
+        )hc ON  hc.StockId = partStock.Id
+        WHERE partStock.StockNumber = $stockNo
+    STR;
 }
 
 if($api->isGet("stock.view"))
@@ -145,6 +148,10 @@ if($api->isGet("stock.view"))
     $quantity->CreateQuantity = floatval($r->CreateQuantity);
     $quantity->CreateData = $r->CreateData;
     $quantity->Certainty = \stock\stock::certainty(intval($r->PartStockId));
+    $countingRequest = new stdClass();
+    $countingRequest->Date = $r->CountingRequestDate;
+    $countingRequest->UserInitials = $r->CountingRequest;
+    $quantity->CountingRequest = $countingRequest;
     $output->Quantity = $quantity;
 
     // Add Location

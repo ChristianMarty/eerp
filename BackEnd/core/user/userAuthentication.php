@@ -44,7 +44,7 @@ class userAuthentication
                 `Roles`,
                 `Settings`
             FROM `user` 
-            WHERE `UserId` = $username and `Token` =$token
+            WHERE `UserId` = $username and `Token` = $token
             LIMIT 1;
         QUERY;
         $results = $database->query($query);

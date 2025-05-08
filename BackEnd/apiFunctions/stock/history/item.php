@@ -150,9 +150,13 @@ else if($api->isPost())
     $stockNumber = barcodeParser_StockNumber($data->StockNumber);
     if($stockNumber === null) $api->returnParameterError("StockNumber");
 
-    $stockNumber = $database->escape($stockNumber);
-
-	$query = "SELECT Id FROM partStock WHERE StockNumber = $stockNumber";
+    $stockNumberEscaped = $database->escape($stockNumber);
+	$query = <<< QUERY
+        SELECT 
+            Id 
+        FROM partStock 
+        WHERE StockNumber = $stockNumberEscaped
+    QUERY;
     $r = $database->query($query);
     if(count($r) === 0) {
         $api->returnError("StockNumber not found");

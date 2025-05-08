@@ -313,8 +313,6 @@ class stock
             $stockNumber = $database->escape($stockNumber);
             $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
         }
-
-        $stockNumber = $database->escape($stockNumber);
     }
 /*
     function formatHistoryItem(\stdClass $itemData): \stdClass|null

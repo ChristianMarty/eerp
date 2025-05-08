@@ -190,6 +190,9 @@
 
       <el-divider />
 
+      <p v-if="partData.Quantity.CountingRequest.UserInitials" v-permission="['stock.count']">
+        Counting requested by {{ partData.Quantity.CountingRequest.UserInitials }} on {{ partData.Quantity.CountingRequest.Date }}
+      </p>
       <h3>History</h3>
       <stockHistory :key="stockHistoryKey" :stock-code="inputStockId" />
     </el-card>
