@@ -37,7 +37,6 @@ class Stock {
       })
     })
   }
-
   bulkRemove(StockItems, WorkOrderNumber = null) {
     const data = {
       Items: StockItems,
@@ -58,23 +57,88 @@ class Stock {
       })
     })
   }
-
-  item = {
-    itemDataEmpty: {
+  item = new (class {
+    itemCountryOfOriginDataEmpty = {
+      Name: '',
+      Alpha2Code: '',
+      NumericCode: 0
+    }
+    itemPartWeightUnitOfMeasurementDataEmpty = {
+      Unit: '',
+      Symbol: ''
+    }
+    itemSupplierDataEmpty = {
+      Name: '',
+      PartNumber: '',
+      VendorId: 0
+    }
+    itemPartWeightDataEmpty = {
+      SinglePartWeight: null,
+      UnitOfMeasurement: Object.assign({}, this.itemPartWeightUnitOfMeasurementDataEmpty)
+    }
+    itemPartDataEmpty = {
+      ManufacturerName: '',
+      ManufacturerId: null,
+      ManufacturerPartNumber: '',
+      ManufacturerPartNumberId: null,
+      ManufacturerPartItemId: null,
+      SpecificationPartRevisionId: null,
+      Weight: Object.assign({}, this.itemPartWeightDataEmpty)
+    }
+    itemCertaintyEmpty = {
+      Factor: 0,
+      Rating: 0,
+      DaysSinceStocktaking: 0,
+      LastStocktakingDate: null
+    }
+    itemCountingRequestEmpty = {
+      Date: null,
+      UserInitials: null
+    }
+    itemQuantityDataEmpty = {
+      Quantity: null,
+      CreateQuantity: null,
+      CreateData: null,
+      Certainty: Object.assign({}, this.itemCertaintyEmpty),
+      CountingRequest: Object.assign({}, this.itemCountingRequestEmpty)
+    }
+    itemLocationEmpty = {
+      LocationNumber: 0,
+      ItemCode: '',
+      Path: '',
+      HomeName: '',
+      HomePath: ''
+    }
+    itemPurchaseEmpty = {
+      PurchaseOrderNumber: 0,
+      LineNumber: 0,
+      Price: 0,
+      Discount: 0,
+      CurrencyCode: '',
+      OrderReference: '',
+      ProductionPartNumber: '',
+      Quantity: 0,
+      Description: '',
+      SupplierId: 0,
+      SupplierName: '',
+      ItemCode: '',
+      PriceAfterDiscount: 0
+    }
+    itemDataEmpty = {
       ItemCode: '',
       StockNumber: '',
       LotNumber: '',
       Description: '',
       DateCode: '',
       Date: '',
-      CountryOfOrigin: {},
-      Supplier: {},
-      Purchase: {},
-      Part: {},
-      Quantity: {},
-      Location: {},
+      CountryOfOrigin: Object.assign({}, this.itemCountryOfOriginDataEmpty),
+      Supplier: Object.assign({}, this.itemSupplierDataEmpty),
+      Purchase: Object.assign({}, this.itemPurchaseEmpty),
+      Part: Object.assign({}, this.itemPartDataEmpty),
+      Quantity: Object.assign({}, this.itemQuantityDataEmpty),
+      Location: Object.assign({}, this.itemLocationEmpty),
       Deleted: false
-    },
+    }
     get(ItemCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -89,13 +153,13 @@ class Stock {
           }
         })
       })
-    },
-    itemEditDataEmpty: {
+    }
+    itemEditDataEmpty = {
       StockCode: '',
       CountryOfOriginNumericCode: null,
       Date: '',
       LotNumber: ''
-    },
+    }
     edit(ItemEditData) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -110,8 +174,8 @@ class Stock {
           }
         })
       })
-    },
-    createParameter: {
+    }
+    createParameter = {
       ManufacturerId: null,
       ManufacturerPartNumber: null,
       LocationCode: 'Loc-00000',
@@ -120,8 +184,8 @@ class Stock {
       LotNumber: null,
       Quantity: 0,
       Date: null
-    },
-    createResponse: {
+    }
+    createResponse = {
       StockId: '',
       ManufacturerName: '',
       Supplier: '',
@@ -132,7 +196,7 @@ class Stock {
       Barcode: '',
       SupplierName: '',
       SupplierPartNumber: ''
-    },
+    }
     create(CreateParameter) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -147,12 +211,12 @@ class Stock {
           }
         })
       })
-    },
-    countParameter: {
+    }
+    countParameter = {
       ItemCode: '',
       Quantity: '',
       Note: ''
-    },
+    }
     count(countParameter) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -171,7 +235,7 @@ class Stock {
           }
         })
       })
-    },
+    }
     requestCounting(ItemCode) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -188,7 +252,7 @@ class Stock {
           }
         })
       })
-    },
+    }
     delete(ItemCode, Note = null) {
       return new Promise((resolve, reject) => {
         eerpApi({
@@ -206,8 +270,8 @@ class Stock {
           }
         })
       })
-    },
-    history: {
+    }
+    history = new (class {
       list(StockCode) {
         return new Promise((resolve, reject) => {
           eerpApi({
@@ -222,7 +286,7 @@ class Stock {
             }
           })
         })
-      },
+      }
       item(StockHistoryCode) {
         return new Promise((resolve, reject) => {
           eerpApi({
@@ -237,14 +301,14 @@ class Stock {
             }
           })
         })
-      },
-      updateDateEmpty: {
+      }
+      updateDateEmpty = {
         EditToken: '',
         Quantity: 0,
         WorkOrderCode: null,
         Note: '',
         Type: ''
-      },
+      }
       update(updateData) {
         return new Promise((resolve, reject) => {
           eerpApi({
@@ -265,13 +329,13 @@ class Stock {
             }
           })
         })
-      },
-      removeDataEmpty: {
+      }
+      removeDataEmpty = {
         ItemCode: '',
         RemoveQuantity: 0,
         WorkOrderNumber: null,
         Note: ''
-      },
+      }
       remove(removeData) {
         return new Promise((resolve, reject) => {
           eerpApi({
@@ -291,12 +355,12 @@ class Stock {
             }
           })
         })
-      },
-      addDataEmpty: {
+      }
+      addDataEmpty = {
         ItemCode: '',
         AddQuantity: 0,
         Note: ''
-      },
+      }
       add(addData) {
         return new Promise((resolve, reject) => {
           eerpApi({
@@ -315,12 +379,12 @@ class Stock {
             }
           })
         })
-      },
-      countDataEmpty: {
+      }
+      countDataEmpty = {
         ItemCode: '',
         NewQuantity: 0,
         Note: ''
-      },
+      }
       count(addData) {
         return new Promise((resolve, reject) => {
           eerpApi({
@@ -340,8 +404,8 @@ class Stock {
           })
         })
       }
-    }
-  }
+    })();
+  })();
 }
 
 export default Stock
