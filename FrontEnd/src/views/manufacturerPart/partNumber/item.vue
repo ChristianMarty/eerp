@@ -25,7 +25,7 @@
         <template v-permission="['productionPart.edit']">
           <el-button
             type="primary"
-            icon="el-icon-plus"
+            icon="el-icon-edit"
             circle
             @click="showProductionPartDialog()"
           />

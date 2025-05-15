@@ -23,27 +23,46 @@ if($api->isPost("productionPart.edit"))
     $manufacturerPartNumberId = intval($data->ManufacturerPartNumberId);
     if($manufacturerPartNumberId == 0) $api->returnParameterError("ManufacturerPartNumberId");
 
-
-    foreach($data->ProductionPartList as $item)
-    {
+    $productionPartNumbers = [];
+    foreach($data->ProductionPartList as $item) {
         $productionPartNumber = barcodeParser_ProductionPart($item);
+        if($productionPartNumber === null) continue;
         $productionPartNumber = $database->escape($productionPartNumber);
-
-        $query = <<<QUERY
-        (SELECT 
-            productionPart.Id
-        FROM productionPart
-        LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId   
-        WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = $productionPartNumber)
-        QUERY;
-
-        $sqlData = array();
-        $sqlData['ProductionPartId']['raw'] = $query;
-        $sqlData['ManufacturerPartNumberId'] = $manufacturerPartNumberId;
-        $sqlData['CreationUserId'] = $user->userId();
-
-        $database->insert("productionPart_manufacturerPart_mapping", $sqlData, true);
+        $productionPartNumbers[] = $productionPartNumber;
     }
+
+    $productionPartNumbersListString = implode(",", $productionPartNumbers);
+    $productionPartIdQuery = <<<QUERY
+    SELECT 
+       productionPart.Id as Id
+    FROM productionPart
+    LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId   
+    WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) IN ($productionPartNumbersListString)
+    QUERY;
+
+    $data = $database->query($productionPartIdQuery);
+    $userId = $user->userId();
+    $productionPartIdList = [];
+    $insertValues = [];
+    foreach ($data as $item) {
+        $id = $item->Id;
+        $productionPartIdList[] = $id;
+        $insertValues[] = "($id, $manufacturerPartNumberId, $userId)";
+    }
+
+    $insertListString = implode(",", $insertValues);
+    $insertQuery = <<<QUERY
+        INSERT IGNORE INTO productionPart_manufacturerPart_mapping (ProductionPartId, ManufacturerPartNumberId, CreationUserId)
+        VALUES $insertListString
+    QUERY;
+    $database->execute($insertQuery);
+
+    $productionPartIdListString = implode(",", $productionPartIdList);
+    $deleteQuery = <<<QUERY
+        DELETE FROM productionPart_manufacturerPart_mapping
+        WHERE ManufacturerPartNumberId = $manufacturerPartNumberId AND ProductionPartId NOT IN ($productionPartIdListString);
+    QUERY;
+    $database->execute($deleteQuery);
 
     $api->returnEmpty();
 }
