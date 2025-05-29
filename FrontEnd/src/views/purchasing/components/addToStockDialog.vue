@@ -143,25 +143,11 @@ export default {
         if (this.$props.receivalData.QuantityReceived === trackedQuantity) {
           this.allInStock = true
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     saveToStock() {
       stock.item.create(this.data).then(response => {
         this.$router.push('/stock/item/' + response.ItemCode)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

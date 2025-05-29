@@ -116,13 +116,6 @@ export default {
         this.itemList.push(response)
         this.inputLocationNumber = ''
         this.handleChange()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     clearList() {

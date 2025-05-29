@@ -105,13 +105,6 @@ export default {
           this.$router.push(this.result[0].link)
           this.close()
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

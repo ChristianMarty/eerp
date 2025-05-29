@@ -97,19 +97,9 @@ export default {
     renderer.list(true, renderer.Dataset.InventoryItem).then(response => {
       this.rendererList = response
       this.rendererSelected = this.rendererList[0].Id
-    }).catch(response => {
-      this.showErrorMessage(response)
     })
   },
   methods: {
-    showErrorMessage(error) {
-      this.$message({
-        showClose: true,
-        message: error,
-        duration: 0,
-        type: 'error'
-      })
-    },
     handleChange() {
       const numberList = this.itemList.map(element => element.ItemCode)
       renderer.item(this.rendererSelected).then(response => {
@@ -118,8 +108,6 @@ export default {
 
         this.printPreviewPath =
           printPath + '?Offset=' + this.offset + '&InventoryNumber=' + numberList
-      }).catch(error => {
-        this.showErrorMessage(error)
       })
     },
     addItem() {
@@ -127,8 +115,6 @@ export default {
         this.itemList.push(response)
         this.inputInventoryNumber = ''
         this.handleChange()
-      }).catch(error => {
-        this.showErrorMessage(error)
       })
     },
     clearList() {

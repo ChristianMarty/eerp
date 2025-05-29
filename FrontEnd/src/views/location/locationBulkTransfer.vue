@@ -96,13 +96,6 @@ export default {
     getSummary() {
       location.summary(this.oldLocNr).then(response => {
         this.itemList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
       this.inputItemNr = null
     },
@@ -132,13 +125,6 @@ export default {
           showClose: true,
           message: 'Transfer Successful',
           type: 'success'
-        })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
         })
       })
     }

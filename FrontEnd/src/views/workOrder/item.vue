@@ -113,25 +113,11 @@ export default {
       workOrder.item(this.$route.params.workOrderNo).then(response => {
         this.workOrderData = response
         this.setTitle()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     updateStatus() {
       workOrder.updateStatus(this.$route.params.workOrderNo, this.statusSelected).then(response => {
         this.getWorkOrderData()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     setTitle() {

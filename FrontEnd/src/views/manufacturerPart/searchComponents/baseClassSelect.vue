@@ -61,13 +61,6 @@ export default {
       part.class.list(0).then(response => {
         this.data = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -119,13 +119,6 @@ export default {
             })
           }
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
       this.inputItemNr = null
       this.$refs.itemNrInput.focus()
@@ -162,13 +155,6 @@ export default {
           showClose: true,
           message: 'Item Transfer Successful',
           type: 'success'
-        })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
         })
       })
     }

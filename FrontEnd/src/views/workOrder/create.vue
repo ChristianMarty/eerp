@@ -56,13 +56,6 @@ export default {
         this.$router.push(
           '/workOrder/item/' + response.ItemCode
         )
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

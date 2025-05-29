@@ -58,13 +58,6 @@ export default {
     onOpen() {
       stock.item.history.item(this.$props.stockHistoryCode).then(response => {
         this.data = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {
@@ -75,13 +68,6 @@ export default {
     print() {
       print.print(this.selectedRendererId, this.selectedPrinterId, [this.$props.stockHistoryCode]).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPrinter() {
@@ -89,25 +75,11 @@ export default {
         this.selectedPrinterId = defaultSetting.defaultSetting().Stock.Renderer.History.PeripheralId
         this.selectedRendererId = defaultSetting.defaultSetting().Stock.Renderer.History.RendererId
         this.printer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getLabel() {
       renderer.list(true, renderer.Dataset.StockHistory).then(response => {
         this.renderer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

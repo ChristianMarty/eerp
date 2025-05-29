@@ -123,13 +123,6 @@ export default {
     importOrder() {
       purchase.item.import.upload(this.meat.ItemCode, this.importData).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

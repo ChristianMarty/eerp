@@ -42,13 +42,6 @@ export default {
       finance.costCenter.list().then(response => {
         this.costCenter = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

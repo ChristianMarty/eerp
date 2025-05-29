@@ -183,13 +183,6 @@ export default {
           this.rowReceivalData = response
           this.addToStockDialogVisible = true
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     openTrackDialog(dialogData) {
@@ -200,13 +193,6 @@ export default {
       purchase.item.search(this.$props.orderData.ItemCode).then(response => {
         this.lines = response.Lines
         this.prepairLines(this.lines)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     prepairLines(data) {

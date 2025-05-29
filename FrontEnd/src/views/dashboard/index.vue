@@ -72,25 +72,11 @@ export default {
     getWeekNumber() {
       various.WeekNumber().then(response => {
         this.weekNumber = response.WeekNumber
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPurchaseOrders() {
       purchase.listOpenOrders().then(response => {
         this.pendingOrders = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     search() {

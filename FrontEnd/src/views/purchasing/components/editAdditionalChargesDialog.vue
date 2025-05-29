@@ -109,13 +109,6 @@ export default {
         })
         this.refresh()
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     deleteLine() {
@@ -130,13 +123,6 @@ export default {
         ).then(() => {
           this.refresh()
           this.closeDialog()
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }).catch(() => {
         this.$message({

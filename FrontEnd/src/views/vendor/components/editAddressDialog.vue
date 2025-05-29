@@ -76,13 +76,6 @@ export default {
       } else {
         vendor.address.item(this.$props.addressId).then(response => {
           this.addressData = response
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }
     },
@@ -103,13 +96,6 @@ export default {
 
       vendor.address.save(saveParameters).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

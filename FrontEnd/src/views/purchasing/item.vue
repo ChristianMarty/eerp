@@ -180,10 +180,7 @@ export default {
     renderer.list(true, renderer.Dataset.PurchaseOrder).then(response => {
       this.rendererList = response
       this.rendererSelected = this.rendererList[0].Code
-    }).catch(response => {
-      this.showErrorMessage(response)
     })
-
     this.getOrder()
   },
   methods: {
@@ -223,27 +220,15 @@ export default {
         type: 'success'
       })
     },
-    showErrorMessage(message) {
-      this.$message({
-        showClose: true,
-        message: message,
-        duration: 0,
-        type: 'error'
-      })
-    },
     saveLine() {
       purchase.line.save(this.orderData.PurchaseOrderNumber, [this.line]).then(response => {
         this.showSuccessMessage()
-      }).catch(response => {
-        this.showErrorMessage(response)
       })
     },
     saveState(newState) {
       purchase.item.updateState(this.orderData.PurchaseOrderNumber, newState).then(response => {
         this.showSuccessMessage()
         this.getOrder()
-      }).catch(response => {
-        this.showErrorMessage(response)
       })
     },
     refreshPage() {
@@ -259,8 +244,6 @@ export default {
         else if (this.orderData.Status === 'Closed') this.orderStatus = 5
         this.documents = response.Documents
         this.setTagsViewTitle()
-      }).catch(response => {
-        this.showErrorMessage(response)
       })
     }
   }

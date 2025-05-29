@@ -75,13 +75,6 @@ export default {
     getProductionPart() {
       productionPart.search(null, this.$props.manufacturerPartId).then(response => {
         this.productionPartList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     searchProductionPart() {
@@ -96,13 +89,6 @@ export default {
         } else {
           this.productionPartList.push(response[0])
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     handleClose(tag) {
@@ -112,13 +98,6 @@ export default {
       var temp = this.productionPartList.map(item => item.ItemCode)
       manufacturerPart.PartNumber.productionPart.saveMapping(this.$props.manufacturerPartId, temp).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

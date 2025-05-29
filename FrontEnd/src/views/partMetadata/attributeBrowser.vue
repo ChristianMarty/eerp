@@ -44,13 +44,6 @@ export default {
       part.attribute.list().then(response => {
         this.attributes = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

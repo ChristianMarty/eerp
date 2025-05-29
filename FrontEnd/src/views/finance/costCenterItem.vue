@@ -57,13 +57,6 @@ export default {
       finance.costCenter.item(this.$route.params.CostCenterNumber).then(response => {
         this.data = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

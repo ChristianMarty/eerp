@@ -287,13 +287,6 @@ export default {
       if (row.PartNo === null) return
       supplierPart.search(row.PartNo, this.$props.purchaseOrder.SupplierId).then(response => {
         this.partOptions = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     supplierPartSelect(data, row, column, event) {
@@ -334,13 +327,6 @@ export default {
             this.line.Price = price.Price
           }
         })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getCostCenterColor(CostCenterBarcode) {
@@ -376,12 +362,6 @@ export default {
         this.line = response
         this.loading = false
       }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
         this.closeDialog()
       })
     },
@@ -394,13 +374,6 @@ export default {
           type: 'success'
         })
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     deleteLine() {
@@ -417,13 +390,6 @@ export default {
             type: 'success'
           })
           this.closeDialog()
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }).catch(() => {
         this.$message({
@@ -435,13 +401,6 @@ export default {
     getType() {
       purchase.item.line.type().then(response => {
         this.lineType = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

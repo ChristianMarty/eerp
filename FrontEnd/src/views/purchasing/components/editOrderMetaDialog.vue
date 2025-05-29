@@ -201,62 +201,28 @@ export default {
         this.getSupplierContact(this.dialogData.SupplierId)
         this.loading = false
       }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
         this.closeDialog()
       })
     },
     saveData() {
       purchase.item.meta.save(this.$props.purchaseOrderNumber, this.dialogData).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getExchangeRate() {
       finance.currency.exchangeRate(this.dialogData.CurrencyId).then(response => {
         this.exchangeRateData = response
         this.dialogData.ExchangeRate = this.exchangeRateData.ExchangeRate
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getSupplierAddress(SupplierId) {
       vendor.address.search(SupplierId).then(response => {
         this.supplierAddress = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getSupplierContact(SupplierId) {
       vendor.contact.search(SupplierId).then(response => {
         this.supplierContact = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

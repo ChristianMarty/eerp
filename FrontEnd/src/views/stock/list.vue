@@ -182,37 +182,16 @@ export default {
       stock.search(this.fliterEmpty).then(response => {
         this.stockItems = response
         this.stockItemsFilterd = this.stockItems
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getManufacturers() {
       vendor.search(false, true, false, false, false).then(response => {
         this.manufacturers = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getLocations() {
       location.search().then(response => {
         this.locations = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

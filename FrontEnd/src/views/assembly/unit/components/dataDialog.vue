@@ -113,13 +113,6 @@ export default {
     },
     print() {
       print.print(this.selectedRendererId, this.selectedPrinterId, [this.$props.assemblyUnitHistoryNumber]).then(response => {
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPrinter() {
@@ -127,25 +120,11 @@ export default {
         this.selectedPrinterId = defaultSetting.defaultSetting().Assembly.Renderer.History.PeripheralId
         this.selectedRendererId = defaultSetting.defaultSetting().Assembly.Renderer.History.RendererId
         this.printerList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getRenderer() {
       renderer.list(true, renderer.Dataset.AssemblyUnitHistory).then(response => {
         this.rendererList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

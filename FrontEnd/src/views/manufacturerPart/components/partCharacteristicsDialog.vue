@@ -91,37 +91,16 @@ export default {
     getClasses() {
       part.class.list(0).then(response => {
         this.classes = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getData() {
       manufacturerPart.item.characteristics.get(this.$props.partId).then(response => {
         this.data = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     saveData() {
       manufacturerPart.item.characteristics.save(this.$props.partId, this.data.PartClassId).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     handleClose(tag) {

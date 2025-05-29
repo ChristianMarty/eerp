@@ -174,13 +174,6 @@ export default {
     handleFilter() {
       manufacturerPart.search(this.partFilter, true).then(response => {
         this.partData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     resetFilter() {
@@ -196,13 +189,6 @@ export default {
 
       manufacturerPart.search(this.partFilter, true).then(response => {
         this.partData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getManufacturerPartClass(ClassId) {
@@ -210,13 +196,6 @@ export default {
 
       part.class.list(ClassId, true).then(response => {
         this.manufacturerPartClass = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getFilterOption(ClassId) {
@@ -224,38 +203,17 @@ export default {
 
       manufacturerPart.class.getFilterOption(ClassId).then(response => {
         this.filterOptions = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getManufacturerPartAttribute(ClassId) {
       manufacturerPart.attribute.search(ClassId, false, true).then(response => {
         this.manufacturerPartAttribute = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getManufacturers() {
       vendor.search(false, true, false, false, false, true).then(response => {
         this.manufacturers = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onClassSelect(ClassId = 0) {

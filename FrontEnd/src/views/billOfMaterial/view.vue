@@ -75,13 +75,6 @@ export default {
     getProjectData() {
       billOfMaterial.item.get(this.$route.params.BillOfMaterialNumber).then(response => {
         this.projectData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     tableAnalyzer({ row, rowIndex }) {

@@ -360,59 +360,24 @@ export default {
       vendor.item(vendorId).then(response => {
         this.vendorData = response
         this.setTitle()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
 
       purchase.get(vendorId).then(response => {
         this.PurchaseOrders = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
 
       purchase.supplierPartNumber.list(vendorId).then(response => {
         this.supplierPartNumbers = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
 
       const searchParameters = Object.assign({}, manufacturerPart.PartNumber.searchParameters)
       searchParameters.VendorId = vendorId
       manufacturerPart.PartNumber.search(searchParameters).then(response => {
         this.manufacturerartPartData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
 
       part.searchSupplierPart(vendorId).then(response => {
         this.supplierPartData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     showEditDialog() {

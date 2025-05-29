@@ -172,13 +172,6 @@ export default {
     searchInput() {
       stock.item.get(this.stockNoInput).then(response => {
         this.openSetQuantity(response)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
       this.stockNoInput = ''
       this.$refs.stockNoInput.focus()
@@ -232,37 +225,16 @@ export default {
         this.selectedWorkOrderData = this.findWorkOrder(this.selectedWorkOrderNumber)
         this.step = 3
         this.completedData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     printReceipt() {
       const itemCodes = this.completedData.map(x => x.ItemCode)
       print.print(this.receiptRendererId, this.selectedPrinterId, itemCodes).then(response => {
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     printAllNotes() {
       const itemCodes = this.completedData.map(x => x.ItemCode)
       print.print(this.historyRendererId, this.selectedPrinterId, itemCodes).then(response => {
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPrinter() {
@@ -272,13 +244,6 @@ export default {
         this.historyRendererId = defaultSetting.defaultSetting().Stock.Renderer.History.RendererId
         this.receiptRendererId = defaultSetting.defaultSetting().Stock.Renderer.Receipt.RendererId
         this.printer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

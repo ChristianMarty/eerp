@@ -48,25 +48,11 @@ export default {
     getPrefix() {
       productionPart.prefix(false, true).then(response => {
         this.prefix = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onCreate() {
       productionPart.create(this.productionPartCreateParameters).then(response => {
         this.$router.push('/productionPart/item/' + response['ProductionPartNumber'])
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

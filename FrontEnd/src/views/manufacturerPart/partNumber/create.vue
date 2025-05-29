@@ -116,13 +116,6 @@ export default {
       vendor.search(false, true, false, false, false).then(response => {
         this.manufacturers = response
         // this.setTitle()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onAnalyze() {
@@ -131,24 +124,11 @@ export default {
         // this.setTitle()
       }).catch(response => {
         this.partSeriesData = null
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onCreate() {
       manufacturerPart.PartNumber.create(this.vendorId, this.partNumber).then(response => {
         this.$router.push('/manufacturerPart/partNumber/item/' + response['ManufacturerPartNumberId'])
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

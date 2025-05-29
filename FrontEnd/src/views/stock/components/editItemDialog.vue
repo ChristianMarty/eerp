@@ -78,25 +78,11 @@ export default {
         this.formData.LotNumber = this.partData.LotNumber
         this.formData.Date = this.partData.Date
         this.formData.CountryOfOriginNumericCode = this.partData.CountryOfOrigin.NumericCode
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     save() {
       stock.item.edit(this.formData).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

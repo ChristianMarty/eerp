@@ -92,13 +92,6 @@ export default {
       billOfMaterial.item.purchasing(this.$props.revisionId, this.quantity, this.noStock, this.knownSuppliers, this.authorizedOnly, this.brokers).then(response => {
         this.bom = this.processDataFlat(response)
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     processDataFlat(data) {

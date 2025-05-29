@@ -57,13 +57,6 @@ export default {
     location.search().then(response => {
       this.locations = response
       this.loading = false
-    }).catch(response => {
-      this.$message({
-        showClose: true,
-        message: response,
-        duration: 0,
-        type: 'error'
-      })
     })
   },
   methods: {

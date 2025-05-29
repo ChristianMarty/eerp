@@ -82,13 +82,6 @@ export default {
     getTrackData() {
       purchase.item.track(this.$props.line.ReceivalId).then(response => {
         this.trackData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

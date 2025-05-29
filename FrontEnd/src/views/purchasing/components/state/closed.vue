@@ -117,13 +117,6 @@ export default {
         this.total = response.Total
         this.additionalCharges = response.AdditionalCharges
         this.prepairLines(this.lines)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     prepairLines(data) {

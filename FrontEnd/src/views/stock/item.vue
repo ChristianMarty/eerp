@@ -416,13 +416,6 @@ export default {
           message: 'Counting request added.',
           type: 'success'
         })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
       this.loadItem()
     },
@@ -439,13 +432,6 @@ export default {
           this.getProductionPartData()
           this.setTitle(this.partData.ItemCode)
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getProductionPartData() {
@@ -453,13 +439,6 @@ export default {
 
       productionPart.search(null, this.partData.Part.ManufacturerPartNumberId, this.partData.Part.SpecificationPartRevisionId).then(response => {
         this.productionPartData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     reset() {
@@ -471,13 +450,6 @@ export default {
     getLabel() {
       renderer.list(true, renderer.Dataset.Stock).then(response => {
         this.label = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     openPrintDialog() {
@@ -508,13 +480,6 @@ export default {
         this.selectedPrinterId = defaultSetting.defaultSetting().Stock.Renderer.Item.PeripheralId
         this.selectedLabelId = defaultSetting.defaultSetting().Stock.Renderer.Item.RendererId
         this.printer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     async print(printData) {
@@ -532,13 +497,6 @@ export default {
 
       print.print(this.selectedLabelId, this.selectedPrinterId, labelData).then(response => {
         this.printer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     openDeleteDialog() {
@@ -549,13 +507,6 @@ export default {
         this.deleteDialogVisible = false
         this.deleteNote = ''
         this.loadItem()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -72,13 +72,6 @@ export default {
     getItems() {
       stock.countingRequest().then(response => {
         this.stockItems = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

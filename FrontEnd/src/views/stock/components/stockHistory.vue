@@ -82,13 +82,6 @@ export default {
               break
           }
         })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

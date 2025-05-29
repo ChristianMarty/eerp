@@ -271,62 +271,27 @@ export default {
         this.getProductionPart(this.data.PartNumberId)
         this.getStockItems()
         this.setTitle()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getSupplierPart(ManufacturerPartNumberId) {
       supplierPart.search(null, null, ManufacturerPartNumberId).then(response => {
         this.supplierPartData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPurchaseOrder(ManufacturerPartNumberId) {
       purchase.partPurchase(ManufacturerPartNumberId).then(response => {
         this.purchaseOrderData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getProductionPart(ManufacturerPartNumberId) {
       productionPart.search(null, ManufacturerPartNumberId).then(response => {
         this.productionPartData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getStockItems() {
       stock.search(this.fliterEmptyStock, null, this.data.PartNumberId).then(response => {
         this.stockData = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     processAvailabilityData() {
@@ -340,13 +305,6 @@ export default {
         this.availabilityDataRaw = response
         this.availabilityLoading = false
         this.processAvailabilityData()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     processAvailabilityDataNotFlat(data) {

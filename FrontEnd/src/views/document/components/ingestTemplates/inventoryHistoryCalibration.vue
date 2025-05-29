@@ -55,13 +55,6 @@ export default {
           type: 'success'
         })
         this.$emit('success')
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -90,37 +90,16 @@ export default {
     getImportApiInfo() {
       vendor.api.information(this.meat.SupplierId).then(response => {
         this.ApiInfo = response.Authentication
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     loadData() {
       purchase.item.import.load(this.meat.SupplierId, this.OrderNumber).then(response => {
         this.importData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     importOrder() {
       purchase.item.import.save(this.meat.ItemCode, this.OrderNumber).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

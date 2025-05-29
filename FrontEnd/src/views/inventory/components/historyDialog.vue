@@ -79,13 +79,6 @@ export default {
         .then(response => {
           this.historyData = response
           if (this.historyData.NextDate !== null) this.recurring = true
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 1500,
-            type: 'error'
-          })
         })
     },
     recurringChange(state) {
@@ -96,13 +89,6 @@ export default {
       this.historyData.EditToken = this.$props.editToken
       inventory.history.save(this.historyData).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

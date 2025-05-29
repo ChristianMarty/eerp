@@ -217,13 +217,6 @@ export default {
           })
           this.showDialog = false
           this.getFileList()
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response.error,
-            duration: 1500,
-            type: 'error'
-          })
         })
       }).catch(() => {
         this.$message({
@@ -235,13 +228,6 @@ export default {
     getFileList() {
       document.ingest.search().then(response => {
         this.documentList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     uploadFile() {

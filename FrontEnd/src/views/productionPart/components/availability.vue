@@ -101,13 +101,6 @@ export default {
       productionPart.availability(this.$props.productionPartBarcode, this.availabilityAuthorizedOnly, this.availabilityBrokers).then(response => {
         this.availabilityDataRaw = response
         this.processAvailabilityData()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     processAvailabilityDataNotFlat(data) {

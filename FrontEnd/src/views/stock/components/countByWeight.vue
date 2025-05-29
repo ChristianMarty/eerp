@@ -147,13 +147,6 @@ export default {
     getScales() {
       peripheral.list(peripheral.Type.Scale).then(response => {
         this.scales = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getStockItem(ItemCode) {
@@ -167,38 +160,17 @@ export default {
         } else {
           this.partData = response
         }
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     saveQuantity() {
       this.newQuantity.ItemCode = this.partData.ItemCode
       stock.item.count(this.newQuantity).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     saveCalibration() {
       manufacturerPart.PartNumber.saveWeight(this.partData.Part.ManufacturerPartNumberId, this.calibratedWeightPerPiece).then(response => {
         this.getStockItem(this.item)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     clear() {
@@ -240,13 +212,6 @@ export default {
           this.calibratedWeightPerPiece = this.calibratedWeightPerPiece / numberOfItems
         }
         this.$forceUpdate()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
 

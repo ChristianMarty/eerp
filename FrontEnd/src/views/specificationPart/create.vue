@@ -46,25 +46,11 @@ export default {
     getType() {
       specificationPart.type().then(response => {
         this.type = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onCreate() {
       specificationPart.create(this.specificationPartCreateParameters).then(response => {
         this.$router.push('/specificationPart/item/' + response['SpecificationPartNumber'])
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

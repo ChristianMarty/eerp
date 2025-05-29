@@ -175,13 +175,6 @@ export default {
       location.item.get(this.LocationBarcode).then(response => {
         this.itemList = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
       this.inputItemNr = null
     },
@@ -193,13 +186,6 @@ export default {
     },
     print() {
       print.print(this.selectedRendererId, this.selectedPrinterId, [this.$route.params.LocationBarcode]).then(response => {
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -45,13 +45,6 @@ export default {
     getData() {
       billOfMaterial.item.placement(this.$props.revisionId).then(response => {
         this.stockBom = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

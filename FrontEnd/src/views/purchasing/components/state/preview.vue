@@ -120,13 +120,6 @@ export default {
             this.specificationPartLines.push(element)
           }
         })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getMatchLines() {
@@ -134,13 +127,6 @@ export default {
       purchase.item.match.get(this.$props.orderData.ItemCode).then(response => {
         this.matchedData = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     createMatch() {
@@ -155,13 +141,6 @@ export default {
         LineIdList
       ).then(response => {
         this.getMatchLines()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     tableAnalyzer({ row, column, rowIndex, columnIndex }) {

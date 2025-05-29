@@ -85,13 +85,6 @@ export default {
       purchase.list(this.hideClosed).then(response => {
         this.PurchaseOrders = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

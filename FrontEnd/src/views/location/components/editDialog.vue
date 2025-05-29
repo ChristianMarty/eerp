@@ -57,13 +57,6 @@ export default {
     async onOpen() {
       location.item.get(this.$props.LocationNumber, false).then(response => {
         this.locationData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     save() {
@@ -78,13 +71,6 @@ export default {
 
       location.item.save(saveParameters).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

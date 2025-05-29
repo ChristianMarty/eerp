@@ -60,25 +60,11 @@ export default {
     getManufactures() {
       vendor.search(false, true, false, false, false).then(response => {
         this.manufacturers = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onCreate() {
       manufacturerPart.series.create(this.seriesCreateParameters).then(response => {
         this.$router.push('/manufacturerPart/series/item/' + response['ManufacturerPartSeriesId'])
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -34,13 +34,6 @@ export default {
     getUserData() {
       user.info().then(response => {
         this.userData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

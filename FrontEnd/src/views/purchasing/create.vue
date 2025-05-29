@@ -93,13 +93,6 @@ export default {
       } else {
         purchase.create(this.formData).then(response => {
           this.$router.push('/purchasing/edit/' + response.PurchaseOrderNo)
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }
     }

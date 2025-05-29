@@ -39,13 +39,6 @@ export default {
       document.ingest.download(this.downloadURL).then(response => {
         this.downloadURL = ''
         this.close()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     close() {

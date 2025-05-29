@@ -47,13 +47,6 @@ export default {
     save() {
       vendor.create(this.vendorData).then(response => {
         this.$router.push('/vendor/view/' + response.VendorId)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

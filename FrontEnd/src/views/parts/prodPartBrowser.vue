@@ -71,13 +71,6 @@ export default {
     getPartData() {
       productionPart.search(this.ProdPartNoFilter, null, null, this.fliterNoMfp).then(response => {
         this.partData = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     handleFilter() {

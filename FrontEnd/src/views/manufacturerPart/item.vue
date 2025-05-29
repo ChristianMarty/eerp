@@ -158,13 +158,6 @@ export default {
         })
 
         this.setTitle()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

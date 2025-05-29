@@ -90,25 +90,11 @@ export default {
         this.postForm.SerialNumber = ''
         this.postForm.LocationNumber = response.LocationNumber
         this.postForm.CategoryId = response.CategoryId
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     onSubmit() {
       inventory.create(this.postForm).then(response => {
         this.$router.push('/inventory/item/' + response.ItemCode)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

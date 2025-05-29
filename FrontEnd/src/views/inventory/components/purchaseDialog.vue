@@ -154,13 +154,6 @@ export default {
     save() {
       inventory.purchase.save(this.$props.inventoryNumber, this.purchaseData).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     prepairLines(data) {

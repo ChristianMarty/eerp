@@ -172,13 +172,6 @@ export default {
       } else {
         stock.item.create(this.createParameter).then(response => {
           this.$router.push('/stock/item/' + response.ItemCode)
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }
     },

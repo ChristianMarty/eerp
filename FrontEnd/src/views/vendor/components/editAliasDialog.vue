@@ -51,13 +51,6 @@ export default {
       } else {
         vendor.alias.search(this.$props.aliasId).then(response => {
           this.aliasData = response
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }
     },
@@ -74,13 +67,6 @@ export default {
 
       vendor.alias.save(saveParameters).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

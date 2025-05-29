@@ -174,20 +174,6 @@ export default {
           this.assemblyData = response
           this.assemblyCreateData = Object.assign({}, assembly.assemblyCreate)
           this.unitCreateVisible = false
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
-        })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
         })
       })
     }

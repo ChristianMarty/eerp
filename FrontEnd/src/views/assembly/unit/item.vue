@@ -212,13 +212,6 @@ export default {
         this.editHistoryVisible = false
         this.editHistoryData = {}
         this.getAssemblyItem()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     updateHistoryItem() {
@@ -236,13 +229,6 @@ export default {
         this.editHistoryVisible = false
         this.editHistoryData = {}
         this.getAssemblyItem()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     getHistoryData(AssemblyUnitHistoryNumber) {
@@ -284,13 +270,6 @@ export default {
     },
     print() {
       print.print(this.selectedRendererId, this.selectedPrinterId, [this.$route.params.AssemblyUnitNumber]).then(response => {
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPrinter() {
@@ -298,25 +277,11 @@ export default {
         this.selectedPrinterId = defaultSetting.defaultSetting().Assembly.Renderer.Item.PeripheralId
         this.selectedRendererId = defaultSetting.defaultSetting().Assembly.Renderer.Item.RendererId
         this.printerList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getRenderer() {
       renderer.list(true, renderer.Dataset.AssemblyUnit).then(response => {
         this.rendererList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

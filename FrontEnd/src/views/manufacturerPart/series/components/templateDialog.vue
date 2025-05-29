@@ -62,26 +62,12 @@ export default {
         this.data.SeriesNameMatch = response.SeriesNameMatch
         this.data.NumberTemplate = response.NumberTemplate
         this.data.Parameter = response.Parameter
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     save() {
       this.data.Parameter = JSON.parse(this.data.Parameter)
       manufacturerPart.series.template.save(this.data).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

@@ -97,13 +97,6 @@ export default {
       } else {
         vendor.contact.item(this.$props.contactId).then(response => {
           this.contactData = response
-        }).catch(response => {
-          this.$message({
-            showClose: true,
-            message: response,
-            duration: 0,
-            type: 'error'
-          })
         })
       }
     },
@@ -126,13 +119,6 @@ export default {
 
       vendor.contact.save(saveParameters).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

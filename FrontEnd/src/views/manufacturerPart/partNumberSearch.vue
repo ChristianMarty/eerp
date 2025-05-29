@@ -161,25 +161,11 @@ export default {
       manufacturerPart.PartNumber.search(this.searchParameters).then(response => {
         this.manufacturerParts = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getManufacturers() {
       vendor.search(false, true, false, false, false).then(response => {
         this.manufacturers = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     handleFilter() {

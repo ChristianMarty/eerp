@@ -65,13 +65,6 @@ export default {
         this.formData.WorkOrderCode = response.WorkOrderCode
         this.formData.Note = response.Note
         this.formData.Type = response.Type
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     close() {
@@ -82,13 +75,6 @@ export default {
     save() {
       stock.item.history.update(this.formData).then(response => {
         this.close()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -82,13 +82,6 @@ export default {
     getSummary() {
       location.summary(this.inputLocNr).then(response => {
         this.itemList = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
       this.inputItemNr = null
     }

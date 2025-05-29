@@ -93,13 +93,6 @@ export default {
         this.parentId = this.vendorData.ParentId
         if (this.parentId == null) this.hasParent = false
         else this.hasParent = true
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     save() {
@@ -122,13 +115,6 @@ export default {
 
       vendor.save(saveParameters).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

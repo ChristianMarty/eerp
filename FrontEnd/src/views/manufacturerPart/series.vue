@@ -44,13 +44,6 @@ export default {
       manufacturerPart.series.search().then(response => {
         this.manufacturerPartSeriesData = response
         this.loading = false
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

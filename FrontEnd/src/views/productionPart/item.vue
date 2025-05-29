@@ -330,25 +330,11 @@ export default {
       productionPart.item(this.$route.params.productionPartNumber, this.hideEmptyStock).then(response => {
         this.partData = response
         this.getPurchaseOrder()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPurchaseOrder() {
       purchase.productionPartPurchase(this.$route.params.productionPartNumber).then(response => {
         this.purchaseOrder = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     setTitle() {

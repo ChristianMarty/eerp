@@ -126,13 +126,6 @@ export default {
         this.visible = false
         this.$emit('update:visible', this.visible)
         this.$emit('change')
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getDocuments() {
@@ -142,13 +135,6 @@ export default {
       }
       document.attachment.search(attachSearchParameters).then(response => {
         this.selectedDocuments = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getDocumentOptions() {
@@ -157,13 +143,6 @@ export default {
         this.documentOptions.forEach((el, index) => {
           el.Selected = false
           this.documentOptions[index] = el
-        })
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
         })
       })
     }

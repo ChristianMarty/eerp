@@ -74,13 +74,6 @@ export default {
 
       inventory.accessory.save(this.accessoryData).then(response => {
         this.closeDialog()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 1500,
-          type: 'error'
-        })
       })
     },
     closeDialog() {

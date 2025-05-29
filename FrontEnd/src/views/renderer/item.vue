@@ -95,25 +95,11 @@ export default {
       renderer.item(this.labelId).then(response => {
         this.labelData = response
         this.prepairData()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getPrinter() {
       peripheral.list(peripheral.Type.Printer).then(response => {
         this.printer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     updateCode() {
@@ -144,13 +130,6 @@ export default {
     print() {
       printer.print('raw', this.labelData.Language, this.selectedPrinterId, this.code).then(response => {
         this.printer = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

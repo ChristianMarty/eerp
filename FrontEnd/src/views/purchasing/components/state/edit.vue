@@ -291,19 +291,9 @@ export default {
         type: 'success'
       })
     },
-    showErrorMessage(message) {
-      this.$message({
-        showClose: true,
-        message: message,
-        duration: 0,
-        type: 'error'
-      })
-    },
     saveLines() {
       purchase.item.line.save(this.$props.orderData.ItemCode, this.poData.Lines).then(response => {
         this.showSuccessMessage()
-      }).catch(response => {
-        this.showErrorMessage(response)
       })
     },
     saveAdditionalCharges() {
@@ -312,8 +302,6 @@ export default {
         this.itemLineIndex = this.poData.Lines.length
         this.additionalChargesLineIndex = this.poData.AdditionalCharges.length
         this.showSuccessMessage()
-      }).catch(response => {
-        this.showErrorMessage(response)
       })
     },
     reorderItemLines() {
@@ -341,25 +329,11 @@ export default {
         this.itemLineIndex++
         this.additionalChargesLineIndex++
         this.getImportApiInfo()
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     },
     getImportApiInfo() {
       vendor.api.information(this.$props.orderData.SupplierId).then(response => {
         this.apiInfo = response
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }

@@ -90,13 +90,6 @@ export default {
       metrology.testSystem.item(this.$route.params.TestSystemNumber, this.date).then(response => {
         this.testSystemData = response
         this.prepareLines(this.testSystemData.Item)
-      }).catch(response => {
-        this.$message({
-          showClose: true,
-          message: response,
-          duration: 0,
-          type: 'error'
-        })
       })
     }
   }
