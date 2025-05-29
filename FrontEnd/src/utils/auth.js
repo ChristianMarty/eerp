@@ -1,15 +1,11 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'Admin-Token'
+const TokenKey = 'PHPSESSID'
 
-export function getToken() {
+export function getSession() {
   return Cookies.get(TokenKey)
 }
 
-export function setToken(token) {
-  return Cookies.set(TokenKey, token)
-}
-
-export function removeToken() {
+export function removeSession() {
   return Cookies.remove(TokenKey)
 }

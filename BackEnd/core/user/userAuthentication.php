@@ -105,9 +105,9 @@ class userAuthentication
 
     function showPhpErrors(): bool
     {
-        global $devMode;
-        if($devMode) return true;
-
+        if($this->loggedIn()){
+            return $_SESSION['user']->rights->rights->error->php;
+        }
         return false;
     }
 

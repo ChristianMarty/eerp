@@ -1,15 +1,16 @@
 import { User } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getSession, removeSession } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
 const user = new User()
 
 const state = {
-  token: getToken(),
+  token: getSession(),
   name: '',
   roles: [],
   settings: {},
-  idempotency: '1234'
+  idempotency: '1234',
+  authenticated: false
 }
 
 const mutations = {
@@ -27,6 +28,9 @@ const mutations = {
   },
   SET_IDEMPOTENCY: (state, idempotency) => {
     state.idempotency = idempotency
+  },
+  SET_AUTHENTICATED: (state, authenticated) => {
+    state.authenticated = authenticated
   }
 }
 
@@ -37,7 +41,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       user.login(username.trim(), password).then(response => {
         commit('SET_TOKEN', response.token)
-        setToken(response.token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -47,6 +50,10 @@ const actions = {
 
   setIdempotency({ commit }, idempotency) {
     commit('SET_IDEMPOTENCY', idempotency.idempotency)
+  },
+
+  setAuthenticated({ commit }, authenticated) {
+    commit('SET_AUTHENTICATED', authenticated.authenticated)
   },
 
   // get user info
@@ -83,7 +90,7 @@ const actions = {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         commit('SET_SETTINGS', {})
-        removeToken()
+        removeSession()
         resetRouter()
 
         // reset visited views and cached views
@@ -103,7 +110,7 @@ const actions = {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
       commit('SET_SETTINGS', {})
-      removeToken()
+      removeSession()
       resolve()
     })
   },
@@ -113,7 +120,6 @@ const actions = {
     const token = role + '-token'
 
     commit('SET_TOKEN', token)
-    setToken(token)
 
     const { roles } = await dispatch('getInfo')
 

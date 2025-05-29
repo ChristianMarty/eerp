@@ -108,8 +108,7 @@ class apiRouter
             if (isset($headers['idempotency-key'])) {
                 $idempotencyToken = $headers['idempotency-key'];
             }
-            global $devMode;
-            if ($this->method === apiMethod::POST && !$devMode && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php' && $filePath != __DIR__.'/../apiFunctions/purchasing/item/upload.php')
+            if ($this->method === apiMethod::POST && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php' && $filePath != __DIR__.'/../apiFunctions/purchasing/item/upload.php')
 			{
                 if ($idempotencyToken !== $_SESSION['idempotency']) {
                     $this->returnError("Idempotency key expired.");
@@ -214,19 +213,10 @@ class apiRouter
     {
         header("Content-Type:application/json; charset=UTF-8");
 
-        global $devMode;
         global $user;
 
-        if($devMode)
-        {
-            $loginState = true;
-            $_SESSION['idempotency'] = "abcdefghijklmnopqrstuvwxyz";
-        }
-        else
-        {
-            if(!isset($_SESSION['idempotency'])) $_SESSION['idempotency'] = self::generateIdempotenceToken();
-            $loginState = $user->loggedIn();
-        }
+        if(!isset($_SESSION['idempotency'])) $_SESSION['idempotency'] = self::generateIdempotenceToken();
+        $loginState = $user->loggedIn();
 
         $response['data'] = $data;
         $response['error'] = $errorMessage;
@@ -234,8 +224,7 @@ class apiRouter
         $response['idempotency'] = $_SESSION['idempotency'];
 
         $json_response = json_encode($response);
-        if(!$json_response)
-        {
+        if(!$json_response) {
             $errorResponse['error'] = "JSON encoding error";
 
             echo json_encode($errorResponse);

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MessageBox } from 'element-ui'
+import { Message, MessageBox } from 'element-ui'
 import store from '@/store'
 
 // create an axios instance
@@ -11,14 +11,12 @@ const eerpApi = axios.create({
 // request interceptor
 eerpApi.interceptors.request.use(
   config => {
-    // do something before request is sent
     if (store.getters.idempotency) {
       config.headers['Idempotency-Key'] = store.getters.idempotency
     }
     return config
   },
   error => {
-    // do something with request error
     return Promise.reject(error)
   }
 )
@@ -38,22 +36,27 @@ eerpApi.interceptors.response.use(
   response => {
     const res = response.data
 
+    let authenticated = res.authenticated
+    if (authenticated !== true) {
+      authenticated = false
+    }
+
+    store.dispatch('user/setAuthenticated', {
+      authenticated: authenticated
+    })
+
+    if (!authenticated) {
+      store.dispatch('user/resetToken').then(() => {
+        location.reload()
+      })
+    }
+
     if (res.idempotency) {
       store.dispatch('user/setIdempotency', {
         idempotency: res.idempotency
       })
     }
 
-    if (res.authenticated === false) {
-      // to re-login
-      MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-        confirmButtonText: 'Re-Login',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }).then(() => {
-        store.dispatch('user/resetToken').then(() => {
-          location.reload()
-        })
     if (res.error) {
       Message({
         showClose: true,

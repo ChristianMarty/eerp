@@ -53,7 +53,4 @@ $defaultLocationBarcode = 'Loc-00000';
 $vendorId = 161;
 $addressId = 1;
 
-$showPhpError = true;
-$devMode = true; // If true-> Disables user authentication
-
 ?>
