@@ -40,7 +40,7 @@ function save_line($purchaseOrderNumber, $line): int
     else $sqlData['Price'] = $line['Price'];
 
     $sqlData['SpecificationPartRevisionId'] = null;
-   if($line['SpecificationPartRevisionCode'] !== null) {
+   if(array_key_exists('SpecificationPartRevisionCode', $line) && $line['SpecificationPartRevisionCode'] !== null) {
         $specificationPartNumber = barcodeParser_SpecificationPart($line['SpecificationPartRevisionCode']);
         $specificationPartRevision = barcodeParser_SpecificationPartRevision($line['SpecificationPartRevisionCode']);
         if($specificationPartNumber !== null and $specificationPartRevision !== null) {
