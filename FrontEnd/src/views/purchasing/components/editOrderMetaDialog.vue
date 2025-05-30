@@ -17,8 +17,8 @@
         size="mini"
         label-width="220px"
       >
-        <el-form-item label="Titel:">
-          <el-input v-model="dialogData.Title" style="width: 350px" placeholder="Titel" />
+        <el-form-item label="Title:">
+          <el-input v-model="dialogData.Title" style="width: 350px" placeholder="Title" />
         </el-form-item>
 
         <el-form-item label="Supplier:">

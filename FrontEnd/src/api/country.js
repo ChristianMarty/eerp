@@ -2,7 +2,7 @@ import eerpApi from '@/api/apiQuery'
 
 class Country {
   /* Country *************************************************
- get Countrys
+ get Country
   **********************************************************/
   search() {
     return new Promise((resolve, reject) => {

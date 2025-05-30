@@ -16,7 +16,7 @@
       :cell-class-name="tableAnalyzer"
     >
       <el-table-column prop="LineNumber" label="Line" width="70" />
-      <el-table-column prop="QuantityOrdered" label="Orderd Qty" width="100" />
+      <el-table-column prop="QuantityOrdered" label="Ordered Qty" width="100" />
       <el-table-column prop="QuantityReceived" label="Received Qty" width="120" />
       <el-table-column prop="AddedStockQuantity" label="Add Stock Qty" width="120" />
       <el-table-column prop="ReceivalDate" label="Receival Date" width="120" />

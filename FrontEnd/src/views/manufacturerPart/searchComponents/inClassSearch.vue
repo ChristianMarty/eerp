@@ -112,7 +112,7 @@
           :label="getAttributeColumnName(attribute)"
           :prop="attribute.Name"
           sortable
-          :formatter="siRowFormater"
+          :formatter="siRowFormatter"
           :sort-method="tableSort(attribute.Name)"
         />
 
@@ -236,7 +236,7 @@ export default {
         return valA - valB
       }
     },
-    siRowFormater(row, column, cellValue, index) {
+    siRowFormatter(row, column, cellValue, index) {
       return siFormatter(cellValue, '')
     }
 

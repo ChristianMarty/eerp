@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h1>Create New Purchas Order</h1>
+    <h1>Create New Purchase Order</h1>
 
     <el-divider />
     <el-form
@@ -86,7 +86,7 @@ export default {
       if (this.isValid() === false) {
         this.$message({
           showClose: true,
-          message: 'Input Invalide',
+          message: 'Input Invalid',
           duration: 3,
           type: 'error'
         })

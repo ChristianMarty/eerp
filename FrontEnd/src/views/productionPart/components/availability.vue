@@ -71,7 +71,7 @@ import ProductionPart from '@/api/productionPart'
 const productionPart = new ProductionPart()
 
 export default {
-  name: 'ProducktionPartAvailability',
+  name: 'ProductionPartAvailability',
   directives: { permission },
 
   props: {

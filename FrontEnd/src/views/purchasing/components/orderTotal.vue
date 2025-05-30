@@ -14,7 +14,7 @@
 
 <script>
 
-const emptyToatl = {
+const emptyTotal = {
   Net: 0,
   Discount: 0,
   AdditionalCharges: 0,
@@ -25,7 +25,7 @@ const emptyToatl = {
 
 export default {
   name: 'OrderTotal',
-  props: { total: { type: Object, default() { return emptyToatl } }},
+  props: { total: { type: Object, default() { return emptyTotal } }},
   data() {
     return {
     }
