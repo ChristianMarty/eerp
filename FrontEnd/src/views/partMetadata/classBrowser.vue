@@ -12,11 +12,11 @@
         border
         :tree-props="{ children: 'Children' }"
       >
-        >
         <el-table-column prop="Name" label="Name" />
         <el-table-column prop="Prefix" label="Prefix" />
         <el-table-column prop="Id" label="Id" />
-        </el-table-column></el-table></template>
+      </el-table>
+    </template>
   </div>
 </template>
 
