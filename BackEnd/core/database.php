@@ -207,6 +207,23 @@ class database
         }
     }
 
+    public function delete(string $tableName, string|null $condition = null): void
+    {
+        if($condition === null OR strlen($condition) == 0){
+            trigger_error("DB Delete -> will not run delete without condition", E_USER_ERROR);
+            return;
+        }
+
+        $query = "DELETE FROM $tableName WHERE  $condition;";
+
+        try {
+            $this->pdo->exec($query);
+        }
+        catch (PDOException $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     static public function toBool(int &$value):void
     {
         if($value != 0) $value = true;

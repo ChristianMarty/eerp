@@ -265,7 +265,7 @@ class apiRouter
 
     #[NoReturn] function returnParameterError(string $parameterName): void
     {
-        $this->returnData(null, $parameterName." is invalid");
+        $this->returnData(null, "Parameter Error: ".$parameterName);
     }
 
     #[NoReturn] function returnError(string|null $errorMessage = null): void

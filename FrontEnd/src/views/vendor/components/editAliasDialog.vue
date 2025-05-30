@@ -17,6 +17,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save()">Save</el-button>
+          <el-button type="danger" @click="deleteAlias()">Delete</el-button>
           <el-button @click="closeDialog()">Cancel</el-button>
         </el-form-item>
       </el-form>
@@ -67,6 +68,17 @@ export default {
 
       vendor.alias.save(saveParameters).then(response => {
         this.closeDialog()
+      })
+    },
+    deleteAlias() {
+      this.$confirm('This will permanently delete this vendor alias. Continue?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        vendor.alias.delete(this.$props.aliasId).then(response => {
+          this.closeDialog()
+        })
       })
     },
     closeDialog() {

@@ -83,4 +83,16 @@ class alias
             throw new \Exception($e->getMessage());
         }
     }
+
+    static function deleteAlias(int $aliasId):void
+    {
+        global $database;
+        try {
+            $database->delete("vendor_alias", "Id = {$aliasId}");
+        }
+        catch (\Exception $e)
+        {
+            throw new \Exception($e->getMessage());
+        }
+    }
 }

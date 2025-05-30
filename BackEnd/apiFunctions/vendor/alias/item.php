@@ -51,3 +51,16 @@ else if($api->isPatch())
     }
     $api->returnEmpty();
 }
+else if($api->isDelete())
+{
+    $data = $api->getPostData();
+    if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
+    if(!is_int($data->AliasId))$api->returnParameterError("AliasId is not a integer");
+
+    try {
+        vendor\alias::deleteAlias($data->AliasId);
+    } catch (\Exception $e) {
+        $api->returnError($e->getMessage());
+    }
+    $api->returnEmpty();
+}

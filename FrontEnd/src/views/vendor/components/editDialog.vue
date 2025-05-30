@@ -71,7 +71,7 @@ const vendor = new Vendor()
 export default {
   name: 'VendorEdit',
   props: {
-    VendorId: { type: Number, default: 0 },
+    vendorId: { type: Number, default: 0 },
     visible: { type: Boolean, default: false }
   },
   data() {
@@ -86,7 +86,7 @@ export default {
   },
   methods: {
     async onOpen() {
-      this.vendorData = await vendor.item(this.$props.VendorId)
+      this.vendorData = await vendor.item(this.$props.vendorId)
 
       vendor.search(null, null, null, null, null, true).then(response => {
         this.suppliers = response
@@ -100,7 +100,7 @@ export default {
       if (this.hasParent) parentId = Number(this.parentId)
 
       const saveParameters = {
-        VendorId: this.$props.VendorId,
+        VendorId: this.$props.vendorId,
         ParentId: parentId,
         FullName: this.vendorData.FullName,
         ShortName: this.vendorData.ShortName,

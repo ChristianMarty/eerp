@@ -17,19 +17,20 @@ if($api->isGet("vendor.view"))
 
 	$query = <<< QUERY
         SELECT
-            Id,
+            vendor.Id,
             FullName,
             ShortName,
             AbbreviatedName,
-            vendor_displayName(Id) as DisplayName,
+            vendor_displayName(vendor.Id) AS DisplayName,
             IsSupplier,
             IsManufacturer,
             IsContractor,
             IsCarrier,
             IsCustomer,
-            Note,
-            ParentId
+            ParentId,
+            GROUP_CONCAT(vendor_alias.Name) AS AliasName
         FROM vendor
+        LEFT JOIN vendor_alias on vendor.Id = vendor_alias.VendorId
     QUERY;
 
     $queryParam = [];
@@ -39,15 +40,15 @@ if($api->isGet("vendor.view"))
     if($parameter->Carrier??false === true) $queryParam[] = "IsCarrier = b'1'";
     if($parameter->Customer??false === true) $queryParam[] = "IsCustomer = b'1'";
 
-    $data = $database->query($query,$queryParam, " ORDER BY `FullName` ASC ");
+    $data = $database->query($query,$queryParam, " GROUP BY vendor.Id ORDER BY `FullName` ASC ");
 
-    foreach ($data as &$line)
-	{
+    foreach ($data as &$line) {
         Database::toBool($line->IsSupplier);
         Database::toBool($line->IsManufacturer);
         Database::toBool($line->IsContractor);
         Database::toBool($line->IsCarrier);
         Database::toBool($line->IsCustomer);
+        $line->AliasName = str_replace(",", "; ", $line->AliasName??"");
 	}
 
     $output = [];

@@ -149,6 +149,23 @@ class Vendor {
           }
         })
       })
+    },
+    delete(AliasId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'delete',
+          url: '/vendor/alias/item',
+          data: {
+            AliasId: AliasId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
     }
   }
 
