@@ -17,10 +17,10 @@ if($api->isGet())
 {
     $data = $api->getGetData();
     if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
+    if(!is_int($data->AliasId))$api->returnParameterError("AliasId is not a integer");
 
-    $aliasId = intval($data->AliasId);
     try {
-        $alias = vendor\alias::alias($aliasId);
+        $alias = vendor\alias::alias($data->AliasId);
     } catch (\Exception $e) {
         $api->returnError($e->getMessage());
     }
@@ -31,9 +31,10 @@ else if($api->isPost())
     $data = $api->getPostData();
     if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
     if(!isset($data->Name))$api->returnParameterMissingError("Name");
+    if(!is_int($data->VendorId))$api->returnParameterError("VendorId is not a integer");
 
     try {
-        vendor\alias::createAlias(intval($data->VendorId),$data->Name, $data->Note??null);
+        vendor\alias::createAlias($data->VendorId, $data->Name, $data->Note??null);
     } catch (\Exception $e) {
         $api->returnError($e->getMessage());
     }
@@ -43,9 +44,10 @@ else if($api->isPatch())
 {
     $data = $api->getPostData();
     if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
+    if(!is_int($data->AliasId))$api->returnParameterError("AliasId is not a integer");
 
     try {
-        vendor\alias::updateAlias(intval($data->AliasId),$data->Name??"", $data->Note??null);
+        vendor\alias::updateAlias($data->AliasId,$data->Name??"", $data->Note??null);
     } catch (\Exception $e) {
         $api->returnError($e->getMessage());
     }
