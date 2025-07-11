@@ -67,6 +67,12 @@ eerpApi.interceptors.response.use(
     }
 
     return res
+  }, error => {
+    if (error.response.status === 401) {
+      store.dispatch('user/resetToken').then(() => {
+        location.reload()
+      })
+    }
   }
 )
 
