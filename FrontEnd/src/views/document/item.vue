@@ -25,7 +25,7 @@
       </tr>
       <tr>
         <th style="text-align: left;">Created By</th>
-        <td>{{ documentData.CreatedBy }}</td>
+        <td>{{ documentData.CreatedByInitials }}</td>
       </tr>
       <tr>
         <th style="text-align: left;">Hash</th>

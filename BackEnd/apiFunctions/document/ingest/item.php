@@ -11,7 +11,7 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../_functions.php";
+require_once __DIR__ . "/../_document.php";
 
 if($api->isPost())
 {

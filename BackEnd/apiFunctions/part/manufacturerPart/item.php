@@ -13,7 +13,7 @@ global $api;
 
 require_once  "_function.php";
 require_once __DIR__ . "/../_part.php";
-require_once __DIR__ . "/../../util/_getDocuments.php";
+require_once __DIR__ . "/../../document/_document.php";
 
 if($api->isGet())
 {

@@ -12,7 +12,8 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/util/_barcodeFormatter.php";
-require_once __DIR__ . "/util/_getDocuments.php";
+require_once __DIR__ . "/document/_document.php";
+
 
 if($api->isGet("document.view"))
 {

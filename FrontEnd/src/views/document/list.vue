@@ -22,7 +22,7 @@
           sortable
         />
         <el-table-column prop="Type" label="Type" width="100" sortable />
-        <el-table-column prop="Path" label="Path">
+        <el-table-column prop="Path" label="Path" width="200">
           <template slot-scope="{ row }">
             <a :href="row.Path" target="blank">
               <el-button icon="el-icon-document">
@@ -31,6 +31,9 @@
             </a>
           </template>
         </el-table-column>
+        <el-table-column prop="Description" label="Description" />
+        <el-table-column prop="LinkType" label="Link" width="100" sortable />
+        <el-table-column prop="LinkType" label="Link" width="100" sortable />
         <el-table-column
           prop="CreationDate"
           label="Creation Date"

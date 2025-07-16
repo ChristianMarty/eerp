@@ -9,9 +9,10 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
-require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/item/_line.php";
+
+require_once __DIR__ . "/../document/_document.php";
 
 
 function getPurchaseOrderData($purchaseOrderNo): ?array

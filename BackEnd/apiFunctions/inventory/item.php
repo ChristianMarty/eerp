@@ -12,11 +12,13 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../location/_location.php";
-require_once __DIR__ . "/../util/_getDocuments.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/getPurchaseInformation.php";
+
+require_once __DIR__ . "/../location/_location.php";
+
+require_once __DIR__ . "/../document/_document.php";
 
 if($api->isGet())
 {

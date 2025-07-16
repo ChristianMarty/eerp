@@ -14,7 +14,7 @@ global $user;
 
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/_functions.php";
+require_once __DIR__ . "/_document.php";
 
 if($api->isGet())
 {
@@ -24,34 +24,10 @@ if($api->isGet())
     $documentNumber = barcodeParser_DocumentNumber($parameters->DocumentNumber);
     if($documentNumber == null) $api->returnParameterError("DocumentNumber");
 
-    $query = <<< QUERY
-        SELECT
-            document.Id,
-            DocumentNumber,
-            Path,
-            Name,
-            Description,
-            Type,
-            LinkType,
-            Hash,
-            user.UserId AS CreatedBy,
-            CreationDate
-        FROM document
-        LEFT JOIN user on document.CreationUserId = user.Id
-        WHERE DocumentNumber = '$documentNumber';
-    QUERY;
-	$output = $database->query($query);
 
-	if(count($output)== 0) $api->returnEmpty();
-	$output = $output[0];
+	$output = getDocumentFromDocumentNumber($documentNumber);
+    $output->Citations = getCitations($output->Id);
 
-    global $dataRootPath;
-	global $documentPath;
-    $output->Path = $dataRootPath.$documentPath."/".$output->Type."/".$output->Path;
-	$output->ItemCode  = barcodeFormatter_DocumentNumber($output->DocumentNumber);
-	$output->Citations = getCitations($output->Id);
-    $output->DocumentNumber = intval($output->DocumentNumber);
-    $output->Description = $output->Description??"";
     unset($output->Id);
 	
 	$api->returnData($output);

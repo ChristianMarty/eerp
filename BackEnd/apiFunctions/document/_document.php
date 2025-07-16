@@ -42,6 +42,128 @@ function checkFileNotDuplicate($path): ?array
 	return $retuning;
 }
 
+
+function _formatDocumentOutput(stdClass $item): stdClass
+{
+    global $dataRootPath;
+    global $documentPath;
+
+    $output = $item;
+
+    $output->File = $item->Path;
+    if($item->Name === null){
+        $output->Name = $item->Path;
+    }
+
+    $output->DocumentNumber = intval($item->DocumentNumber);
+    $output->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
+    $output->Description = $item->Description??'';
+
+    if($item->LinkType === "Internal") {
+        $output->Path = $dataRootPath . $documentPath . "/" . $item->Type . "/" . urlencode($item->Path);
+    }
+
+    return $output;
+}
+
+function getDocumentFromDocumentNumber(int|null $documentNumber): stdClass
+{
+    if($documentNumber === null) return new stdClass();
+
+    global $database;
+
+    $query = <<< QUERY
+        SELECT
+            document.Id,
+            DocumentNumber,
+            Path,
+            Type,
+            LinkType,
+            Name,
+            Hash,
+            Description,
+            user.Initials AS CreatedByInitials,
+            user.UserId AS CreatedByName,
+            CreationDate
+        FROM document
+        LEFT JOIN user on document.CreationUserId = user.Id
+        WHERE DocumentNumber = '$documentNumber';
+    QUERY;
+
+    $result = $database->query($query);
+
+    if(count($result)== 0) return new stdClass();
+    $result = $result[0];
+
+    return _formatDocumentOutput($result);
+}
+
+function getDocumentsFromIds(string|null $documentIds): array
+{
+    if($documentIds === null) return [];
+    $documentIds = trim($documentIds);
+    if(strlen($documentIds) === 0) return [];
+
+    global $database;
+
+    $docIds = explode(",", $documentIds);
+    if (empty($docIds)) return [];
+    $idList = implode(", ", $docIds);
+
+    $query = <<< QUERY
+        SELECT
+            document.Id,
+            DocumentNumber,
+            Path,
+            Type,
+            LinkType,
+            Name,
+            Hash,
+            Description,
+            user.Initials AS CreatedByInitials,
+            user.UserId AS CreatedByName,
+            CreationDate
+        FROM document
+        LEFT JOIN user on document.CreationUserId = user.Id
+        WHERE document.Id IN($idList)
+        ORDER BY document.Id DESC;
+    QUERY;
+
+    $result = $database->query($query);
+
+    foreach($result as &$item){
+        $item = _formatDocumentOutput($item);
+    }
+    return $result;
+}
+
+function getDocuments(): array
+{
+    global $database;
+    $query = <<< QUERY
+        SELECT 
+            DocumentNumber,
+            Path,
+            Type,
+            LinkType,
+            Name,
+            Hash,
+            Description,
+            user.Initials AS CreatedByInitials,
+            user.UserId AS CreatedByName,
+            CreationDate
+        FROM document
+        LEFT JOIN user on document.CreationUserId = user.Id
+        ORDER BY CreationDate DESC
+    QUERY;
+    $result = $database->query($query);
+
+    foreach($result as &$item){
+        $item = _formatDocumentOutput($item);
+    }
+    return $result;
+}
+
 function getCitations($documentId): array
 {
     global $database;

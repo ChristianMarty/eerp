@@ -12,7 +12,7 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../_functions.php";
+require_once __DIR__ . "/../../_document.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
 require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
