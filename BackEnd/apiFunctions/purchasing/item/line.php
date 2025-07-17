@@ -100,7 +100,7 @@ function save_line($purchaseOrderNumber, $line): int
     return $lineId;
 }
 
-function update_costCenter($lineId, $costCenterList): void
+function update_costCenter(int $lineId, array | null $costCenterList): void
 {
     global $database;
     global $user;
@@ -109,6 +109,8 @@ function update_costCenter($lineId, $costCenterList): void
             DELETE FROM purchaseOrder_itemOrder_costCenter_mapping WHERE ItemOrderId = $lineId
     STR;
     $database->execute($query);
+
+    if($costCenterList === null) return;
 
     foreach ($costCenterList as $cc)
     {
