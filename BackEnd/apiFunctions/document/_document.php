@@ -1,6 +1,6 @@
 <?php
 //*************************************************************************************************
-// FileName : _functions.php
+// FileName : _document.php
 // FilePath : apiFunctions/document/
 // Author   : Christian Marty
 // Date		: 01.08.2020
@@ -344,7 +344,7 @@ function ingest(array|stdClass $data): null|int|array
         return array('error' => "File already exists as ".$fileHashCheck['path']." with type ".$fileHashCheck['type']);
     }
 
-    if(!rename($src, $dst)) return array('error' => "File copy failed.");
+    $database->beginTransaction();
 
     $sqlData = array();
     $sqlData['Path'] = $dstFileName;
@@ -356,5 +356,19 @@ function ingest(array|stdClass $data): null|int|array
     $sqlData['CreationUserId'] = $user->userId();;
     $sqlData['DocumentNumber']['raw'] = "(SELECT generateItemNumber())";
 
-    return $database->insert("document", $sqlData);
+    try {
+        $documentId = $database->insert("document", $sqlData);
+    } catch (PDOException $e) {
+        $database->rollBackTransaction();
+        return array('error' => $e->getMessage() );
+    }
+
+    if(!rename($src, $dst)){
+        $database->rollBackTransaction();
+        return array('error' => "File copy failed.");
+    }
+
+    $database->commitTransaction();
+
+    return $documentId;
 }
