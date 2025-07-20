@@ -156,10 +156,9 @@ else if($api->isPost() OR $api->isPatch())
 
     $lines = $api->getPostData();
 
-    foreach ($lines->Lines as $line)
-    {
+    foreach ($lines->Lines as $line) {
         $lineId = save_line($purchaseOrderNumber, $line);
-        update_costCenter($lineId, $line->CostCenter);
+        update_costCenter($lineId, $line->CostCenter??null);
     }
 
     $api->returnEmpty();

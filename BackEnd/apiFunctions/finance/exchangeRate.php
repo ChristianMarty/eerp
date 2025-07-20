@@ -37,7 +37,7 @@ if($api->isGet()) {
     if ($targetCurrencyCode == $sourceCurrencyCode) $data['ExchangeRate'] = 1.0;
     else $data['ExchangeRate'] = ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
 
-    if ($data['ExchangeRate'] == null) $api->returnError("Unable to retrieve exchange rate");
+    if ($data['ExchangeRate'] === null) $api->returnError("Unable to retrieve exchange rate");
 
     $data['From'] = $sourceCurrencyCode;
     $data['To'] = $targetCurrencyCode;

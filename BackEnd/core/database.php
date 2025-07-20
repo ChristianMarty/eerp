@@ -135,16 +135,12 @@ class database
         foreach ($data as $key => $value)
         {
             $keys .= "`".$key."`, ";
-            if(is_array($value))
-            {
+            if(is_array($value)) {
                 $values .= $value['raw'].", ";
-            }
-            else if(is_bool($value)){
+            } else if(is_bool($value)) {
                 if($value) $values .= "b'1',";
                 else $values .=  "b'0',";
-            }
-            else
-            {
+            } else {
                 if($value === null) $values .= "NULL, ";
                 else $values .= $this->pdo->quote(strval($value)).", ";
             }

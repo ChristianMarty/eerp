@@ -30,9 +30,8 @@ function seriesDataFromNumber(int $vendorId, string $partNumber) :array | null
 
     if(count($result) == 0) return null;
 
-    foreach ($result as $r)
-    {
-        if( preg_match($r->SeriesNameMatch, trim($partNumber)))
+    foreach ($result as $r) {
+        if($r->SeriesNameMatch !== null &&  preg_match($r->SeriesNameMatch, trim($partNumber)))
         {
             return (array)$r;
         }

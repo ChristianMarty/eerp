@@ -10,18 +10,16 @@
 
 require_once __DIR__ . "/../../config.php";
 
-function ecb_getExchangeRate(string $sourceCurrencyCode, string $targetCurrencyCode): float
+function ecb_getExchangeRate(string $sourceCurrencyCode, string $targetCurrencyCode): float|null
 {
 	$euroRate = ecb_getEcdData($sourceCurrencyCode, "EUR");
+    if($euroRate == null) return null;
 	
 	// The ECB API can only convert from/to Euro. Therefore, this additional step is needed
-	if($targetCurrencyCode != "EUR")
-	{
+	if($targetCurrencyCode != "EUR") {
 		$otherRate = ecb_getEcdData($targetCurrencyCode, "EUR");
         return (1/$euroRate) * $otherRate;
-	}
-	else
-	{
+	} else {
 		return 1/$euroRate;
 	}
 }

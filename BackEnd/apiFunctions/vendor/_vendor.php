@@ -19,7 +19,7 @@ class vendor
         global $user;
 
         $insertData = [];
-        $insertData['FullName'] = $fullName;
+        $insertData['FullName'] = trim($fullName);
         $insertData['IsSupplier']  = $isSupplier;
         $insertData['IsManufacturer']  = $isManufacturer;
         $insertData['IsContractor'] = $isContractor;

@@ -141,7 +141,7 @@
             <el-option
               v-for="item in specificationPart"
               :key="item.ItemCode"
-              :label="item.ItemCode+' - '+item.Description"
+              :label="item.ItemCode+' - '+item.Type	+' - '+item.Description"
               :value="item.ItemCode"
             />
           </el-select>
