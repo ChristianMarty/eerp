@@ -10,6 +10,7 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
 if($api->isGet())
 {
@@ -56,6 +57,7 @@ else if($api->isPost())
     $insertData['City'] = $data->City;
     $insertData['VatTaxNumber'] = $data->VatTaxNumber;
     $insertData['CustomsAccountNumber'] = $data->CustomsAccountNumber;
+    $insertData['CreationUserId'] = $user->userId();
 
     try {
         $database->insert("vendor_address", $insertData);

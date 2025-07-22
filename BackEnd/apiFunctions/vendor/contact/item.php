@@ -43,12 +43,11 @@ else if($api->isPost())
     $vendorId= intval($data->VendorId);
 
     try {
-        vendor\contact::createContact(intval($data->VendorId),$data);
+        vendor\contact::createContact($vendorId, $data);
     } catch (\Exception $e) {
         $api->returnError($e->getMessage());
     }
     $api->returnEmpty();
-
 }
 else if($api->isPatch())
 {
@@ -57,7 +56,7 @@ else if($api->isPatch())
     $contactId= intval($data->ContactId);
 
     try {
-        vendor\alias::updateContact($contactId,$data);
+        vendor\contact::updateContact($contactId, $data);
     } catch (\Exception $e) {
         $api->returnError($e->getMessage());
     }

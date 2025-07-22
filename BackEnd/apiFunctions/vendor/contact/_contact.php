@@ -65,7 +65,7 @@ class contact
     {
         global $database;
         try {
-            return $database->insert("vendor_contact", self::inputDataVerification($data));
+            return $database->insert("vendor_contact", self::inputDataVerification($data, true));
         }
         catch (\Exception $e)
         {
@@ -85,7 +85,7 @@ class contact
         }
     }
 
-    static private function inputDataVerification(\stdClass $data):array
+    static private function inputDataVerification(\stdClass $data, bool $isCreate = false):array
     {
         $outputData = [];
         $outputData['VendorId'] = intval($data->VendorId);
@@ -97,6 +97,10 @@ class contact
         $outputData['Language'] = $data->Language;
         $outputData['Phone'] = $data->Phone;
         $outputData['EMail'] = $data->EMail;
+        if ($isCreate) {
+            global $user;
+            $outputData['CreationUserId'] = $user->userId();
+        }
 
         return $outputData;
     }
