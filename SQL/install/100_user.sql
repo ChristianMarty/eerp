@@ -1,16 +1,16 @@
-CREATE TABLE IF NOT EXISTS `user` (
+CREATE TABLE `user` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `UserId` char(50) NOT NULL DEFAULT '',
-  `Initials` CHAR(3) NOT NULL DEFAULT '',
-  `Roles` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '',
-  `Settings` longtext NOT NULL DEFAULT '',
+  `UserId` char(50) NOT NULL,
+  `Initials` CHAR(3) NOT NULL,
+  `Roles` longtext NOT NULL DEFAULT '{}',
+  `Settings` longtext NOT NULL DEFAULT '{}',
   `Token` char(255) DEFAULT NULL,
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UserId` (`UserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `UserId` (`UserId`),
+  UNIQUE KEY `Initials` (`Initials`)
+);
 
+INSERT INTO `user` (`Id`, `UserId`, `Initials`) VALUES
+  (1, 'System', 'SYS');
 
-INSERT INTO `user` (`Id`, `UserId`, `Initials`, `Roles`, `Settings`, `Token`) VALUES 
-	(1, 'admin', 'AD', '{ \r\n"error":{"php": true},\r\n"assembly":{"view": true, "create": true, "unit" : {"add": true, "history" : {"add": true, "edit": true}}},\r\n"inventory":{"view": true, "print": true,"create": true, "history" : {"add": true, "edit": true}, "accessory": {"add": true, "edit": true}, "purchase": {"view": true, "edit": true}},\r\n"metrology":{"view": true, "testSystem":{"view": true, "create": true}},\r\n"purchasing":{"view": true, "create": true, "edit": true, "confirm": true},\r\n"vendor":{"view": true, "create": true, "edit": true},\r\n"project":{"view": true},\r\n"supplierPart":{"view": true, "create": true, "edit": true},\r\n"document":{"view": true, "upload": true, "create": true, "ingest": true},\r\n"manufacturerPartSeries":{"view": true, "create": true,"edit": true},\r\n"manufacturerPart":{"view": true, "create": true,"edit": true},\r\n"manufacturerPartNumber":{"view": true, "create": true,"edit": true},\r\n"productionPart":{"view": true, "create": true,"edit": true},\r\n"specificationPart":{"view": true, "create": true,"edit": true},\r\n"stock":{"view":true, "create": true, "edit": true, "add": true, "remove":true, "count":true, "delete":true, "countingRequest": true}, \r\n"location":{"view": true, "transfer":true, "bulkTransfer":true, "edit": true, "print": true},\r\n"finance":{"view":true, "costCenter":true},\r\n"billOfMaterial":{"view": true, "create": true, "print":true},\r\n"workOrder":{"view": true, "create": true, "edit": true},\r\n"process":{"view": true, "run": true},\r\n"report":{"view": true, "run": true},\r\n"renderer":{"view": true, "create": true, "edit": true}\r\n}', '{\r\n"Default": {\r\n        "Stock": {\r\n                 "Renderer": {\r\n                        "Item":{"PeripheralId": 3, "RendererId": 4}, \r\n                        "History":{"PeripheralId": 2, "RendererId": 8},\r\n                        "Receipt":{"PeripheralId": 2, "RendererId": 11} \r\n                },\r\n                "Measurement":{\r\n                               "CountingScale": {"PeripheralId": 4}\r\n                }\r\n        },\r\n        "Assembly":{\r\n                "Renderer": {\r\n                        "Item":{"PeripheralId": 2, "RendererId": 12}, \r\n                        "History":{"PeripheralId": 2, "RendererId": 3}\r\n                }\r\n        },\r\n        "PurchaseOrder": {\r\n                         "UnitOfMeasurementId": 29, \r\n                         "ValueAddedTaxId": 5\r\n        },\r\n        "Location": {\r\n                 "Renderer": {\r\n                        "InventoryList":{"PeripheralId": 2, "RendererId": 17}\r\n                }\r\n        }\r\n}\r\n}', '')
-;
 

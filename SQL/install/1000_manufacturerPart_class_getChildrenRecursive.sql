@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `manufacturerPart_class_getChildrenRecursive`(
-	IN `partClassId` INT
-)
+CREATE PROCEDURE `manufacturerPart_class_getChildrenRecursive`(IN `partClassId` INT)
 LANGUAGE SQL
 NOT DETERMINISTIC
 CONTAINS SQL

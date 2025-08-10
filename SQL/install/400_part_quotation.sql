@@ -14,17 +14,13 @@ CREATE TABLE `part_quotation` (
 	`Note` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
 	`CreationUserId` INT(10) UNSIGNED NOT NULL,
 	`CreationDate` DATETIME NOT NULL DEFAULT current_timestamp(),
-	PRIMARY KEY (`Id`) USING BTREE,
-	INDEX `FK_part_referencePrice_finance_currency` (`CurrencyId`) USING BTREE,
-	INDEX `FK_part_referencePrice_productionPart` (`ProductionPartId`) USING BTREE,
-	INDEX `FK_part_referencePrice_vendor` (`SupplierId`) USING BTREE,
-	INDEX `FK_part_quotation_user` (`CreationUserId`) USING BTREE,
+	PRIMARY KEY (`Id`),
+	INDEX `FK_part_referencePrice_finance_currency` (`CurrencyId`),
+	INDEX `FK_part_referencePrice_productionPart` (`ProductionPartId`),
+	INDEX `FK_part_referencePrice_vendor` (`SupplierId`),
+	INDEX `FK_part_quotation_user` (`CreationUserId`),
 	CONSTRAINT `FK_part_quotation_finance_currency` FOREIGN KEY (`CurrencyId`) REFERENCES `finance_currency` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT `FK_part_quotation_productionPart` FOREIGN KEY (`ProductionPartId`) REFERENCES `productionPart` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT `FK_part_quotation_user` FOREIGN KEY (`CreationUserId`) REFERENCES `user` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT `FK_part_quotation_vendor` FOREIGN KEY (`SupplierId`) REFERENCES `vendor` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=1
-;
+);

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `history_generateEditToken`()
+CREATE FUNCTION `history_generateEditToken`()
 RETURNS char(32) CHARSET utf8
 LANGUAGE SQL
 NOT DETERMINISTIC

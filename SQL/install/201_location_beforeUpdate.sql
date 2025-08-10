@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` TRIGGER `location_beforeUpdate` BEFORE UPDATE ON `location` FOR EACH ROW BEGIN
+CREATE TRIGGER `location_beforeUpdate` BEFORE UPDATE ON `location` FOR EACH ROW BEGIN
 
 	IF NEW.Virtual = 1
 	THEN
@@ -10,4 +10,5 @@ CREATE DEFINER=`root`@`%` TRIGGER `location_beforeUpdate` BEFORE UPDATE ON `loca
 	SET NEW.Cache_DisplayLocation = CONCAT(NEW.Title, COALESCE( CONCAT(" (",NULLIF(NEW.Description,""),")"),""));
 	SET NEW.Cache_DisplayPath = CONCAT(location_getPath(NEW.LocationId), " -> ", NEW.Cache_DisplayName, COALESCE( CONCAT(" : ",NULLIF(TRIM(NEW.Cache_DisplayLocation),"")), ""));
 	SET NEW.Cache_IdPath = location_getIdPath(NEW.LocationId);
+	
 END

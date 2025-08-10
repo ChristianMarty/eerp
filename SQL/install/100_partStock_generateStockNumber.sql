@@ -6,7 +6,7 @@ CONTAINS SQL
 SQL SECURITY DEFINER
 COMMENT ''
 BEGIN
-SET @CharPool = 'ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789'; 
+SET @CharPool = 'ABCDEFGHIJKLMNPQRSTUVWXYZ23456789'; -- Remove 0 and 1 to prevent confusion with O and I -> 1’185’921 combinations
 SET @PoolLength = LENGTH(@CharPool)-1;
 
 SET @LoopCount = 0;

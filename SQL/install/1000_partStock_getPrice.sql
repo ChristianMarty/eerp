@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `partStock_getPrice`(
-	`PartStockId` INT
-)
+CREATE FUNCTION `partStock_getPrice`(`PartStockId` INT)
 RETURNS float
 LANGUAGE SQL
 DETERMINISTIC

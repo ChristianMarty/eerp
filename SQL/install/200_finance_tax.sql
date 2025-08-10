@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `finance_tax` (
+CREATE TABLE `finance_tax` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `Type` enum('VAT') NOT NULL,
   `CountryId` int(10) unsigned DEFAULT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `finance_tax` (
   PRIMARY KEY (`Id`),
   KEY `FK_finance_tax_country` (`CountryId`),
   CONSTRAINT `FK_finance_tax_country` FOREIGN KEY (`CountryId`) REFERENCES `country` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+);
 
 INSERT INTO `finance_tax` (`Id`, `Type`, `CountryId`, `Value`, `Description`, `Active`, `Note`) VALUES
 	(1, 'VAT', 219, 7.7, 'Normal rate', b'0', NULL),

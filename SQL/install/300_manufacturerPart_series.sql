@@ -1,13 +1,13 @@
 CREATE TABLE `manufacturerPart_series` (
 	`Id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`Title` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`Description` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`VendorId` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	`NumberTemplate` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`Title` TINYTEXT NOT NULL,
+	`Description` TINYTEXT NULL DEFAULT NULL,
+	`VendorId` INT(10) UNSIGNED NOT NULL,
+	`NumberTemplate` TINYTEXT NULL DEFAULT NULL,
 	`ClassId` INT(10) UNSIGNED NULL DEFAULT NULL,
-	`DocumentIds` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`SeriesNameMatch` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`Parameter` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`DocumentIds` TEXT NULL DEFAULT NULL,
+	`SeriesNameMatch` TEXT NULL DEFAULT NULL,
+	`Parameter` TEXT NULL DEFAULT NULL,
 	`VerifiedByUserId` INT(10) UNSIGNED NULL DEFAULT NULL,
 	`CreationUserId` INT(10) UNSIGNED NOT NULL,
 	`CreationDate` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
@@ -20,8 +20,4 @@ CREATE TABLE `manufacturerPart_series` (
 	CONSTRAINT `FK_manufacturerPartSeries_vendor` FOREIGN KEY (`VendorId`) REFERENCES `vendor` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT `FK_manufacturerPart_series_user` FOREIGN KEY (`VerifiedByUserId`) REFERENCES `user` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT `FK_manufacturerPart_series_user_2` FOREIGN KEY (`CreationUserId`) REFERENCES `user` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=1
-;
+);

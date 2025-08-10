@@ -1,16 +1,13 @@
 CREATE TABLE `peripheral` (
 	`Id` INT(11) NOT NULL AUTO_INCREMENT,
-	`Name` CHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`DeviceType` ENUM('printer','scale') NOT NULL DEFAULT 'printer' COLLATE 'utf8_general_ci',
-	`Ip` CHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`Name` CHAR(50) NOT NULL,
+	`DeviceType` ENUM('printer','scale') NOT NULL,
+	`Ip` CHAR(50) NOT NULL,
 	`Port` INT(11) NOT NULL,
-	`Language` ENUM('ZPL','ESCPOS') NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`Type` ENUM('Bon','Label') NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`Description` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`Driver` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	PRIMARY KEY (`Id`) USING BTREE
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=1
-;
+	`Language` ENUM('ZPL','ESCPOS') NULL DEFAULT NULL,
+	`Type` ENUM('Bon','Label') NULL DEFAULT NULL,
+	`Description` TINYTEXT NULL DEFAULT NULL,
+	`Driver` TINYTEXT NULL DEFAULT NULL,
+	PRIMARY KEY (`Id`),
+	UNIQUE KEY `Name` (`Name`)
+);

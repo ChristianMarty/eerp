@@ -1,15 +1,14 @@
-CREATE TABLE IF NOT EXISTS `finance_currency` (
+CREATE TABLE `finance_currency` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `CurrencyCode` char(3) NOT NULL DEFAULT '0',
-  `Symbol` char(5) DEFAULT NULL,
-  `FractionalUnit` char(10) DEFAULT NULL,
+  `Symbol` char(5) NOT NULL,
+  `FractionalUnit` char(10) NOT NULL,
   `Name` tinytext NOT NULL,
-  `Digits` int(11) NOT NULL DEFAULT 0,
+  `Digits` int(11) NOT NULL DEFAULT 2,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `CurrencyCode` (`CurrencyCode`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+);
 
--- Exportiere Daten aus Tabelle BlueNova.finance_currency: ~4 rows (ungefähr)
 INSERT INTO `finance_currency` (`Id`, `CurrencyCode`, `Symbol`, `FractionalUnit`, `Name`, `Digits`) VALUES
 	(1, 'CHF', 'Fr', 'Rappen', 'Swiss Franc', 2),
 	(2, 'USD', '$', 'Cent', 'United States Dollar', 2),

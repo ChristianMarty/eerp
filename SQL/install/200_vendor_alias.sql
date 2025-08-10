@@ -1,13 +1,10 @@
 CREATE TABLE `vendor_alias` (
 	`Id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`VendorId` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	`Name` CHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`Note` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	PRIMARY KEY (`Id`) USING BTREE,
-	INDEX `VendorId` (`VendorId`) USING BTREE,
+	`VendorId` INT(10) UNSIGNED NOT NULL,
+	`Name` CHAR(50) NOT NULL,
+	`Note` TEXT NULL DEFAULT NULL,
+	PRIMARY KEY (`Id`),
+	UNIQUE KEY `Name` (`Name`),
+	INDEX `VendorId` (`VendorId`),
 	CONSTRAINT `FK_vendor_alias_vendor` FOREIGN KEY (`VendorId`) REFERENCES `vendor` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=14
-;
+);

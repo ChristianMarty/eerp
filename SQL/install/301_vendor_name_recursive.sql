@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `vendor_name_recursive`(
-	`VendorId` INT
-)
+CREATE FUNCTION `vendor_name_recursive`(`VendorId` INT)
 RETURNS tinytext CHARSET utf8
 LANGUAGE SQL
 DETERMINISTIC

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `workOrder_generateWorkOrderNumber`()
+CREATE FUNCTION `workOrder_generateWorkOrderNumber`()
 RETURNS int(11)
 LANGUAGE SQL
 NOT DETERMINISTIC

@@ -1,29 +1,25 @@
 CREATE TABLE `vendor` (
 	`Id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`ParentId` INT(11) UNSIGNED NULL DEFAULT NULL,
-	`FullName` CHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`CustomerNumber` CHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`ShortName` CHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`AbbreviatedName` CHAR(10) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`FullName` CHAR(50) NOT NULL,
+	`CustomerNumber` CHAR(50) NULL DEFAULT NULL,
+	`ShortName` CHAR(50) NULL DEFAULT NULL,
+	`AbbreviatedName` CHAR(10) NULL DEFAULT NULL,
 	`IsSupplier` BIT(1) NOT NULL DEFAULT b'0',
 	`IsManufacturer` BIT(1) NOT NULL DEFAULT b'0',
 	`IsContractor` BIT(1) NOT NULL DEFAULT b'0',
 	`IsCarrier` BIT(1) NOT NULL DEFAULT b'0',
 	`IsCustomer` BIT(1) NOT NULL DEFAULT b'0',
-	`Note` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`API` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
-	`ApiData` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
-	`PartNumberPreprocessor` TINYTEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`Note` TEXT NULL DEFAULT NULL,
+	`API` TINYTEXT NULL DEFAULT NULL COMMENT 'folder name of the related api-folder in apiFunctions/externalApi/',
+	`ApiData` LONGTEXT NULL DEFAULT NULL COMMENT 'data used by the api e.g. user credentials',
+	`PartNumberPreprocessor` TINYTEXT NULL DEFAULT NULL COMMENT 'folder name of the related preprocessor in apiFunctions/vendor/_preprocessor',
 	`CreationUserId` INT(10) UNSIGNED NOT NULL,
 	`CreationDate` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-	PRIMARY KEY (`Id`) USING BTREE,
-	UNIQUE INDEX `Name` (`FullName`) USING BTREE,
-	UNIQUE INDEX `AbbreviatedName` (`AbbreviatedName`) USING BTREE,
-	UNIQUE INDEX `ShortName` (`ShortName`) USING BTREE,
-	INDEX `FK_vendor_user` (`CreationUserId`) USING BTREE,
+	PRIMARY KEY (`Id`),
+	UNIQUE KEY `FullName` (`FullName`),
+	UNIQUE KEY `AbbreviatedName` (`AbbreviatedName`),
+	UNIQUE KEY `ShortName` (`ShortName`),
+	INDEX `FK_vendor_user` (`CreationUserId`),
 	CONSTRAINT `FK_vendor_user` FOREIGN KEY (`CreationUserId`) REFERENCES `user` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=1
-;
+);

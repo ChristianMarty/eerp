@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `generateItemNumber`()
+CREATE FUNCTION `generateItemNumber`()
 RETURNS int(5)
 LANGUAGE SQL
 NOT DETERMINISTIC

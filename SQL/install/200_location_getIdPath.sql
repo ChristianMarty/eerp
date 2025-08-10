@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `location_getIdPath`(
-	`LocationId` INT
-)
+CREATE FUNCTION `location_getIdPath`(`LocationId` INT)
 RETURNS text CHARSET utf8
 LANGUAGE SQL
 NOT DETERMINISTIC

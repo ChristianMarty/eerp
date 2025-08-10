@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `vendor_idFromName`(
-	IN `InputName` CHAR(50)
-)
+CREATE PROCEDURE `vendor_idFromName`(IN `InputName` CHAR(50))
 LANGUAGE SQL
 DETERMINISTIC
 CONTAINS SQL

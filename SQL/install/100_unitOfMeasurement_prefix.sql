@@ -1,11 +1,11 @@
-CREATE TABLE IF NOT EXISTS `unitOfMeasurement_prefix` (
+CREATE TABLE `unitOfMeasurement_prefix` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Name` char(10) DEFAULT NULL,
   `Symbol` char(10) DEFAULT NULL,
-  `Strict` bit(1) NOT NULL DEFAULT b'0',
+  `Strict` bit(1) NOT NULL DEFAULT b'0' COMMENT 'When false, prefix won\'t be used as output format',
   `Multiplier` float DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+);
 
 INSERT INTO `unitOfMeasurement_prefix` (`Id`, `Name`, `Symbol`, `Strict`, `Multiplier`) VALUES
 	(1, 'Kilo', 'k', b'1', 1000),

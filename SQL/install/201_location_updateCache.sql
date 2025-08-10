@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `location_updateCache`()
+CREATE PROCEDURE `location_updateCache`()
 LANGUAGE SQL
 NOT DETERMINISTIC
 CONTAINS SQL

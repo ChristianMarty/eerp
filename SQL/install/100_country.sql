@@ -1,17 +1,21 @@
-CREATE TABLE IF NOT EXISTS `country` (
+CREATE TABLE `country` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `PhonePrefix` char(5) NOT NULL DEFAULT '',
+  `PhonePrefix` char(5) NOT NULL,
   `Alpha2Code` char(2) NOT NULL,
-  `Alpha3Code` char(3) DEFAULT NULL,
-  `NumericCode` int(11) unsigned DEFAULT NULL,
+  `Alpha3Code` char(3) NOT NULL,
+  `NumericCode` int(11) unsigned NOT NULL,
   `ShortName` varchar(80) NOT NULL,
   `NameFormal` varchar(80) NOT NULL,
   `RegionName` char(50) DEFAULT NULL,
   `RegionCode` int(11) unsigned DEFAULT NULL,
   `SubRegionName` char(50) DEFAULT NULL,
   `SubRegionCode` int(11) unsigned DEFAULT NULL,
-  PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=253 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `Alpha2Code` (`Alpha2Code`),
+  UNIQUE KEY `Alpha3Code` (`Alpha3Code`),
+  UNIQUE KEY `NumericCode` (`NumericCode`),
+  UNIQUE KEY `ShortName` (`ShortName`)
+) COMMENT='According to ISO3166';
 
 INSERT INTO `country` (`Id`, `PhonePrefix`, `Alpha2Code`, `Alpha3Code`, `NumericCode`, `ShortName`, `NameFormal`, `RegionName`, `RegionCode`, `SubRegionName`, `SubRegionCode`) VALUES
 	(1, '93', 'AF', 'AFG', 4, 'Afghanistan', 'the Islamic Republic of Afghanistan', 'Asia', 142, 'Southern Asia', 34),
@@ -133,7 +137,6 @@ INSERT INTO `country` (`Id`, `PhonePrefix`, `Alpha2Code`, `Alpha3Code`, `Numeric
 	(117, '686', 'KI', 'KIR', 296, 'Kiribati', 'the Republic of Kiribati', 'Oceania', 9, 'Micronesia', 57),
 	(118, '850', 'KP', 'PRK', 408, 'Korea, Democratic People\'s Republic of', 'the Democratic People\'s Republic of Korea', 'Asia', 142, 'Eastern Asia', 30),
 	(119, '82', 'KR', 'KOR', 410, 'Korea, Republic of', 'the Republic of Korea', 'Asia', 142, 'Eastern Asia', 30),
-	(120, '381', 'XK', NULL, NULL, 'Kosovo', '', NULL, NULL, NULL, NULL),
 	(121, '965', 'KW', 'KWT', 414, 'Kuwait', 'the State of Kuwait', 'Asia', 142, 'Western Asia', 145),
 	(122, '996', 'KG', 'KGZ', 417, 'Kyrgyzstan', 'the Kyrgyz Republic', 'Asia', 142, 'Central Asia', 143),
 	(123, '856', 'LA', 'LAO', 418, 'Lao People\'s Democratic Republic', 'the Lao People\'s Democratic Republic', 'Asia', 142, 'South-eastern Asia', 35),
@@ -172,7 +175,6 @@ INSERT INTO `country` (`Id`, `PhonePrefix`, `Alpha2Code`, `Alpha3Code`, `Numeric
 	(156, '674', 'NR', 'NRU', 520, 'Nauru', 'the Republic of Nauru', 'Oceania', 9, 'Micronesia', 57),
 	(157, '977', 'NP', 'NPL', 524, 'Nepal', 'the Federal Democratic Republic of Nepal', 'Asia', 142, 'Southern Asia', 34),
 	(158, '31', 'NL', 'NLD', 528, 'Netherlands', 'the Kingdom of the Netherlands', 'Europe', 150, 'Western Europe', 155),
-	(159, '599', 'AN', NULL, NULL, 'Netherlands Antilles', '', NULL, NULL, NULL, NULL),
 	(160, '687', 'NC', 'NCL', 540, 'New Caledonia', '', 'Oceania', 9, 'Melanesia', 54),
 	(161, '64', 'NZ', 'NZL', 554, 'New Zealand', 'New Zealand', 'Oceania', 9, 'Australia and New Zealand', 53),
 	(162, '505', 'NI', 'NIC', 558, 'Nicaragua', 'the Republic of Nicaragua', 'Americas', 19, 'Latin America and the Caribbean', 419),
@@ -213,7 +215,6 @@ INSERT INTO `country` (`Id`, `PhonePrefix`, `Alpha2Code`, `Alpha3Code`, `Numeric
 	(197, '966', 'SA', 'SAU', 682, 'Saudi Arabia', 'the Kingdom of Saudi Arabia', 'Asia', 142, 'Western Asia', 145),
 	(198, '221', 'SN', 'SEN', 686, 'Senegal', 'the Republic of Senegal', 'Africa', 2, 'Sub-Saharan Africa', 202),
 	(199, '381', 'RS', 'SRB', 688, 'Serbia', 'the Republic of Serbia', 'Europe', 150, 'Southern Europe', 39),
-	(200, '381', 'CS', NULL, NULL, 'Serbia and Montenegro', '', NULL, NULL, NULL, NULL),
 	(201, '248', 'SC', 'SYC', 690, 'Seychelles', 'the Republic of Seychelles', 'Africa', 2, 'Sub-Saharan Africa', 202),
 	(202, '232', 'SL', 'SLE', 694, 'Sierra Leone', 'the Republic of Sierra Leone', 'Africa', 2, 'Sub-Saharan Africa', 202),
 	(203, '65', 'SG', 'SGP', 702, 'Singapore', 'the Republic of Singapore', 'Asia', 142, 'South-eastern Asia', 35),
@@ -234,7 +235,7 @@ INSERT INTO `country` (`Id`, `PhonePrefix`, `Alpha2Code`, `Alpha3Code`, `Numeric
 	(218, '46', 'SE', 'SWE', 752, 'Sweden', 'the Kingdom of Sweden', 'Europe', 150, 'Northern Europe', 154),
 	(219, '41', 'CH', 'CHE', 756, 'Switzerland', 'the Swiss Confederation', 'Europe', 150, 'Western Europe', 155),
 	(220, '963', 'SY', 'SYR', 760, 'Syrian Arab Republic', 'the Syrian Arab Republic', 'Asia', 142, 'Western Asia', 145),
-	(221, '886', 'TW', NULL, NULL, 'Taiwan, Province of China', '', NULL, NULL, NULL, NULL),
+	(221, '886', 'TW', 'TWN', 158, 'Taiwan', 'Taiwan, Province of China', NULL, NULL, NULL, NULL),
 	(222, '992', 'TJ', 'TJK', 762, 'Tajikistan', 'the Republic of Tajikistan', 'Asia', 142, 'Central Asia', 143),
 	(223, '255', 'TZ', 'TZA', 834, 'Tanzania, United Republic of', 'the United Republic of Tanzania', 'Africa', 2, 'Sub-Saharan Africa', 202),
 	(224, '66', 'TH', 'THA', 764, 'Thailand', 'the Kingdom of Thailand', 'Asia', 142, 'South-eastern Asia', 35),

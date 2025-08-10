@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` EVENT `history_deleteEditKey`
+CREATE EVENT `history_deleteEditKey`
 	ON SCHEDULE
 		EVERY 1 DAY
 	ON COMPLETION NOT PRESERVE

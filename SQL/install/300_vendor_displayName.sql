@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`%` FUNCTION `vendor_displayName`(
-	`VendorId` int
-)
+CREATE FUNCTION `vendor_displayName`(`VendorId` int)
 RETURNS char(50) CHARSET utf8
 LANGUAGE SQL
 DETERMINISTIC
