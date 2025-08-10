@@ -3,6 +3,7 @@ CREATE TABLE `productionPart` (
 	`NumberingPrefixId` INT(10) UNSIGNED NULL DEFAULT NULL,
 	`Number` CHAR(10) NOT NULL,
 	`Description` CHAR(100) NULL DEFAULT NULL,
+	`SupersededById` INT(10) UNSIGNED NULL DEFAULT NULL,
 	`CreationUserId` INT(10) UNSIGNED NOT NULL,
 	`CreationDate` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
 	`Cache_ReferencePrice_WeightedAverage` DECIMAL(20,10) UNSIGNED NULL DEFAULT NULL,
@@ -16,5 +17,9 @@ CREATE TABLE `productionPart` (
 	`Cache_BillOfMaterial_NumberOfOccurrence` INT(11) UNSIGNED NULL DEFAULT NULL,
 	PRIMARY KEY (`Id`),
 	UNIQUE KEY `PartNumber` (`NumberingPrefixId`, `Number`),
-	CONSTRAINT `FK_productionPart_numbering` FOREIGN KEY (`NumberingPrefixId`) REFERENCES `numbering` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
+	INDEX `FK_productionPart_productionPart` (`SupersededById`),
+	INDEX `FK_productionPart_user` (`CreationUserId`),
+	CONSTRAINT `FK_productionPart_numbering` FOREIGN KEY (`NumberingPrefixId`) REFERENCES `numbering` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_productionPart_productionPart` FOREIGN KEY (`SupersededById`) REFERENCES `productionPart` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_productionPart_user` FOREIGN KEY (`CreationUserId`) REFERENCES `user` (`Id`) ON UPDATE NO ACTION ON DELETE NO ACTION
 );

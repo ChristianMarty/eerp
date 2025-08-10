@@ -1,0 +1,10 @@
+CREATE TABLE `renderer_medium` (
+	`Id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`Name` TINYTEXT NOT NULL,
+	`Description` TEXT NULL DEFAULT NULL,
+	`Hight` DECIMAL(6,2) NULL DEFAULT NULL,
+	`Width` DECIMAL(6,2) NULL DEFAULT NULL,
+	`Rotation` ENUM('0','90','180','270') NULL DEFAULT NULL,
+	`Resolution` ENUM('6dpmm','8dpmm','12dpmm','24dpmm') NULL DEFAULT NULL,
+	PRIMARY KEY (`Id`)
+);
