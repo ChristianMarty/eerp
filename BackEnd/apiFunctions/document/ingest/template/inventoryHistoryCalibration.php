@@ -16,7 +16,7 @@ require_once __DIR__ . "/../../_document.php";
 require_once  __DIR__."/../../../util/_barcodeParser.php";
 require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
-if($api->isPost())
+if($api->isPost(Permission::Document_Ingest_Save))
 {
     $data = $api->getPostData();
 

@@ -17,7 +17,7 @@ require_once __DIR__ . "/util/_barcodeParser.php";
 
 require_once __DIR__ . "/location/_location.php";
 
-if($api->isGet("inventory.view"))
+if($api->isGet(Permission::Inventory_List))
 {
     $parameter = $api->getGetData();
 

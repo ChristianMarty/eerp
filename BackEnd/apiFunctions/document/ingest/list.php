@@ -8,10 +8,9 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
 
-if($api->isGet())
+if($api->isGet(Permission::Document_Ingest_List))
 {
 	global $serverDataPath;
 	global $dataRootPath;

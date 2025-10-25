@@ -12,7 +12,7 @@ global $api;
 
 require_once __DIR__ . "/location/_location.php";
 
-if($api->isGet())
+if($api->isGet(Permission::Location_List))
 {
     $location = new Location();
     $api->returnData($location->tree());

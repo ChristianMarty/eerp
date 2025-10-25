@@ -11,7 +11,7 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-if($api->isGet("vendor.view"))
+if($api->isGet(Permission::Vendor_List))
 {
     $parameter = $api->getGetData();
 

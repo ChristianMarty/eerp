@@ -15,7 +15,7 @@ require_once __DIR__ . "/location/_location.php";
 require_once __DIR__ . "/util/_barcodeParser.php";
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 
-if($api->isGet("stock.view"))
+if($api->isGet(Permission::Stock_List))
 {
 	$parameters = $api->getGetData();
 
@@ -73,8 +73,7 @@ if($api->isGet("stock.view"))
 
 	$data = $database->query($baseQuery,$queryParam);
     $location = new Location();
-	foreach ($data as $line)
-	{
+	foreach ($data as $line) {
         $line->ItemCode = barcodeFormatter_StockNumber($line->StockNumber);
         $line->LocationName = $location->name(intval($line->LocationId));
         $line->LocationCode = $location->itemCode(intval($line->LocationId));

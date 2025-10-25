@@ -1,20 +1,30 @@
 <template>
   <div class="generic-document-ingest-container">
 
-    <el-form label-width="120px">
-      <el-form-item label="Name:">
-        {{ fileInfo.FileName }}
+    <el-form label-width="180px">
+      <el-form-item label="File Name:">
+        {{ dialogData.IngestName }}
       </el-form-item>
 
-      <el-form-item label="Name:">
+      <el-form-item label="Mode:">
+        <el-select v-model="selectedMode">
+          <el-option value="newDocument" label="New Document" />
+          <el-option value="newRevision" label="New Revision" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item v-if="selectedMode === 'newRevision'" label="Document Code:">
+        <el-input v-model="dialogData.DocumentNumber" />
+      </el-form-item>
+
+      <el-form-item v-if="selectedMode === 'newDocument'" label="Name:">
         <el-input v-model="dialogData.Name" />
-        <p>Please follow the naming convention!</p>
       </el-form-item>
 
-      <el-form-item label="Type:">
-        <el-select v-model="dialogData.Type" filterable>
+      <el-form-item v-if="selectedMode === 'newDocument'" label="Category:">
+        <el-select v-model="dialogData.Category" filterable>
           <el-option
-            v-for="item in documentTypeOptions"
+            v-for="item in documentCategoryOptions"
             :key="item"
             :label="item"
             :value="item"
@@ -22,12 +32,12 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Description:">
-        <el-input v-model="dialogData.Description" />
+      <el-form-item v-if="selectedMode === 'newDocument'"  label="Document Description:">
+        <el-input v-model="dialogData.DocumentDescription" />
       </el-form-item>
 
-      <el-form-item label="Note:">
-        <el-input v-model="dialogData.Note" type="textarea" />
+      <el-form-item label="Revision Description:">
+        <el-input v-model="dialogData.RevisionDescription" />
       </el-form-item>
 
     </el-form>
@@ -46,15 +56,17 @@ export default {
   },
   data() {
     return {
-      dialogData: Object.assign({}, document.ingestParameters),
-      documentTypeOptions: []
+      dialogData: Object.assign({}, document.ingest.ingestParameters),
+      documentCategoryOptions: [],
+      selectedMode: 'newDocument'
     }
   },
   created() {
   },
   async mounted() {
-    this.documentTypeOptions = await document.types()
-    this.dialogData.FileName = this.fileInfo.FileName
+    this.documentCategoryOptions = await document.category()
+    this.dialogData.IngestName = this.fileInfo.FileName
+    this.dialogData.Name = this.dialogData.IngestName.replace(/\.[^/.]+$/, '')
   },
   methods: {
 

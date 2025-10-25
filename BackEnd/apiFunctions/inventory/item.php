@@ -208,22 +208,7 @@ if($api->isGet())
 	global $documentRootPath;
 	foreach ($history as $r)
 	{
-		$documents = array();
-
-		if(isset($r->DocumentIds)) $DocIds = explode(",",$r->DocumentIds);
-		else $DocIds = null;
-		
-		if(!empty($DocIds))
-		{
-			$baseQuery = "SELECT * FROM `document` WHERE Id IN(".implode(", ",$DocIds).")";
-			$documents = $database->query($baseQuery);
-			foreach ($documents as $doc)
-			{
-				$doc->Path = $documentRootPath."/".$doc->Type."/".urlencode($doc->Path);
-			}
-		}
-		$r->Documents = $documents;
-		
+        $r->Documents = getDocumentsFromIds($r->DocumentIds ?? null);
 		unset($r->DocumentIds);
 		unset($r->Id);
 		unset($r->InventoryId);

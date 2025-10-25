@@ -8,46 +8,21 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
 
-require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/../_document.php";
 
-if($api->isPost())
+if($api->isPost(Permission::Document_Ingest_Download))
 {
     $data = $api->getPostData();
-    $url = $data->url;
-
-    $fileName = basename($url);
-    $file = file_get_contents ($url);
-    if (!$file){
-        $api->returnError("File download failed!");
+    if(!isset($data->Url)){
+        $api->returnData(\Error\parameterMissing("Url"));
+    }
+    $url = $data->Url;
+    if(!is_string($url) || $url === ""){
+        $api->returnData(\Error\generic("Url is empty"));
     }
 
-	$output = array();
-	$error = null;
-	
-	global $serverDataPath;
-	global $ingestPath;
-
-	// Check if file already exists
-	$fileMd5 = md5($file);
-	
-	$query = "SELECT * FROM `document` WHERE `Hash`='".$fileMd5."'";
-	$result = $database->query($query);
-
-	if(count($result) == 0)
-	{
-        file_put_contents($serverDataPath.$ingestPath."/".$fileName, $file);
-		$output["message"]= "File downloaded successfully.";
-	}
-	else
-	{
-		$output["message"]= "The downloaded file already exists.";
-		$error= "The downloaded file already exists.";
-	}	
-
-	$output["fileInfo"]= $result;
-
-    $api->returnData($output);
+    $result = \Document\Ingest\download($url);
+    $api->returnData($result);
 }

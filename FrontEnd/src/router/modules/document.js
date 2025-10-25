@@ -12,8 +12,8 @@ const documentRouter = {
     {
       path: '',
       component: () => import('@/views/document/list'),
-      name: 'documentBrowser',
-      meta: { title: 'Document Browser', icon: 'search', roles: ['document.view'] }
+      name: 'documentList',
+      meta: { title: 'Document List', icon: 'search', roles: ['document.view'] }
     },
     {
       path: 'ingest',

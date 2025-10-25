@@ -84,9 +84,13 @@ function barcodeFormatter_AssemblyUnitHistoryNumber(string|int $input): string
     return "ASH-".$input;
 }
 
-function barcodeFormatter_DocumentNumber(string|int $input): string
+function barcodeFormatter_DocumentNumber(string|int $input, int|null $revision = null): string
 {
-    return "Doc-".$input;
+    $output = "Doc-".$input;
+    if($revision !== null){
+        $output .= "-".$revision;
+    }
+    return $output;
 }
 
 function barcodeFormatter_CostCenter(string|int $input): string

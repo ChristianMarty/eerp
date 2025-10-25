@@ -9,11 +9,12 @@
 //*************************************************************************************************
 declare(strict_types=1);
 global $api;
+
 require_once __DIR__ . "/_purchaseOrderDocument.php";
 
-if($api->isPost())
+if($api->isPost(Permission::Document_Ingest_Save))
 {
     $data = $api->getPostData();
-    purchaseOrderDocumentIngest($data, 'Approval');
-    $api->returnError("Ingest Error"); // This part of the code should not be reachable
+    $result = purchaseOrderDocumentIngest($data, 'Approval');
+    $api->returnData($result);
 }

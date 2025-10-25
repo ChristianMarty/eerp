@@ -21,7 +21,7 @@
           width="400"
           sortable
         />
-        <el-table-column prop="Type" label="Type" width="100" sortable />
+        <el-table-column prop="Category" label="Category" width="120" sortable />
         <el-table-column prop="Path" label="Path" width="200">
           <template slot-scope="{ row }">
             <a :href="row.Path" target="blank">
@@ -32,15 +32,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="Description" label="Description" />
-        <el-table-column prop="LinkType" label="Link" width="100" sortable />
-        <el-table-column prop="LinkType" label="Link" width="100" sortable />
         <el-table-column
           prop="CreationDate"
           label="Creation Date"
           width="170"
           sortable
         />
-        <el-table-column prop="Hash" label="MD5 Hash" width="300" />
       </el-table>
     </template>
   </div>

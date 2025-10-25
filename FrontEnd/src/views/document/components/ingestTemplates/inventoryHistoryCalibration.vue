@@ -1,7 +1,7 @@
 <template>
   <div class="purchase-order-receipt.-document-ingest-container">
 
-    <el-form label-width="120px">
+    <el-form label-width="180px">
       <el-form-item label="Name:">
         {{ fileInfo.FileName }}
       </el-form-item>

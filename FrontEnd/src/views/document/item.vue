@@ -5,58 +5,69 @@
     element-loading-text="Loading Document"
   >
     <h1>{{ documentData.ItemCode }} - {{ documentData.Name }}</h1>
-
     <table>
       <tr>
-        <th style="text-align: left;">Note</th>
-        <td>{{ documentData.Note }}</td>
+        <th style="text-align: left;">Created</th>
+        <td>{{ documentData.CreatedBy.Initials }} / {{ documentData.CreationDate }}</td>
       </tr>
       <tr>
-        <th style="text-align: left;">Type</th>
-        <td>{{ documentData.Type }}</td>
       </tr>
       <tr>
-        <th style="text-align: left;">Link Type</th>
-        <td>{{ documentData.LinkType }}</td>
-      </tr>
-      <tr>
-        <th style="text-align: left;">Creation Date</th>
-        <td>{{ documentData.CreationDate }}</td>
-      </tr>
-      <tr>
-        <th style="text-align: left;">Created By</th>
-        <td>{{ documentData.CreatedByInitials }}</td>
-      </tr>
-      <tr>
-        <th style="text-align: left;">Hash</th>
-        <td>{{ documentData.Hash }}</td>
+        <th style="text-align: left;">Category</th>
+        <td>{{ documentData.Category }}</td>
       </tr>
     </table>
 
-    <a :href="documentData.Path" target="blank">
-      <el-button icon="el-icon-document" style="margin: 50px 0 20px 0">
-        Open in new tab
-      </el-button>
-    </a>
+    <h3>Description</h3>
+    <p>{{ documentData.Description }}</p>
+
+    <h2>Revisions</h2>
+    <el-table :data="documentData.Revision" style="width: 100%">
+      <el-table-column
+        prop="ItemCode"
+        label="Item"
+        width="120"
+        sortable
+      />
+      <el-table-column label="Link" width="200">
+        <template slot-scope="{ row }">
+          <a :href="row.Path" target="blank">
+            <el-button icon="el-icon-document">
+              Open Document
+            </el-button>
+          </a>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Type" label="Type" width="80"/>
+      <el-table-column prop="Description" label="Description" />
+      <el-table-column prop="CreatedBy.Initials" label="Initials" width="80"/>
+      <el-table-column prop="CreationDate" label="Creation Date" width="180"/>
+      <el-table-column prop="Hash" label="Hash" width="280"/>
+    </el-table>
+
 
     <h2>Citations</h2>
     <template>
-      <el-table :data="documentData.Citations" style="width: 100%">
+      <el-table :data="documentData.Citation" style="width: 100%">
         <el-table-column
-          prop="Category"
-          label="Category"
-          width="250"
+          prop="ItemCode"
+          label="Item"
+          width="120"
           sortable
-        />
-
-        <el-table-column prop="ItemCode" label="Item Code" width="120" sortable>
+        >
           <template slot-scope="{ row }">
             <router-link :to="getLinkToPage(row)" class="link-type">
               <span> {{ row.ItemCode }}</span>
             </router-link>
-
           </template>
         </el-table-column>
+
+        <el-table-column
+          prop="Category"
+          label="Category"
+          width="200"
+          sortable
+        />
 
         <el-table-column
           prop="Description"

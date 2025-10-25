@@ -19,10 +19,10 @@ class Document {
     })
   }
 
-  types() {
+  category() {
     return new Promise((resolve, reject) => {
       eerpApi({
-        url: '/document/type',
+        url: '/document/category',
         method: 'get',
         params: { documents: '0' }
       }).then(response => {
@@ -109,11 +109,13 @@ class Document {
       })
     },
     ingestParameters: {
-      FileName: '',
+      DocumentNumber: null,
+      IngestName: null,
       Name: '',
-      Description: '',
-      Type: '',
-      Note: ''
+      Category: '',
+      DocumentDescription: '',
+      RevisionDescription: '',
+      LinkType: 'Internal'
     },
     ingest(ingestParameters) {
       return new Promise((resolve, reject) => {
@@ -135,7 +137,7 @@ class Document {
         eerpApi({
           method: 'post',
           url: '/document/ingest/download',
-          data: { url: url }
+          data: { Url: url }
         }).then(response => {
           if (response.error == null) {
             resolve(response.data)
@@ -149,7 +151,7 @@ class Document {
       purchaseOrderParameters: {
         FileName: '',
         PurchaseOrderNumber: '',
-        Note: ''
+        Description: ''
       },
       purchaseOrderDeliveryNote(purchaseOrderParameters) {
         return new Promise((resolve, reject) => {

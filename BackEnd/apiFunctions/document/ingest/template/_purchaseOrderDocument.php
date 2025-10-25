@@ -9,9 +9,7 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
-use JetBrains\PhpStorm\NoReturn;
-
-#[NoReturn] function purchaseOrderDocumentIngest(stdClass $data, string $type): void
+function purchaseOrderDocumentIngest(stdClass $data, string $category): null|\Error\Data
 {
     require_once __DIR__ . "/../../_document.php";
     require_once __DIR__."/../../../util/_barcodeParser.php";
@@ -20,9 +18,9 @@ use JetBrains\PhpStorm\NoReturn;
     global $database;
     global $api;
 
-    if(!isset($data->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
+    if(!isset($data->PurchaseOrderNumber)) return \Error\parameterMissing("PurchaseOrderNumber");
     $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($data->PurchaseOrderNumber);
-    if($purchaseOrderNumber == null) $api->returnParameterError("PurchaseOrderNumber");
+    if($purchaseOrderNumber == null) return \Error\parameter("PurchaseOrderNumber");
 
     $query = <<<STR
         SELECT 
@@ -36,26 +34,25 @@ use JetBrains\PhpStorm\NoReturn;
     STR;
     $result = $database->query($query);
 
-    if(count($result)== 0) $api->returnError("PurchaseOrderNumber not found");
+    if(count($result) == 0) return \Error\generic("PurchaseOrderNumber not found");
 
     $po = $result[0];
 
-    $name= barcodeFormatter_PurchaseOrderNumber($po->PurchaseOrderNumber)."_".$po->PurchaseDate;
+    $name = barcodeFormatter_PurchaseOrderNumber($po->PurchaseOrderNumber)." ".$po->PurchaseDate;
 
-    $ingestData = array();
-    $ingestData['FileName'] = $data->FileName;
-    $ingestData['Name'] = $name;
-    $ingestData['Type'] = $type;
-    $ingestData['Description'] = $type.' '.date('Y-m-d');
-    $ingestData['Note'] = $data->Note;
+    $ingestData = new \Document\Ingest\Data();
+    $ingestData->ingestName = $data->FileName;
+    $ingestData->name = $name;
+    $ingestData->category = $category;
+    $ingestData->documentDescription = $data->Description??"";
+    $ingestData->linkType = \Document\LinkType::Internal;
 
-    $result = ingest($ingestData);
-
-    if(!is_int($result)) $api->returnError($result['error']);
+    $result = \Document\Ingest\save($ingestData);
+    if($result instanceof \Error\Data) return $result;
 
     if($po->DocumentIds === null) $docIds = [];
     else $docIds = explode(",", $po->DocumentIds);
-    $docIds[] = $result;
+    $docIds[] = $result->documentId;
 
     if (($key = array_search("", $docIds)) !== false) unset($docIds[$key]); // Remove empty string
 
@@ -63,7 +60,7 @@ use JetBrains\PhpStorm\NoReturn;
 
     $updateData = [];
     $updateData['DocumentIds'] = $docIdStr;
-    $database->update("purchaseOrder",$updateData,"PurchaseOrderNumber = $purchaseOrderNumber" );
+    $database->update("purchaseOrder", $updateData,"PurchaseOrderNumber = $purchaseOrderNumber" );
 
     $api->returnData([$docIdStr]);
 }

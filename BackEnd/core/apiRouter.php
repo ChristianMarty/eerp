@@ -97,7 +97,7 @@ class apiRouter
             exit;
         }*/
 
-        if ($request == "user/login" || $request == "user/logout")
+        if ($request == "user/login")
         {
             $this->runPath = $filePath;
         } 
@@ -175,28 +175,28 @@ class apiRouter
         return (object)$data;
     }
 
-    function isGet(string|null $permissions = null):bool
+    function isGet(Permission|null $permissions = null):bool
     {
         $this->hasGet = true;
         if($this->method === apiMethod::GET) return true;
         else return false;
     }
 
-    function isPost(string|null $permissions = null):bool
+    function isPost(Permission|null $permissions = null):bool
     {
         $this->hasPost = true;
         if($this->method === apiMethod::POST) return true;
         else return false;
     }
 
-    function isPatch(string|null $permissions = null):bool
+    function isPatch(Permission|null $permissions = null):bool
     {
         $this->hasPatch = true;
         if($this->method === apiMethod::PATCH) return true;
         else return false;
     }
 
-    function isDelete(string|null $permissions = null):bool
+    function isDelete(Permission|null $permissions = null):bool
     {
         $this->hasDelete = true;
         if($this->method === apiMethod::DELETE) return true;
@@ -209,8 +209,12 @@ class apiRouter
         else return false;
     }
 
-    #[NoReturn] function returnData(array|stdClass|null|string $data, string|null $errorMessage = null): void
+    #[NoReturn] function returnData(array|stdClass|null|string|\Error\Data $data, string|null $errorMessage = null): void
     {
+        if($data instanceof \Error\Data){
+            $this->returnError($data->error);
+        }
+
         header("Content-Type:application/json; charset=UTF-8");
 
         global $user;
@@ -225,7 +229,7 @@ class apiRouter
 
         $json_response = json_encode($response);
         if(!$json_response) {
-            $errorResponse['error'] = "JSON encoding error";
+            $errorResponse['error'] = "JSON encoding error: ".json_last_error_msg();
 
             echo json_encode($errorResponse);
             exit;
@@ -261,6 +265,11 @@ class apiRouter
         $meta = $caller['file']." - ".$caller['line'];
 
         $this->returnData(null, $meta." - ".$parameterName." is not specified");
+    }
+
+    #[NoReturn] function returnParameterPostDataMissing(): void
+    {
+        $this->returnData(null, "Parameter Error: POST field must not be empty");
     }
 
     #[NoReturn] function returnParameterError(string $parameterName): void

@@ -1,8 +1,8 @@
 <template>
   <div class="purchase-order-quote-document-ingest-container">
 
-    <el-form label-width="120px">
-      <el-form-item label="Name:">
+    <el-form label-width="180px">
+      <el-form-item label="File:">
         {{ fileInfo.FileName }}
       </el-form-item>
 
@@ -10,8 +10,8 @@
         <el-input v-model="dialogData.PurchaseOrderNumber" />
       </el-form-item>
 
-      <el-form-item label="Note:">
-        <el-input v-model="dialogData.Note" type="textarea" />
+      <el-form-item label="Description:">
+        <el-input v-model="dialogData.Description" />
       </el-form-item>
     </el-form>
 

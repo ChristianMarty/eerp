@@ -35,7 +35,7 @@
 
         <el-col :span="12">
 
-          <el-form label-width="120px">
+          <el-form label-width="180px">
             <el-form-item label="Template:">
               <el-select v-model="selectedTemplate" placeholder="Select Template" style="width: 100%">
                 <el-option
@@ -49,56 +49,56 @@
           </el-form>
 
           <genericIngest
-            v-if="selectedTemplate == 'genereic'"
+            v-if="selectedTemplate === 'generic'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <poDeliveryNoteIngest
-            v-if="selectedTemplate == 'poDeliveryNote'"
+            v-if="selectedTemplate === 'poDeliveryNote'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <poInvoiceIngest
-            v-if="selectedTemplate == 'poInvoice'"
+            v-if="selectedTemplate === 'poInvoice'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <poReceiptIngest
-            v-if="selectedTemplate == 'poReceipt'"
+            v-if="selectedTemplate === 'poReceipt'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <poQuoteIngest
-            v-if="selectedTemplate == 'poQuote'"
+            v-if="selectedTemplate === 'poQuote'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <poQuoteConfirmation
-            v-if="selectedTemplate == 'poConfirmation'"
+            v-if="selectedTemplate === 'poConfirmation'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <poQuoteApproval
-            v-if="selectedTemplate == 'poApproval'"
+            v-if="selectedTemplate === 'poApproval'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
           />
 
           <invHistoryCalibration
-            v-if="selectedTemplate == 'invCalibration'"
+            v-if="selectedTemplate === 'invCalibration'"
             ref="ingestForm"
             :file-info="dialogData"
             @success="ingestSuccess()"
@@ -151,13 +151,13 @@ export default {
     return {
       documentList: [],
       showDialog: false,
-      dialogData: Object.assign({}, document.ingestParameters),
+      dialogData: Object.assign({}, document.ingest.ingestParameters),
       filePreviewPath: '',
       uploadDialogVisible: false,
       downloadDialogVisible: false,
       selectedTemplate: null,
       templateOptions: [{
-        value: 'genereic',
+        value: 'generic',
         label: 'Generic'
       }, {
         value: 'poDeliveryNote',
@@ -191,7 +191,7 @@ export default {
     openDialog(row) {
       this.selectedTemplate = null
       this.showDialog = true
-      this.dialogData = Object.assign({}, document.ingestParameters)
+      this.dialogData = Object.assign({}, document.ingest.ingestParameters)
       this.dialogData.FileName = row.FileName
       this.filePreviewPath = row.Path
     },

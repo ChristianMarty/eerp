@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 
-if($api->isGet("billOfMaterial.view"))
+if($api->isGet(Permission::BillOfMaterial_List))
 {
     $query = <<< QUERY
         SELECT 

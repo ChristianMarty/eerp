@@ -11,7 +11,6 @@ require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/user/userAuthentication.php";
 require_once __DIR__ . "/apiRouter.php";
-require_once __DIR__ . "/logging.php";
 
 if(session_status() === PHP_SESSION_NONE){
     session_start();

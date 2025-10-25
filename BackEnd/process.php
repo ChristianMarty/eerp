@@ -13,7 +13,9 @@ global $user;
 
 $api = new apiRouter($user, entrypoint::PROCESS, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
-if(!$api->isGet("process.run")) $api->returnError("Processes must be used via the GET methode");
+if(!$api->isGet(Permission::Process_Run)){
+    $api->returnError("Processes must be used via the GET methode");
+}
 
 try {
 	require $api->getRunPath();

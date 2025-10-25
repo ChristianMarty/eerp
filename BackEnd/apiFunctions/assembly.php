@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 
-if($api->isGet("assembly.view"))
+if($api->isGet(Permission::Assembly_List))
 {
     $query = <<< QUERY
         SELECT 

@@ -20,6 +20,7 @@ namespace userRoles {
 // error
     class error {
         public bool $php = false;
+        public bool $apiErrorTrace = false;
     }
 
 // assembly

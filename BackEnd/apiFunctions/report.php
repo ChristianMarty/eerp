@@ -12,7 +12,7 @@ global $api;
 
 require_once __DIR__."/util/_files.php";
 
-if($api->isGet("report.view"))
+if($api->isGet(Permission::Report_List))
 {
     $path = "../report/";
     $reportList = files_listFiles($path,"report.php");

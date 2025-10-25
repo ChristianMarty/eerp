@@ -12,7 +12,7 @@ global $api;
 
 require_once __DIR__."/util/_files.php";
 
-if($api->isGet("process.view"))
+if($api->isGet(Permission::Process_List))
 {
 	$path = "process/";
     $processList = files_listFiles($path,"process.php");

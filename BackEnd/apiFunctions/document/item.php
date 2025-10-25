@@ -8,76 +8,24 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
-global $user;
 
 require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/_document.php";
 
-if($api->isGet())
+if($api->isGet(Permission::Document_View))
 {
     $parameters = $api->getGetData();
 
-    if(!isset($parameters->DocumentNumber)) $api->returnParameterMissingError("DocumentNumber");
+    if(!isset($parameters->DocumentNumber)) $api->returnData(\Error\parameterMissing("DocumentNumber"));
     $documentNumber = barcodeParser_DocumentNumber($parameters->DocumentNumber);
-    if($documentNumber == null) $api->returnParameterError("DocumentNumber");
+    if($documentNumber == null) $api->returnData(\Error\parameter("DocumentNumber"));
 
-
-	$output = getDocumentFromDocumentNumber($documentNumber);
-    $output->Citations = getCitations($output->Id);
-
-    unset($output->Id);
-	
-	$api->returnData($output);
-}
-else if($api->isPost())
-{
-    $data = $api->getPostData();
-
-    global $serverDataPath;
-    global $documentPath;
-    $fileName = basename($_FILES["file"]["name"]);
-    $fileDir  = $serverDataPath.$documentPath."/";
-    $file = $_FILES["file"]["tmp_name"];
-
-    // Check if file already exists
-    $fileMd5 = md5_file($file);
-
-    $query = <<< QUERY
-        SELECT
-            *
-        FROM document
-        WHERE Hash = '$fileMd5';
-    QUERY;
-    $result = $database->query($query);
-
-    if(count($result)!=0) $api->returnError("The uploaded file already exists.");
-
-	$output = array();
-	$error = null;
-
-    $sqlData = array();
-    $sqlData['Path'] = $fileName;
-    $sqlData['Type']  = $_POST["Type"];
-    $sqlData['Description']  = $_POST["Description"];
-    $sqlData['Hash']  = $fileMd5;
-    $sqlData['CreationUserId'] = $user->userId();;
-
-    $id = $database->insert("document", $sqlData);
-
-    move_uploaded_file($file, $fileDir.$_POST["Type"]."/".$fileName);
-
-    $query = "SELECT * FROM `document` WHERE `Id`='$id';";
-    $result = $database->query($query);
-    if(count($result))
-    {
-        $result = $result[0];
-    }
-
-    $output["message"]= "File uploaded successfully.";
-	$output["fileInfo"]= $result;
+    $meta = \Document\getDocumentMetaData($documentNumber);
+    if($meta === null) $api->returnData(\Error\itemNotFound($parameters->DocumentNumber));
+    $output = $meta->jsonSerialize();
+    $output->Revision = \Document\getRevisions($meta);
+    $output->Citation = \Document\getCitations($meta);
 
 	$api->returnData($output);
 }

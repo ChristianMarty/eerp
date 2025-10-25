@@ -14,7 +14,7 @@ global $api;
 require_once __DIR__ . "/util/_barcodeFormatter.php";
 require_once __DIR__ . "/util/_barcodeParser.php";
 
-if($api->isGet())
+if($api->isGet(Permission::PurchaseOrder_List))
 {
 	$parameter = $api->getGetData();
 

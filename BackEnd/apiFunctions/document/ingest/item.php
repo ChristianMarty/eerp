@@ -8,32 +8,23 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
 
 require_once __DIR__ . "/../_document.php";
 
-if($api->isPost())
+if($api->isPost(Permission::Document_Ingest_Save))
 {
-	$data = $api->getPostData();
-
-    $result = ingest($data);
-
-    if(is_int($result)) $api->returnEmpty();
-    else $api->returnError($result['error']);
+	$data = \Document\Ingest\validateRequest($api->getPostData());
+    $result = \Document\Ingest\save($data);
+    $api->returnData($result);
 }
-
-else if($api->isDelete())
+else if($api->isDelete(Permission::Document_Ingest_Delete))
 {
-    global $serverDataPath;
-    global $ingestPath;
-
     $data = $api->getPostData();
-	if(!isset($data->FileName) OR $data->FileName == "" OR $data->FileName == null) $api->returnError("File name is not set.");
-	
-	$src = $serverDataPath.$ingestPath."/".$data->FileName;
-	
-	if (unlink($src))  $api->returnEmpty();
-	else  $api->returnError("File delete failed.");
+    if(!isset($data->FileName) OR $data->FileName == "" OR $data->FileName == null){
+        $api->returnData(\Error\parameterMissing("FileName"));
+    }
+
+    $result = \Document\Ingest\delete($data->FileName);
+    $api->returnData($result);
 }
-?>

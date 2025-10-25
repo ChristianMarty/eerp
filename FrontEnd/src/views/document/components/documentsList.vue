@@ -11,10 +11,10 @@
           </router-link>
         </template>
       </el-table-column>
+      <el-table-column prop="Category" label="Category" width="100" />
       <el-table-column prop="Name" label="Name" />
       <el-table-column prop="Description" label="Description" />
-      <el-table-column prop="Type" label="Type" width="100" />
-      <el-table-column prop="Document" label="Document">
+      <el-table-column prop="Document" label="Document" width="200">
         <template slot-scope="{ row }">
           <el-button
             icon="el-icon-document"
@@ -22,7 +22,7 @@
           >Open in new tab</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="LinkType" label="Link" width="100" />
+      <el-table-column prop="CreatedByInitials" label="Initials" width="80" />
       <el-table-column prop="CreationDate" label="Upload Timestamp" width="180" />
     </el-table>
   </div>

@@ -31,7 +31,6 @@
           <el-button type="primary" @click="onUpload()">Upload</el-button>
         </el-form-item>
       </el-form>
-
     </el-dialog>
   </div>
 </template>
@@ -68,8 +67,8 @@ export default {
       } else {
         this.$message({
           showClose: true,
-          duration: 0,
-          message: response.data.message,
+          duration: 10,
+          message: response.error,
           type: 'error'
         })
       }
