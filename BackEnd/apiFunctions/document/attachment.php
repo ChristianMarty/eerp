@@ -53,7 +53,7 @@ if ($api->isGet())
         $docIdList = $database->query($query)[0];
     }
 
-    $api->returnData(getDocumentsFromIds($docIdList->DocumentIds));
+    $api->returnData(\Document\getDocumentsFromIds($docIdList->DocumentIds));
 }
 else if($api->isPost())
 {

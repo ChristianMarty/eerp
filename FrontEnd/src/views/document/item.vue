@@ -10,8 +10,7 @@
         <th style="text-align: left;">Created</th>
         <td>{{ documentData.CreatedBy.Initials }} / {{ documentData.CreationDate }}</td>
       </tr>
-      <tr>
-      </tr>
+      <tr />
       <tr>
         <th style="text-align: left;">Category</th>
         <td>{{ documentData.Category }}</td>
@@ -38,13 +37,12 @@
           </a>
         </template>
       </el-table-column>
-      <el-table-column prop="Type" label="Type" width="80"/>
+      <el-table-column prop="Type" label="Type" width="80" />
       <el-table-column prop="Description" label="Description" />
-      <el-table-column prop="CreatedBy.Initials" label="Initials" width="80"/>
-      <el-table-column prop="CreationDate" label="Creation Date" width="180"/>
-      <el-table-column prop="Hash" label="Hash" width="280"/>
+      <el-table-column prop="CreatedBy.Initials" label="Initials" width="80" />
+      <el-table-column prop="CreationDate" label="Creation Date" width="180" />
+      <el-table-column prop="Hash" label="Hash" width="280" />
     </el-table>
-
 
     <h2>Citations</h2>
     <template>

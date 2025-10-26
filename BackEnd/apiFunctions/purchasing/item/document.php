@@ -24,5 +24,5 @@ if($api->isGet())
 	$query = "SELECT DocumentIds FROM purchaseOrder WHERE PurchaseOrderNumber = '$purchaseOrderNumber';";
 	$result = $database->query($query)[0]->DocumentIds??null;
 
-	$api->returnData(getDocumentsFromIds($result));
+	$api->returnData(\Document\getDocumentsFromIds($result));
 }

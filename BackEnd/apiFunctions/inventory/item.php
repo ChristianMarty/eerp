@@ -192,7 +192,7 @@ if($api->isGet())
 	$output->Accessory = $accessory;
 	
 	// Get Documents
-	$output->Documents = getDocumentsFromIds($output->DocumentIds ?? null);
+	$output->Documents = \Document\getDocumentsFromIds($output->DocumentIds ?? null);
 	unset($output->DocumentIds);
 	
 	// Get History
@@ -208,7 +208,7 @@ if($api->isGet())
 	global $documentRootPath;
 	foreach ($history as $r)
 	{
-        $r->Documents = getDocumentsFromIds($r->DocumentIds ?? null);
+        $r->Documents = \Document\getDocumentsFromIds($r->DocumentIds ?? null);
 		unset($r->DocumentIds);
 		unset($r->Id);
 		unset($r->InventoryId);

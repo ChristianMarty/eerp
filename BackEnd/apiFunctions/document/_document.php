@@ -8,14 +8,86 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-namespace {
+namespace Document {
+
     require_once __DIR__ . "/../../config.php";
     require_once __DIR__ . "/../util/_barcodeFormatter.php";
     require_once __DIR__ . "/../util/_barcodeParser.php";
     require_once __DIR__ . "/../../core/error.php";
-}
 
-namespace Document {
+    function _formatDocumentOutput(\stdClass $item): \stdClass
+    {
+        $output = new \stdClass();
+        if (isset($item->Id)) {
+            $output->Id = $item->Id;
+        }
+        $output->DocumentNumber = intval($item->DocumentNumber);
+        $output->DocumentRevision = intval($item->RevisionNumber);
+        $output->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
+        $output->Name = $item->Name;
+        $output->Description = $item->Description ?? '';
+        $output->Category = $item->Category;
+        $output->CreationDate = $item->CreationDate;
+
+        if (isset($item->CreatedByInitials)) {
+            $output->CreatedByInitials = $item->CreatedByInitials;
+        }
+        if (isset($item->CreatedByName)) {
+            $output->CreatedByName = $item->CreatedByName;
+        }
+
+        global $dataRootPath;
+        global $documentPath;
+        if ($item->LinkType === "Internal") {
+            $output->Path =  $dataRootPath . $documentPath . "/" . barcodeFormatter_DocumentNumber($item->DocumentNumber, intval($item->RevisionNumber)) . ".pdf";
+        } else if ($item->LinkType === "External") {
+            $output->Path =  $item->Path;
+        }
+
+        return $output;
+    }
+
+    function getDocumentsFromIds(string|null $documentIds): array
+    {
+        if ($documentIds === null) return [];
+        $documentIds = trim($documentIds);
+        if (strlen($documentIds) === 0) return [];
+
+        global $database;
+
+        $docIds = explode(",", $documentIds);
+        if (empty($docIds)) return [];
+        $idList = implode(", ", $docIds);
+
+        $query = <<< QUERY
+            SELECT
+                document.Id,
+                DocumentNumber,
+                document_revision.RevisionNumber,
+                document_revision.Path,
+                document.Description,
+                Name,
+                Category,
+                document_revision.LinkType,
+                document_revision.Hash,
+                document_revision.Description AS RevisionDescription,
+                user.Initials AS CreatedByInitials,
+                user.UserId AS CreatedByName,
+                document_revision.CreationDate
+            FROM document
+            LEFT JOIN document_revision on document.Id = document_revision.DocumentNumberId 
+            LEFT JOIN user on document_revision.CreationUserId = user.Id
+            WHERE document.Id IN($idList)
+            ORDER BY document.Id DESC;
+        QUERY;
+
+        $result = $database->query($query);
+
+        foreach ($result as &$item) {
+            $item = _formatDocumentOutput($item);
+        }
+        return $result;
+    }
 
     class UserInformation implements \JsonSerializable
     {
@@ -49,9 +121,8 @@ namespace Document {
 
     function DocumentLinkType(string $input): LinkType
     {
-        if ($input === 'Internal') return LinkType::Internal;
-        if ($input === 'External') return LinkType::External;
-
+        if (strtolower($input) === 'internal') return LinkType::Internal;
+        if (strtolower($input) === 'external') return LinkType::External;
         return LinkType::Undefined;
     }
 
@@ -131,6 +202,62 @@ namespace Document {
         }
     }
 
+    function getDocuments(): array
+    {
+        global $database;
+        $query = <<< QUERY
+            SELECT 
+               DocumentNumber,
+               Category,
+               Name,
+               document_revision.RevisionNumber,
+               document_revision.Path,
+               document_revision.LinkType,
+               document.Description AS Description,
+               document_revision.Description,
+               document_revision.CreationDate AS CreationDate
+            FROM document
+            
+            LEFT JOIN (
+                SELECT a.Id, a.RevisionNumber, a.DocumentNumberId
+                FROM document_revision a
+                INNER JOIN (
+                    SELECT Id, MAX(RevisionNumber) RevisionNumber
+                    FROM document_revision
+                    GROUP BY Id
+                ) b ON a.Id = b.Id AND a.RevisionNumber = b.RevisionNumber
+            )revision ON document.Id = revision.DocumentNumberId
+            
+            LEFT JOIN document_revision ON document_revision.Id = revision.Id
+            ORDER BY document_revision.CreationDate DESC
+        QUERY;
+        $result = $database->query($query);
+
+        foreach ($result as &$item) {
+            $item = _formatDocumentOutput($item);
+        }
+        return $result;
+    }
+
+    function getDocumentCodeByHash(string $documentHash ): string|null
+    {
+        global $database;
+
+        $documentHash = $database->escape($documentHash);
+
+        $query = <<< QUERY
+        SELECT
+            CONCAT("DOC-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode
+        FROM document_revision
+        RIGHT JOIN document ON document.Id = document_revision.DocumentNumberId
+        WHERE Hash = $documentHash;
+        QUERY;
+        $result = $database->query($query);
+
+        if (count($result) === 0) return null;
+        else return $result[0]->ItemCode;
+    }
+
     function getDocumentMetaData(int $documentNumber): DocumentMetaData|null
     {
         global $database;
@@ -174,21 +301,22 @@ namespace Document {
     {
         global $database;
         $query = <<< QUERY
-        SELECT 
-            RevisionNumber,
-            Description,
-            LinkType,
-            Path,
-            Hash,
-            Extension,
-            CreationUserId,
-            CreationDate,
-            user.Initials AS CreatedByInitials,
-            user.UserId AS CreatedByName
-        FROM document_revision
-        LEFT JOIN user on CreationUserId = user.Id
-        WHERE DocumentNumberId = $documentMetaData->documentId
-    QUERY;
+            SELECT 
+                RevisionNumber,
+                Description,
+                LinkType,
+                Path,
+                Hash,
+                Extension,
+                CreationUserId,
+                CreationDate,
+                user.Initials AS CreatedByInitials,
+                user.UserId AS CreatedByName
+            FROM document_revision
+            LEFT JOIN user on CreationUserId = user.Id
+            WHERE DocumentNumberId = $documentMetaData->documentId
+            ORDER BY RevisionNumber DESC
+        QUERY;
         $result = $database->query($query);
 
         $output = [];
@@ -230,7 +358,7 @@ namespace Document {
             inventory.Manufacturer
         FROM inventory 
         WHERE replace(json_array(DocumentIds), ',', '","') LIKE '%"$documentId"%'
-    STR;
+        STR;
 
         $result = $database->query($query);
         foreach ($result as $r) {
@@ -253,7 +381,7 @@ namespace Document {
         FROM inventory_history 
         LEFT JOIN inventory ON inventory.Id = inventory_history.InventoryId
         WHERE replace(json_array(inventory_history.DocumentIds), ',', '","') LIKE '%"$documentId"%'
-    STR;
+        STR;
 
         $result = $database->query($query);
         foreach ($result as $r) {
@@ -273,7 +401,7 @@ namespace Document {
         FROM manufacturerPart_series 
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_series.VendorId
         WHERE replace(json_array(manufacturerPart_series.DocumentIds), ',', '","') LIKE '%"$documentId"%'
-    STR;
+        STR;
 
         $result = $database->query($query);
         foreach ($result as $r) {
@@ -293,7 +421,7 @@ namespace Document {
         FROM manufacturerPart_item
         LEFT JOIN vendor ON vendor.Id = manufacturerPart_item.VendorId
         WHERE replace(json_array(manufacturerPart_item.DocumentIds), ',', '","') LIKE '%"$documentId"%'
-    STR;
+        STR;
 
         $result = $database->query($query);
         foreach ($result as $r) {
@@ -313,7 +441,7 @@ namespace Document {
         FROM purchaseOrder 
         LEFT JOIN vendor ON vendor.Id = purchaseOrder.VendorId
         WHERE replace(json_array(purchaseOrder.DocumentIds), ',', '","') LIKE '%"$documentId"%'
-    STR;
+        STR;
 
         $result = $database->query($query);
         foreach ($result as $r) {
@@ -332,7 +460,7 @@ namespace Document {
             shipment.Description
         FROM shipment 
         WHERE replace(json_array(DocumentIds), ',', '","') LIKE '%"$documentId"%'
-    STR;
+        STR;
 
         $result = $database->query($query);
         foreach ($result as $r) {
@@ -345,203 +473,6 @@ namespace Document {
 
         return $output;
     }
-}
-
-
-namespace {
-
-    function checkFileNotDuplicate($path): ?array
-    {
-        global $database;
-
-        // Check if file already exists
-        $fileMd5 = md5_file($path);
-
-        $query = <<< QUERY
-        SELECT
-            document.DocumentNumber,
-            document_revision.DocumentNumberId,
-            document.Category,
-            document.Description,
-            document_revision.Hash,
-            document_revision.Path
-        FROM document_revision
-        LEFT JOIN document on document.Id = document_revision.DocumentNumberId
-        WHERE Hash='$fileMd5';
-    QUERY;
-
-        $result = $database->query($query);
-
-        $retuning = [];
-        if (count($result)) {
-            $existingFile = $result[0];
-            $retuning['preexisting'] = true;
-            $retuning['hash'] = $existingFile->Hash;
-            $retuning['path'] = $existingFile->Path;
-            $retuning['type'] = $existingFile->Type;
-            $retuning['description'] = $existingFile->Description;
-        } else {
-            $retuning['preexisting'] = false;
-            $retuning['hash'] = $fileMd5;
-        }
-
-        return $retuning;
-    }
-
-    function _formatDocumentPath(stdClass $item): string
-    {
-        global $dataRootPath;
-        global $documentPath;
-
-        if ($item->LinkType === "Internal") {
-            return $dataRootPath . $documentPath . "/" . barcodeFormatter_DocumentNumber($item->DocumentNumber, intval($item->RevisionNumber)) . ".pdf";
-        } else if ($item->LinkType === "External") {
-            return $item->Path;
-        }
-
-        return "";
-    }
-
-    function _formatDocumentOutput(stdClass $item): stdClass
-    {
-        $output = new stdClass();
-        if (isset($item->Id)) {
-            $output->Id = $item->Id;
-        }
-        $output->DocumentNumber = intval($item->DocumentNumber);
-        $output->DocumentRevision = intval($item->RevisionNumber);
-        $output->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
-        $output->Name = $item->Name;
-        $output->Description = $item->Description ?? '';
-        $output->Category = $item->Category;
-        $output->CreationDate = $item->CreationDate;
-
-        if (isset($item->CreatedByInitials)) {
-            $output->CreatedByInitials = $item->CreatedByInitials;
-        }
-        if (isset($item->CreatedByName)) {
-            $output->CreatedByName = $item->CreatedByName;
-        }
-        $output->Path = _formatDocumentPath($item);
-
-        return $output;
-    }
-
-    function getDocumentFromDocumentNumber(int|null $documentNumber): stdClass
-    {
-        if ($documentNumber === null) return new stdClass();
-
-        global $database;
-
-        $query = <<< QUERY
-        SELECT
-            document.Id AS Id,
-            DocumentNumber,
-            document_revision.RevisionNumber,
-            Path,
-            Category,
-            LinkType,
-            Name,
-            document_revision.Hash,
-            document.Description,
-            user.Initials AS CreatedByInitials,
-            user.UserId AS CreatedByName,
-            document.CreationDate
-        FROM document
-        LEFT JOIN user on document.CreationUserId = user.Id
-        LEFT JOIN document_revision on document.Id = document_revision.DocumentNumberId
-        WHERE DocumentNumber = '$documentNumber';
-    QUERY;
-
-        $result = $database->query($query);
-
-        if (count($result) == 0) return new stdClass();
-        $result = $result[0];
-
-        return _formatDocumentOutput($result);
-    }
-
-    function getDocumentsFromIds(string|null $documentIds): array
-    {
-        if ($documentIds === null) return [];
-        $documentIds = trim($documentIds);
-        if (strlen($documentIds) === 0) return [];
-
-        global $database;
-
-        $docIds = explode(",", $documentIds);
-        if (empty($docIds)) return [];
-        $idList = implode(", ", $docIds);
-
-        $query = <<< QUERY
-        SELECT
-            document.Id,
-            DocumentNumber,
-            document_revision.RevisionNumber,
-            document_revision.Path,
-            document.Description,
-            Name,
-            Category,
-            document_revision.LinkType,
-            document_revision.Hash,
-            document_revision.Description AS RevisionDescription,
-            user.Initials AS CreatedByInitials,
-            user.UserId AS CreatedByName,
-            document_revision.CreationDate
-        FROM document
-        LEFT JOIN document_revision on document.Id = document_revision.DocumentNumberId 
-        LEFT JOIN user on document_revision.CreationUserId = user.Id
-        WHERE document.Id IN($idList)
-        ORDER BY document.Id DESC;
-    QUERY;
-
-        $result = $database->query($query);
-
-        foreach ($result as &$item) {
-            $item = _formatDocumentOutput($item);
-        }
-        return $result;
-    }
-
-
-    function getDocuments(): array
-    {
-        global $database;
-        $query = <<< QUERY
-        SELECT 
-           DocumentNumber,
-           Category,
-           Name,
-           document_revision.RevisionNumber,
-           document_revision.Path,
-           document_revision.LinkType,
-           document.Description AS Description,
-           document_revision.Description,
-           document_revision.CreationDate AS CreationDate
-        FROM document
-        
-        LEFT JOIN (
-            SELECT a.Id, a.RevisionNumber, a.DocumentNumberId
-            FROM document_revision a
-            INNER JOIN (
-                SELECT Id, MAX(RevisionNumber) RevisionNumber
-                FROM document_revision
-                GROUP BY Id
-            ) b ON a.Id = b.Id AND a.RevisionNumber = b.RevisionNumber
-        )revision ON document.Id = revision.DocumentNumberId
-        
-        LEFT JOIN document_revision ON document_revision.Id = revision.Id
-        ORDER BY document_revision.CreationDate DESC
-        QUERY;
-        $result = $database->query($query);
-
-        foreach ($result as &$item) {
-            $item = _formatDocumentOutput($item);
-        }
-        return $result;
-    }
-
-
 }
 
 namespace Document\Ingest
@@ -561,13 +492,11 @@ namespace Document\Ingest
         }
 
         // Check if file already exists
-        $fileMd5 = md5($file);
+        $documentHash = md5($file);
+        $preexisting = \Document\getDocumentCodeByHash($documentHash);
 
-        $query = "SELECT Id FROM `document_revision` WHERE `Hash`='".$fileMd5."'";
-        $result = $database->query($query);
-
-        if(count($result)){
-            return \Error\generic("The downloaded file already exists.");
+        if($preexisting !== null) {
+            return \Error\generic("This file already exists as ".$preexisting);
         }
 
         file_put_contents($serverDataPath.$ingestPath."/".$fileName, $file);
@@ -590,13 +519,11 @@ namespace Document\Ingest
         $file = $file["tmp_name"];
 
         // Check if file already exists
-        $fileMd5 = md5_file($file);
+        $documentHash = md5_file($file);
+        $preexisting = \Document\getDocumentCodeByHash($documentHash);
 
-        $query = "SELECT Id FROM `document_revision` WHERE `Hash`='$fileMd5'";
-        $result = $database->query($query);
-
-        if(count($result)){
-            return \Error\generic("The uploaded file already exists.");
+        if($preexisting !== null) {
+            return \Error\generic("This file already exists as ".$preexisting);
         }
 
         move_uploaded_file($file, $serverDataPath.$ingestPath."/".$fileName);
@@ -672,9 +599,11 @@ namespace Document\Ingest
             $sourcePath = $serverDataPath . $ingestPath . "/" . $data->ingestName;
             if (!file_exists($sourcePath)) return \Error\generic("File path invalid.");
 
-            $fileHashCheck = checkFileNotDuplicate($sourcePath);
-            if ($fileHashCheck['preexisting']) {
-                return \Error\generic("File already exists as " . $fileHashCheck['path'] . " with type " . $fileHashCheck['type']);
+            $documentHash = md5_file($sourcePath);
+            $preexisting = \Document\getDocumentCodeByHash($documentHash);
+
+            if($preexisting !== null) {
+                return \Error\generic("This file already exists as ".$preexisting);
             }
             $fileExtension = pathinfo($sourcePath, PATHINFO_EXTENSION);
         }

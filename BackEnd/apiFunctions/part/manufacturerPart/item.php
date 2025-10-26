@@ -114,7 +114,7 @@ if($api->isGet())
     if(isset($output->SeriesDocumentIds)) $documentIds += explode(",",$output->SeriesDocumentIds);
     if(isset($output->ItemDocumentIds)) $documentIds += explode(",",$output->ItemDocumentIds);
     $documentIdsStr = implode(",", $documentIds);
-    $output->Documents = getDocumentsFromIds($documentIdsStr);
+    $output->Documents = \Document\getDocumentsFromIds($documentIdsStr);
 
     $api->returnData($output);
 }

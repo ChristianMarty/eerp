@@ -83,7 +83,7 @@ if($api->isGet())
         $item->PartNumber = $manufacturerPartNumber;
     }
 
-    $output->Documents = getDocumentsFromIds($output->SeriesDocumentIds);
+    $output->Documents = \Document\getDocumentsFromIds($output->SeriesDocumentIds);
     unset($output->SeriesDocumentIds);
 
     $api->returnData($output);

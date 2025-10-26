@@ -32,7 +32,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="selectedMode === 'newDocument'"  label="Document Description:">
+      <el-form-item v-if="selectedMode === 'newDocument'" label="Document Description:">
         <el-input v-model="dialogData.DocumentDescription" />
       </el-form-item>
 

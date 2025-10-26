@@ -30,7 +30,7 @@ if($api->isGet())
     $DocIds = $output['MetaData']->DocumentIds ?? null;
     unset($output['MetaData']->DocumentIds);
 	
-	$output["Documents"] = getDocumentsFromIds($DocIds);
+	$output["Documents"] = \Document\getDocumentsFromIds($DocIds);
 
 	$api->returnData($output);
 }

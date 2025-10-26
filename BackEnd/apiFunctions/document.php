@@ -14,5 +14,5 @@ require_once __DIR__ . "/document/_document.php";
 
 if($api->isGet(Permission::Document_List))
 {
-    $api->returnData(getDocuments());
+    $api->returnData(\Document\getDocuments());
 }
