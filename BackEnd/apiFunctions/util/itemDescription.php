@@ -18,8 +18,5 @@ if($api->isGet())
 
     if(!isset($parameters->Item)) $api->returnParameterMissingError("Item");
 
-    $data = description_generateSummary($parameters->Item);
-
-    if($data['error']) $api->returnError($data['error']);
-    else $api->returnData($data['data']);
+    $api->returnData(description_generateSummary($parameters->Item));
 }

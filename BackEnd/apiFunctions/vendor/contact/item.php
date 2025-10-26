@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/_contact.php";
 
-if($api->isGet())
+if($api->isGet(Permission::Vendor_View))
 {
     $parameters = $api->getGetData();
 
@@ -36,7 +36,7 @@ if($api->isGet())
         }
 	}
 }
-else if($api->isPost())
+else if($api->isPost(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
@@ -49,7 +49,7 @@ else if($api->isPost())
     }
     $api->returnEmpty();
 }
-else if($api->isPatch())
+else if($api->isPatch(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->ContactId))$api->returnParameterMissingError("ContactId");

@@ -16,7 +16,7 @@ require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/_location.php";
 
 
-if($api->isGet())
+if($api->isGet(\Permission::Location_View))
 {
 	$parameters = $api->getGetData();
 	if(!isset($parameters->LocationNumber)) $api->returnParameterMissingError('LocationNumber');
@@ -113,7 +113,7 @@ if($api->isGet())
 
 	$api->returnData($output);
 }
-else if($api->isPatch('location.edit'))
+else if($api->isPatch(\Permission::Location_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->LocationNumber)) $api->returnParameterMissingError('LocationNumber');

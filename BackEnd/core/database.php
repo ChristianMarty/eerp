@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/error.php";
 
 class database
 {
@@ -63,7 +64,7 @@ class database
         else return $info[0]."-".$info[1]."-".$info[2];
     }
 
-    public function getEnumOptions(string $table, string $column):array|null
+    public function getEnumOptions(string $table, string $column):array|\Error\Data
     {
         $table = $this->pdo->quote($table);
         $column = $this->pdo->quote($column);
@@ -77,7 +78,7 @@ class database
         $data = $this->pdo->query($query);
         $result = $data->fetch();
 
-        if(!$result) return null;
+        if(!$result) return \Error\database("Database error for $table - $column");
         return explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2", $result->Type));
     }
 
@@ -87,7 +88,7 @@ class database
         else return $this->pdo->quote(strval($input));
     }
 
-    function query(string $baseQuery, array|null $queryParameters = null, string|null $postFix = null ):array
+    function query(string $baseQuery, array|null $queryParameters = null, string|null $postFix = null ): array | \Error\Data
     {
         $query = $baseQuery;
 
@@ -108,24 +109,21 @@ class database
         try {
             $data = $this->pdo->query($query);
             $result = $data->fetchAll();
-        }
-        catch (\PDOException $e)
-        {
-            throw new \Exception($e->getMessage());
+        } catch (\PDOException $e) {
+            return \Error\database($e->getMessage());
         }
 
         return $result;
     }
 
-    function execute(string $query): void
+    function execute(string $query): null | \Error\Data
     {
         try {
             $this->pdo->exec($query);
+        } catch (\PDOException $e) {
+            return \Error\database($e->getMessage());
         }
-        catch (\PDOException $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
+        return null;
     }
 
     public function insert(string $tableName, array $data, bool $ignore = false): int
@@ -166,11 +164,11 @@ class database
         return intval($this->pdo->lastInsertId());
     }
 
-    public function update(string $tableName, array $data, string|null $condition = null): void
+    public function update(string $tableName, array $data, string|null $condition = null): null | \Error\Data
     {
         if($condition === null OR strlen($condition) == 0){
             trigger_error("DB Update -> will not run update without condition", E_USER_ERROR);
-            return;
+            return null;
         }
 
         $pairs ="";
@@ -197,30 +195,30 @@ class database
 
         try {
             $this->pdo->exec($query);
+        } catch (PDOException $e) {
+            return \Error\database($e->getMessage());
         }
-        catch (PDOException $e) {
-            throw new Exception($e->getMessage());
-        }
+        return null;
     }
 
-    public function delete(string $tableName, string|null $condition = null): void
+    public function delete(string $tableName, string|null $condition = null): null | \Error\Data
     {
         if($condition === null OR strlen($condition) == 0){
             trigger_error("DB Delete -> will not run delete without condition", E_USER_ERROR);
-            return;
+            return null;
         }
 
         $query = "DELETE FROM $tableName WHERE  $condition;";
 
         try {
             $this->pdo->exec($query);
+        } catch (PDOException $e) {
+            return \Error\database($e->getMessage());
         }
-        catch (PDOException $e) {
-            throw new Exception($e->getMessage());
-        }
+        return null;
     }
 
-    static public function toBool(int &$value):void
+    static public function toBool(int &$value): void
     {
         if($value != 0) $value = true;
         else $value = false;
@@ -232,7 +230,7 @@ class database
         else return "b'0'";
     }
 
-    static public function stringEmptyOrNull(string|null $value):bool
+    static public function stringEmptyOrNull(string|null $value): bool
     {
         if($value === null) return true;
         if(strlen(trim($value)) === 0) return true;

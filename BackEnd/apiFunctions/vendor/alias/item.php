@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__. "/_alias.php";
 
-if($api->isGet())
+if($api->isGet(Permission::Vendor_View))
 {
     $data = $api->getGetData();
     if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
@@ -26,7 +26,7 @@ if($api->isGet())
     }
     $api->returnData($alias);
 }
-else if($api->isPost())
+else if($api->isPost(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
@@ -40,7 +40,7 @@ else if($api->isPost())
     }
     $api->returnEmpty();
 }
-else if($api->isPatch())
+else if($api->isPatch(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
@@ -53,7 +53,7 @@ else if($api->isPatch())
     }
     $api->returnEmpty();
 }
-else if($api->isDelete())
+else if($api->isDelete(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");

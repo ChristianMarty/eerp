@@ -11,7 +11,7 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-if($api->isGet("renderer.view"))
+if($api->isGet(\Permission::Renderer_View))
 {
     $parameters = $api->getGetData();
 

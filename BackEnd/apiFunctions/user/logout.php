@@ -7,8 +7,10 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 global $user;
 global $api;
+
 $user->logout();
 $api->returnEmpty();

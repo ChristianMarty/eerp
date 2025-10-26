@@ -6,6 +6,7 @@
 // Date		: 23.10.2023
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/database.php";

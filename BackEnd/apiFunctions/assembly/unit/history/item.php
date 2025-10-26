@@ -17,7 +17,7 @@ require_once __DIR__ . "/../../../util/_json.php";
 require_once __DIR__ . "/../../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../../../util/_barcodeParser.php";
 
-if ($api->isGet()) {
+if ($api->isGet( \Permission::Assembly_Unit_View)) {
     $parameter = $api->getGetData();
     if (!isset($parameter->AssemblyUnitHistoryNumber)) $api->returnParameterMissingError("AssemblyUnitHistoryNumber");
 
@@ -66,7 +66,8 @@ if ($api->isGet()) {
     if ($history->Data != NULL) $history->Data = json_decode($history->Data);
 
     $api->returnData($history);
-} else if ($api->isPatch()) {
+
+} else if ($api->isPatch(\Permission::Assembly_Unit_Edit)) {
     $data = $api->getPostData();
     if (!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
     $token = $database->escape($data->EditToken);
@@ -94,7 +95,8 @@ if ($api->isGet()) {
     $database->update("assembly_unit_history", $sqlData, "EditToken = $token");
 
     $api->returnEmpty();
-} else if ($api->isPost()) {
+
+} else if ($api->isPost( \Permission::Assembly_Unit_Create)) {
     $data = $api->getPostData();
     if (!isset($data->AssemblyUnitNumber)) $api->returnParameterMissingError("AssemblyUnitNumber");
     $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($data->AssemblyUnitNumber);

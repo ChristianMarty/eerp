@@ -14,7 +14,7 @@ global $api;
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::Metrology_TestSystem_View))
 {
     $parameter = $api->getGetData();
 
@@ -105,7 +105,7 @@ if($api->isGet())
 	
 	$api->returnData($output);
 }
-else if($api->isPost("metrology.create"))
+else if($api->isPost(\Permission::Metrology_TestSystem_Create))
 {
     $data = $api->getPostData();
     if(!isset($data->Name)) $api->returnParameterMissingError("Name");

@@ -15,7 +15,7 @@ global $user;
 require_once __DIR__ . "/../../vendor/api/_vendorInterface.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($api->isPost())
+if($api->isPost(\Permission::PurchaseOrder_Edit))
 {
     $parameters = $api->getGetData();
 
@@ -46,7 +46,7 @@ if($api->isPost())
 
     $api->returnData($vendor->parseOrderInformation($data));
 }
-else if($api->isPatch())
+else if($api->isPatch(\Permission::PurchaseOrder_Edit))
 {
     $parameters = $api->getGetData();
     $data = $api->getPostData();

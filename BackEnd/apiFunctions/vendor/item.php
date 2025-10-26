@@ -15,7 +15,7 @@ require_once __DIR__. "/_vendor.php";
 require_once __DIR__. "/alias/_alias.php";
 require_once __DIR__. "/contact/_contact.php";
 
-if($api->isGet("vendor.view"))
+if($api->isGet(Permission::Vendor_View))
 {
     $parameters = $api->getGetData();
 
@@ -122,7 +122,7 @@ if($api->isGet("vendor.view"))
 
     $api->returnData($output);
 }
-else if($api->isPatch())
+else if($api->isPatch(Permission::Vendor_Edit))
 {
 	$data = $api->getPostData();
 
@@ -149,7 +149,7 @@ else if($api->isPatch())
 	
     $api->returnEmpty();
 }
-else if($api->isPost("vendor.create"))
+else if($api->isPost(Permission::Vendor_Create))
 {
     $data = $api->getPostData();
 

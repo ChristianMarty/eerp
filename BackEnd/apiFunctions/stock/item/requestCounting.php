@@ -13,7 +13,7 @@ global $api;
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../_stock.php";
 
-if($api->isPost("stock.countingRequest"))
+if($api->isPost(\Permission::Stock_RequestCounting))
 {
     $data = $api->getPostData();
     if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
@@ -24,4 +24,3 @@ if($api->isPost("stock.countingRequest"))
 
     $api->returnEmpty();
 }
-

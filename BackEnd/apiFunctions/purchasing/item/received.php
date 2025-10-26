@@ -12,7 +12,7 @@ global $database;
 global $api;
 global $user;
 
-if($api->isGet())
+if($api->isGet(\Permission::PurchaseOrder_View))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->ReceivalId)) $api->returnParameterMissingError("ReceivalId");
@@ -44,7 +44,7 @@ if($api->isGet())
     $output = $database->query($query)[0]??null;
     $api->returnData($output);
 }
-else if($api->isPost("purchasing.confirm"))
+else if($api->isPost(\Permission::PurchaseOrder_Confirm))
 {
     $data = $api->getPostData();
     if(!isset($data->LineId)) $api->returnParameterMissingError("LineId");

@@ -15,7 +15,7 @@ global $user;
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isGet("inventory.purchase.view"))
+if($api->isGet(\Permission::Inventory_Purchase_View))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
@@ -49,14 +49,13 @@ if($api->isGet("inventory.purchase.view"))
     $result = $database->query($query);
     foreach($result as &$item)
     {
-        $item->PurchaseOrderNumber = $item->PurchaseOrderNumber;
         $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
         $item->PurchaseOrderNumber = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber);
     }
 
     $api->returnData($result);
 }
-else if($api->isPatch("inventory.purchase.edit"))
+else if($api->isPatch(\Permission::Inventory_Purchase_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->InventoryNumber)) $api->returnParameterMissingError('InventoryNumber');

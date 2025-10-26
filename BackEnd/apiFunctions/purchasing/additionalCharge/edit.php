@@ -15,7 +15,7 @@ global $user;
 require_once __DIR__ . "/../_function.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($api->isPost())
+if($api->isPost(\Permission::PurchaseOrder_Edit))
 {
 	$data = $api->getPostData();
     if(!isset($data->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
@@ -51,7 +51,7 @@ if($api->isPost())
 
 	$api->returnData(getPurchaseOrderData($purchaseOrderNumber));
 }
-else if($api->isDelete())
+else if($api->isDelete(\Permission::PurchaseOrder_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');

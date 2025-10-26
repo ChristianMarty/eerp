@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/../../renderer/_item/_renderer.php";
 
-if($api->isPost())
+if($api->isPost(\Permission::Peripheral_Printer_Use))
 {
     $data = $api->getPostData();
     if(!isset($data->Data)) $api->returnParameterMissingError("Data");

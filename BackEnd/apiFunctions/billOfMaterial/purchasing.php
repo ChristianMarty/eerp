@@ -14,7 +14,7 @@ global $api;
 require_once __DIR__ . "/../externalApi/octopart.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet( \Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
 
@@ -37,8 +37,7 @@ if($api->isGet())
                numbering.Prefix AS ProductionPartPrefix, 
                productionPart.Description,
                manufacturerPart_partNumber.Number AS ManufacturerPartNumber,
-               vendor_displayName(vendor.Id) AS ManufacturerName,
-               manufacturerPart_partNumber.OctopartId
+               vendor_displayName(vendor.Id) AS ManufacturerName
         FROM billOfMaterial_item
         LEFT JOIN productionPart ON productionPart.Id = billOfMaterial_item.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId

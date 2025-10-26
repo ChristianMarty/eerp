@@ -14,12 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('purchaseOrder_additionalCharges','Type');
-    if($options === null)
-    {
-        $api->returnError('Database error for purchaseOrder_additionalCharges Type');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

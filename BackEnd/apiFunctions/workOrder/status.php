@@ -14,12 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('workOrder','Status');
-    if($options === null)
-    {
-        $api->returnError('Database error for workOrder status');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

@@ -14,12 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('vendor_contact','Gender');
-    if($options === null)
-    {
-        $api->returnError('Database error for vendor_contact Gender');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/../util/_barcodeParser.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
 

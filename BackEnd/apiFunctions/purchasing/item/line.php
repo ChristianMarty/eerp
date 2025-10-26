@@ -126,7 +126,7 @@ function update_costCenter(int $lineId, array | null $costCenterList): void
     }
 }
 
-if($api->isGet())
+if($api->isGet(\Permission::PurchaseOrder_View))
 {
     $parameters = $api->getGetData();
 
@@ -147,7 +147,7 @@ if($api->isGet())
 
     $api->returnData($output);
 }
-else if($api->isPost() OR $api->isPatch())
+else if($api->isPost(\Permission::PurchaseOrder_Edit) OR $api->isPatch(\Permission::PurchaseOrder_Edit))
 {
     $parameters = $api->getGetData();
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError('PurchaseOrderNumber');
@@ -160,10 +160,10 @@ else if($api->isPost() OR $api->isPatch())
         $lineId = save_line($purchaseOrderNumber, $line);
         update_costCenter($lineId, $line->CostCenter??null);
     }
-
+ 
     $api->returnEmpty();
 }
-else if($api->isDelete())
+else if($api->isDelete(\Permission::PurchaseOrder_Edit))
 {
     $parameters = $api->getGetData();
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError('PurchaseOrderNumber');

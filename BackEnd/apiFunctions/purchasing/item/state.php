@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 
-if($api->isPatch())
+if($api->isPatch(\Permission::PurchaseOrder_Edit))
 {
 	$parameters = $api->getGetData();
 	if(!isset($parameters->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');

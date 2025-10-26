@@ -14,9 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('document','Category');
-    if($options === null) {
-        $api->returnError('Database error for document category');
-    } else {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

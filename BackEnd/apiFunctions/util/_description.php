@@ -14,9 +14,10 @@ require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../location/_location.php";
 
 //Generates a universal description of an item of any category
-function description_generateSummary(string $itemCode): array
+function description_generateSummary(string $itemCode): array | \Error\Data
 {
     global $database;
+    global $user;
 
 	$response['data'] = null;
 	$response['error'] = null;
@@ -30,6 +31,10 @@ function description_generateSummary(string $itemCode): array
 
 	if($itemPrefix == "stk")
 	{
+        if(!$user->checkPermission(\Permission::Stock_View)){
+            return \Error\permission(\Permission::Stock_View);
+        }
+
 		$query = <<< STR
 		SELECT
 		    StockNumber,
@@ -48,8 +53,7 @@ function description_generateSummary(string $itemCode): array
 
 		if(count($result) == 0)
 		{
-			$response['error'] ="Item not found";
-			return $response;
+            return \Error\generic("Item not found");
 		}
 
 		$itemData = $result[0];
@@ -66,6 +70,10 @@ function description_generateSummary(string $itemCode): array
 	}
 	else if($itemPrefix == "inv")
 	{
+        if(!$user->checkPermission(\Permission::Inventory_View)){
+            return \Error\permission(\Permission::Inventory_View);
+        }
+
         $query = <<< STR
 		SELECT
 		    InventoryNumber,
@@ -80,8 +88,7 @@ function description_generateSummary(string $itemCode): array
 
         if(count($result) == 0)
         {
-            $response['error'] ="Item not found";
-            return $response;
+            return \Error\generic("Item not found");
         }
 
         $itemData = $result[0];
@@ -98,6 +105,10 @@ function description_generateSummary(string $itemCode): array
 	}
 	else if($itemPrefix == "asu")
 	{
+        if(!$user->checkPermission(\Permission::Assembly_View)){
+            return \Error\permission(\Permission::Assembly_View);
+        }
+
 		$query = <<<STR
 			SELECT 
 			    AssemblyUnitNumber,
@@ -113,8 +124,7 @@ function description_generateSummary(string $itemCode): array
 
         if(count($result) == 0)
         {
-            $response['error'] ="Item not found";
-            return $response;
+            return \Error\generic("Item not found");
         }
 
         $itemData = $result[0];
@@ -131,6 +141,10 @@ function description_generateSummary(string $itemCode): array
 	}
 	else if($itemPrefix == "loc")
 	{
+        if(!$user->checkPermission(\Permission::Location_View)){
+            return \Error\permission(\Permission::Location_View);
+        }
+
 		$query = <<<STR
 			SELECT 
 			    LocationNumber,
@@ -144,8 +158,7 @@ function description_generateSummary(string $itemCode): array
 
         if(count($result) == 0)
         {
-            $response['error'] ="Item not found";
-            return $response;
+            return \Error\generic("Item not found");
         }
 
         $itemData = $result[0];
@@ -162,8 +175,7 @@ function description_generateSummary(string $itemCode): array
 	}
 	else
 	{
-		$response['error'] ="Unknown Item Category";
-		return $response;
+        return \Error\generic("Unknown Item Category");
 	}
 
 	if($locationId != null)
@@ -180,8 +192,7 @@ function description_generateSummary(string $itemCode): array
 
         if(count($result) == 0)
         {
-            $response['error'] ="Item not found";
-            return $response;
+            return \Error\generic("Item not found");
         }
 
         $itemData = $result[0];

@@ -29,8 +29,6 @@ class SartoriusTE extends ScaleBase
         }else{
             return $data;
         }
-
-
     }
 
     public function getError(): ScaleError

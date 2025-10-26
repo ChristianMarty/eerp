@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__."/../util/_barcodeParser.php";
 
-if($api->isPost())
+if($api->isPost(\Permission::Location_Transfer))
 {
 	$data = $api->getPostData();
 

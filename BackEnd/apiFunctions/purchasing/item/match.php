@@ -131,7 +131,7 @@ $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOr
 if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
 
-if($api->isGet())
+if($api->isGet(\Permission::PurchaseOrder_View))
 {
 	$output["Lines"] = array();
 	$lines = loadDatabaseData($purchaseOrderNumber);
@@ -144,7 +144,7 @@ if($api->isGet())
 	}
 	$api->returnData($output);
 }
-else if($api->isPost())
+else if($api->isPost(\Permission::PurchaseOrder_Edit))
 {
     $data = $api->getPostData();
 

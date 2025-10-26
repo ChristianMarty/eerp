@@ -115,7 +115,7 @@ function moveLocationItems($itemList, $locationNr): string
 }
 
 
-if($api->isPost())
+if($api->isPost(\Permission::Location_Transfer))
 {
 	$data = $api->getPostData();
 

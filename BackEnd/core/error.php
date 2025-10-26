@@ -6,6 +6,7 @@
 // Date		: 09.09.2025
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 namespace Error;
 require_once __DIR__ . "/user/userAuthentication.php";
@@ -19,6 +20,7 @@ enum Type
     case PostDataMissing;
     case Parameter;
     case ParameterMissing;
+    case Permission;
 }
 
 function trace(): string
@@ -40,6 +42,11 @@ function database(string $error): Data
 function generic(string $error): Data
 {
     return new Data(Type::Generic, trace().$error);
+}
+
+function permission(\Permission $permission): Data
+{
+    return new Data(Type::Permission, trace()."No permission for ".$permission->name);
 }
 
 function itemNotFound(string $itemCode): Data

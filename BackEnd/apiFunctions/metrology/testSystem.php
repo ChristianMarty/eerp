@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($api->isGet("metrology.view"))
+if($api->isGet(\Permission::Metrology_TestSystem_List))
 {
 	$query = <<< QUERY
         SELECT 

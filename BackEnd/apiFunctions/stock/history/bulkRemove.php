@@ -15,7 +15,7 @@ global $user;
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isPost())
+if($api->isPost(\Permission::Stock_History_Remove))
 {
 	$data = $api->getPostData();
 

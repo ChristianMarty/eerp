@@ -15,7 +15,7 @@ require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../location/_location.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::Location_View))
 {
 	$parameter = $api->getGetData();
 

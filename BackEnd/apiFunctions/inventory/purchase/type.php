@@ -11,15 +11,8 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-if($api->isGet("inventory.purchase.view"))
+if($api->isGet())
 {
     $options = $database->getEnumOptions('inventory_purchaseOrderReference','Type');
-    if($options === null)
-    {
-        $api->returnError('Database error for inventory_purchaseOrderReference Type');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

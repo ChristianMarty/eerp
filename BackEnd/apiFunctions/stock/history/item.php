@@ -16,7 +16,7 @@ require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../_stock.php";
 
-if($api->isGet()) {
+if($api->isGet(\Permission::Stock_History_View)) {
 
     $parameter = $api->getGetData();
 
@@ -105,7 +105,7 @@ if($api->isGet()) {
 
     $api->returnData($output);
 }
-else if($api->isPatch())
+else if($api->isPatch(\Permission::Stock_History_Edit))
 {
 	$data = $api->getPostData();
 	if(!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
@@ -183,6 +183,8 @@ else if($api->isPost())
 	
 	if(isset($data->RemoveQuantity))
 	{
+        $api->checkPermission(\Permission::Stock_History_Remove);
+
 		if(!is_numeric($data->RemoveQuantity)) $api->returnParameterError("RemoveQuantity");
 		$removeQuantity = intval($data->RemoveQuantity);
 
@@ -192,6 +194,8 @@ else if($api->isPost())
 	}
 	else if(isset($data->AddQuantity))
 	{
+        $api->checkPermission(\Permission::Stock_History_Add);
+
 		if(!is_numeric($data->AddQuantity)) $api->returnParameterError("AddQuantity");
 		$addQuantity = intval($data->AddQuantity);
 
@@ -200,6 +204,8 @@ else if($api->isPost())
 	}
 	else if(isset($data->Quantity))
 	{
+        $api->checkPermission(\Permission::Stock_History_Count);
+
         if(!is_numeric($data->Quantity)) $api->returnParameterError("Quantity");
         $quantity = intval($data->Quantity);
 

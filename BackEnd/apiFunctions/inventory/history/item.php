@@ -16,7 +16,7 @@ require_once __DIR__ . "/../../util/_json.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::Inventory_History_View))
 {
     $parameter = $api->getGetData();
 	if(!isset($parameter->InventoryNumber) AND !isset($parameter->EditToken)) $api->returnParameterMissingError("InventoryNumber or EditToken");
@@ -47,7 +47,7 @@ if($api->isGet())
 
     $api->returnData($result[0]);
 }
-else if($api->isPatch())
+else if($api->isPatch(\Permission::Inventory_History_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
@@ -64,7 +64,7 @@ else if($api->isPatch())
 
     $api->returnEmpty();
 }
-else if($api->isPost())
+else if($api->isPost(\Permission::Inventory_History_Create))
 {
 	$data = $api->getPostData();
 

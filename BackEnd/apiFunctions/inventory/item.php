@@ -20,7 +20,7 @@ require_once __DIR__ . "/../location/_location.php";
 
 require_once __DIR__ . "/../document/_document.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::Inventory_View))
 {
 	$parameter = $api->getGetData();
 	if(!isset($parameter->InventoryNumber) and !isset($parameter->SerialNumber)) $api->returnParameterMissingError("InventoryNumber and SerialNumber");
@@ -218,7 +218,7 @@ if($api->isGet())
 	
 	$api->returnData($output);
 }
-else if($api->isPost())
+else if($api->isPost(\Permission::Inventory_Create))
 {
 	$data = $api->getPostData();
 

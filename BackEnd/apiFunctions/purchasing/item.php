@@ -16,7 +16,7 @@ require_once __DIR__ . "/_function.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../util/_barcodeParser.php";
 
-if($api->isGet())
+if($api->isGet( \Permission::PurchaseOrder_View))
 {
     $parameters = $api->getGetData();
 
@@ -34,7 +34,7 @@ if($api->isGet())
 
 	$api->returnData($output);
 }
-else if($api->isPost())
+else if($api->isPost(\Permission::PurchaseOrder_Create))
 {
     $data = $api->getPostData();
 
@@ -55,7 +55,7 @@ else if($api->isPost())
 
     $api->returnData($output);
 }
-else if ($api->isPatch())
+else if ($api->isPatch(\Permission::PurchaseOrder_Edit))
 {
     $parameters = $api->getGetData();
 

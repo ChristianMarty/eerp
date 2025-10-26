@@ -12,6 +12,8 @@ global $database;
 global $api;
 global $user;
 
+require_once __DIR__ . "/../../../interface/productionPart.php";
+
 require_once __DIR__ . "/../../stock/_stock.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
@@ -37,10 +39,7 @@ if($api->isGet())
             manufacturerPart_partNumber.Id AS ManufacturerPartNumberId, 
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
             manufacturerPart_item.Number AS ManufacturerPart,
-            manufacturerPart_item.Id AS ManufacturerPartId,
-            productionPart.StockMinimum, 
-            productionPart.StockMaximum, 
-            productionPart.StockWarning
+            manufacturerPart_item.Id AS ManufacturerPartId
         FROM productionPart
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ProductionPartId = productionPart.Id
         LEFT JOIN manufacturerPart_partNumber ON manufacturerPart_partNumber.Id =  productionPart_manufacturerPart_mapping.ManufacturerPartNumberId
@@ -60,9 +59,6 @@ if($api->isGet())
         {
             $output['ProductionPartBarcode'] = $r->ProductionPartBarcode;
             $output['Description'] = $r->ProductionPartDescription;
-            $output['StockMinimum'] = $r->StockMinimum;
-            $output['StockMaximum'] = $r->StockMaximum;
-            $output['StockWarning'] = $r->StockWarning;
             $output['Stock'] = array();
             $output['ManufacturerPart'] = array();
         }
@@ -94,8 +90,9 @@ if($api->isGet())
         LEFT JOIN manufacturerPart_partNumber ON supplierPart.ManufacturerPartNumberId <=> manufacturerPart_partNumber.Id OR manufacturerPart_partNumber.Id <=> partStock.ManufacturerPartNumberId 
 
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
-        -- LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
-        LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId -- OR productionPart.Id = productionPart_specificationPart_mapping.ProductionPartId
+        LEFT JOIN productionPart_specificationPart_mapping ON productionPart_specificationPart_mapping.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
+            
+        LEFT JOIN productionPart ON productionPart.Id <=> productionPart_manufacturerPart_mapping.ProductionPartId OR productionPart.Id <=> productionPart_specificationPart_mapping.ProductionPartId
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId        
     
         WHERE CONCAT(numbering.Prefix,'-',productionPart.Number) = '$productionPartBarcode' AND partStock.DeleteRequestUserId IS NULL 
@@ -146,12 +143,14 @@ if($api->isGet())
 
     $query = <<<STR
         SELECT 
-            manufacturerPart_partNumber.Number,
+            vendor_displayName(COALESCE(manufacturerPart_partNumber.VendorId, manufacturerPart_item.VendorId, manufacturerPart_series.VendorId)) AS ManufacturerName,
+            manufacturerPart_partNumber.Number AS PartNumber,
             GROUP_CONCAT(manufacturerPart_partNumber.Id) AS PartNumberIds,
             manufacturerPart_item.Id,
             manufacturerPart_item.Attribute
         FROM manufacturerPart_partNumber
         LEFT JOIN manufacturerPart_item ON manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId
+        LEFT JOIN manufacturerPart_series ON manufacturerPart_series.Id = manufacturerPart_item.SeriesId
         WHERE manufacturerPart_partNumber.Id IN ($manufacturerPartNumberIdStr)
         GROUP BY manufacturerPart_item.Id
     STR;
@@ -173,11 +172,10 @@ if($api->isGet())
         $characteristics[] = $r;
     }
     $output['Characteristics'] = array();
-    $output['Characteristics']["AttributeIds"] = array_unique($attributeIds);
     $output['Characteristics']["Data"] = $characteristics;
 
 // get Attributes
-    $attributeIdString = implode(",",$output['Characteristics']["AttributeIds"]);
+    $attributeIdString = implode(",",array_unique($attributeIds));
 	$attributes = array();
 	if($attributeIdString)
 	{
@@ -208,7 +206,8 @@ if($api->isGet())
     $dataWithAttribute = array();
     foreach ($output['Characteristics']["Data"] as $line) {
         $temp = array();
-        $temp['PartNumber'] = $line->Number;
+        $temp['PartNumber'] = $line->PartNumber;
+        $temp['ManufacturerName'] = $line->ManufacturerName;
         foreach ($line->Attribute as $key => $value) {
             $attributeName = $attributes[$key]->Name;
             $temp[$attributeName] = $value;

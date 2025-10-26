@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/_vendorInterface.php";
 
-if($api->isGet())
+if($api->isGet(Permission::Vendor_View))
 {
     $parameter = $api->getGetData();
 

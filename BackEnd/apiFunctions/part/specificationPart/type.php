@@ -14,12 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('specificationPart','Type');
-    if($options === null)
-    {
-        $api->returnError('Database error for specificationPart Type');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

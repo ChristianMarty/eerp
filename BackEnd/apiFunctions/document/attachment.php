@@ -17,7 +17,7 @@ require_once __DIR__ . "/../util/_barcodeParser.php";
 
 require_once __DIR__ . "/../document/_document.php";
 
-if ($api->isGet())
+if ($api->isGet(\Permission::Document_Attach_Edit))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->Table)) $api->returnParameterMissingError("Table");
@@ -55,7 +55,7 @@ if ($api->isGet())
 
     $api->returnData(\Document\getDocumentsFromIds($docIdList->DocumentIds));
 }
-else if($api->isPost())
+else if($api->isPost( \Permission::Document_Attach_Edit))
 {
 	$data = $api->getPostData();
     $attachToTable = $data->Table;

@@ -15,7 +15,7 @@ global $user;
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
 
@@ -47,7 +47,7 @@ if($api->isGet())
 	
 	$api->returnData($result);
 }
-else if($api->isPost())
+else if($api->isPost(\Permission::BillOfMaterial_Create))
 {
 	$data = $api->getPostData();
     if(!isset($data->RevisionId)) $api->returnParameterMissingError("RevisionId");

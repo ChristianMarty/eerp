@@ -16,7 +16,7 @@ require_once __DIR__ . "/../../util/_json.php";
 require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::Inventory_Accessory_View))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->ItemCode)) $api->returnParameterMissingError("ItemCode");
@@ -50,7 +50,7 @@ if($api->isGet())
 
 	$api->returnData($accessory);
 }
-else if($api->isPatch())
+else if($api->isPatch(\Permission::Inventory_Accessory_Edit))
 {
 	$data = $api->getPostData();
     if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");
@@ -78,7 +78,7 @@ else if($api->isPatch())
 
     $api->returnEmpty();
 }
-else if($api->isPost())
+else if($api->isPost(\Permission::Inventory_Accessory_Create))
 {
     $data = $api->getPostData();
     if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");

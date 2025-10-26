@@ -13,7 +13,7 @@ global $api;
 
 require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet(\Permission::PurchaseOrder_View))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->ReceivalId)) $api->returnParameterMissingError("ReceivalId");

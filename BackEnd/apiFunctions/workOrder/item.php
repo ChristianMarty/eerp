@@ -15,7 +15,7 @@ global $user;
 require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
-if($api->isGet())
+if($api->isGet(Permission::WorkOrder_View))
 {
     $parameter = $api->getGetData();
 
@@ -95,7 +95,7 @@ if($api->isGet())
 
     $api->returnData($output);
 }
-else if($api->isPost())
+else if($api->isPost(Permission::WorkOrder_Create))
 {
     $data = $api->getPostData();
 
@@ -123,7 +123,7 @@ else if($api->isPost())
 
     $api->returnData($workOrder);
 }
-else if($api->isPatch())
+else if($api->isPatch(Permission::WorkOrder_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->WorkOrderNumber)) $api->returnParameterMissingError("WorkOrderNumber");

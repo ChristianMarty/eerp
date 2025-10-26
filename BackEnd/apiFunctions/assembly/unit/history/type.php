@@ -14,12 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('assembly_unit_history','Type');
-    if($options === null)
-    {
-        $api->returnError('Database error for assembly_unit_history Type');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

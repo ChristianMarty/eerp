@@ -69,7 +69,7 @@ function _stockPartQuery(string $stockNo): string
     STR;
 }
 
-if($api->isGet("stock.view"))
+if($api->isGet(\Permission::Stock_View))
 {
     $parameter = $api->getGetData();
 
@@ -163,7 +163,7 @@ if($api->isGet("stock.view"))
 
     $api->returnData($output);
 }
-else if($api->isPost("stock.create"))
+else if($api->isPost(\Permission::Stock_Create))
 {
     $data = $api->getPostData();
 
@@ -221,7 +221,7 @@ else if($api->isPost("stock.create"))
 
     $api->returnData($stockPart);
 }
-else if($api->isPatch("stock.edit"))
+else if($api->isPatch(\Permission::Stock_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
@@ -241,7 +241,7 @@ else if($api->isPatch("stock.edit"))
 
     $api->returnEmpty();
 }
-else if($api->isDelete("stock.delete"))
+else if($api->isDelete(\Permission::Stock_Delete))
 {
 	$data = $api->getPostData();
     if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");

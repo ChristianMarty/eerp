@@ -14,12 +14,5 @@ global $api;
 if($api->isGet())
 {
     $options = $database->getEnumOptions('purchaseOrder_itemOrder','Type');
-    if($options === null)
-    {
-        $api->returnError('Database error for purchaseOrder_itemOrder Type');
-    }
-    else
-    {
-        $api->returnData($options);
-    }
+    $api->returnData($options);
 }

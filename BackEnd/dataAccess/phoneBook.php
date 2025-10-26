@@ -10,8 +10,9 @@
 declare(strict_types=1);
 global $database;
 global $api;
+global $user;
 
-require_once __DIR__ . "/../core/userAuthentication.php";
+require_once __DIR__ . "/../core/user/userAuthentication.php";
 
 if(!isset($_GET["user"]) || !isset($_GET["token"]))
 {
@@ -20,6 +21,7 @@ if(!isset($_GET["user"]) || !isset($_GET["token"]))
     exit;
 }
 
+$database = new database();
 $user = new userAuthentication();
 
 $user->loginWithToken($_GET["user"],$_GET["token"]);
@@ -31,9 +33,10 @@ if(!$user->loggedIn())
     exit;
 }
 
-
-function escape($input):string
+function escape(string|null $input):string
 {
+    if($input === null) return "";
+
     $input = str_replace('&', '&amp;', $input);
     $input = str_replace('"', '&quot;', $input);
     $input = str_replace("'", '&apos;', $input);
@@ -86,7 +89,7 @@ foreach ($result AS $r)
     echo "<Name>".escape($name)."</Name>";
     echo "<Telephone>".$number."</Telephone>";
     if($r->CustomerNumber) echo '<Extra label="Customer Number">'.escape($r->CustomerNumber)."</Extra>";
-	if($r->Name) echo '<Extra label="Company">'.escape($r->Name)."</Extra>";
+	if($r->FullName) echo '<Extra label="Company">'.escape($r->FullName)."</Extra>";
     if($r->Gender) echo '<Extra label="Gender">'.escape($r->Gender)."</Extra>";
     if($r->Language) echo '<Extra label="Language">'.escape($r->Language)."</Extra>";
     if($r->EMail)  echo '<Extra label="E-Mail">'.escape($r->EMail)."</Extra>";

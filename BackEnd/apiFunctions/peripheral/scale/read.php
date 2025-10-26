@@ -13,7 +13,7 @@ global $api;
 
 require_once  __DIR__.'/../_driver/scale/_scale.php';
 
-if($api->isGet())
+if($api->isGet(\Permission::Peripheral_Scale_Use))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->PeripheralId)) $api->returnParameterMissingError("PeripheralId");

@@ -50,7 +50,7 @@ class PartNumberPreprocess
         }else{
             $filePath = __DIR__.'/'.$partNumberPreprocessingName.'.php';
             if (!file_exists($filePath)) {
-                throw new EerpException("The requested part number preprocessor does not exist");
+                throw new Exception("The requested part number preprocessor does not exist");
             }
             require_once($filePath);
             $this->preprocessor = new $partNumberPreprocessingName();

@@ -6,7 +6,6 @@
 // Date		: 23.10.2023
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
 declare(strict_types=1);
 
 use JetBrains\PhpStorm\NoReturn;
@@ -69,7 +68,7 @@ class apiRouter
             entrypoint::DATA=> $serverDataPath.'/',
             entrypoint::RENDERER => __DIR__.'/../renderer/',
             entrypoint::REPORT => __DIR__.'/../report/',
-            entrypoint::PROCESS => __DIR__.'/../apiFunctions/process/',
+            entrypoint::PROCESS => __DIR__.'/../process/',
         };
 
         $requestParts = explode($entryPath, $path);
@@ -178,28 +177,40 @@ class apiRouter
     function isGet(Permission|null $permissions = null):bool
     {
         $this->hasGet = true;
-        if($this->method === apiMethod::GET) return true;
+        if($this->method === apiMethod::GET){
+            $this->checkPermission($permissions);
+            return true;
+        }
         else return false;
     }
 
     function isPost(Permission|null $permissions = null):bool
     {
         $this->hasPost = true;
-        if($this->method === apiMethod::POST) return true;
+        if($this->method === apiMethod::POST){
+            $this->checkPermission($permissions);
+            return true;
+        }
         else return false;
     }
 
     function isPatch(Permission|null $permissions = null):bool
     {
         $this->hasPatch = true;
-        if($this->method === apiMethod::PATCH) return true;
+        if($this->method === apiMethod::PATCH){
+            $this->checkPermission($permissions);
+            return true;
+        }
         else return false;
     }
 
     function isDelete(Permission|null $permissions = null):bool
     {
         $this->hasDelete = true;
-        if($this->method === apiMethod::DELETE) return true;
+        if($this->method === apiMethod::DELETE){
+            $this->checkPermission($permissions);
+            return true;
+        }
         else return false;
     }
 
@@ -310,5 +321,15 @@ class apiRouter
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
         return $randomString;
+    }
+
+    function checkPermission(\Permission|null $permissions = null): void
+    {
+        if($permissions === null) return;
+
+        global $user;
+        if(!$user->checkPermission($permissions)){
+            $this->returnData(\Error\permission($permissions));
+        }
     }
 }

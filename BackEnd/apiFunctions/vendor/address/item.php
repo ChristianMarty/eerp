@@ -12,7 +12,7 @@ global $database;
 global $api;
 global $user;
 
-if($api->isGet())
+if($api->isGet(Permission::Vendor_View))
 {
     $data = $api->getGetData();
     if(!isset($data->AddressId))$api->returnParameterMissingError("AddressId");
@@ -42,7 +42,7 @@ if($api->isGet())
         $api->returnError($e->getMessage());
     }
 }
-else if($api->isPost())
+else if($api->isPost(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if (!isset($data->VendorId)) $api->returnParameterMissingError("VendorId");
@@ -66,7 +66,7 @@ else if($api->isPost())
         $api->returnError($e->getMessage());
     }
 }
-else if($api->isPatch())
+else if($api->isPatch(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->AddressId))$api->returnParameterMissingError("AddressId");
