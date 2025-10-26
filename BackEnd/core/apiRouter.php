@@ -230,13 +230,18 @@ class apiRouter
 
         global $user;
 
-        if(!isset($_SESSION['idempotency'])) $_SESSION['idempotency'] = self::generateIdempotenceToken();
+
         $loginState = $user->loggedIn();
+        $idempotency = null;
+        if($loginState){
+            if(!isset($_SESSION['idempotency'])) $_SESSION['idempotency'] = self::generateIdempotenceToken();
+            $idempotency = $_SESSION['idempotency'];
+        }
 
         $response['data'] = $data;
         $response['error'] = $errorMessage;
         $response['authenticated'] = $loginState;
-        $response['idempotency'] = $_SESSION['idempotency'];
+        $response['idempotency'] = $idempotency;
 
         $json_response = json_encode($response);
         if(!$json_response) {

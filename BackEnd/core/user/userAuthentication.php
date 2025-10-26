@@ -85,6 +85,8 @@ class userAuthentication
 
     function logout(): void
     {
+        if(session_status() === PHP_SESSION_NONE) return;
+
         $_SESSION = array(); // delete all session variables.
 
         // This is from www.php.net/manual/
