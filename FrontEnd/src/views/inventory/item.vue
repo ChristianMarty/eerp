@@ -44,7 +44,7 @@
         </p>
       </el-main>
     </el-container>
-    <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
+    <el-button v-permission="['Location_Transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
     <el-divider />
     <h2>Attributes</h2>
     <el-table :data="inventoryData.Attribute" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
@@ -54,7 +54,7 @@
 
     <el-divider />
     <h2>Accessories</h2>
-    <template v-permission="['inventory.accessory.add']">
+    <template v-permission="['Inventory_Accessory_Edit']">
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -72,7 +72,7 @@
           {{ row.Labeled }}
         </template>
       </el-table-column>
-      <template v-permission="['inventory.accessory.edit']">
+      <template v-permission="['Inventory_Accessory_Edit']">
         <el-table-column label="Edit" width="50">
           <template slot-scope="{ row }">
             <el-button
@@ -90,7 +90,7 @@
 
     <el-divider />
     <h2>Purchase Information</h2>
-    <template v-permission="['inventory.purchase.edit']">
+    <template v-permission="['Inventory_Accessory_Edit']">
       <el-button
         type="primary"
         icon="el-icon-edit"
@@ -160,7 +160,7 @@
     <h2>Documents</h2>
     <documentsList :documents="inventoryData.Documents" />
     <h2>History</h2>
-    <template v-permission="['inventory.history.add']">
+    <template v-permission="['Inventory_History_Create']">
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -224,7 +224,7 @@
     />
 
     <el-divider />
-    <el-button v-permission="['inventory.create']" type="primary" @click="copy">Create Copy</el-button>
+    <el-button v-permission="['Inventory_Create']" type="primary" @click="copy">Create Copy</el-button>
   </div>
 </template>
 

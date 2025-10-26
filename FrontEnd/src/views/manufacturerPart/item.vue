@@ -18,7 +18,7 @@
     </el-tabs>-->
 
     <h3>Part Characteristics</h3>
-    <template v-permission="['manufacturerPart.edit']">
+    <template v-permission="['ManufacturerPart_Edit']">
       <el-button
         type="primary"
         icon="el-icon-edit"

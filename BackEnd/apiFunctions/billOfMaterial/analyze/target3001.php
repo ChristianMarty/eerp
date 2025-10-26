@@ -12,6 +12,13 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/../../../config.php";
+require_once __DIR__ . "/_analyze.php";
+
+class Target3001 extends BomAnalyzeBase
+{
+
+
+}
 
 $title = "Target 3001!";
 $description = "";
@@ -44,7 +51,7 @@ if($api->isPost())
         $line = isset($line) ? trim($line) : false;
 		if(empty($line)) continue;
 		
-		$temp  = str_getcsv($line,";");
+		$temp  = str_getcsv($line,";",'"', "\\");
 
         $outputLine = array();
 
@@ -140,4 +147,3 @@ function getStockData($productionPartNumber)
     }
     return $output;
 }
-?>

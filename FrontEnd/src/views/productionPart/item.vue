@@ -6,6 +6,26 @@
       type="card"
     >
       <el-tab-pane label="Part">
+        <h2>Characteristics</h2>
+        <el-table
+          v-loading="loading"
+          element-loading-text="Loading..."
+          element-loading-spinner="el-icon-loading"
+          :data="partData.Characteristics.Data"
+          border
+          style="width: 100%"
+          :formatter="siRowFormater"
+        >
+          <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" />
+          <el-table-column prop="PartNumber" label="Part" width="200" />
+          <el-table-column
+            v-for="attribute in partData.Characteristics.Attributes"
+            :key="attribute.Name"
+            :label="attribute.Name"
+            :prop="attribute.Name"
+          />
+        </el-table>
+
         <h2>Manufacturer Parts</h2>
         <el-table
           :data="partData.ManufacturerPart"
@@ -63,26 +83,7 @@
           <el-table-column prop="Description" label="Description" />
         </el-table>
 
-        <h3>Characteristics</h3>
-        <el-table
-          v-loading="loading"
-          element-loading-text="Loading..."
-          element-loading-spinner="el-icon-loading"
-          :data="partData.Characteristics.Data"
-          border
-          style="width: 100%"
-          :formatter="siRowFormater"
-        >
-          <el-table-column prop="PartNumber" label="Part" width="200" />
-          <el-table-column
-            v-for="attribute in partData.Characteristics.Attributes"
-            :key="attribute.Name"
-            :label="attribute.Name"
-            :prop="attribute.Name"
-          />
-        </el-table>
-
-        <h3>Stock</h3>
+        <h2>Stock</h2>
         <el-checkbox v-model="hideEmptyStock" @change="getStockItems()">Hide empty (Quantity = 0)</el-checkbox>
         <el-table
           :data="partData.Stock"
@@ -114,22 +115,6 @@
         <p><b>Total Quantity:</b> {{ partData.TotalStockQuantity }}</p>
         <p><b>Total Certainty:</b> {{ partData.TotalStockCertainty }}</p>
         <p><b>Total Rating:</b> <el-rate v-model="partData.TotalStockRating" disabled /></p>
-
-        <h3>Stock Notification</h3>
-        <table>
-          <tr>
-            <td><b>Minimum:</b></td>
-            <td>{{ partData.StockMinimum }}</td>
-          </tr>
-          <tr>
-            <td><b>Maximum:</b></td>
-            <td>{{ partData.StockMaximum }}</td>
-          </tr>
-          <tr>
-            <td><b>Warning:</b></td>
-            <td>{{ partData.StockWarning }}</td>
-          </tr>
-        </table>
 
         <h2>Quotation</h2>
         <el-table

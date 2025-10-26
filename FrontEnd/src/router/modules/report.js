@@ -13,7 +13,7 @@ const reportRouter = {
       path: '',
       component: () => import('@/views/report/list'),
       name: 'report',
-      meta: { title: 'Report', icon: 'el-icon-download', roles: ['report.view'] }
+      meta: { title: 'Report', icon: 'el-icon-download', roles: ['Report_List'] }
     }
 
   ]

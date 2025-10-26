@@ -12,13 +12,13 @@ const financeRouter = {
       path: 'summary/',
       component: () => import('@/views/finance/view'),
       name: 'finance',
-      meta: { title: 'Summary', icon: 'el-icon-sold-out', roles: ['finance.view'] }
+      meta: { title: 'Summary', icon: 'el-icon-sold-out', roles: ['Finance_View'] }
     },
     {
       path: 'costCenter/',
       component: () => import('@/views/finance/costCenterBrowser'),
       name: 'finance',
-      meta: { title: 'Cost Center', icon: 'el-icon-sold-out', roles: ['finance.costCenter'] }
+      meta: { title: 'Cost Center', icon: 'el-icon-sold-out', roles: ['Finance_CostCenter_View'] }
     },
     {
       path: 'costCenter/item/:CostCenterNumber(.*)',
@@ -28,7 +28,7 @@ const financeRouter = {
         title: 'Cost Center',
         noCache: true,
         activeMenu: '/parts/partBrowser',
-        roles: ['finance.costCenter']
+        roles: ['Finance_CostCenter_View']
       },
       hidden: true
     }

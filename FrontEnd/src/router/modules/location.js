@@ -39,20 +39,20 @@ const inventoryRouter = {
       component: () => import('@/views/location/locationLabel'),
       name: 'locationLabel',
       meta: {
-        title: 'Label ', icon: 'el-icon-tickets', roles: ['location.print']
+        title: 'Label ', icon: 'el-icon-tickets', roles: ['Renderer_Print_Location']
       }
     },
     {
       path: 'locationTransfer/',
       component: () => import('@/views/location/locationTransfer'),
       name: 'locationTransfer',
-      meta: { title: 'Transfer', noCache: true, icon: 'el-icon-right', roles: ['location.transfer'] }
+      meta: { title: 'Transfer', noCache: true, icon: 'el-icon-right', roles: ['Location_Transfer'] }
     },
     {
       path: 'locationBulkTransfer/',
       component: () => import('@/views/location/locationBulkTransfer'),
       name: 'locationBulkTransfer',
-      meta: { title: 'Bulk Transfer', noCache: true, icon: 'el-icon-right', roles: ['location.bulkTransfer'] }
+      meta: { title: 'Bulk Transfer', noCache: true, icon: 'el-icon-right', roles: ['Location_BulkTransfer'] }
     }/*, {
       path: "inventorize/",
       component: () => import("@/views/locations/inventorize"),

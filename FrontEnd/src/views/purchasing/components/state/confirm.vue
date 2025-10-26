@@ -67,7 +67,7 @@
               parseInt(row.QuantityOrdered, 10) >
                 parseInt(row.QuantityReceived, 10)
             "
-            v-permission="['purchasing.confirm']"
+            v-permission="['PurchaseOrder_Confirm']"
             type="text"
             size="mini"
             @click="openConfirmDialog(row)"
@@ -78,7 +78,7 @@
             v-if="
               row.ReceivalId != null && row.StockPart === true
             "
-            v-permission="['stock.create']"
+            v-permission="['Stock_Create']"
             style="float: right;"
             type="text"
             size="mini"

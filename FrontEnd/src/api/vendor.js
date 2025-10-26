@@ -227,7 +227,7 @@ class Vendor {
     },
     save(saveParameters) {
       let method = null
-      if (saveParameters.AddressId == null) { // Make new enty if no AddressId is specefied
+      if (saveParameters.AddressId == null) { // Make new entry if no AddressId is specified
         method = 'post'
       } else {
         method = 'patch'
@@ -336,7 +336,7 @@ class Vendor {
     },
     save(saveParameters) {
       let method = null
-      if (saveParameters.ContactId == null) { // Make new enty if no ContactId is specefied
+      if (saveParameters.ContactId == null) { // Make new entry if no ContactId is specified
         method = 'post'
       } else {
         method = 'patch'

@@ -13,7 +13,7 @@
     </el-input>
 
     <el-button
-      v-permission="['assembly.unit.add']"
+      v-permission="['Assembly_Unit_Create']"
       type="primary"
       icon="el-icon-plus"
       circle

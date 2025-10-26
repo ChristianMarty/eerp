@@ -10,7 +10,7 @@
 
     <el-select
       v-model="statusSelected"
-      v-permission="['workOrder.edit']"
+      v-permission="['WorkOrder_Edit']"
       placeholder="Status"
       @change="updateStatus()"
     >

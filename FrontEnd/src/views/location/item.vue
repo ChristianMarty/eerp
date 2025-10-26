@@ -11,7 +11,7 @@
     <p><b>ESD:</b> {{ itemList.ESD }}</p>
 
     <el-button
-      v-permission="['location.edit']"
+      v-permission="['Location_Edit']"
       size="mini"
       type="primary"
       icon="el-icon-edit"
@@ -27,7 +27,7 @@
     <p><b>Path:</b> {{ itemList.DisplayPath }}</p>
 
     <el-button
-      v-permission="['location.transfer']"
+      v-permission="['Location_Transfer']"
       type="primary"
       @click="locationTransferDialogVisible = true"
     >Location Transfer

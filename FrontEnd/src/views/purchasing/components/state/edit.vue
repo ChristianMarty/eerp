@@ -4,7 +4,7 @@
     <el-form v-permission="['purchasing.edit']" :inline="true" style="margin-top: 20px">
       <el-form-item>
         <el-button
-          v-permission="['purchasing.edit']"
+          v-permission="['PurchaseOrder_Edit']"
           type="primary"
           icon="el-icon-plus"
           circle
@@ -19,7 +19,7 @@
     </el-form>
 
     <el-table-draggable
-      v-permission="['purchasing.edit']"
+      v-permission="['PurchaseOrder_Edit']"
       @input="onItemLineDrag()"
     >
       <el-table
@@ -63,7 +63,7 @@
 
     <h2>Additional Charges:</h2>
     <el-button
-      v-permission="['purchasing.edit']"
+      v-permission="['PurchaseOrder_Edit']"
       type="primary"
       icon="el-icon-plus"
       circle
@@ -71,7 +71,7 @@
       @click="addAdditionalChargesLine()"
     />
     <el-table-draggable
-      v-permission="['purchasing.edit']"
+      v-permission="['PurchaseOrder_Edit']"
       @input="onAdditionalChargesLineDrag()"
     >
       <el-table
@@ -96,7 +96,7 @@
 
     <orderTotal :total="poData.Total" />
 
-    <template v-permission="['purchasing.edit']">
+    <template v-permission="['PurchaseOrder_Edit']">
       <editLineItemDialog
         :visible.sync="orderLineEditDialogVisible"
         :line-id="editOrderLineId"

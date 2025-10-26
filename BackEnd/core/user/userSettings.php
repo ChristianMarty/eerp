@@ -10,6 +10,14 @@ declare(strict_types=1);
 
 namespace userSettings {
 
+//*** Important! Read Me! *************************************************************************
+// userSettings follow a functional naming convention!
+// The class name and variable names must match the JSON data.
+// The JSON path equals the class name where levels in the JSON are denoted by '_'
+// e.g. default_stock_renderer is "default":{"stock" : {"renderer" : {}}}
+//*************************************************************************************************
+
+
 // stock
     class default_stock_renderer_receipt {
         public int $PeripheralId = 0;

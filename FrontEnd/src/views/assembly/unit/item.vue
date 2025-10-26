@@ -22,7 +22,7 @@
     <p v-if="assemblyUnitData.ShippingProhibited" class="shippingProhibitedWarning">! DO NOT SEND THIS UNIT TO THE CUSTOMER !</p>
     <p v-if="assemblyUnitData.ShippingClearance" class="shippingClearance">This unit is ready for shipment.</p>
 
-    <el-button v-permission="['location.transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
+    <el-button v-permission="['Location_Transfer']" type="primary" @click="showLocationTransferDialog()">Location Transfer</el-button>
 
     <p />
     <span>
@@ -38,7 +38,7 @@
 
     <h2>History</h2>
     <el-button
-      v-permission="['assembly.unit.history.add']"
+      v-permission="['Assembly_Unit_History_Create']"
       type="primary"
       icon="el-icon-plus"
       circle
@@ -57,7 +57,7 @@
           <b>{{ line.Title }}</b>
           <p>{{ line.Description }}</p>
           <el-button @click.native="showHistoryDialog(line.ItemCode)">Show Data</el-button>
-          <el-button v-if="line.EditToken" v-permission="['assembly.unit.history.edit']" type="primary" @click.native=" showEditHistoryDialog(line.ItemCode)">Edit</el-button>
+          <el-button v-if="line.EditToken" v-permission="['Assembly_Unit_History_Edit']" type="primary" @click.native=" showEditHistoryDialog(line.ItemCode)">Edit</el-button>
           <p v-if="line.ShippingClearance" class="shippingClearance">Ready for shipment</p>
           <p v-if="line.ShippingProhibited" class="shippingProhibitedWarning">Shipping Prohibited</p>
         </el-card>

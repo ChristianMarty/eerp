@@ -31,13 +31,13 @@ const partsRouter = {
       path: 'createPartSeries',
       component: () => import('@/views/manufacturerPart/series/create'),
       name: 'createPartSeries',
-      meta: { title: 'Create Part Series', icon: 'el-icon-plus', roles: ['manufacturerPartSeries.create'] }
+      meta: { title: 'Create Part Series', icon: 'el-icon-plus', roles: ['ManufacturerPartSeries_Create'] }
     },
     {
       path: 'createPartNumber',
       component: () => import('@/views/manufacturerPart/partNumber/create'),
       name: 'createPartNumber',
-      meta: { title: 'Create Part Number', icon: 'el-icon-plus', roles: ['manufacturerPartNumber.create'] }
+      meta: { title: 'Create Part Number', icon: 'el-icon-plus', roles: ['ManufacturerPartNumber_Create'] }
     },
     {
       path: 'partNumber/item/:ManufacturerPartNumberId(.*)',

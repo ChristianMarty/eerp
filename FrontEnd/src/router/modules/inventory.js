@@ -18,7 +18,7 @@ const inventoryRouter = {
       path: 'inventoryCreate/',
       component: () => import('@/views/inventory/inventoryCreate'),
       name: 'inventoryCreateNew',
-      meta: { title: 'Create ', noCache: true, icon: 'edit', roles: ['inventory.create'] }
+      meta: { title: 'Create ', noCache: true, icon: 'edit', roles: ['Inventory_Create'] }
 
     },
     {
@@ -32,7 +32,7 @@ const inventoryRouter = {
       path: 'label',
       component: () => import('@/views/inventory/label'),
       name: 'inventoryLabel',
-      meta: { title: 'Label ', icon: 'el-icon-tickets', roles: ['inventory.print'] }
+      meta: { title: 'Label ', icon: 'el-icon-tickets', roles: ['Renderer_Print_Inventory'] }
 
     },
     {

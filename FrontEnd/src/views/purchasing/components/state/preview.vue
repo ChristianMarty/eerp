@@ -3,8 +3,8 @@
 
     <h2>Items:</h2>
     <span>
-      <el-button v-permission="['purchasing.edit']" type="primary" @click="createMatch()">Match</el-button>
-      <el-button v-permission="['purchasing.edit']" type="info" @click="getOrderLines()">Reload</el-button>
+      <el-button v-permission="['PurchaseOrder_Edit']" type="primary" @click="createMatch()">Match</el-button>
+      <el-button v-permission="['PurchaseOrder_Edit']" type="info" @click="getOrderLines()">Reload</el-button>
     </span>
     <p />
     <h3>Manufacturer Parts:</h3>

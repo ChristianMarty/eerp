@@ -17,7 +17,7 @@ require_once __DIR__ . "/../../../config.php";
 $title = "PDXpert BOM";
 $description = "";
 
-if($api->isPost())
+if($api->isPost(\Permission::BillOfMaterial_Create))
 {
 	$output = array();
 	$bom = array();

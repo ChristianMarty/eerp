@@ -13,7 +13,7 @@ const processRouter = {
       path: '',
       component: () => import('@/views/process/list'),
       name: 'process',
-      meta: { title: 'Process', icon: 'edit', roles: ['process.view'] }
+      meta: { title: 'Process', icon: 'edit', roles: ['Process_List'] }
     }
 
   ]

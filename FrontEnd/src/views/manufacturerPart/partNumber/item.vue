@@ -22,7 +22,7 @@
     >
       <el-tab-pane label="Part">
         <h3>Production Parts</h3>
-        <template v-permission="['productionPart.edit']">
+        <template v-permission="['ProductionPart_Edit']">
           <el-button
             type="primary"
             icon="el-icon-edit"

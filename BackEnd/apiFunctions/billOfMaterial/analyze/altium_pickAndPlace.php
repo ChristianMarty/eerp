@@ -18,7 +18,7 @@ $description = "";
 // TODO: This is not working -> fix  it all
 
 
-if($api->isPost())
+if($api->isPost(\Permission::BillOfMaterial_Create))
 {
     $data = $api->getPostData();
 

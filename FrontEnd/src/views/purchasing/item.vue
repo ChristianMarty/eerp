@@ -9,26 +9,26 @@
       <el-step title="Closed" />
     </el-steps>
 
-    <template v-if="orderData.Status === 'Editing'" v-permission="['purchasing.edit']">
+    <template v-if="orderData.Status === 'Editing'" v-permission="['PurchaseOrder_Edit']">
       <el-button type="info" @click="preview()">Preview Order</el-button>
     </template>
 
-    <template v-if="orderData.Status === 'Preview'" v-permission="['purchasing.edit']">
+    <template v-if="orderData.Status === 'Preview'" v-permission="['PurchaseOrder_Edit']">
       <el-button type="info" @click="edit()">Edit Order</el-button>
       <el-button type="info" @click="confirm()">Confirm Order</el-button>
     </template>
 
-    <template v-if="orderData.Status === 'Confirm'" v-permission="['purchasing.edit']">
+    <template v-if="orderData.Status === 'Confirm'" v-permission="['PurchaseOrder_Edit']">
       <el-button type="info" @click="preview()">Preview Order</el-button>
       <el-button type="info" @click="review()">Review Order</el-button>
     </template>
 
-    <template v-if="orderData.Status === 'Review'" v-permission="['purchasing.edit']">
+    <template v-if="orderData.Status === 'Review'" v-permission="['PurchaseOrder_Edit']">
       <el-button type="info" @click="confirm()">Confirm Order</el-button>
       <el-button type="info" @click="close()">Close Order</el-button>
     </template>
 
-    <template v-if="orderData.Status === 'Closed'" v-permission="['purchasing.edit']">
+    <template v-if="orderData.Status === 'Closed'" v-permission="['PurchaseOrder_Edit']">
       <el-button type="info" @click="review()">Reopen Order</el-button>
     </template>
 
@@ -104,7 +104,7 @@
 
     <el-button
       v-if="orderData.Status == 'Editing'"
-      v-permission="['purchasing.edit']"
+      v-permission="['PurchaseOrder_Edit']"
       style="margin-top: 20px"
       type="primary"
       @click="openEditOrderMetaDialog()"

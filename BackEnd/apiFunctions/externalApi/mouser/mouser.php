@@ -87,24 +87,23 @@ class mouser extends vendorInterface {
     function getOrderInformation(string $mouserOrderNumber): array
     {
         $url = $this->apiData->ApiPath.'order/'.$mouserOrderNumber.'?apiKey='.$this->apiData->ApiKey;
+
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-
         $result = curl_exec($curl);
-        if($result === false)
-        {
+
+        if($result === false){
             echo 'Curl error: ' . curl_error($curl);
+            curl_close($curl);
             exit;
         }
-
         curl_close($curl);
 
         $mouserData = json_decode($result,true);
 
-        $data = Array();
-
+        $data = [];
         $data['VatPrice'] = $mouserData["TaxAmount"];
         $data['TotalPrice'] = $mouserData["OrderTotal"];
         $data['ShippingPrice'] = 0;

@@ -104,20 +104,10 @@ export default {
       let contactId = this.$props.contactId
       if (contactId === 0) contactId = null
 
-      const saveParameters = {
-        ContactId: contactId,
-        VendorId: this.$props.vendorId,
-        AddressId: this.contactData.AddressId,
-        Gender: this.contactData.Gender,
-        FirstName: this.contactData.FirstName,
-        LastName: this.contactData.LastName,
-        JobTitle: this.contactData.JobTitle,
-        Language: this.contactData.Language,
-        Phone: this.contactData.Phone,
-        EMail: this.contactData.EMail
-      }
+      this.contactData.ContactId = contactId
+      this.contactData.VendorId = this.$props.vendorId
 
-      vendor.contact.save(saveParameters).then(response => {
+      vendor.contact.save(this.contactData).then(response => {
         this.closeDialog()
       })
     },

@@ -45,11 +45,11 @@ eerpApi.interceptors.response.use(
       authenticated: authenticated
     })
 
-    if (!authenticated) {
+   /* if (!authenticated) {
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })
-    }
+    }//*/
 
     if (res.idempotency) {
       store.dispatch('user/setIdempotency', {
@@ -68,11 +68,11 @@ eerpApi.interceptors.response.use(
 
     return res
   }, error => {
-    if (error.response.status === 401) {
+   /* if (error.response.status === 401) {
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })
-    }
+    }//*/
   }
 )
 

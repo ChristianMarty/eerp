@@ -104,13 +104,16 @@ class userAuthentication
 
     function checkPermission(\Permission $permission): bool
     {
-        return true;
+        if(!isset($_SESSION['user'])){
+            return false;
+        }
+        return in_array($permission, $_SESSION['user']->permissions);
     }
 
     function showPhpErrors(): bool
     {
         if($this->loggedIn()){
-            return $_SESSION['user']->rights->rights->error->php;
+            return $_SESSION['user']->rights?->Error?->Php??false;
         }
         return false;
     }
@@ -158,14 +161,9 @@ class userAuthentication
 
         $returnData=[];
 
-        $returnData['settingsNew'] = $user->settings->encode();
-
-        $roles_array = [];
-        self::buildRolesForFrontend_recursive( $user->rights->rights, $roles_array, "");
         $returnData['name'] = $user->name;
-        $returnData['roles'] = $roles_array;
+        $returnData['roles'] = $this->getRolesFromPermissions();
         $returnData['settings'] = $user->settings->settings;
-        $returnData['rolesJson'] = $user->rights->rights;
 
         return $returnData;
     }
@@ -173,7 +171,7 @@ class userAuthentication
     function roles(): array
     {
         $user = $this->userData();
-        return (array)$user?->rights->rights;
+        return (array)$user?->rights;
     }
 
     private function getUserInfoFromDb(string $username) :bool
@@ -203,34 +201,30 @@ class userAuthentication
         return true;
     }
 
-    private function setUserSession(stdClass $userQueryResult) :void
+    private function setUserSession(stdClass $userQueryResult): void
     {
         $user = new user();
         $user->id = intval($userQueryResult->Id);
         $user->name = $userQueryResult->UserId;
         $user->initials = $userQueryResult->Initials;
         $user->settings->decode($userQueryResult->Settings);
-        $user->rights->decode($userQueryResult->Roles);
+        $user->rights = json_decode($userQueryResult->Roles);
+        $user->initializePermissions();
 
         $_SESSION["user"] = $user;
     }
 
-    private function buildRolesForFrontend_recursive($rolesObject, &$roleStringArray, $roleStringPart): string
+    private function getRolesFromPermissions(): array
     {
-     
-        $categoryStringPart = $roleStringPart;
-
-        foreach($rolesObject as $key => $role)
-        {
-            if(is_object($role) || is_array($role))
-            {
-                $roleStringPart = self::buildRolesForFrontend_recursive($role,$roleStringArray,$categoryStringPart.$key.".");
-            }
-            else
-            {
-                if($role) $roleStringArray[] = $roleStringPart . $key;
-            }
+        $output = [];
+        if(!isset($_SESSION['user'])){
+            return $output;
         }
-        return $categoryStringPart;
+
+        foreach($_SESSION['user']->permissions as $role) {
+            $output[] = $role->name;
+        }
+
+        return $output;
     }
 }

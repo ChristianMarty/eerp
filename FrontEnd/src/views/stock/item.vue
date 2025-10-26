@@ -66,7 +66,7 @@
       </el-row>
 
       <el-button
-        v-permission="['stock.edit']"
+        v-permission="['Stock_Edit']"
         size="mini"
         type="primary"
         icon="el-icon-edit"
@@ -114,7 +114,7 @@
         </el-col>
       </el-row>
 
-      <el-button v-permission="['location.transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">
+      <el-button v-permission="['Location_Transfer']" style="margin-top: 20px" @click="showLocationTransferDialog()">
         Location Transfer
       </el-button>
     </el-card>
@@ -147,9 +147,9 @@
       </el-row>
       <el-rate v-model="partData.Quantity.Certainty.Rating" disabled />
 
-      <el-divider v-permission="['stock.add', 'stock.remove', 'stock.count']" />
+      <el-divider v-permission="['Stock_History_Add', 'Stock_History_Remove', 'Stock_History_Count']" />
       <el-button
-        v-permission="['stock.add']"
+        v-permission="['Stock_History_Add']"
         style="margin-right: 20px"
         icon="el-icon-plus"
         @click="addStockDialogVisible = true"
@@ -157,7 +157,7 @@
       </el-button>
 
       <el-button
-        v-permission="['stock.remove']"
+        v-permission="['Stock_History_Remove']"
         style="margin-right: 20px"
         icon="el-icon-minus"
         @click="removeStockDialogVisible = true"
@@ -165,7 +165,7 @@
       </el-button>
 
       <el-button
-        v-permission="['stock.count']"
+        v-permission="['Stock_History_Count']"
         style="margin-right: 20px"
         icon="el-icon-finished"
         @click="countStockDialogVisible = true"
@@ -173,7 +173,7 @@
       </el-button>
 
       <el-button
-        v-permission="['stock.count']"
+        v-permission="['Stock_History_Count']"
         style="margin-right: 20px"
         icon="el-icon-finished"
         @click="scaleStockDialogVisible = true"
@@ -181,7 +181,7 @@
       </el-button>
 
       <el-button
-        v-permission="['stock.countingRequest']"
+        v-permission="['Stock_RequestCounting']"
         style="float: right; margin-right: 20px"
         icon="el-icon-files"
         @click="requestCounting()"
@@ -190,7 +190,7 @@
 
       <el-divider />
 
-      <p v-if="partData.Quantity.CountingRequest.UserInitials" v-permission="['stock.count']">
+      <p v-if="partData.Quantity.CountingRequest.UserInitials" v-permission="['Stock_History_Count']">
         Counting requested by {{ partData.Quantity.CountingRequest.UserInitials }} on {{ partData.Quantity.CountingRequest.Date }}
       </p>
       <h3>History</h3>
@@ -246,7 +246,7 @@
       </template>
     </el-card>
 
-    <el-card v-if="showItem" v-permission="['stock.delete']">
+    <el-card v-if="showItem" v-permission="['Stock_Delete']">
       <h3>Delete Item</h3>
       <el-divider />
       <el-button type="danger" @click="openDeleteDialog()">Delete</el-button>
