@@ -15,7 +15,7 @@ global $api;
 if($api->isPost())
 {
 	$data = $api->getPostData();
-    $login = $user->login($data->username,$data->password);
+    $login = $user->login($data->username, $data->password);
 
     if(is_string($login)){
         $api->returnError($login);

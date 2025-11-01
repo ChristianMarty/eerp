@@ -11,7 +11,7 @@ require_once __DIR__ . "/core/entrypoint.php";
 global $api;
 global $user;
 
-$api = new apiRouter($user, entrypoint::REPORT, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+$api = new ApiRouter($user, Entrypoint::REPORT, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
 try {
 	require $api->getRunPath();

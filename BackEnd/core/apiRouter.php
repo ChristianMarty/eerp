@@ -13,7 +13,7 @@ use JetBrains\PhpStorm\NoReturn;
 require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/user/userAuthentication.php";
 
-enum apiMethod
+enum ApiMethod
 {
     case GET;
     case POST;
@@ -22,7 +22,7 @@ enum apiMethod
     case OPTIONS;
 }
 
-enum entrypoint{
+enum Entrypoint{
     case API;
     case DATA;
     case RENDERER;
@@ -30,9 +30,9 @@ enum entrypoint{
     case PROCESS;
 }
 
-class apiRouter
+class ApiRouter
 {
-    private apiMethod $method;
+    private ApiMethod $method;
     private array|null $options = null;
     private string|null $runPath = null;
 
@@ -42,33 +42,33 @@ class apiRouter
     private bool $hasDelete = false;
 
 
-    function __construct(userAuthentication $user, entrypoint $entrypoint, string $path, string $methodString)
+    function __construct(userAuthentication $user, Entrypoint $entrypoint, string $path, string $methodString)
     {
         global $user;
 
         $this->method = match ($methodString) {
-            'GET' => apiMethod::GET,
-            'POST' => apiMethod::POST,
-            'PATCH' => apiMethod::PATCH,
-            'DELETE' => apiMethod::DELETE,
-            'OPTIONS' => apiMethod::OPTIONS,
+            'GET' => ApiMethod::GET,
+            'POST' => ApiMethod::POST,
+            'PATCH' => ApiMethod::PATCH,
+            'DELETE' => ApiMethod::DELETE,
+            'OPTIONS' => ApiMethod::OPTIONS,
         };
 
         $entryPath = match ($entrypoint) {
-            entrypoint::API => 'api.php/',
-            entrypoint::DATA=> 'data.php/',
-            entrypoint::RENDERER => 'renderer.php/',
-            entrypoint::REPORT => 'report.php/',
-            entrypoint::PROCESS => 'process.php/',
+            Entrypoint::API => 'api.php/',
+            Entrypoint::DATA=> 'data.php/',
+            Entrypoint::RENDERER => 'renderer.php/',
+            Entrypoint::REPORT => 'report.php/',
+            Entrypoint::PROCESS => 'process.php/',
         };
 
         global $serverDataPath;
         $filePath = match ($entrypoint) {
-            entrypoint::API => __DIR__.'/../apiFunctions/',
-            entrypoint::DATA=> $serverDataPath.'/',
-            entrypoint::RENDERER => __DIR__.'/../renderer/',
-            entrypoint::REPORT => __DIR__.'/../report/',
-            entrypoint::PROCESS => __DIR__.'/../process/',
+            Entrypoint::API => __DIR__.'/../apiFunctions/',
+            Entrypoint::DATA=> $serverDataPath.'/',
+            Entrypoint::RENDERER => __DIR__.'/../renderer/',
+            Entrypoint::REPORT => __DIR__.'/../report/',
+            Entrypoint::PROCESS => __DIR__.'/../process/',
         };
 
         $requestParts = explode($entryPath, $path);
@@ -107,7 +107,7 @@ class apiRouter
             if (isset($headers['idempotency-key'])) {
                 $idempotencyToken = $headers['idempotency-key'];
             }
-            if ($this->method === apiMethod::POST && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php' && $filePath != __DIR__.'/../apiFunctions/purchasing/item/upload.php')
+            if ($this->method === ApiMethod::POST && $filePath != __DIR__.'/../apiFunctions/document/ingest/upload.php' && $filePath != __DIR__.'/../apiFunctions/purchasing/item/upload.php')
 			{
                 if ($idempotencyToken !== $_SESSION['idempotency']) {
                     $this->returnError("Idempotency key expired.");
@@ -177,7 +177,7 @@ class apiRouter
     function isGet(Permission|null $permissions = null):bool
     {
         $this->hasGet = true;
-        if($this->method === apiMethod::GET){
+        if($this->method === ApiMethod::GET){
             $this->checkPermission($permissions);
             return true;
         }
@@ -187,7 +187,7 @@ class apiRouter
     function isPost(Permission|null $permissions = null):bool
     {
         $this->hasPost = true;
-        if($this->method === apiMethod::POST){
+        if($this->method === ApiMethod::POST){
             $this->checkPermission($permissions);
             return true;
         }
@@ -197,7 +197,7 @@ class apiRouter
     function isPatch(Permission|null $permissions = null):bool
     {
         $this->hasPatch = true;
-        if($this->method === apiMethod::PATCH){
+        if($this->method === ApiMethod::PATCH){
             $this->checkPermission($permissions);
             return true;
         }
@@ -207,7 +207,7 @@ class apiRouter
     function isDelete(Permission|null $permissions = null):bool
     {
         $this->hasDelete = true;
-        if($this->method === apiMethod::DELETE){
+        if($this->method === ApiMethod::DELETE){
             $this->checkPermission($permissions);
             return true;
         }
@@ -216,7 +216,7 @@ class apiRouter
 
     function isOptions():bool
     {
-        if($this->method === apiMethod::OPTIONS) return true;
+        if($this->method === ApiMethod::OPTIONS) return true;
         else return false;
     }
 

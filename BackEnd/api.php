@@ -14,7 +14,7 @@ global $user;
 global $database;
 
 global $api;
-$api = new apiRouter($user, entrypoint::API, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+$api = new ApiRouter($user, Entrypoint::API, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
 if($api->isOptions()) {
     header("Allow: ".$api->optionsString());

@@ -11,7 +11,7 @@ require_once __DIR__ . "/core/entrypoint.php";
 global $api;
 global $user;
 
-$api = new apiRouter($user, entrypoint::PROCESS, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+$api = new ApiRouter($user, Entrypoint::PROCESS, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
 if(!$api->isGet(Permission::Process_Run)){
     $api->returnError("Processes must be used via the GET methode");
