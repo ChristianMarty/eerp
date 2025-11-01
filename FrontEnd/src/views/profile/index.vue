@@ -3,7 +3,7 @@
     <h1>Hallo {{ userData.name }}</h1>
 
     <h2>Roles</h2>
-    <p v-for="(value, name) in userData.rolesJson">
+    <p v-for="(value, name) in userData.roles">
       {{ name }} {{ value }}
     </p>
 

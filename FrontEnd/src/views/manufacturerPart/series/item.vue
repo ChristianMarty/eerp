@@ -6,7 +6,7 @@
 
     <h3>Manufacturer Part Parameter</h3>
     <p><b>Part Number Template:</b> {{ data.NumberTemplate }} </p>
-    <template v-if="checkPermission(['manufacturerPartSeries.edit'])">
+    <template v-permission="['ManufacturerPartSeries_Edit']">
       <el-button
         size="mini"
         type="primary"

@@ -13,7 +13,7 @@
     <p><b>Is Carrier:</b> {{ vendorData.IsCarrier }}</p>
     <p><b>Is Customer:</b> {{ vendorData.IsCustomer }}</p>
 
-    <template v-if="checkPermission(['vendor.edit'])">
+    <template v-permission="['Vendor_Edit']">
       <el-button
         size="mini"
         type="primary"
@@ -26,7 +26,7 @@
 
     <el-divider />
     <h2>Aliases</h2>
-    <template v-if="checkPermission(['vendor.edit'])">
+    <template v-permission="['Vendor_Edit']">
       <el-button
         size="mini"
         type="primary"
@@ -42,7 +42,7 @@
     >
       <el-table-column prop="Name" label="Name" sortable width="150" />
       <el-table-column prop="Note" label="Note" sortable />
-      <template v-if="checkPermission(['vendor.edit'])">
+      <template v-permission="['Vendor_Edit']">
         <el-table-column width="50">
           <template slot-scope="{ row }">
             <el-button
@@ -83,7 +83,7 @@
 
     <el-divider />
     <h2>Addresses</h2>
-    <template v-if="checkPermission(['vendor.edit'])">
+    <template v-permission="['Vendor_Edit']">
       <el-button
         size="mini"
         type="primary"
@@ -105,7 +105,7 @@
       <!--<el-table-column prop="PhonePrefix" label="Phone Prefix" sortable />-->
       <el-table-column prop="VatTaxNumber" label="Vat Tax Number" sortable />
       <el-table-column prop="CustomsAccountNumber" label="Customs Account Number" sortable />
-      <template v-if="checkPermission(['vendor.edit'])">
+      <template v-permission="['Vendor_Edit']">
         <el-table-column width="50">
           <template slot-scope="{ row }">
             <el-button
@@ -123,7 +123,7 @@
 
     <el-divider />
     <h2>Contacts</h2>
-    <template v-if="checkPermission(['vendor.edit'])">
+    <template v-permission="['Vendor_Edit']">
       <el-button
         size="mini"
         type="primary"
@@ -144,7 +144,7 @@
       <el-table-column prop="Language" label="Language" sortable />
       <el-table-column prop="Phone" label="Phone" sortable />
       <el-table-column prop="EMail" label="E-Mail" sortable />
-      <template v-if="checkPermission(['vendor.edit'])">
+      <template v-permission="['Vendor_Edit']">
         <el-table-column width="50">
           <template slot-scope="{ row }">
             <el-button
@@ -162,7 +162,7 @@
 
     <el-divider />
     <h2>Purchas Orders</h2>
-    <p><b>Number of orders:</b> {{ PurchaseOrders.length }}</p>
+    <p><b>Number of orders:</b> {{ PurchaseOrders?.length??0 }}</p>
     <el-table
       :data="PurchaseOrders"
       style="width: 100%; margin-top:10px"
@@ -184,10 +184,10 @@
     </el-table>
 
     <el-divider />
-    <h2>Manufacturerart Part Numbers</h2>
-    <p><b>Number of Manufacturerart Part Numbers:</b> {{ manufacturerartPartData.length }}</p>
+    <h2>Manufacturer Part Numbers</h2>
+    <p><b>Number of Manufacturer Part Numbers:</b> {{ manufacturerPartData?.length??0 }}</p>
     <el-table
-      :data="manufacturerartPartData"
+      :data="manufacturerPartData"
       style="width: 100%; margin-top:10px"
     >
       <el-table-column label="Part Number" sortable width="250">
@@ -233,7 +233,7 @@
 
     <el-divider />
     <h2>Supplier Parts</h2>
-    <p><b>Number of supplier parts:</b> {{ supplierPartData.length }}</p>
+    <p><b>Number of supplier parts:</b> {{ supplierPartData?.length??0 }}</p>
     <el-table
       :data="supplierPartData"
       style="width: 100%; margin-top:10px"
@@ -249,7 +249,7 @@
 
     <el-divider />
     <h2>Supplier Part Numbers Ordered</h2>
-    <p><b>Number of supplier parts:</b> {{ supplierPartNumbers.length }}</p>
+    <p><b>Number of supplier parts:</b> {{ supplierPartNumbers?.length??0 }}</p>
     <el-table
       :data="supplierPartNumbers"
       style="width: 100%; margin-top:10px"
@@ -328,7 +328,7 @@ export default {
 
       supplierPartData: null,
       PurchaseOrders: [],
-      manufacturerartPartData: null,
+      manufacturerPartData: null,
 
       editAliasVisible: false,
       editAliasId: null,
@@ -373,7 +373,7 @@ export default {
       const searchParameters = Object.assign({}, manufacturerPart.PartNumber.searchParameters)
       searchParameters.VendorId = vendorId
       manufacturerPart.PartNumber.search(searchParameters).then(response => {
-        this.manufacturerartPartData = response
+        this.manufacturerPartData = response
       })
 
       part.searchSupplierPart(vendorId).then(response => {

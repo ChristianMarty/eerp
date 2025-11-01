@@ -2,10 +2,10 @@
   <div class="app-container">
     <h1>Document Ingestion</h1>
     <p>Select a document to import it into the system.</p>
-    <template v-if="checkPermission(['document.upload'])">
+    <template v-permission="['Document_Ingest_Upload']">
       <el-button type="primary" icon="el-icon-upload" @click="uploadFile()">Upload</el-button>
     </template>
-    <template v-if="checkPermission(['document.upload'])">
+    <template v-permission="['Document_Ingest_Download']">
       <el-button type="primary" icon="el-icon-download" @click="downloadFile()">Download</el-button>
     </template>
     <el-button type="primary" icon="el-icon-refresh-right" @click="getFileList()">Reload</el-button>
@@ -108,8 +108,8 @@
 
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button type="danger" @click="deleteFile()">Delete</el-button>
-        <el-button type="primary" :disabled="selectedTemplate == null" @click="ingestFile()">Ingest</el-button>
+        <el-button v-permission="['Document_Ingest_Delete']" type="danger" @click="deleteFile()">Delete</el-button>
+        <el-button v-permission="['Document_Ingest_Save']" type="primary" :disabled="selectedTemplate == null" @click="ingestFile()">Ingest</el-button>
         <el-button @click="showDialog = false">Cancel</el-button>
       </span>
     </el-dialog>
