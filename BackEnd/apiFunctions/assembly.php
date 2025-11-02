@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/util/_barcodeFormatter.php";
-
 if($api->isGet(Permission::Assembly_List))
 {
     $query = <<< QUERY
@@ -27,12 +25,13 @@ if($api->isGet(Permission::Assembly_List))
         LEFT JOIN numbering ON productionPart.NumberingPrefixId = numbering.Id
     QUERY;
     $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
 
 	foreach($result as $item) {
         $item->AssemblyNumber = intval($item->AssemblyNumber);
-        $item->ItemCode =  barcodeFormatter_AssemblyNumber($item->AssemblyNumber);
+        $item->ItemCode =  \Numbering\format(\Numbering\Category::Assembly, $item->AssemblyNumber);
         if($item->ProductionPartNumber !== null){
-            $item->ProductionPartCode = barcodeFormatter_ProductionPart($item->ProductionPartNumber, $item->ProductionPartNumberPrefix);
+            $item->ProductionPartCode = \Numbering\format(\Numbering\Category::ProductionPart, $item->ProductionPartNumberPrefix."-".$item->ProductionPartNumber);
         }else{
             $item->ProductionPartCode = null;
         }

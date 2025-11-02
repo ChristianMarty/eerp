@@ -7,26 +7,17 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
 $title = "Update Part Empty";
-$description = "Update part empty flag";
+$description = "Update part location of empty parts flag";
 $parameter = null;
 
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-    $dbLink = dbConnect();
-    $query = <<<STR
-        CALL partStock_updateEmpty();
-    STR;
-
-    dbRunQuery($dbLink, $query);
-	dbClose($dbLink);
-	sendResponse(null);
-}
-
-
-?>
+$query = <<<STR
+    UPDATE partStock SET LocationId = 17 WHERE partStock.Cache_Quantity = 0;
+STR;
+var_dump($database->execute($query));
+exit;

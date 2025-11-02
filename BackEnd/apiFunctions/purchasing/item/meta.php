@@ -12,15 +12,13 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/../_function.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 if($api->isGet(\Permission::PurchaseOrder_View))
 {
     $parameters = $api->getGetData();
 
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
     if($purchaseOrderNumber == 0) $api->returnParameterError("PurchaseOrderNumber");
 
     $query = <<<STR
@@ -60,7 +58,7 @@ if($api->isGet(\Permission::PurchaseOrder_View))
 
     $output = $database->query($query)[0];
 
-    $output->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($output->PurchaseOrderNumber);
+    $output->PurchaseOrderBarcode = \Numbering\format(\Numbering\Category::PurchaseOrder, $output->PurchaseOrderNumber);
 
     $api->returnData($output);
 
@@ -70,7 +68,7 @@ else if ($api->isPatch(\Permission::PurchaseOrder_Edit))
     $parameters = $api->getGetData();
 
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
     if($purchaseOrderNumber == 0) $api->returnParameterError("PurchaseOrderNumber");
 
     $data = $api->getPostData();

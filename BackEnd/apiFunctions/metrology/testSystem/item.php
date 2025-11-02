@@ -11,15 +11,12 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::Metrology_TestSystem_View))
 {
     $parameter = $api->getGetData();
 
 	if(!isset($parameter->TestSystemNumber)) $api->returnParameterMissingError("TestSystemNumber");
-    $testSystemNumber = barcodeParser_TestSystemNumber($parameter->TestSystemNumber);
+    $testSystemNumber = \Numbering\parser(\Numbering\Category::TestSystem, $parameter->TestSystemNumber);
     if($testSystemNumber == null) $api->returnParameterError("TestSystemNumber");
 
     $query = <<<STR
@@ -32,15 +29,12 @@ if($api->isGet(\Permission::Metrology_TestSystem_View))
         WHERE TestSystemNumber = '$testSystemNumber' 
         LIMIT 1
     STR;
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->ContactId);
 
-    $output = $database->query($query);
-
-    if(count($output) == 0){
-        $api->returnError("Item not found");
-    }
-    $output = $output[0];
-
-	$output->ItemCode = barcodeFormatter_TestSystemNumber($output->TestSystemNumber);
+    $output = $result[0];
+	$output->ItemCode = \Numbering\format(\Numbering\Category::TestSystem, $output->TestSystemNumber);
     $output->TestSystemNumber = intval($output->TestSystemNumber);
     $testSystemId = $output->Id;
     unset($output->Id);
@@ -71,8 +65,8 @@ if($api->isGet(\Permission::Metrology_TestSystem_View))
         )
         WHERE testSystem_instrument.TestSystemId = $testSystemId
     STR;
-
 	$result = $database->query($query);
+    \Error\checkErrorAndExit($result);
 
     $output->Item = [];
 	foreach ($result as $r)
@@ -88,7 +82,7 @@ if($api->isGet(\Permission::Metrology_TestSystem_View))
 
         $equipment = [];
         $equipment['InventoryNumber'] = intval($r->InventoryNumber);
-        $equipment['ItemCode'] = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+        $equipment['ItemCode'] = \Numbering\format(\Numbering\Category::Inventory, $r->InventoryNumber);
         $equipment['Title'] = $r->Title;
         $equipment['ManufacturerName'] = $r->ManufacturerName;
         $equipment['SerialNumber'] = $r->SerialNumber;
@@ -116,9 +110,13 @@ else if($api->isPost(\Permission::Metrology_TestSystem_Create))
     $sqlData['Description']  = $data->Description;
     $sqlData['TestSystemNumber']['raw'] = "(SELECT generateItemNumber())";
     $id = $database->insert("testSystem", $sqlData);
+    \Error\checkErrorAndExit($id);
 
     $query ="SELECT TestSystemNumber AS Number FROM testSystem WHERE Id = $id;";
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+
     $output = [];
-    $output['TestSystemBarcode'] = barcodeFormatter_TestSystemNumber($database->query($query)[0]->Number);
+    $output['TestSystemBarcode'] = \Numbering\format(\Numbering\Category::TestSystem, $result[0]->Number);
     $api->returnData($output);
 }

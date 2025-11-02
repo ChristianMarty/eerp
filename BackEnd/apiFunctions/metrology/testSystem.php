@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::Metrology_TestSystem_List))
 {
 	$query = <<< QUERY
@@ -23,8 +21,10 @@ if($api->isGet(\Permission::Metrology_TestSystem_List))
         FROM testSystem
     QUERY;
 	$result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+
 	foreach($result as $item) {
-		$item->ItemCode = barcodeFormatter_TestSystemNumber($item->TestSystemNumber);
+		$item->ItemCode = \Numbering\format(\Numbering\Category::TestSystem, $item->TestSystemNumber);
 	}
 	$api->returnData($result);
 }

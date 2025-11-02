@@ -101,7 +101,7 @@ if($api->isGet())
             $partNumbers[$manufacturerPartNumber] = $temp;
         }
 
-        $r->ProductionPartItemCode = barcodeFormatter_ProductionPart($r->ProductionPartNumberPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartItemCode = \Numbering\format(\Numbering\Category::ProductionPart, $r->ProductionPartNumberPrefix."-".$r->ProductionPartNumber);
         $r->ProductionPartBarcode = $r->ProductionPartItemCode; // TODO: legacy -> remove
         $partNumbers[$manufacturerPartNumber]['ProductionPart'][] = $r;
     }

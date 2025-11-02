@@ -10,17 +10,15 @@
 declare(strict_types=1);
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../_stock.php";
 
 if($api->isPost(\Permission::Stock_RequestCounting))
 {
     $data = $api->getPostData();
-    if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
-    $stockNumber = barcodeParser_StockNumber($data->StockCode);
-    if($stockNumber === false) $api->returnParameterError("StockNumber");
+    if(!isset($data->StockCode)) $api->returnData(\Error\parameterMissing("StockCode"));
+    $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $data->StockCode);
+    if($stockNumber === null) $api->returnData(\Error\parameter("StockCode"));
 
-    \stock\stock::createCountingRequest(null, $stockNumber);
-
-    $api->returnEmpty();
+    $result = \Stock\Stock::createCountingRequest(null, $stockNumber);
+    $api->returnData($result);
 }

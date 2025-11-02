@@ -16,10 +16,6 @@ require_once __DIR__. "/contact/_contact.php";
 if($api->isGet(Permission::Vendor_View))
 {
     $parameters = $api->getGetData();
-
-    try {
-        $api->returnData(vendor\contact::contactByVendor(intval($parameters->VendorId)));
-    } catch (\Exception $e) {
-        $api->returnError($e->getMessage());
-    }
+    $result = Vendor\Contact::contactByVendor(intval($parameters->VendorId));
+    $api->returnData($result);
 }

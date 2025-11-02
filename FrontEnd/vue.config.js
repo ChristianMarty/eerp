@@ -29,6 +29,35 @@ module.exports = {
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
+  devServer: {
+    proxy: {
+      '/api.php': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      },
+      '/data.php': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      },
+      '/process.php': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      },
+      '/renderer.php': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      },
+      '/report.php': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      }
+    }
+  },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.

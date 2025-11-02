@@ -27,6 +27,8 @@ enum Permission
     case Vendor_Create;
     case Vendor_Edit;
 
+    case Vendor_Contact_View;
+
 
 // Finance
     case Finance_View;
@@ -45,6 +47,7 @@ enum Permission
     case Inventory_List;
     case Inventory_View;
     case Inventory_Create;
+    case Inventory_Edit;
 
     case Inventory_History_View;
     case Inventory_History_Create;
@@ -229,7 +232,21 @@ enum Permission
     }
 }
 
-class user
+class UserInformation implements \JsonSerializable
+{
+    public string $initials;
+    public string $name;
+
+    public function jsonSerialize(): \stdClass
+    {
+        $output = new \stdClass();
+        $output->Name = $this->name;
+        $output->Initials = $this->initials;
+        return $output;
+    }
+}
+
+class User
 {
     public int $id = 0;
     public string $name;
@@ -251,17 +268,18 @@ class user
         }
 
         $permissionsArray = [];
-        self::buildPermissions_recursive( $this->rights,$permissionsArray, "");
+        self::buildPermissions_recursive($this->rights,$permissionsArray, "");
         $this->permissions = $permissionsArray;
     }
 
-    private function buildPermissions_recursive($rolesObject, &$permissionsArray, $roleStringPart): string
+    private function buildPermissions_recursive($rolesObject, &$permissionsArray, $roleStringPart, bool $root = true): string
     {
         $categoryStringPart = $roleStringPart;
         foreach($rolesObject as $key => $role)
         {
+            if($root) $roleStringPart = "";
             if(is_object($role) || is_array($role)) {
-                $roleStringPart = self::buildPermissions_recursive($role,$permissionsArray,$categoryStringPart.$key."_");
+                $roleStringPart = self::buildPermissions_recursive($role,$permissionsArray,$categoryStringPart.$key."_",false);
             } else {
                 if($role){
                     $permissionsString = $roleStringPart.$key;

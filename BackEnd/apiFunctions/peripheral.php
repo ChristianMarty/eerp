@@ -16,7 +16,9 @@ if($api->isGet(Permission::Peripheral_List))
     $parameter = $api->getGetData();
 
     $queryParameters = [];
-    if(isset($parameter->Type)) $queryParameters[] = 'DeviceType = '.$database->escape($parameter->Type);
+    if(isset($parameter->Type)){
+        $queryParameters[] = 'DeviceType = '.$database->escape($parameter->Type);
+    }
 
     $query = <<< QUERY
         SELECT 
@@ -31,8 +33,8 @@ if($api->isGet(Permission::Peripheral_List))
             Driver
         FROM peripheral
     QUERY;
-
     $result = $database->query($query, $queryParameters, "ORDER BY Name ASC");
+    \Error\checkErrorAndExit($result);
 
     $api->returnData($result);
 }

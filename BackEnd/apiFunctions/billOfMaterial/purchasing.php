@@ -12,7 +12,6 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/../externalApi/octopart.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 if($api->isGet( \Permission::BillOfMaterial_View))
 {
@@ -58,7 +57,7 @@ if($api->isGet( \Permission::BillOfMaterial_View))
 	foreach ($result AS $r)
 	{
         $r->TotalQuantity = $r->Quantity*$quantity;
-        $r->ProductionPartNumber = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartNumber = \Numbering\format(\Numbering\Category::ProductionPart, $r->ProductionPartPrefix."-".$r->ProductionPartNumber);
 
         $octopartData = octopart_getPartData($r->OctopartId);
 

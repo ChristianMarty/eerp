@@ -13,14 +13,13 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../vendor/api/_vendorInterface.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($api->isPost(\Permission::PurchaseOrder_Edit))
 {
     $parameters = $api->getGetData();
 
     if(!isset($parameters->PurchaseOrderNo)) $api->returnParameterMissingError("PurchaseOrderNo");
-    $purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNo);
+    $purchaseOrderNo = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNo);
     if($purchaseOrderNo == null) $api->returnParameterError("PurchaseOrderNo");
 
     $query = <<< QUERY
@@ -52,7 +51,7 @@ else if($api->isPatch(\Permission::PurchaseOrder_Edit))
     $data = $api->getPostData();
 
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
-    $purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $purchaseOrderNo = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
     if($purchaseOrderNo == null) $api->returnParameterError("PurchaseOrderNumber");
 
     $query = "SELECT Id, VendorId FROM purchaseOrder WHERE PurchaseOrderNumber = $purchaseOrderNo;";

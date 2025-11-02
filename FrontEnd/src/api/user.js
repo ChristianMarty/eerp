@@ -7,8 +7,8 @@ export class User {
         url: '/user/login',
         method: 'post',
         data: {
-          username: username,
-          password: password
+          UserName: username,
+          Password: password
         }
       }).then(response => {
         if (response.error == null) {

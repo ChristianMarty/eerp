@@ -9,8 +9,6 @@
 //*************************************************************************************************
 declare(strict_types=1);
 require_once "_renderer.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 require_once __DIR__ . "/../../util/escpos/autoload.php";
 use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
@@ -31,8 +29,8 @@ class partReceiptBon extends \renderer\renderer
 
         $items = [];
         foreach ($data as $item){
-            $stockNumber = barcodeParser_StockNumber($item);
-            $historyItem = barcodeParser_StockHistoryNumber($item);
+            $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $item);
+            $historyItem = \Numbering\parser(\Numbering\Category::StockHistoryIndex, $item);
             $items[] = $stockNumber."-".$historyItem;
         }
 
@@ -74,13 +72,13 @@ class partReceiptBon extends \renderer\renderer
             $printer->setTextSize(1, 1);
             $printer->text("Work Order: ");
             $printer->selectPrintMode(Printer::MODE_FONT_A);
-            $printer->text(barcodeFormatter_WorkOrderNumber($wo->WorkOrderNumber) . " - " . $wo->WorkOrderName . "\n");
+            $printer->text(\Numbering\format(\Numbering\Category::WorkOrder, $wo->WorkOrderNumber) . " - " . $wo->WorkOrderName . "\n");
             $printer->feed(1);
         }
 
         $lineLength = 42;
         foreach ($stockHistoryItems as $line) {
-            $str1 = barcodeFormatter_StockHistoryNumber($line->StockNumber, $line->ChangeIndex)." ";
+            $str1 = \Numbering\format(\Numbering\Category::Stock, $line->StockNumber, $line->ChangeIndex)." ";
             $len1 = " " . strlen($str1);
             $str2 = " " . number_format($line->Quantity);
             $len2 = " " . strlen($str2);

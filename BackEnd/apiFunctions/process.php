@@ -14,7 +14,7 @@ require_once __DIR__."/util/_files.php";
 
 if($api->isGet(Permission::Process_List))
 {
-	$path = "process/";
+	$path = "../process/";
     $processList = files_listFiles($path,"process.php");
     foreach($processList as &$item) {
         unset($item['FileName']);

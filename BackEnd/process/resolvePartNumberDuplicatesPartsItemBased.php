@@ -7,96 +7,85 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/siFormatter.php";
-require_once __DIR__ . "/../part/manufacturerPart/_function.php";
+require_once __DIR__ . "/../apiFunctions/part/manufacturerPart/_function.php";
 
 $title = "Resolve Part Number Duplicates by Item";
 $description = "Resolve Part Number Duplicates based on part Item";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-    $dbLink = dbConnect();
+
 
 // Get Series
-    echo "Get Duplicates \n";
+echo "Get Duplicates \n";
+$query = <<<STR
+    SELECT Id, VendorId, ItemId, Number, GROUP_CONCAT(Id), GROUP_CONCAT(Number), COUNT(*)
+    FROM manufacturerPart_partNumber
+    WHERE ItemId IS NOT NULL
+    GROUP BY ItemId,  Number
+    HAVING COUNT(*) > 1
+STR;
+$duplicates = $database->execute($query);
+
+foreach($duplicates as $duplicateLine)
+{
+    $chosenId = 0;
+
+    echo "Get Items \n";
+    $duplicateIds =  $duplicateLine['GROUP_CONCAT(Id)'];
     $query = <<<STR
-        SELECT Id, VendorId, ItemId, Number, GROUP_CONCAT(Id), GROUP_CONCAT(Number), COUNT(*)
-        FROM manufacturerPart_partNumber
-        WHERE ItemId IS NOT NULL
-        GROUP BY ItemId,  Number
-        HAVING COUNT(*) > 1
+        SELECT *
+        FROM manufacturerPart_item
+        WHERE Id IN($duplicateIds)
+        ORDER BY Id
     STR;
-    $results = dbRunQuery($dbLink, $query);
 
-    $duplicates = array();
-    while($r = mysqli_fetch_assoc($results))
+    $results = $database->execute($query);
+    foreach($results as $r)
     {
-        $duplicates[] = $r;
+        // Just use the first Ib because it should be all the same
+        $chosenId = intval($r['Id']);
+        break;
     }
 
-    foreach($duplicates as $duplicateLine)
-    {
-        $chosenId = 0;
+    if($chosenId == 0) continue;
 
-        echo "Get Items \n";
-        $duplicateIds =  $duplicateLine['GROUP_CONCAT(Id)'];
-        $query = <<<STR
-            SELECT *
-            FROM manufacturerPart_item
-            WHERE Id IN($duplicateIds)
-            ORDER BY Id
-        STR;
+    // Update stock parts
+    $query = <<<STR
+        UPDATE partStock SET ManufacturerPartNumberId = $chosenId
+        WHERE ManufacturerPartNumberId IN($duplicateIds)
+    STR;
+    $database->execute($query);
 
-        $results = dbRunQuery($dbLink, $query);
-        while($r = mysqli_fetch_assoc($results))
-        {
-            // Just use the first Ib because it should be all the same
-            $chosenId = intval($r['Id']);
-            break;
-        }
+    // Update supplier part
+    $query = <<<STR
+        UPDATE supplierPart SET ManufacturerPartNumberId = $chosenId
+        WHERE ManufacturerPartNumberId IN($duplicateIds)
+    STR;
+    $database->execute($query);
 
-        if($chosenId == 0) continue;
+    // Update production part mapping
+    $query = <<<STR
+        UPDATE IGNORE productionPart_manufacturerPart_mapping SET ManufacturerPartNumberId = $chosenId
+        WHERE ManufacturerPartNumberId IN($duplicateIds)
+    STR;
+    $database->execute($query);
 
-        // Update stock parts
-        $query = <<<STR
-            UPDATE partStock SET ManufacturerPartNumberId = $chosenId
-            WHERE ManufacturerPartNumberId IN($duplicateIds)
-        STR;
-        dbRunQuery($dbLink, $query);
+    // Mark for delete
+    $query = <<<STR
+        UPDATE manufacturerPart_partNumber SET ToDelete = b'1'
+        WHERE Id IN($duplicateIds)
+    STR;
+    $database->execute($query);
 
-        // Update supplier part
-        $query = <<<STR
-            UPDATE supplierPart SET ManufacturerPartNumberId = $chosenId
-            WHERE ManufacturerPartNumberId IN($duplicateIds)
-        STR;
-        dbRunQuery($dbLink, $query);
-
-        // Update production part mapping
-        $query = <<<STR
-            UPDATE IGNORE productionPart_manufacturerPart_mapping SET ManufacturerPartNumberId = $chosenId
-            WHERE ManufacturerPartNumberId IN($duplicateIds)
-        STR;
-        dbRunQuery($dbLink, $query);
-
-        // Mark for delete
-        $query = <<<STR
-            UPDATE manufacturerPart_partNumber SET ToDelete = b'1'
-            WHERE Id IN($duplicateIds)
-        STR;
-        dbRunQuery($dbLink, $query);
-        $query = <<<STR
-            UPDATE manufacturerPart_partNumber SET ToDelete = b'0'
-            WHERE Id = $chosenId
-        STR;
-        dbRunQuery($dbLink, $query);
-    }
-
-    dbClose($dbLink);
-
-    echo "Done \n";
-    exit;
+    $query = <<<STR
+        UPDATE manufacturerPart_partNumber SET ToDelete = b'0'
+        WHERE Id = $chosenId
+    STR;
+    $database->execute($query);
 }
-?>
+
+echo "Done \n";
+exit;

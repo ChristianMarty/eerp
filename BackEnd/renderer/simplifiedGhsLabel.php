@@ -8,11 +8,8 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
 global $api;
 
-require_once __DIR__ . "/../apiFunctions/util/_barcodeParser.php";
-require_once __DIR__ . "/../apiFunctions/util/_barcodeFormatter.php";
 require_once __DIR__ . "/../config.php";
 
 ?>
@@ -107,81 +104,79 @@ class GhsData {
     public bool $ghs09 = false;
 }
 
-if($api->isGet())
+
+$parameter = $api->getGetData();
+
+$field_offset = 0;
+
+$rows[] = new GhsData();
+$rows[0]->name ="Kühlschmierstoff";
+$rows[0]->description ="Stabilo Cut Extreme<br>10% in Wasser";
+$rows[0]->signalWord ="Achtung";
+$rows[0]->ghs02 = false;
+
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+$rows[] = new GhsData();
+
+
+for ($i = 0; $i < $field_offset; $i++) {
+    echo "<div class='label'>";
+    echo "</div>";
+}
+
+global $assetPath;
+
+foreach ($rows as $row)
 {
-    $parameter = $api->getGetData();
 
-    $field_offset = 0;
-
-    $rows[] = new GhsData();
-    $rows[0]->name ="Kühlschmierstoff";
-    $rows[0]->description ="Stabilo Cut Extreme<br>10% in Wasser";
-    $rows[0]->signalWord ="Achtung";
-    $rows[0]->ghs02 = false;
-    
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
-    $rows[] = new GhsData();
+    $content  = "<div class='content'>";
+    $content .= "<h1 class='label'>$row->name</h1>";
+    $content .= "<p class='label'>$row->description</p>";
 
 
-	for ($i = 0; $i < $field_offset; $i++) {
-        echo "<div class='label'>";
-        echo "</div>";
+    $content .= "<div class='symbol'>";
+    if($row->ghs01){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS01_explosive.svg'/>";
     }
-
-    global $assetPath;
-
-	foreach ($rows as $row)
-    {
-
-        $content  = "<div class='content'>";
-        $content .= "<h1 class='label'>$row->name</h1>";
-        $content .= "<p class='label'>$row->description</p>";
-        
-
-        $content .= "<div class='symbol'>";
-        if($row->ghs01){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS01_explosive.svg'/>";
-        }
-        if($row->ghs02){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS02_flammable.svg'/>";
-        }
-        if($row->ghs03){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS03_oxidising.svg'/>";
-        }
-        if($row->ghs04){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS04_gasesUnderPressure.svg'/>";
-        }
-        if($row->ghs05){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS05_corrosive.svg'/>";
-        }
-        if($row->ghs06){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS06_toxic.svg'/>";
-        }
-        if($row->ghs07){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS07_harmful.svg'/>";
-        }
-        if($row->ghs08){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS08_hazardousToHealth.svg'/>";
-        }
-        if($row->ghs09){
-            $content .= "<img class='label' src='$assetPath/ghs/GHS09_naturePolluting.svg'/>";
-        }
-        $content .= "</div>";
-        
-        $content .= "<h2 class='label'>$row->signalWord</h2>";
-        $content .= "</div>";
-
-
-        echo "<div class='label'>";
-        echo $content;
-        echo "</div>";
+    if($row->ghs02){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS02_flammable.svg'/>";
     }
+    if($row->ghs03){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS03_oxidising.svg'/>";
+    }
+    if($row->ghs04){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS04_gasesUnderPressure.svg'/>";
+    }
+    if($row->ghs05){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS05_corrosive.svg'/>";
+    }
+    if($row->ghs06){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS06_toxic.svg'/>";
+    }
+    if($row->ghs07){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS07_harmful.svg'/>";
+    }
+    if($row->ghs08){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS08_hazardousToHealth.svg'/>";
+    }
+    if($row->ghs09){
+        $content .= "<img class='label' src='$assetPath/ghs/GHS09_naturePolluting.svg'/>";
+    }
+    $content .= "</div>";
+
+    $content .= "<h2 class='label'>$row->signalWord</h2>";
+    $content .= "</div>";
+
+
+    echo "<div class='label'>";
+    echo $content;
+    echo "</div>";
 }
 
 ?>

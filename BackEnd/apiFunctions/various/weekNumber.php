@@ -14,7 +14,6 @@ global $api;
 if($api->isGet())
 {
     $output = new stdClass();
-    $output->WeekNumber = date("W");
-
+    $output->WeekNumber = intval(date("W"));
     $api->returnData($output);
 }

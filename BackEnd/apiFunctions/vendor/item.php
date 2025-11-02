@@ -11,17 +11,14 @@ global $database;
 global $api;
 
 require_once __DIR__. "/_vendor.php";
-
-require_once __DIR__. "/alias/_alias.php";
 require_once __DIR__. "/contact/_contact.php";
 
 if($api->isGet(Permission::Vendor_View))
 {
-    $parameters = $api->getGetData();
-
-    if(!isset($parameters->VendorId)) $api->returnParameterMissingError("VendorId");
-    $vendorId = intval($parameters->VendorId);
-    if($vendorId === 0) $api->returnParameterError("VendorId");
+    $parameter = $api->getGetData();
+    if(!isset($parameter->VendorId)) $api->returnData(\Error\parameterMissing("VendorId"));
+    $vendorId = intval($parameter->VendorId);
+    if($vendorId === 0) $api->returnData(\Error\parameter("VendorId"));
 
     $query = <<< STR
         SELECT
@@ -44,8 +41,11 @@ if($api->isGet(Permission::Vendor_View))
         WHERE vendor.Id = $vendorId
         LIMIT 1
     STR;
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->VendorId);
 
-    $output = $database->query($query)[0];
+    $output = $result[0];
 
     $output->CustomerNumber = $output->CustomerNumber??"";
     $output->ShortName = $output->ShortName??"";
@@ -72,7 +72,7 @@ if($api->isGet(Permission::Vendor_View))
     if($output->IsCustomer == 1)$output->IsCustomer = true;
     else $output->IsCustomer = false;
 
-	$output->Alias = \vendor\alias::aliasesForVendor($vendorId);
+	$output->Alias = \Vendor\vendor::getAliases($vendorId);
 	
 	// Get Children
     $query = <<< STR
@@ -145,7 +145,8 @@ else if($api->isPatch(Permission::Vendor_Edit))
 
     $insertData['ParentId'] = $data->ParentId ?? null;
 
-	$database->update("vendor", $insertData, "Id = $vendorId");
+    $result = $database->update("vendor", $insertData, "Id = $vendorId");
+    \Error\checkErrorAndExit($result);
 	
     $api->returnEmpty();
 }
@@ -154,7 +155,7 @@ else if($api->isPost(Permission::Vendor_Create))
     $data = $api->getPostData();
 
     $output =[];
-    $output['VendorId'] = \vendor\vendor::create($data->FullName, $data->IsSupplier ?? false, $data->IsManufacturer ?? false, $data->IsContractor ?? false, $data->IsCarrier ?? false, $data->IsCustomer ?? false);
+    $output['VendorId'] = \Vendor\vendor::create($data->FullName, $data->IsSupplier ?? false, $data->IsManufacturer ?? false, $data->IsContractor ?? false, $data->IsCarrier ?? false, $data->IsCustomer ?? false);
 
     $api->returnData($output);
 }

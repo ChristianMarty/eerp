@@ -11,9 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
-
 if($api->isGet())
 {
     $parameters = $api->getGetData();
@@ -80,7 +77,7 @@ if($api->isGet())
         $priceWeightedAverageSum +=  $price * $r->Quantity;
         $priceWeightSum += $r->Quantity;
 
-        $r->ItemCode = barcodeFormatter_PurchaseOrderNumber( $r->PurchaseOrderNumber);
+        $r->ItemCode = \Numbering\format(\Numbering\Category::PurchaseOrder, $r->PurchaseOrderNumber);
         $r->ItemNumber = $r->PurchaseOrderNumber;
 		
 		$rows[] = $r;

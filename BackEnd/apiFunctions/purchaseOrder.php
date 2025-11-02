@@ -11,9 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/util/_barcodeFormatter.php";
-require_once __DIR__ . "/util/_barcodeParser.php";
-
 if($api->isGet(Permission::PurchaseOrder_List))
 {
 	$parameter = $api->getGetData();
@@ -47,7 +44,7 @@ if($api->isGet(Permission::PurchaseOrder_List))
 	
 	if(isset($parameter->PurchaseOrderNo))
 	{
-		$purchaseOrderNo = barcodeParser_PurchaseOrderNumber($parameter->PurchaseOrderNo);
+		$purchaseOrderNo = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameter->PurchaseOrderNo);
 		if($purchaseOrderNo === false) $api->returnParameterError("PurchaseOrderNo");
 		$queryParam[] = "PurchaseOrderNumber = " . $purchaseOrderNo;
 	}
@@ -77,10 +74,11 @@ if($api->isGet(Permission::PurchaseOrder_List))
 	}
 
 	$result = $database->query($baseQuery,$queryParam,"GROUP BY purchaseOrder.Id ORDER BY purchaseOrder.PurchaseOrderNumber DESC");
+    \Error\checkErrorAndExit($result);
 
 	foreach ($result as $item)
 	{
-        $item->ItemCode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber);
+        $item->ItemCode = \Numbering\format(\Numbering\Category::PurchaseOrder, $item->PurchaseOrderNumber);
 
 		if($item->Title == null) $item->Title = $item->SupplierName." - ".$item->PurchaseDate;
 

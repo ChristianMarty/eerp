@@ -11,14 +11,12 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-
 if($api->isGet(\Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
 
     if(!isset($parameter->BillOfMaterialBarcode)) $api->returnParameterMissingError("BillOfMaterialBarcode");
-    $billOfMaterialNumber = barcodeParser_BillOfMaterial($parameter->BillOfMaterialBarcode);
+    $billOfMaterialNumber = \Numbering\parser(\Numbering\Category::BillOfMaterial, $parameter->BillOfMaterialBarcode);
     if($billOfMaterialNumber === null) $api->returnParameterError("BillOfMaterialBarcode");
 
     $query = <<<STR

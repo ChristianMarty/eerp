@@ -11,15 +11,11 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../config.php";
-require_once __DIR__ . "/util/_barcodeFormatter.php";
-
 if($api->isGet(Permission::WorkOrder_List))
 {
 	$parameter = $api->getGetData();
 
-	$queryParam = array();
-	
+	$queryParam = [];
 	if(isset($parameter->Status))
 	{
 		$status = $database->escape($parameter->Status);
@@ -30,24 +26,24 @@ if($api->isGet(Permission::WorkOrder_List))
 		$queryParam[] = "Status != 'Complete'";
 	}
 
-	$baseQuery = <<<STR
-		SELECT 
-		    project.Name AS ProjectName, 
+    $query = <<<STR
+		SELECT
+		    project.Name AS ProjectName,
 		    project.ProjectNumber AS ProjectNumber,
-		    workOrder.Name, 
-		    Quantity, 
+		    workOrder.Name,
+		    Quantity,
 		    WorkOrderNumber,
-		    Status  
+		    Status
 		FROM workOrder
 		LEFT JOIN project On project.Id = workOrder.ProjectId
 	STR;
-
-	$result = $database->query($baseQuery,$queryParam);
+	$result = $database->query($query, $queryParam);
+    \Error\checkErrorAndExit($result);
 
     foreach($result as $item) {
-        $item->ProjectItemCode = barcodeFormatter_Project($item->ProjectNumber);
+        $item->ProjectItemCode = \Numbering\format(\Numbering\Category::Project, $item->ProjectNumber);
         unset($item->ProjectNumber);
-        $item->ItemCode = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+        $item->ItemCode = \Numbering\format(\Numbering\Category::WorkOrder, $item->WorkOrderNumber);
     }
     $api->returnData($result);
 }

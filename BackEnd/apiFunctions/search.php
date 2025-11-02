@@ -11,8 +11,23 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/location/_location.php";
-require_once __DIR__ . "/util/_barcodeFormatter.php";
+class SearchResult implements \JsonSerializable
+{
+    public \Numbering\Category $category;
+    public string $item;
+    public string $redirectCode;
+    public string|null $description = null;
+
+    public function jsonSerialize(): \stdClass
+    {
+        $output = new \stdClass();
+        $output->Category = $this->category;
+        $output->Item = $this->item;
+        $output->RedirectCode = $this->redirectCode;
+        $output->Description = $this->description??"";
+        return $output;
+    }
+}
 
 if($api->isGet( Permission::Search))
 {
@@ -39,6 +54,7 @@ if($api->isGet( Permission::Search))
             FROM numbering 
         STR;
 		$result = $database->query($query);
+        \Error\checkErrorAndExit($result);
 
 		foreach($result as $item)
 		{
@@ -77,7 +93,6 @@ if($api->isGet( Permission::Search))
 	$api->returnData($output);
 }
 
-
 function manufacturerPartSeries(string $input): array
 {
 	global $database;
@@ -94,16 +109,16 @@ function manufacturerPartSeries(string $input): array
 		WHERE Title LIKE $input OR  Description LIKE $input
 	STR;
 	$result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-	$output = array();
+	$output = [];
 	foreach($result as $item)
 	{
-		$temp = array();
-		$temp["Category"] = 'ManufacturerPartItem';
-		$temp["Item"] = $item->VendorName." - ".$item->Title;
-		$temp["RedirectCode"] = $item->Id;
-		$temp["Description"] = $item->Description;
-		$temp["LocationPath"] = '';
+		$temp = new SearchResult();
+		$temp->category = \Numbering\Category::ManufacturerPartSeries;
+        $temp->item = $item->VendorName." - ".$item->Title;
+        $temp->redirectCode = (string)$item->Id;
+        $temp->description = $item->Description;
 
 		$output[] = $temp;
 	}
@@ -126,16 +141,15 @@ function search_vendor(string $input): array
 		WHERE FullName LIKE $input OR ShortName LIKE $input OR AbbreviatedName LIKE $input
 	STR;
 	$result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-	$output = array();
+	$output = [];
 	foreach($result as $item)
 	{
-		$temp = array();
-		$temp["Category"] = 'Vendor';
-		$temp["Item"] = $item->VendorName;
-		$temp["RedirectCode"] = $item->Id;
-		$temp["Description"] = '';
-		$temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::Vendor;
+        $temp->item = $item->VendorName;
+        $temp->redirectCode = (string)$item->Id;
 
 		$output[] = $temp;
 	}
@@ -157,16 +171,16 @@ function search_manufacturerPartItem(string $input): array
 		WHERE Number LIKE $input
 	STR;
 	$result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-	$output = array();
+    $output = [];
 	foreach($result as $item)
 	{
-		$temp = array();
-		$temp["Category"] = 'ManufacturerPartItem';
-		$temp["Item"] = $item->VendorName." - ".$item->Number;
-		$temp["RedirectCode"] = $item->Id;
-		$temp["Description"] = '';
-		$temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::ManufacturerPart;
+        $temp->item = $item->VendorName." - ".$item->Number;
+        $temp->redirectCode = (string)$item->Id;
+        $temp->description = $item->Description;
 
 		$output[] = $temp;
 	}
@@ -186,16 +200,15 @@ function search_manufacturerPartNumber(string $input): array
         WHERE Number LIKE $input
     QUERY;
 	$result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-	$output = array();
+    $output = [];
 	foreach($result as $item)
 	{
-		$temp = array();
-		$temp["Category"] = 'ManufacturerPartNumber';
-		$temp["Item"] = $item->Number;
-		$temp["RedirectCode"] = $item->Id;
-		$temp["Description"] = '';
-		$temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::ManufacturerPartNumber;
+        $temp->item = $item->Number;
+        $temp->redirectCode = (string)$item->Id;
 
 		$output[] = $temp;
 	}
@@ -219,16 +232,16 @@ function search_productionPart(string $input): array
            OR productionPart.Description LIKE $input
     QUERY;
     $result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-    $output = array();
+    $output = [];
     foreach($result as $item)
     {
-        $temp = array();
-        $temp["Category"] = 'ProductionPart';
-        $temp["Item"] = barcodeFormatter_ProductionPart($item->Number, $item->Prefix);
-        $temp["RedirectCode"] = $temp["Item"];
-        $temp["Description"]  = $item->Description;
-        $temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::ProductionPart;
+        $temp->item = $item->Prefix."-".$item->Number;
+        $temp->redirectCode = $temp->item;
+        $temp->description = $item->Description;
 
         $output[] = $temp;
     }
@@ -242,23 +255,24 @@ function search_assemblySerialNumber(string $input): array
 
     $query = <<< QUERY
         SELECT 
-            Id, 
             AssemblyUnitNumber, 
-            SerialNumber 
+            SerialNumber,
+            assembly.Name
         FROM assembly_unit
+        LEFT JOIN assembly on assembly.Id = assembly_unit.AssemblyId
         WHERE SerialNumber LIKE $input
     QUERY;
 	$result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-	$output = array();
+    $output = [];
 	foreach($result as $item)
 	{
-		$temp = array();
-		$temp["Category"] = 'AssemblyUnit';
-		$temp["Item"] = $item->SerialNumber;
-		$temp["RedirectCode"] = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
-		$temp["Description"] = '';
-		$temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::AssemblyUnit;
+        $temp->item = $item->SerialNumber;
+        $temp->redirectCode = \Numbering\format(\Numbering\Category::AssemblyUnit, $item->AssemblyUnitNumber);
+        $temp->description = $item->Name;
 
 		$output[] = $temp;
 	}
@@ -279,16 +293,15 @@ function search_supplierPartNumber(string $input): array
         WHERE supplierPart.SupplierPartNumber LIKE $input
     QUERY;
     $result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-    $output = array();
+    $output = [];
     foreach($result as $item)
     {
-        $temp = array();
-        $temp["Category"] = 'SupplierPartNumber';
-        $temp["Item"] = $item->SupplierPartNumber;
-        $temp["RedirectCode"] = $item->ManufacturerPartNumberId;
-        $temp["Description"] = '';
-        $temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::SupplierPart;
+        $temp->item = $item->SupplierPartNumber;
+        $temp->redirectCode = $item->ManufacturerPartNumberId;
 
         $output[] = $temp;
     }
@@ -316,8 +329,9 @@ function search_purchaseOrder(string $input): array
            OR purchaseOrder_itemOrder.Description LIKE $input
     QUERY;
     $result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-    $output = array();
+    $output = [];
     foreach($result as $item)
     {
         $description = $item->Description;
@@ -325,12 +339,11 @@ function search_purchaseOrder(string $input): array
         if(!$database::stringEmptyOrNull($item->ManufacturerName)) $description = $item->ManufacturerName." - ".$description;
         if(!$database::stringEmptyOrNull($item->Sku)) $description = $item->Sku." - ".$description;
 
-        $temp = array();
-        $temp["Category"] = 'PurchaseOrder';
-        $temp["Item"] = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
-        $temp["RedirectCode"] = $item->PurchaseOrderNumber;
-        $temp["Description"]  = $description;
-        $temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::PurchaseOrder;
+        $temp->item = \Numbering\format(\Numbering\Category::PurchaseOrder, $item->PurchaseOrderNumber, $item->LineNumber);
+        $temp->redirectCode = $temp->item ;
+        $temp->description = $description;
 
         $output[] = $temp;
     }
@@ -354,19 +367,19 @@ function search_inventory(string $input): array
            OR inventory.Type LIKE $input
     QUERY;
     $result = $database->query($query);
+    if($result instanceof \Error\Data) return [];
 
-    $output = array();
+    $output = [];
     foreach($result as $item)
     {
         $description = $item->Manufacturer." ".$item->Type;
         if(!$database::stringEmptyOrNull($item->Title)) $description = $item->Title." - ".$description;
 
-        $temp = array();
-        $temp["Category"] = 'Inventory';
-        $temp["Item"] = barcodeFormatter_InventoryNumber($item->InventoryNumber);
-        $temp["RedirectCode"] = $item->InventoryNumber;
-        $temp["Description"]  = $description;
-        $temp["LocationPath"] = '';
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::Inventory;
+        $temp->item = \Numbering\format(\Numbering\Category::Inventory, $item->InventoryNumber);
+        $temp->redirectCode = $item->InventoryNumber;
+        $temp->description = $description;
 
         $output[] = $temp;
     }

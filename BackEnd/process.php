@@ -13,13 +13,14 @@ global $user;
 
 $api = new ApiRouter($user, Entrypoint::PROCESS, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
-if(!$api->isGet(Permission::Process_Run)){
-    $api->returnError("Processes must be used via the GET methode");
-}
+if($api->isGet(Permission::Process_Run)){
 
-try {
-	require $api->getRunPath();
-} catch (Exception $e) {
-	echo $e->getMessage();
+    try {
+        $path = $api->getRunPath();
+        require $path;
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+}else{
+    $api->returnMethodNotAllowedError("Processes must be used via the GET methode");
 }
-

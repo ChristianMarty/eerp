@@ -12,15 +12,14 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 if($api->isPost(\Permission::Stock_History_Remove))
 {
 	$data = $api->getPostData();
 
 	$workOrderNumber = null;
-	if(isset($data->WorkOrderNumber)) $workOrderNumber= barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
+	if(isset($data->WorkOrderNumber)){
+        $workOrderNumber = \Numbering\parser(\Numbering\Category::WorkOrder, $data->WorkOrderNumber);
+    }
 	
 	$workOrder = null;
 	if($workOrderNumber !== null)
@@ -28,7 +27,10 @@ if($api->isPost(\Permission::Stock_History_Remove))
 		$query = <<<STR
 			SELECT * FROM workOrder WHERE WorkOrderNumber = '$workOrderNumber';
 		STR;
-		$workOrder = $database->query($query)[0];
+        $result = $database->query($query);
+        \Error\checkErrorAndExit($result);
+        \Error\checkNoResultAndExit($result, $data->WorkOrderNumber);
+        $workOrder = $result[0];
 	}
 
 	$historyIdList = [];
@@ -40,7 +42,7 @@ if($api->isPost(\Permission::Stock_History_Remove))
             if ($note == "") $note = null;
         }
 
-        $stockNo = barcodeParser_StockNumber($line->ItemCode);
+        $stockNo = \Numbering\parser(\Numbering\Category::Stock, $line->ItemCode);
 
         $query = <<<STR
 			SELECT Id FROM partStock WHERE StockNumber = '$stockNo';
@@ -56,8 +58,9 @@ if($api->isPost(\Permission::Stock_History_Remove))
         $sqlData['CreationUserId'] = $user->userId();;
         if ($workOrder !== null) $sqlData['WorkOrderId'] = $workOrder->Id;
 
-        $database->insert("partStock_history", $sqlData);
-        $historyIdList[] = $database->lastInsertId();
+        $lastInsertId = $database->insert("partStock_history", $sqlData);
+        \Error\checkErrorAndExit($lastInsertId);
+        $historyIdList[] = $lastInsertId;
     }
 
     $historyIdStr = implode(',',$historyIdList);
@@ -80,14 +83,14 @@ if($api->isPost(\Permission::Stock_History_Remove))
         WHERE partStock_history.Id IN($historyIdStr)
         ORDER BY partStock_history.Id ASC
     STR;
-
     $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
 
     $output = [];
     foreach($result as $line)
     {
         $item = new stdClass();
-        $item->ItemCode = barcodeFormatter_StockHistoryNumber($line->StockNumber, $line->ChangeIndex);
+        $item->ItemCode = \Numbering\format(\Numbering\Category::Stock, $line->StockNumber, $line->ChangeIndex);
         $item->ManufacturerName = "";
         $item->ManufacturerPartNumber = "";
         $item->Note = $line->Note??"";

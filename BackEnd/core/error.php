@@ -26,7 +26,8 @@ enum Type
 function trace(): string
 {
     global $user;
-    if($user->roles()["error"]->apiErrorTrace === false) return "";
+    if(!$user->loggedIn()) return "";
+    if(!$user->checkPermission(\Permission::Error_ApiTrace)) return "";
 
     $bt = debug_backtrace();
     array_shift($bt);
@@ -67,6 +68,26 @@ function parameterMissing(string $parameterName): Data
 function postDataMissing(): Data
 {
     return new Data(Type::PostDataMissing, trace()."Parameter Error: POST field must not be empty");
+}
+
+function checkErrorAndExit(mixed $data): void
+{
+    global $api;
+    if($data instanceof Data) {
+        $api->returnData($data);
+    }
+}
+
+function checkNoResultAndExit(mixed $data, string $item): void
+{
+    global $api;
+    if(!is_array($data)){
+        $api->returnData(\Error\generic("Datatype error"));
+    }
+
+    if(count($data) === 0) {
+        $api->returnData(\Error\itemNotFound($item));
+    }
 }
 
 class Data

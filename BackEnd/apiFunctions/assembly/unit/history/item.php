@@ -14,14 +14,12 @@ global $user;
 
 require_once __DIR__ . "/../../../../config.php";
 require_once __DIR__ . "/../../../util/_json.php";
-require_once __DIR__ . "/../../../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../../../util/_barcodeParser.php";
 
 if ($api->isGet( \Permission::Assembly_Unit_View)) {
     $parameter = $api->getGetData();
     if (!isset($parameter->AssemblyUnitHistoryNumber)) $api->returnParameterMissingError("AssemblyUnitHistoryNumber");
 
-    $assemblyHistoryNumber = barcodeParser_AssemblyUnitHistoryNumber($parameter->AssemblyUnitHistoryNumber);
+    $assemblyHistoryNumber = \Numbering\parser(\Numbering\Category::AssemblyUnitHistory, $parameter->AssemblyUnitHistoryNumber);
     if ($assemblyHistoryNumber === null) $api->returnParameterError("AssemblyUnitHistoryNumber");
 
     $query = <<< STR
@@ -43,19 +41,16 @@ if ($api->isGet( \Permission::Assembly_Unit_View)) {
         ORDER BY assembly_unit_history.CreationDate
         LIMIT 1;
     STR;
-
     $result = $database->query($query);
-    if (count($result) == 0) {
-        $api->returnError("Assembly unit history item not found");
-    } else {
-        $history = $result[0];
-    }
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->AssemblyUnitHistoryNumber);
+    $history = $result[0];
 
-    $history->AssemblyUnitCode = barcodeFormatter_AssemblyUnitNumber($history->AssemblyUnitNumber);
+    $history->AssemblyUnitCode = \Numbering\format(\Numbering\Category::AssemblyUnit, $history->AssemblyUnitNumber);
     unset($history->AssemblyUnitNumber);
 
     $history->AssemblyUnitHistoryNumber = intval($history->AssemblyUnitHistoryNumber);
-    $history->ItemCode = barcodeFormatter_AssemblyUnitHistoryNumber($history->AssemblyUnitHistoryNumber);
+    $history->ItemCode = \Numbering\format(\Numbering\Category::AssemblyUnitHistory, $history->AssemblyUnitHistoryNumber);
 
     if ($history->ShippingClearance != 0) $history->ShippingClearance = true;
     else $history->ShippingClearance = false;
@@ -99,7 +94,7 @@ if ($api->isGet( \Permission::Assembly_Unit_View)) {
 } else if ($api->isPost( \Permission::Assembly_Unit_Create)) {
     $data = $api->getPostData();
     if (!isset($data->AssemblyUnitNumber)) $api->returnParameterMissingError("AssemblyUnitNumber");
-    $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($data->AssemblyUnitNumber);
+    $assemblyUnitNumber = \Numbering\parser(\Numbering\Category::AssemblyUnit, $data->AssemblyUnitNumber);
     if ($assemblyUnitNumber === null) $api->returnParameterError("AssemblyUnitNumber");
 
     $jsonData = null;
@@ -137,7 +132,7 @@ if ($api->isGet( \Permission::Assembly_Unit_View)) {
     $error = null;
     $output = array();
     $output['EditToken'] = $result->EditToken;
-    $output['AssemblyUnitHistoryBarcode'] = barcodeFormatter_AssemblyUnitHistoryNumber($result->AssemblyUnitHistoryNumber);
+    $output['AssemblyUnitHistoryBarcode'] = \Numbering\format(\Numbering\Category::AssemblyUnitHistory, $result->AssemblyUnitHistoryNumber);
     $output['Barcode'] = $output['AssemblyUnitHistoryBarcode']; // TODO: Legacy -> Remove
 
     $api->returnData($output);

@@ -12,10 +12,6 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/getPurchaseInformation.php";
-
 require_once __DIR__ . "/../location/_location.php";
 
 require_once __DIR__ . "/../document/_document.php";
@@ -26,7 +22,7 @@ if($api->isGet(\Permission::Inventory_View))
 	if(!isset($parameter->InventoryNumber) and !isset($parameter->SerialNumber)) $api->returnParameterMissingError("InventoryNumber and SerialNumber");
 
 	if(isset($parameter->InventoryNumber)) {
-		$InvNo = barcodeParser_InventoryNumber($parameter->InventoryNumber);
+		$InvNo = \Numbering\parser(\Numbering\Category::Inventory, $parameter->InventoryNumber);
 		if($InvNo == null) $api->returnParameterError('InventoryNumber');
 	}
 	elseif(isset($parameter->SerialNumber))
@@ -74,7 +70,7 @@ if($api->isGet(\Permission::Inventory_View))
 
 	$output->PicturePath = $pictureRootPath.$output->PicturePath;
 	$output->InventoryNumber = intval($output->InventoryNumber);
-	$output->ItemCode = barcodeFormatter_InventoryNumber($output->InventoryNumber);
+	$output->ItemCode = \Numbering\format(\Numbering\Category::Inventory, $output->InventoryNumber);
     if($output->SerialNumber === null) $output->SerialNumber = "";
 
     // Add Location
@@ -124,8 +120,8 @@ if($api->isGet(\Permission::Inventory_View))
 	$totalMaintenance = 0;
 	foreach ($purchase as $r)
 	{
-		$r->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber, $r->LineNumber);
-		$r->PurchaseOrderNumber = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber);
+		$r->PurchaseOrderBarcode = \Numbering\format(\Numbering\Category::PurchaseOrder, $r->PurchaseOrderNumber, $r->LineNumber);
+		$r->PurchaseOrderNumber = \Numbering\format(\Numbering\Category::PurchaseOrder, $r->PurchaseOrderNumber);
 
 		$price = $r->Price*$r->Quantity*((100 - intval($r->Discount))/100);
 		$r->Price = $price;
@@ -184,7 +180,7 @@ if($api->isGet(\Permission::Inventory_View))
 	$accessory = $database->query($query);
 	foreach ($accessory as $r)
 	{
-		$r->ItemCode = barcodeFormatter_InventoryNumber($output->InventoryNumber, $r->AccessoryNumber);
+		$r->ItemCode = \Numbering\format(\Numbering\Category::Inventory, $output->InventoryNumber, $r->AccessoryNumber);
 		if($r->Labeled == "0") $r->Labeled = false;
 		else $r->Labeled = true;
 	}
@@ -238,7 +234,7 @@ else if($api->isPost(\Permission::Inventory_Create))
 
 	$output = [];
 	$output['InventoryNumber'] = $database->query($query)[0]->InventoryNumber;
-	$output['ItemCode'] = barcodeFormatter_InventoryNumber($output['InventoryNumber']);
+	$output['ItemCode'] = \Numbering\format(\Numbering\Category::Inventory, $output['InventoryNumber']);
 
 	$api->returnData($output);
 }

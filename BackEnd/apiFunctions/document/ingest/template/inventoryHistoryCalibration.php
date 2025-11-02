@@ -13,22 +13,21 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../_document.php";
-require_once  __DIR__."/../../../util/_barcodeParser.php";
-require_once  __DIR__."/../../../util/_barcodeFormatter.php";
 
 if($api->isPost(Permission::Document_Ingest_Save))
 {
     $data = $api->getPostData();
 
-    $invNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
+    $invNumber = \Numbering\parser(\Numbering\Category::Inventory, $data->InventoryNumber);
     if($invNumber == 0) $api->returnParameterError("InventoryNumber");
 
     $query = <<<STR
         SELECT Id, InventoryNumber, Manufacturer, Type, SerialNumber FROM inventory WHERE  InventoryNumber = $invNumber   
     STR;
-    $inv = $database->query($query)[0];
-
-    if(!isset($inv->InventoryNumber)) $api->returnError("Inventory number not found");
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $data->InventoryNumber);
+    $inv = $result[0];
 
     $name = $inv->Manufacturer."_".$inv->Type."_".$inv->SerialNumber."_".$data->Date;
 	$name = str_replace(" ", "-",$name);

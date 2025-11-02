@@ -12,9 +12,6 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/util/getChildren.php";
-require_once __DIR__ . "/util/_barcodeFormatter.php";
-require_once __DIR__ . "/util/_barcodeParser.php";
-
 require_once __DIR__ . "/location/_location.php";
 
 if($api->isGet(Permission::Inventory_List))
@@ -40,28 +37,29 @@ if($api->isGet(Permission::Inventory_List))
 	$queryParam = array();
 	
 	if(isset($parameter->InventoryNumber)) {
-        $temp = barcodeParser_InventoryNumber($parameter->InventoryNumber);
-        if ($temp === null) $api->returnParameterError('InventoryNumber');
+        $temp = \Numbering\parser(\Numbering\Category::Inventory, $parameter->InventoryNumber);
+        if ($temp === null) $api->returnData(\Error\parameter('InventoryNumber'));
         $queryParam[] = "InventoryNumber = '$temp'";
 	}
 
     $categoryId = null;
     if(isset($parameter->CategoryId)) {
         $categoryId = intval($parameter->CategoryId);
-        if ($categoryId === 0) $api->returnParameterError('CategoryId');
+        if ($categoryId === 0) $api->returnData(\Error\parameter('CategoryId'));
         $categories = getChildren("inventory_category", $categoryId);
         $queryParam[] = "InventoryCategoryId IN ($categories)";
     }
 
     if(isset($parameter->LocationNumber)) {
-        $temp = barcodeParser_LocationNumber($parameter->LocationNumber);
-        if ($temp === null) $api->returnParameterError('LocationNumber');
+        $temp = \Numbering\parser(\Numbering\Category::Location, $parameter->LocationNumber);
+        if ($temp === null) $api->returnData(\Error\parameter('LocationNumber'));
         $location = new Location();
         $locationIds = $location->idsWithChildren($temp);
         $queryParam[] = "LocationId IN (" . implode(",",$locationIds) . ")";
     }
 
     $result = $database->query($baseQuery, $queryParam);
+    \Error\checkErrorAndExit($result);
 
 	global $dataRootPath;
 	global $picturePath;
@@ -70,7 +68,7 @@ if($api->isGet(Permission::Inventory_List))
 	{
 		$item->PicturePath = $pictureRootPath.$item->PicturePath;
         $item->InventoryNumber = intval($item->InventoryNumber);
-        $item->ItemCode = barcodeFormatter_InventoryNumber($item->InventoryNumber);
+        $item->ItemCode = \Numbering\format(\Numbering\Category::Inventory, $item->InventoryNumber);
 	}
 
 	$api->returnData($result);

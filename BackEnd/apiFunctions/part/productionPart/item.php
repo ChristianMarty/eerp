@@ -15,8 +15,6 @@ global $user;
 require_once __DIR__ . "/../../../interface/productionPart.php";
 
 require_once __DIR__ . "/../../stock/_stock.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../_part.php";
 require_once __DIR__ . "/../../location/_location.php";
 
@@ -25,7 +23,7 @@ if($api->isGet())
     $parameter = $api->getGetData();
 
     if(!isset($parameter->ProductionPartBarcode)) $api->returnParameterMissingError("ProductionPartBarcode");
-    $productionPartBarcode = barcodeParser_ProductionPart($parameter->ProductionPartBarcode);
+    $productionPartBarcode = \Numbering\parser(\Numbering\Category::ProductionPart, $parameter->ProductionPartBarcode);
     if($productionPartBarcode == null) $api->returnParameterError("ProductionPartBarcode");
 
     $query = <<<STR
@@ -107,13 +105,13 @@ if($api->isGet())
     {
         $stockRow = array();
         $stockRow['ItemNumber'] = $r->StockNumber;
-        $stockRow['ItemCode'] = barcodeFormatter_StockNumber($r->StockNumber);
+        $stockRow['ItemCode'] = \Numbering\format(\Numbering\Category::Stock, $r->StockNumber);
         $stockRow['Date'] = $r->Date;
         $stockRow['Lot'] = $r->LotNumber;
         $stockRow['Quantity'] = intval($r->Quantity);
         $totalStockQuantity += $stockRow['Quantity'];
         $stockRow['LocationName'] = $location->name($r->LocationId);
-        $certainty =  \stock\stock::certainty(intval($r->PartStockId));
+        $certainty =  \Stock\Stock::certainty(intval($r->PartStockId));
         $stockRow['Certainty'] = $certainty;
         $totalStockCertainty += $certainty->Factor*($r->Quantity);
 

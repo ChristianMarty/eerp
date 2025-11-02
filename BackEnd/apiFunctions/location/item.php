@@ -11,17 +11,14 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/_location.php";
-
 
 if($api->isGet(\Permission::Location_View))
 {
-	$parameters = $api->getGetData();
-	if(!isset($parameters->LocationNumber)) $api->returnParameterMissingError('LocationNumber');
+    $parameter = $api->getGetData();
+	if(!isset($parameter->LocationNumber)) $api->returnParameterMissingError('LocationNumber');
 
-    $locationNumber = barcodeParser_LocationNumber($parameters->LocationNumber);
+    $locationNumber = \Numbering\parser(\Numbering\Category::Location, $parameter->LocationNumber);
 	if($locationNumber === null) $api->returnParameterError('LocationNumber');
 
 	$output = array();
@@ -46,13 +43,15 @@ if($api->isGet(\Permission::Location_View))
 		LIMIT 1;
 	STR;
 	$result = $database->query($query);
-	$locationData = $result[0] ?? null;
-	if($locationData === null) $api->returnError("Location barcode not found");
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->LocationNumber);
+
+	$locationData = $result[0];
 
 	$locationId = intval($locationData->Id);
 	$parentId = intval($locationData->ParentId);
 	$output['LocationNumber'] = $locationData->LocationNumber;
-	$output['ItemCode'] = barcodeFormatter_LocationNumber($locationData->LocationNumber);
+	$output['ItemCode'] = \Numbering\format(\Numbering\Category::Location, $locationData->LocationNumber);
 	$output['Name'] = $locationData->Name;
 	$output['Title'] = $locationData->Title;
 	$output['Description'] = $locationData->Description;
@@ -80,7 +79,7 @@ if($api->isGet(\Permission::Location_View))
 		$item = $database->query($query)[0];
 
 		$parent['LocationNumber'] = $item->LocationNumber;
-		$parent['ItemCode'] = barcodeFormatter_LocationNumber($item->LocationNumber);
+		$parent['ItemCode'] = \Numbering\format(\Numbering\Category::Location, $item->LocationNumber);
 		$parent['Name'] = $item->Name;
 		$parent['Description'] = $item->Description;
 	}
@@ -101,7 +100,7 @@ if($api->isGet(\Permission::Location_View))
 	{
 		$data = array();
 		$data['LocationNumber'] = $item->LocationNumber;
-		$data['LocationBarcode'] = barcodeFormatter_LocationNumber($item->LocationNumber);
+		$data['LocationBarcode'] = \Numbering\format(\Numbering\Category::Location, $item->LocationNumber);
 		$data['Name'] = $item->Name;
 		$data['Description'] = $item->Description;
 		$children[] = $data;
@@ -118,7 +117,7 @@ else if($api->isPatch(\Permission::Location_Edit))
     $data = $api->getPostData();
     if(!isset($data->LocationNumber)) $api->returnParameterMissingError('LocationNumber');
 
-    $locationNumber = barcodeParser_LocationNumber($data->LocationNumber);
+    $locationNumber = \Numbering\parser(\Numbering\Category::Location, $data->LocationNumber);
     if($locationNumber === false) $api->returnParameterError('LocationNumber');
 
     $updateData = [];

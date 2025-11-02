@@ -11,9 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/util/_barcodeFormatter.php";
-require_once __DIR__ . "/util/_barcodeParser.php";
-
 if($api->isGet(Permission::ProductionPart_List))
 {
     $parameter = $api->getGetData();
@@ -59,6 +56,7 @@ if($api->isGet(Permission::ProductionPart_List))
 	}
 
     $result = $database->query($query,$queryParam,"GROUP BY productionPart.Id");
+    \Error\checkErrorAndExit($result);
 
     foreach($result as $item) {
         $item->ItemCode = $item->Prefix."-".$item->Number;

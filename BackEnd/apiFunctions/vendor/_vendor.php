@@ -9,7 +9,7 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
-namespace vendor;
+namespace Vendor;
 
 class vendor
 {
@@ -98,5 +98,12 @@ class vendor
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    static function getAliases(int $vendorId): array|\Error\Data
+    {
+        global $database;
+        $query = "SELECT * FROM vendor_alias WHERE VendorId = $vendorId";
+        return $database->query($query);
     }
 }

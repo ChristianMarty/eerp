@@ -11,16 +11,12 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::Stock_View))
 {
 	$parameter = $api->getGetData();
-
-	if(!isset($parameter->StockCode)) $api->returnParameterMissingError("StockCode");
-	$stockNumber = barcodeParser_StockNumber($parameter->StockCode);
-	if($stockNumber === null) $api->returnParameterError("StockCode");
+    if(!isset($parameter->StockCode)) $api->returnData(\Error\parameterMissing("StockCode"));
+    $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $parameter->StockCode);
+    if($stockNumber === null) $api->returnData(\Error\parameter("StockCode"));
 
 	$query = <<<STR
 		SELECT 
@@ -39,8 +35,8 @@ if($api->isGet(\Permission::Stock_View))
 		WHERE StockId = (SELECT Id FROM partStock WHERE StockNumber = '$stockNumber') 
 		ORDER BY partStock_history.CreationDate ASC
 	STR;
-
 	$result = $database->query($query);
+    \Error\checkErrorAndExit($result);
 
 	$output = array();
 	$quantity = 0;
@@ -80,12 +76,12 @@ if($api->isGet(\Permission::Stock_View))
 		
 		$description .= ", New Quantity: ".$quantity;
 
-        $r['ItemCode'] = barcodeFormatter_StockHistoryNumber($stockNumber, $item->ChangeIndex);
+        $r['ItemCode'] = \Numbering\format(\Numbering\Category::Stock, $stockNumber, $item->ChangeIndex);
 		$r['Type'] = $type;
         $r['Date'] = $item->Date;
         $r['Note'] = $item->Note;
 		$r['Description'] = trim($description);
-		$r['WorkOrderCode'] = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+		$r['WorkOrderCode'] = \Numbering\format(\Numbering\Category::WorkOrder, $item->WorkOrderNumber);
         $r['NameInitials'] = $item->Initials;
         $r['EditToken'] = $item->EditToken;
 

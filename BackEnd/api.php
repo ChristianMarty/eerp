@@ -22,9 +22,10 @@ if($api->isOptions()) {
 }
 
 try {
-    require $api->getRunPath();
+    $path = $api->getRunPath();
+    require $path;
 } catch (Exception $e) {
-    $api->returnError($e->getMessage());
+    $api->returnData(\Error\generic($e->getMessage()));
 }
 
 // this point should not be reached. The above lines should terminate the program.

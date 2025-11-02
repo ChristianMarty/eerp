@@ -13,9 +13,13 @@ global $user;
 
 $api = new ApiRouter($user, Entrypoint::RENDERER, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
-try {
-	require $api->getRunPath();
-} catch (Exception $e) {
-	echo $e->getMessage();
+if($api->isGet(Permission::Renderer_View)){
+    try {
+        $path = $api->getRunPath();
+        require $path;
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+}else{
+    $api->returnMethodNotAllowedError("Renderer must be used via the GET methode");
 }
-

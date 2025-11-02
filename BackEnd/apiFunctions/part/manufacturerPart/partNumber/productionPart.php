@@ -12,9 +12,7 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../../util/_barcodeParser.php";
-
-if($api->isPost("productionPart.edit"))
+if($api->isPost(Permission::ProductionPart_Edit))
 {
     $data = $api->getPostData();
 
@@ -25,7 +23,7 @@ if($api->isPost("productionPart.edit"))
 
     $productionPartNumbers = [];
     foreach($data->ProductionPartList as $item) {
-        $productionPartNumber = barcodeParser_ProductionPart($item);
+        $productionPartNumber = \Numbering\parser(\Numbering\Category::ProductionPart, $item);
         if($productionPartNumber === null) continue;
         $productionPartNumber = $database->escape($productionPartNumber);
         $productionPartNumbers[] = $productionPartNumber;

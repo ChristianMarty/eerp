@@ -30,9 +30,10 @@ if($api->isGet(Permission::Vendor_View))
     STR;
 
     $queryParam= [];
-    if(isset($parameters->VendorId))$queryParam[] = "VendorId = ".intval($parameters->VendorId);
+    if(isset($parameters->VendorId)){
+        $queryParam[] = "VendorId = ".intval($parameters->VendorId);
+    }
 
-    $addresses = $database->query($query,$queryParam);
-
-    $api->returnData($addresses);
+    $result = $database->query($query,$queryParam);
+    $api->returnData($result);
 }

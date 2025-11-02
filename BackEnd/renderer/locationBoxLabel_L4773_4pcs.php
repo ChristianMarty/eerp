@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../apiFunctions/util/_barcodeParser.php";
-require_once __DIR__ . "/../apiFunctions/util/_barcodeFormatter.php";
 require_once __DIR__ . "/../config.php";
 
 ?>
@@ -93,75 +91,73 @@ require_once __DIR__ . "/../config.php";
 <div class="page">
 
 <?php
-if($api->isGet())
-{
-    $parameter = $api->getGetData();
 
-    $locationNumbers = [];
-	if (isset($parameter->LocationNumber)) {
-        $locationNumbers = explode(",", $parameter->LocationNumber);
+$parameter = $api->getGetData();
 
-        if(!count($locationNumbers)){
-            echo "Location number list empty";
-            exit;
-        }
+$locationNumbers = [];
+if (isset($parameter->LocationNumber)) {
+    $locationNumbers = explode(",", $parameter->LocationNumber);
 
-        foreach ($locationNumbers as &$item) {
-            $item = barcodeParser_LocationNumber($item);
-            unset($item);
-        }
-    }
-
-    $field_offset = 0;
-    if (isset($parameter->Offset)) {
-        $field_offset = $parameter->Offset;
-    }
-
-    $locationNumbersString = implode(", ", $locationNumbers);
-    if(strlen($locationNumbersString)=== 0){
-        echo "Location number list is empty.";
+    if(!count($locationNumbers)){
+        echo "Location number list empty";
         exit;
     }
-    $query = <<< STR
-        SELECT 
-            LocationNumber,
-            Name
-        FROM location
-        WHERE LocationNumber IN( $locationNumbersString );
-    STR;
 
-    $rows = $database->query($query);
-
-	for ($i = 0; $i < $field_offset; $i++) {
-        echo "<div class='label'>";
-        echo "</div>";
+    foreach ($locationNumbers as &$item) {
+        $item = \Numbering\parser(\Numbering\Category::Location, $item);
+        unset($item);
     }
+}
 
-    global $rendererRootPath;
+$field_offset = 0;
+if (isset($parameter->Offset)) {
+    $field_offset = $parameter->Offset;
+}
 
-	foreach ($rows as $row)
+$locationNumbersString = implode(", ", $locationNumbers);
+if(strlen($locationNumbersString)=== 0){
+    echo "Location number list is empty.";
+    exit;
+}
+$query = <<< STR
+    SELECT 
+        LocationNumber,
+        Name
+    FROM location
+    WHERE LocationNumber IN( $locationNumbersString );
+STR;
+
+$rows = $database->query($query);
+
+for ($i = 0; $i < $field_offset; $i++) {
+    echo "<div class='label'>";
+    echo "</div>";
+}
+
+global $rendererRootPath;
+
+foreach ($rows as $row)
+{
+    foreach([1,2,3,4] as $i) // 4 labels each
     {
-        foreach([1,2,3,4] as $i) // 4 labels each
-        {
 
-            $locNo = $row->LocationNumber . " ";
-            $name = $row->Name . " ";
-            $locationBarcode = barcodeFormatter_LocationNumber($locNo);
+        $locNo = $row->LocationNumber . " ";
+        $name = $row->Name . " ";
+        $locationBarcode = \Numbering\format(\Numbering\Category::Location, $locNo);
 
-            $content  = "<div class='title'>";
-            $content .= "<h1 class='label'>Box</h1>";
-            $content .= "<h1 class='label'>$name</h1>";
-            $content .= "</div>";
+        $content  = "<div class='title'>";
+        $content .= "<h1 class='label'>Box</h1>";
+        $content .= "<h1 class='label'>$name</h1>";
+        $content .= "</div>";
 
-            $content .= "<div class='barcode'>";
-            $content .= "<p class='label'>$locationBarcode</p>";
-            $content .= "<img class='label' src='" . $rendererRootPath . "/barcode/barcode?text=" . $locationBarcode . "'/>";
-            $content .= "</div>";
+        $content .= "<div class='barcode'>";
+        $content .= "<p class='label'>$locationBarcode</p>";
+        $content .= "<img class='label' src='" . $rendererRootPath . "/barcode/barcode?text=" . $locationBarcode . "'/>";
+        $content .= "</div>";
 
-            echo "<div class='label'>";
-            echo $content;
-            echo "</div>";
-        }
+        echo "<div class='label'>";
+        echo $content;
+        echo "</div>";
     }
 }
 

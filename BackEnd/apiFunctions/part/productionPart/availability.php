@@ -12,14 +12,12 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/../../externalApi/octopart.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 if($api->isGet())
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->ProductionPartBarcode)) $api->returnParameterMissingError("ProductionPartBarcode");
-    $productionPartBarcode = barcodeParser_ProductionPart($parameter->ProductionPartBarcode);
+    $productionPartBarcode = \Numbering\parser(\Numbering\Category::ProductionPart, $parameter->ProductionPartBarcode);
     if($productionPartBarcode == null) $api->returnParameterError('ProductionPartBarcode');
 
     $authorizedOnly = $parameter->AuthorizedOnly;

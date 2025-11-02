@@ -13,17 +13,15 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../util/_json.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
-if($api->isGet(\Permission::Inventory_Accessory_View))
+if($api->isGet(\Permission::Inventory_View))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->ItemCode)) $api->returnParameterMissingError("ItemCode");
-    $inventoryNumber = barcodeParser_InventoryNumber($parameter->ItemCode);
+    $inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $parameter->ItemCode);
     if($inventoryNumber == null) $api->returnParameterError('InventoryItemCode');
 
-    $accessoryNumber = barcodeParser_InventoryAccessoryNumber($parameter->ItemCode);
+    $accessoryNumber = \Numbering\parser(\Numbering\Category::InventoryAccessory, $parameter->ItemCode);
     if($accessoryNumber == null) $api->returnParameterError('AccessoryItemCode');
 
     $query = <<<STR
@@ -44,7 +42,7 @@ if($api->isGet(\Permission::Inventory_Accessory_View))
 	if($accessory->Labeled == "0") $accessory->Labeled = false;
 	else $accessory->Labeled = true;
 
-    $accessory->ItemCode = barcodeFormatter_InventoryNumber($accessory->InventoryNumber, $accessory->AccessoryNumber);
+    $accessory->ItemCode = \Numbering\format(\Numbering\Category::Inventory, $accessory->InventoryNumber, $accessory->AccessoryNumber);
     $accessory->InventoryNumber = intval($accessory->InventoryNumber);
     $accessory->AccessoryNumber = intval($accessory->AccessoryNumber);
 
@@ -54,10 +52,10 @@ else if($api->isPatch(\Permission::Inventory_Accessory_Edit))
 {
 	$data = $api->getPostData();
     if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");
-    $inventoryNumber = barcodeParser_InventoryNumber($data->ItemCode);
+    $inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $data->ItemCode);
     if($inventoryNumber == null) $api->returnParameterError('InventoryItemCode');
 
-    $accessoryNumber = barcodeParser_InventoryAccessoryNumber($data->ItemCode);
+    $accessoryNumber = \Numbering\parser(\Numbering\Category::InventoryAccessory, $data->ItemCode);
     if($accessoryNumber == null) $api->returnParameterError('AccessoryItemCode');
 
     $query = <<<STR
@@ -78,11 +76,11 @@ else if($api->isPatch(\Permission::Inventory_Accessory_Edit))
 
     $api->returnEmpty();
 }
-else if($api->isPost(\Permission::Inventory_Accessory_Create))
+else if($api->isPost(\Permission::Inventory_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");
-    $inventoryNumber = barcodeParser_InventoryNumber($data->ItemCode);
+    $inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $data->ItemCode);
 
     $query = <<<STR
         SELECT 

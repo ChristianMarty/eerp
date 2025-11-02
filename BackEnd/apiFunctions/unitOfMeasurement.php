@@ -32,17 +32,11 @@ if($api->isGet())
             ConversionFactor
         FROM unitOfMeasurement
     QUERY;
+    $result = $database->query($query, $queryParam);
+    \Error\checkErrorAndExit($result);
 
-    try {
-        $result = $database->query($query,$queryParam);
-
-        foreach($result as &$item) {
-            $item->Countable = boolval($item->Countable);
-        }
-        $api->returnData($result);
+    foreach($result as &$item) {
+        $item->Countable = boolval($item->Countable);
     }
-    catch (\Exception $e)
-    {
-        $api->returnError();
-    }
+    $api->returnData($result);
 }

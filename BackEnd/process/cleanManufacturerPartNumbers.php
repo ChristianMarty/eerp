@@ -11,7 +11,7 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . '/../vendor/_preprocessor/_partNumberPreprocessing.php';
+require_once __DIR__ . '/../apiFunctions/vendor/_preprocessor/_partNumberPreprocessing.php';
 
 $title = "Clean MPNs";
 $description = "Reformat Manufacturer Part Numbers based on manufacture specific formatting rules";
@@ -39,3 +39,4 @@ foreach($result as $item)
 }
 
 echo "Done";
+exit;

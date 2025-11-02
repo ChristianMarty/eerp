@@ -12,19 +12,16 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../_stock.php";
 
 if($api->isGet(\Permission::Stock_History_View)) {
 
     $parameter = $api->getGetData();
-
-    if (!isset($parameter->StockHistoryCode)) $api->returnParameterMissingError("StockHistoryCode");
-    $stockNumber = barcodeParser_StockNumber($parameter->StockHistoryCode);
-    $historyIndex = barcodeParser_StockHistoryNumber($parameter->StockHistoryCode);
-    if ($stockNumber === null) $api->returnParameterError("StockCode");
-    if ($historyIndex === null) $api->returnParameterError("StockCode History Index");
+    if (!isset($parameter->StockHistoryCode)) $api->returnData(\Error\parameterMissing("StockHistoryCode"));
+    $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $parameter->StockHistoryCode);
+    $historyIndex = \Numbering\parser(\Numbering\Category::StockHistoryIndex, $parameter->StockHistoryCode);
+    if ($stockNumber === null) $api->returnData(\Error\parameter("StockCode"));
+    if ($historyIndex === null) $api->returnData(\Error\parameter("StockCode History Index"));
 
     $query = <<<STR
     SELECT
@@ -56,15 +53,13 @@ if($api->isGet(\Permission::Stock_History_View)) {
         AND partStock_history.Cache_ChangeIndex = '$historyIndex'
     STR;
     $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->ContactId);
 
-    if(count($result) == 0) {
-        $api->returnError("Stock history code not found");
-    }
     $output = $result[0];
-
-    $output->ItemCode = barcodeFormatter_StockHistoryNumber($output->StockNumber, $output->ChangeIndex);
-    $output->StockCode = barcodeFormatter_StockNumber($output->StockNumber);
-    $output->WorkOrderCode = barcodeFormatter_WorkOrderNumber($output->WorkOrderNumber);
+    $output->ItemCode = \Numbering\format(\Numbering\Category::Stock, $output->StockNumber, $output->ChangeIndex);
+    $output->StockCode = \Numbering\format(\Numbering\Category::Stock, $output->StockNumber);
+    $output->WorkOrderCode = \Numbering\format(\Numbering\Category::WorkOrder, $output->WorkOrderNumber);
 
     if($output->ChangeType === "Relative"){
         if($output->Quantity < 0){
@@ -108,15 +103,14 @@ if($api->isGet(\Permission::Stock_History_View)) {
 else if($api->isPatch(\Permission::Stock_History_Edit))
 {
 	$data = $api->getPostData();
-	if(!isset($data->EditToken)) $api->returnParameterMissingError("EditToken");
-	if(!isset($data->Quantity)) $api->returnParameterMissingError("Quantity");
+	if(!isset($data->EditToken)) $api->returnData(\Error\parameterMissing("EditToken"));
+	if(!isset($data->Quantity)) $api->returnData(\Error\parameterMissing("Quantity"));
+    if(!is_numeric($data->Quantity)) $api->returnData(\Error\parameter("Quantity"));
+    $quantity = intval($data->Quantity);
 
-	$token = $database->escape(trim($data->EditToken));
-	
 	$workOrderNumber = null;
-	if(isset($data->WorkOrderNumber))
-	{
-		$workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
+	if(isset($data->WorkOrderNumber)) {
+		$workOrderNumber = \Numbering\parser(\Numbering\Category::WorkOrder, $data->WorkOrderNumber);
 	}
 
     $note = $data->Note??null;
@@ -127,9 +121,6 @@ else if($api->isPatch(\Permission::Stock_History_Edit))
 	
 	$type = strtolower($data->Type);
 
-	if(!is_numeric($data->Quantity)) $api->returnParameterError("Quantity");
-	$quantity = intval($data->Quantity);
-	
 	if($type == "remove") $quantity = abs($quantity)*-1;
 	else if ($type == "add") $quantity = abs($quantity);
 	else if ($type == "count") $quantity = abs($quantity);
@@ -139,6 +130,7 @@ else if($api->isPatch(\Permission::Stock_History_Edit))
 	$sqlData['Note'] = $note;
 	if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = $workOrderNumber)";
 
+    $token = $database->escape(trim($data->EditToken));
 	$database->update("partStock_history", $sqlData, "EditToken = $token");
 
 	$api->returnEmpty();
@@ -146,9 +138,9 @@ else if($api->isPatch(\Permission::Stock_History_Edit))
 else if($api->isPost())
 {
 	$data = $api->getPostData();
-	if(!isset($data->StockNumber)) $api->returnParameterMissingError("StockNumber");
-    $stockNumber = barcodeParser_StockNumber($data->StockNumber);
-    if($stockNumber === null) $api->returnParameterError("StockNumber");
+	if(!isset($data->StockNumber)) $api->returnData(\Error\parameterMissing("StockNumber"));
+    $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $data->StockNumber);
+    if($stockNumber === null) $api->returnData(\Error\parameter("StockNumber"));
 
     $stockNumberEscaped = $database->escape($stockNumber);
 	$query = <<< QUERY
@@ -157,15 +149,15 @@ else if($api->isPost())
         FROM partStock 
         WHERE StockNumber = $stockNumberEscaped
     QUERY;
-    $r = $database->query($query);
-    if(count($r) === 0) {
-        $api->returnError("StockNumber not found");
-    }
-	$stockId = $r[0]->Id;
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $data->StockNumber);
+
+	$stockId = $result[0]->Id;
 
 	$workOrderNumber = null;
 	if(isset($data->WorkOrderNumber)){
-		$workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
+		$workOrderNumber = \Numbering\parser(\Numbering\Category::WorkOrder, $data->WorkOrderNumber);
 	}
 
     $note = $data->Note??null;
@@ -180,51 +172,45 @@ else if($api->isPost())
 	$sqlData['Note'] = $note;
 	$sqlData['EditToken']['raw'] = "history_generateEditToken()";
 	$sqlData['StockId'] = $stockId;
+    $sqlData['CreationUserId'] = $user->userId();
 	
-	if(isset($data->RemoveQuantity))
-	{
+	if(isset($data->RemoveQuantity)) {
         $api->checkPermission(\Permission::Stock_History_Remove);
 
-		if(!is_numeric($data->RemoveQuantity)) $api->returnParameterError("RemoveQuantity");
+		if(!is_numeric($data->RemoveQuantity)) $api->returnData(\Error\parameter("RemoveQuantity"));
 		$removeQuantity = intval($data->RemoveQuantity);
 
 		$sqlData['Quantity'] = abs($removeQuantity)*-1;
 		if($workOrderNumber != null) $sqlData['WorkOrderId']['raw'] = "(SELECT Id FROM workOrder WHERE WorkOrderNumber = $workOrderNumber)";
 		$sqlData['ChangeType']['raw'] = '"Relative"';
-	}
-	else if(isset($data->AddQuantity))
-	{
+
+	} else if(isset($data->AddQuantity)) {
         $api->checkPermission(\Permission::Stock_History_Add);
 
-		if(!is_numeric($data->AddQuantity)) $api->returnParameterError("AddQuantity");
+		if(!is_numeric($data->AddQuantity)) $api->returnData(\Error\parameter("AddQuantity"));
 		$addQuantity = intval($data->AddQuantity);
 
 		$sqlData['Quantity'] = abs($addQuantity);
 		$sqlData['ChangeType']['raw'] = '"Relative"';
-	}
-	else if(isset($data->Quantity))
-	{
+
+	} else if(isset($data->Quantity)) {
         $api->checkPermission(\Permission::Stock_History_Count);
 
-        if(!is_numeric($data->Quantity)) $api->returnParameterError("Quantity");
+        if(!is_numeric($data->Quantity)) $api->returnData(\Error\parameter("Quantity"));
         $quantity = intval($data->Quantity);
 
-		if($quantity <0) $api->returnError("Quantity can not by below 0");
+		if($quantity < 0) $api->returnData(\Error\generic("Quantity can not by below 0"));
 		
 		$sqlData['Quantity'] = abs($quantity);
 		$sqlData['ChangeType']['raw'] = '"Absolute"';
 
-        \stock\stock::clearCountingRequest(null, $stockNumber);
-	}
-	else
-	{
-        $api->returnParameterError("Parameter combination");
-	}
+        \Stock\Stock::clearCountingRequest(null, $stockNumber);
 
-	$sqlData['CreationUserId'] = $user->userId();
-
+	} else {
+        $api->returnData(\Error\parameter("Parameter combination"));
+	}
     $stockHistoryId = $database->insert("partStock_history", $sqlData);
-
+    \Error\checkErrorAndExit($stockHistoryId);
 
     $query = <<<STR
         SELECT 
@@ -234,11 +220,13 @@ else if($api->isPost())
         LEFT JOIN partStock ON partStock.Id = partStock_history.StockId
         WHERE partStock_history.Id IN($stockHistoryId)
     STR;
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $data->StockNumber);
 
-    $result = $database->query($query)[0];
-
+    $result = $result[0];
     $output = new stdClass();
-    $output->ItemCode = barcodeFormatter_StockHistoryNumber($result->StockNumber, $result->ChangeIndex);
+    $output->ItemCode = \Numbering\format(\Numbering\Category::Stock, $result->StockNumber, $result->ChangeIndex);
 
     $api->returnData($output);
 }

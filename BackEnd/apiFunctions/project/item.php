@@ -11,23 +11,23 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet( \Permission::Project_View))
 {
     $parameter = $api->getGetData();
 
     if(!isset($parameter->ProjectNumber)) $api->returnParameterMissingError("ProjectNumber");
-    $projectNumber = barcodeParser_Project($parameter->ProjectNumber);
+    $projectNumber = \Numbering\parser(\Numbering\Category::Project, $parameter->ProjectNumber);
     if($projectNumber === null) $api->returnParameterError("ProjectNumber");
 
     $query = <<< STR
         SELECT * FROM project 
         WHERE project.ProjectNumber = $projectNumber
     STR;
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->ProjectNumber);
 
-    $result = $database->query($query)[0];
-    $result->ProjectBarcode = barcodeFormatter_Project($result->ProjectNumber);
-    $api->returnData($result);
+    $output = $result[0];
+    $output->ProjectBarcode = \Numbering\format(\Numbering\Category::Project, $output->ProjectNumber);
+    $api->returnData($output);
 }

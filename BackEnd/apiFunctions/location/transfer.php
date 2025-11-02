@@ -11,30 +11,27 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
-
 function filterInv($var): int
 {
-    if(barcodeParser_InventoryNumber($var) === null) return 0;
+    if(\Numbering\parser(\Numbering\Category::Inventory, $var) === null) return 0;
     else return 1;
 }
 
 function filterStk($var): int
 {
-    if(barcodeParser_StockNumber($var) === null) return 0;
+    if(\Numbering\parser(\Numbering\Category::Stock, $var) === null) return 0;
     else return 1;
 }
 
 function filterLoc($var): int
 {
-    if(barcodeParser_LocationNumber($var) === null) return 0;
+    if(\Numbering\parser(\Numbering\Category::Location, $var) === null) return 0;
     else return 1;
 }
 
 function filterAsu($var): int
 {
-    if(barcodeParser_AssemblyUnitNumber($var) === null) return 0;
+    if(\Numbering\parser(\Numbering\Category::AssemblyUnit, $var) === null) return 0;
     else return 1;
 }
 
@@ -66,7 +63,7 @@ function moveLocationItems($itemList, $locationNr): string
 
     foreach($itemList as &$item)
     {
-        $item = $database->escape(barcodeParser_LocationNumber($item));
+        $item = $database->escape(\Numbering\parser(\Numbering\Category::Location, $item));
     }
     $itemListStr = implode(",", $itemList);
 
@@ -120,7 +117,7 @@ if($api->isPost(\Permission::Location_Transfer))
 	$data = $api->getPostData();
 
 	if(!isset($data->DestinationLocationNumber)) $api->returnParameterMissingError("DestinationLocationNumber");
-	$locationNr = barcodeParser_LocationNumber($data->DestinationLocationNumber);
+	$locationNr = \Numbering\parser(\Numbering\Category::Location, $data->DestinationLocationNumber);
 	if($locationNr == null)  $api->returnParameterError("DestinationLocationNumber");
 
 	if(!isset($data->TransferList)) $api->returnParameterMissingError("TransferList");

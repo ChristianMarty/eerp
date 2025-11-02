@@ -12,14 +12,12 @@ declare(strict_types=1);
 function purchaseOrderDocumentIngest(stdClass $data, string $category): null|\Error\Data
 {
     require_once __DIR__ . "/../../_document.php";
-    require_once __DIR__."/../../../util/_barcodeParser.php";
-    require_once __DIR__."/../../../util/_barcodeFormatter.php";
 
     global $database;
     global $api;
 
     if(!isset($data->PurchaseOrderNumber)) return \Error\parameterMissing("PurchaseOrderNumber");
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($data->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $data->PurchaseOrderNumber);
     if($purchaseOrderNumber == null) return \Error\parameter("PurchaseOrderNumber");
 
     $query = <<<STR
@@ -38,7 +36,7 @@ function purchaseOrderDocumentIngest(stdClass $data, string $category): null|\Er
 
     $po = $result[0];
 
-    $name = barcodeFormatter_PurchaseOrderNumber($po->PurchaseOrderNumber)." ".$po->PurchaseDate;
+    $name = \Numbering\format(\Numbering\Category::PurchaseOrder, $po->PurchaseOrderNumber)." ".$po->PurchaseDate;
 
     $ingestData = new \Document\Ingest\Data();
     $ingestData->ingestName = $data->FileName;

@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/../location/_location.php";
 
 if($api->isGet(\Permission::Location_View))
@@ -20,7 +18,7 @@ if($api->isGet(\Permission::Location_View))
 	$parameter = $api->getGetData();
 
 	if(!isset($parameter->LocationNumber)) $api->returnParameterMissingError("LocationNumber");
-	$locationNumber = barcodeParser_LocationNumber($parameter->LocationNumber);
+	$locationNumber = \Numbering\parser(\Numbering\Category::Location, $parameter->LocationNumber);
 	if($locationNumber == null) $api->returnParameterError("LocationNumber");
 
 	$response = [];
@@ -43,7 +41,7 @@ if($api->isGet(\Permission::Location_View))
 		$descriptor .= ", ".$r->Date.", Qty: ".$r->Cache_Quantity;
 		
 		$data = array();
-		$data["Item"] =  barcodeFormatter_StockNumber($r->StockNumber);
+		$data["Item"] =  \Numbering\format(\Numbering\Category::Stock, $r->StockNumber);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor; 
 		
@@ -67,7 +65,7 @@ if($api->isGet(\Permission::Location_View))
 		$descriptor .= " - ".$r->Manufacturer." ".$r->Type;
 		
 		$data = array();
-		$data["Item"] =  barcodeFormatter_InventoryNumber($r->InventoryNumber);
+		$data["Item"] =  \Numbering\format(\Numbering\Category::Inventory, $r->InventoryNumber);
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor; 
 		
@@ -92,7 +90,7 @@ if($api->isGet(\Permission::Location_View))
 		$descriptor .= " - ".$r->Description." SN:".$r->SerialNumber;
 		
 		$data = array();
-		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($r->AssemblyUnitNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::AssemblyUnit, $r->AssemblyUnitNumber);
 		$data["Category"] = "Assembly Unit";
 		$data["Description"] = $descriptor; 
 		
@@ -111,7 +109,7 @@ if($api->isGet(\Permission::Location_View))
 	foreach ($result as $r)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_LocationNumber($r->LocationNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::Location, $r->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = $location->name(intval($r->Id));
 		

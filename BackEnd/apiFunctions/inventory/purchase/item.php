@@ -12,14 +12,11 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::Inventory_Purchase_View))
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
-    $inventoryNumber = barcodeParser_InventoryNumber($parameter->InventoryNumber);
+    $inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $parameter->InventoryNumber);
     if(empty($inventoryNumber)) $api->returnParameterError("InventoryNumber");
 
     $query = <<< STR
@@ -49,8 +46,8 @@ if($api->isGet(\Permission::Inventory_Purchase_View))
     $result = $database->query($query);
     foreach($result as &$item)
     {
-        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
-        $item->PurchaseOrderNumber = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber);
+        $item->PurchaseOrderBarcode = \Numbering\format(\Numbering\Category::PurchaseOrder, $item->PurchaseOrderNumber, $item->LineNumber);
+        $item->PurchaseOrderNumber = \Numbering\format(\Numbering\Category::PurchaseOrder, $item->PurchaseOrderNumber);
     }
 
     $api->returnData($result);
@@ -60,7 +57,7 @@ else if($api->isPatch(\Permission::Inventory_Purchase_Edit))
     $data = $api->getPostData();
     if(!isset($data->InventoryNumber)) $api->returnParameterMissingError('InventoryNumber');
     if(!isset($data->PurchaseOrderItems)) $api->returnParameterMissingError('PurchaseOrderItems');
-    $inventoryNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
+    $inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $data->InventoryNumber);
     if(empty($inventoryNumber)) $api->returnParameterError("InventoryNumber");
 
 	$purchaseOrderItems =  $data->PurchaseOrderItems;

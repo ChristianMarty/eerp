@@ -12,9 +12,6 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
@@ -41,7 +38,7 @@ if($api->isGet(\Permission::BillOfMaterial_View))
 	$result = $database->query($query);
 	foreach ($result as $r)
 	{
-        $r->ProductionPartBarcode = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartBarcode = \Numbering\format(\Numbering\Category::ProductionPart, $r->ProductionPartPrefix."-".$r->ProductionPartNumber);
         $r->ProductionPartNumber = $r->ProductionPartBarcode; // TODO: Legacy->remove
 	}
 	
@@ -59,7 +56,7 @@ else if($api->isPost(\Permission::BillOfMaterial_Create))
 		$sqlData = array();
 		$sqlData['BillOfMaterialRevisionId'] = $revisionId;
 
-        $productionPartBarcode = barcodeParser_ProductionPart($line->ProductionPartBarcode);
+        $productionPartBarcode = \Numbering\parser(\Numbering\Category::ProductionPart, $line->ProductionPartBarcode);
         $productionPartBarcode = $database->escape($productionPartBarcode);
 
         $getProductionPartIdQuery = <<<STR

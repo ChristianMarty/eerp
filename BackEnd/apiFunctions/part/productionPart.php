@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet())
 {
     $parameter = $api->getGetData();
@@ -31,28 +29,22 @@ if($api->isGet())
     STR;
 
 	$queryParam = array();
-
-    if(!isset($parameter->ManufacturerPartNumberId))
-	{
+    if(!isset($parameter->ManufacturerPartNumberId)) {
 		$temp = intval($parameter->ManufacturerPartNumberId);
 		$queryParam[] = "productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = '" . $temp . "'";
-	}
-	else if(isset($parameter->ProductionPartNumber))
-	{
+	} else if(isset($parameter->ProductionPartNumber)) {
 		$temp = $database->escape($parameter->ProductionPartNumber);
 		$queryParam[] = " CONCAT(numbering.Prefix,'-',productionPart.Number) LIKE '" . $temp . "'";
 	}
-	
-	if($hideNoManufacturerPart)
-	{
+	if($hideNoManufacturerPart) {
 		$queryParam[] = "ManufacturerPartNumberId IS NOT NULL";
 	}
 
 	$result = $database->query($query, $queryParam, "GROUP BY productionPart.Id");
+    \Error\checkErrorAndExit($result);
 
-    foreach ($result as $r)
-    {
-        $r->ProductionPartNumber = barcodeFormatter_ProductionPart($r->Prefix."-".$r->Number);
+    foreach ($result as $r) {
+        $r->ProductionPartNumber = \Numbering\format(\Numbering\Category::ProductionPart, $r->Prefix."-".$r->Number);
     }
 
     $api->returnData($result);

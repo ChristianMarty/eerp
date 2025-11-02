@@ -11,14 +11,11 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-
 if($api->isGet())
 {
     $parameter = $api->getGetData();
     if(!isset($parameter->CostCenterNumber)) $api->returnParameterMissingError("CostCenterNumber");
-    $costCenterNumber = barcodeParser_CostCenter($parameter->CostCenterNumber);
+    $costCenterNumber = \Numbering\parser(\Numbering\Category::CostCenter, $parameter->CostCenterNumber);
     if(empty($costCenterNumber)) $api->returnParameterError("CostCenterNumber");
 
     $query = <<<STR
@@ -27,7 +24,7 @@ if($api->isGet())
     STR;
 
 	$costCenterData = $database->query($query)[0];
-    $costCenterData->Barcode = barcodeFormatter_CostCenter($costCenterData->CostCenterNumber);
+    $costCenterData->Barcode = \Numbering\format(\Numbering\Category::CostCenter, $costCenterData->CostCenterNumber);
     $costCenterDataId =  $costCenterData->Id;
 
     $query = <<<STR
@@ -68,7 +65,7 @@ if($api->isGet())
 
     $result = $database->query($query);
     foreach($result as $item) {
-        $item->PurchaseOrderBarcode = barcodeFormatter_PurchaseOrderNumber($item->PurchaseOrderNumber, $item->LineNumber);
+        $item->PurchaseOrderBarcode = \Numbering\format(\Numbering\Category::PurchaseOrder, $item->PurchaseOrderNumber, $item->LineNumber);
         $item->LineTotal = round(($item->Price*$item->Quantity)*(1-($item->Discount/100)),6);
         $item->ProductionPartNumber = $item->ProductionPartNumberList;
     }

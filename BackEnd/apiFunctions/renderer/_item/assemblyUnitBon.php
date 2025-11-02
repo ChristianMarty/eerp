@@ -9,8 +9,6 @@
 //*************************************************************************************************
 declare(strict_types=1);
 require_once "_renderer.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 require_once __DIR__ . "/../../util/escpos/autoload.php";
 use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
@@ -32,7 +30,7 @@ class assemblyUnitBon extends \renderer\renderer
 
         $items = [];
         foreach ($data as $item){
-            $items[] = barcodeParser_AssemblyUnitNumber($item);
+            $items[] = \Numbering\parser(\Numbering\Category::AssemblyUnit, $item);
         }
 
         $itemListString = "'".implode("','",$items)."'";
@@ -61,8 +59,8 @@ class assemblyUnitBon extends \renderer\renderer
         $printer -> initialize();
 
         foreach($assemblyItems as $item) {
-            $itemCode = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
-            $assemblyCode = barcodeFormatter_AssemblyNumber($item->AssemblyNumber);
+            $itemCode = \Numbering\format(\Numbering\Category::AssemblyUnit, $item->AssemblyUnitNumber);
+            $assemblyCode = \Numbering\format(\Numbering\Category::Assembly, $item->AssemblyNumber);
             $printer->selectPrintMode(Printer::MODE_FONT_B);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setTextSize(2, 2);

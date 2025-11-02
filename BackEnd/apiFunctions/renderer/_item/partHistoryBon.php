@@ -12,9 +12,6 @@ declare(strict_types=1);
 require_once "_renderer.php";
 require_once __DIR__ . "/../_dataset/stock.php";
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 require_once __DIR__ . "/../../util/escpos/autoload.php";
 use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use \Mike42\Escpos\Printer;

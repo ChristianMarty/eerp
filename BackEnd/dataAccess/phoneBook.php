@@ -21,8 +21,8 @@ if(!isset($_GET["user"]) || !isset($_GET["token"]))
     exit;
 }
 
-$database = new database();
-$user = new userAuthentication();
+$database = new Database();
+$user = new UserAuthentication();
 
 $user->loginWithToken($_GET["user"],$_GET["token"]);
 

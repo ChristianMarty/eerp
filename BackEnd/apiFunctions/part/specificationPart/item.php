@@ -11,14 +11,11 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 if($api->isGet())
 {
     $parameters = $api->getGetData();
     if(!isset($parameters->SpecificationPartBarcode)) $api->returnParameterMissingError('SpecificationPartBarcode');
-    $specificationPartNumber = barcodeParser_SpecificationPart($parameters->SpecificationPartBarcode);
+    $specificationPartNumber = \Numbering\parser(\Numbering\Category::SpecificationPart, $parameters->SpecificationPartBarcode);
 
     $query = <<<STR
         SELECT 
@@ -40,7 +37,7 @@ if($api->isGet())
 
     $result = $database->query($query);
     $output = $result[0];
-    $output->SpecificationPartBarcode = barcodeFormatter_SpecificationPart($output->SpecificationPartNumber);
+    $output->SpecificationPartBarcode = \Numbering\format(\Numbering\Category::SpecificationPart, $output->SpecificationPartNumber);
 
     $productionParts = [];
     foreach ($result as $line)
@@ -81,6 +78,6 @@ if($api->isPost())
 
     $output = array();
     $output['SpecificationPartNumber'] = $database->query($query)[0]->SpecificationPartNumber;
-    $output['ItemCode'] = barcodeFormatter_SpecificationPart($output['SpecificationPartNumber']);
+    $output['ItemCode'] = \Numbering\format(\Numbering\Category::SpecificationPart, $output['SpecificationPartNumber']);
     $api->returnData($output);
 }

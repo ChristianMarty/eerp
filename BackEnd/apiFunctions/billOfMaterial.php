@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/util/_barcodeFormatter.php";
-
 if($api->isGet(Permission::BillOfMaterial_List))
 {
     $query = <<< QUERY
@@ -23,9 +21,10 @@ if($api->isGet(Permission::BillOfMaterial_List))
         FROM billOfMaterial
     QUERY;
     $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
 
     foreach($result as &$item) {
-        $item->ItemCode = barcodeFormatter_BillOfMaterial($item->BillOfMaterialNumber);
+        $item->ItemCode = \Numbering\format(\Numbering\Category::BillOfMaterial, $item->BillOfMaterialNumber);
         $item->Description = $item->Description??'';
     }
     $api->returnData($result);

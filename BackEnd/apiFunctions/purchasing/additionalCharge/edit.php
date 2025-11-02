@@ -13,13 +13,12 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../_function.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($api->isPost(\Permission::PurchaseOrder_Edit))
 {
 	$data = $api->getPostData();
     if(!isset($data->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($data->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $data->PurchaseOrderNumber);
     if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
     $lines = $data->Lines;
@@ -55,7 +54,7 @@ else if($api->isDelete(\Permission::PurchaseOrder_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($data->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $data->PurchaseOrderNumber);
     if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
     if(!isset($data->AdditionalChargeLineId))$api->returnParameterMissingError('AdditionalChargeLineId');

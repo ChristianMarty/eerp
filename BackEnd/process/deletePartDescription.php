@@ -7,28 +7,20 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
-
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
+declare(strict_types=1);
+global $database;
+global $api;
 
 $title = "Delete Description";
 $description = "Delete production and manufacturer part description";
 $parameter = null;
 
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-    $dbLink = dbConnect();
+$query = <<<STR
+    UPDATE productionPart SET Description = NULL;
+    UPDATE manufacturerPart_item SET Description = NULL; 
+STR;
+$database->execute($query);
 
-    $query = <<<STR
-        UPDATE productionPart SET Description = NULL;
-        UPDATE manufacturerPart_item SET Description = NULL; 
-    STR;
-    dbRunQuery($dbLink, $query);
-
-    dbClose($dbLink);
-    exit;
-}
-
-
-?>
+echo "Done";
+exit;

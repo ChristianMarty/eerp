@@ -16,30 +16,31 @@ require_once __DIR__ . "/_vendorInterface.php";
 if($api->isGet(Permission::Vendor_View))
 {
     $parameter = $api->getGetData();
-
-    if(!isset($parameter->SupplierId)) $api->returnParameterMissingError("SupplierId");
-    $supplierId = intval($parameter->SupplierId);
-    if($supplierId === 0) $api->returnParameterError("SupplierId");
+    if(!isset($parameter->VendorId)) $api->returnData(\Error\parameterMissing("VendorId"));
+    $vendorId = intval($parameter->VendorId);
+    if($vendorId === 0) $api->returnData(\Error\parameter("VendorId"));
 
     $query = <<< QUERY
         SELECT 
             *
         FROM vendor
-        WHERE Id = $supplierId
-        LIMIT 1;
+        WHERE Id = $vendorId
     QUERY;
+    $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->VendorId);
 
-    $supplierData = $database->query($query)[0];
+    $vendorData = $result[0];
+    $name = $vendorData->API;
 
-    $name = $supplierData->API;
     if($name === null) // in case no api is implemented
 	{
         $vendor = new \vendorInterface\vendorInterface(null);
 	}
     else
     {
-        if($supplierData->ApiData == null) $apiData = null;
-        else $apiData = json_decode($supplierData->ApiData);
+        if($vendorData->ApiData == null) $apiData = null;
+        else $apiData = json_decode($vendorData->ApiData);
         require_once  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
         $vendor = new $name($apiData);
     }

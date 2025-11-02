@@ -7,13 +7,15 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
 
 namespace Document {
 
+    use Numbering\Category;
+
     require_once __DIR__ . "/../../config.php";
-    require_once __DIR__ . "/../util/_barcodeFormatter.php";
-    require_once __DIR__ . "/../util/_barcodeParser.php";
     require_once __DIR__ . "/../../core/error.php";
+    require_once __DIR__ . "/../../core/numbering.php";
 
     function _formatDocumentOutput(\stdClass $item): \stdClass
     {
@@ -23,7 +25,7 @@ namespace Document {
         }
         $output->DocumentNumber = intval($item->DocumentNumber);
         $output->DocumentRevision = intval($item->RevisionNumber);
-        $output->ItemCode = barcodeFormatter_DocumentNumber($item->DocumentNumber);
+        $output->ItemCode = \Numbering\format(\Numbering\Category::Document, $item->DocumentNumber);
         $output->Name = $item->Name;
         $output->Description = $item->Description ?? '';
         $output->Category = $item->Category;
@@ -39,7 +41,7 @@ namespace Document {
         global $dataRootPath;
         global $documentPath;
         if ($item->LinkType === "Internal") {
-            $output->Path =  $dataRootPath . $documentPath . "/" . barcodeFormatter_DocumentNumber($item->DocumentNumber, intval($item->RevisionNumber)) . ".pdf";
+            $output->Path =  $dataRootPath . $documentPath . "/" . \Numbering\format(\Numbering\Category::Document,$item->DocumentNumber, $item->RevisionNumber) . ".pdf";
         } else if ($item->LinkType === "External") {
             $output->Path =  $item->Path;
         }
@@ -89,20 +91,6 @@ namespace Document {
         return $result;
     }
 
-    class UserInformation implements \JsonSerializable
-    {
-        public string $initials;
-        public string $name;
-
-        public function jsonSerialize(): \stdClass
-        {
-            $output = new \stdClass();
-            $output->Name = $this->name;
-            $output->Initials = $this->initials;
-            return $output;
-        }
-    }
-
     enum LinkType implements \JsonSerializable
     {
         case Undefined;
@@ -133,7 +121,7 @@ namespace Document {
         public string $name;
         public string $category;
         public string $description;
-        public UserInformation $createdBy;
+        public \UserInformation $createdBy;
         public string $creationDate;
 
         public function jsonSerialize(): \stdClass
@@ -141,7 +129,7 @@ namespace Document {
             $output = new \stdClass();
             $output->Name = $this->name;
             $output->DocumentNumber = $this->documentNumber;
-            $output->ItemCode = barcodeFormatter_DocumentNumber($this->documentNumber);
+            $output->ItemCode = \Numbering\format(\Numbering\Category::Document, $this->documentNumber);
             $output->Category = $this->category;
             $output->Description = $this->description;
             $output->CreatedBy = $this->createdBy;
@@ -159,13 +147,13 @@ namespace Document {
         public string|null $path;
         public string|null $extension;
         public string|null $hash;
-        public UserInformation $createdBy;
+        public \UserInformation $createdBy;
         public string $creationDate;
 
         public function jsonSerialize(): \stdClass
         {
             $output = new \stdClass();
-            $output->ItemCode = barcodeFormatter_DocumentNumber($this->meta->documentNumber, $this->revision);
+            $output->ItemCode = \Numbering\format(\Numbering\Category::Document, $this->meta->documentNumber, $this->revision);
             $output->Type = $this->type;
             $output->Description = $this->description;
             $output->Hash = $this->hash;
@@ -177,7 +165,7 @@ namespace Document {
             global $documentPath;
 
             $output->Path = match ($this->type) {
-                LinkType::Internal => $dataRootPath . $documentPath . "/" . barcodeFormatter_DocumentNumber($this->meta->documentNumber, $this->revision) . "." . $this->extension,
+                LinkType::Internal => $dataRootPath . $documentPath . "/" . \Numbering\format(\Numbering\Category::Document, $this->meta->documentNumber, $this->revision) . "." . $this->extension,
                 LinkType::External => $this->path,
                 LinkType::Undefined => ""
             };
@@ -281,7 +269,7 @@ namespace Document {
         if (count($result) === 0) return null;
         $item = $result[0];
 
-        $userData = new UserInformation();
+        $userData = new \UserInformation();
         $userData->name = $item->CreatedByName;
         $userData->initials = $item->CreatedByInitials;
 
@@ -321,7 +309,7 @@ namespace Document {
 
         $output = [];
         foreach ($result as $item) {
-            $userData = new UserInformation();
+            $userData = new \UserInformation();
             $userData->name = $item->CreatedByName;
             $userData->initials = $item->CreatedByInitials;
 
@@ -364,7 +352,7 @@ namespace Document {
         foreach ($result as $r) {
             $temp = new DocumentCitation();
             $temp->category = 'Inventory';
-            $temp->itemCode = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+            $temp->itemCode = \Numbering\format(\Numbering\Category::Inventory, $r->InventoryNumber);
             $temp->description = $r->Title . " - " . $r->Manufacturer . " " . $r->Type;
             $output[] = $temp;
         }
@@ -387,7 +375,7 @@ namespace Document {
         foreach ($result as $r) {
             $temp = new DocumentCitation();
             $temp->category = 'Inventory History';
-            $temp->itemCode = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+            $temp->itemCode = \Numbering\format(\Numbering\Category::Inventory, $r->InventoryNumber);
             $temp->description = $r->HistoryType . " - " . $r->Description . " - " . $r->Manufacturer . " " . $r->Type;
             $output[] = $temp;
         }
@@ -447,7 +435,7 @@ namespace Document {
         foreach ($result as $r) {
             $temp = new DocumentCitation();
             $temp->category = 'Purchase Order';
-            $temp->itemCode = barcodeFormatter_PurchaseOrderNumber($r->PurchaseOrderNumber);
+            $temp->itemCode = \Numbering\format(\Numbering\Category::PurchaseOrder, $r->PurchaseOrderNumber);
             $temp->description = $r->VendorName . " - " . $r->Title;
             $output[] = $temp;
         }
@@ -466,7 +454,7 @@ namespace Document {
         foreach ($result as $r) {
             $temp = new DocumentCitation();
             $temp->category = 'Shipment';
-            $temp->itemCode = barcodeFormatter_ShipmentNumber($r->ShipmentNumber);
+            $temp->itemCode = \Numbering\format(\Numbering\Category::Shipment, $r->ShipmentNumber);
             $temp->description = $r->Direction . " - " . $r->Description;
             $output[] = $temp;
         }
@@ -568,7 +556,7 @@ namespace Document\Ingest
         if(!isset($data->LinkType)) return \Error\parameterMissing('LinkType');
 
         if(isset($data->DocumentNumber)){
-            $output->documentNumber = \barcodeParser_DocumentNumber($data->DocumentNumber);
+            $output->documentNumber = \Numbering\parser(\Numbering\Category::Document, $data->DocumentNumber);
         }else{
             if(!isset($data->Name)) return \Error\parameterMissing('Name');
             if(!isset($data->Category)) return \Error\parameterMissing('Category');

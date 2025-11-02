@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-
 if($api->isGet())
 {
     $parameters = $api->getGetData();
@@ -20,7 +18,7 @@ if($api->isGet())
     $api->returnError("Not Implemented");
 
     if (!isset($parameters->ProductionPartNumber)) $api->returnParameterMissingError('ProductionPartNumber');
-    $productionPartNumber = barcodeParser_ProductionPart($parameters->ProductionPartNumber);
+    $productionPartNumber = \Numbering\parser(\Numbering\Category::ProductionPart, $parameters->ProductionPartNumber);
     if($productionPartNumber == 0) $api->returnParameterError( "ProductionPartNumber");
 
 

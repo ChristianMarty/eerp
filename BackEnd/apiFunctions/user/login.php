@@ -15,15 +15,8 @@ global $api;
 if($api->isPost())
 {
 	$data = $api->getPostData();
-    $login = $user->login($data->username, $data->password);
+    if(!isset($data->UserName)) $api->returnData(\Error\parameterMissing("UserName"));
+    if(!isset($data->Password)) $api->returnData(\Error\parameterMissing("Password"));
 
-    if(is_string($login)){
-        $api->returnError($login);
-    }
-
-    $returnData = array();
-    $returnData['DisplayName'] = $user->displayName();
-    $returnData['UserRoles'] = $user->roles();
-
-    $api->returnData($returnData);
+    $api->returnData($user->login($data->UserName, $data->Password));
 }

@@ -10,11 +10,11 @@
 require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/../core/database.php";
 
-$database = new database();
+$database = new Database();
 
 $database->pdo()->query("DROP DATABASE eerpTest;");
 $database->pdo()->query("CREATE DATABASE eerpTest;");
-$database = new database();
+$database = new Database();
 
 $path = __DIR__."/../../SQL/install/";
 

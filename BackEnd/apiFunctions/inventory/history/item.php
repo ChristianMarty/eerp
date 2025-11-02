@@ -13,8 +13,6 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../util/_json.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 if($api->isGet(\Permission::Inventory_History_View))
 {
@@ -24,7 +22,7 @@ if($api->isGet(\Permission::Inventory_History_View))
     $query = null;
 	if(isset($parameter->InventoryNumber))
 	{
-		$inventoryNumber = barcodeParser_InventoryNumber($parameter->InventoryNumber);
+		$inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $parameter->InventoryNumber);
         $query = <<<STR
             SELECT * FROM inventory
             LEFT JOIN inventory_history ON inventory.Id = inventory_history.InventoryId
@@ -39,13 +37,8 @@ if($api->isGet(\Permission::Inventory_History_View))
             WHERE EditToken = $editToken
         STR;
 	}
-
-    if($query == null) $api->returnError("This error should not happen!");
-
     $result = $database->query($query);
-    if(count($result) === 0) $api->returnEmpty();
-
-    $api->returnData($result[0]);
+    $api->returnData($result);
 }
 else if($api->isPatch(\Permission::Inventory_History_Edit))
 {
@@ -69,7 +62,7 @@ else if($api->isPost(\Permission::Inventory_History_Create))
 	$data = $api->getPostData();
 
     if(!isset($data->InventoryNumber)) $api->returnParameterMissingError("InventoryNumber");
-    $inventoryNumber = barcodeParser_InventoryNumber($data->InventoryNumber);
+    $inventoryNumber = \Numbering\parser(\Numbering\Category::Inventory, $data->InventoryNumber);
     if($inventoryNumber == null) $api->returnParameterError("InventoryNumber");
 
 	$sqlData = array();

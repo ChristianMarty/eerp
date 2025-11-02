@@ -9,8 +9,6 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../location/_location.php";
 
 //Generates a universal description of an item of any category
@@ -63,7 +61,7 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 
 		$locationId = $itemData->LocationId;
 
-		$data["Item"] =  barcodeFormatter_StockNumber($itemData->StockNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::Stock, $itemData->StockNumber);
 		$data["Category"] = "Stock";
 		$data["Description"] = $descriptor;
 		$data["Movable"] = true;
@@ -98,7 +96,7 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 
 		$locationId = $itemData->LocationId;
 
-		$data["Item"] = barcodeFormatter_InventoryNumber($itemData->InventoryNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::Inventory, $itemData->InventoryNumber);
 		$data["Category"] = "Inventory";
 		$data["Description"] = $descriptor;
 		$data["Movable"] = true;
@@ -134,7 +132,7 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 
 		$locationId = $itemData->LocationId;
 
-		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($itemData->AssemblyUnitNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::AssemblyUnit, $itemData->AssemblyUnitNumber);
 		$data["Category"] = "Assembly Item";
 		$data["Description"] = $descriptor;
 		$data["Movable"] = true;
@@ -165,10 +163,10 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 
 		$location = new Location();
 
-		$data["Item"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::Location, $itemData->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = $location->name($itemData->Id);
-		$data["LocationNr"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
+		$data["LocationNr"] = \Numbering\format(\Numbering\Category::Location, $itemData->LocationNumber);
 		$data["Location"] = $location->name($itemData->LocationId);
 		if($itemData->Movable == "1") $data["Movable"] = true;
 		else $data["Movable"] = false;
@@ -197,7 +195,7 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 
         $itemData = $result[0];
 
-		$data["LocationCode"] = barcodeFormatter_LocationNumber($itemData->LocationNumber);
+		$data["LocationCode"] = \Numbering\format(\Numbering\Category::Location, $itemData->LocationNumber);
 		$data["LocationName"] = (new Location())->name($itemData->Id);
 	}
 

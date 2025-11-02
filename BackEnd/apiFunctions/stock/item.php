@@ -15,8 +15,6 @@ global $user;
 require_once __DIR__ . "/_stock.php";
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../location/_location.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 
 function _stockPartQuery(string $stockNo): string
 {
@@ -72,28 +70,26 @@ function _stockPartQuery(string $stockNo): string
 if($api->isGet(\Permission::Stock_View))
 {
     $parameter = $api->getGetData();
+    if(!isset($parameter->StockCode)) $api->returnData(\Error\parameterMissing("StockCode"));
+    $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $parameter->StockCode);
+    if($stockNumber === null) $api->returnData(\Error\parameter("StockCode"));
 
-    if(!isset($parameter->StockCode)) $api->returnParameterMissingError("StockCode");
-    $stockNumber = barcodeParser_StockNumber($parameter->StockCode);
-    if($stockNumber === null) $api->returnParameterError("StockCode");
+    $result = $database->query(_stockPartQuery($database->escape($stockNumber)));
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->StockCode);
 
-	$r = $database->query(_stockPartQuery($database->escape($stockNumber)));
-
-    if(empty($r)){
-        $api->returnEmpty();
-    }
-    $r = $r[0];
+    $item = $result[0];
 
     $output = new stdClass();
 
-    $output->ItemCode = barcodeFormatter_StockNumber($r->StockNumber);
-    $output->StockNumber = $r->StockNumber;
+    $output->ItemCode = \Numbering\format(\Numbering\Category::Stock, $item->StockNumber);
+    $output->StockNumber = $item->StockNumber;
 
-    $output->LotNumber = $r->LotNumber??"";
-    $output->Description = $r->Description??"";
+    $output->LotNumber = $item->LotNumber??"";
+    $output->Description = $item->Description??"";
 
-	if($r->Date) {
-		$date = new DateTime($r->Date);
+	if($item->Date) {
+		$date = new DateTime($item->Date);
         $output->DateCode = $date->format("yW");
         $output->Date = $date->format("Y-m-d");
 	}else{
@@ -103,37 +99,37 @@ if($api->isGet(\Permission::Stock_View))
 
     // Add CountryOfOrigin information
     $country = new stdClass();
-    $country->Name = $r->CountryOfOriginName;
-    $country->Alpha2Code = $r->CountryOfOriginCode;
-    $country->NumericCode = $r->CountryOfOriginNumericCode;
+    $country->Name = $item->CountryOfOriginName;
+    $country->Alpha2Code = $item->CountryOfOriginCode;
+    $country->NumericCode = $item->CountryOfOriginNumericCode;
 
     $output->CountryOfOrigin = $country;
 
     // Add supplier information
     $supplier = new stdClass();
-    $supplier->Name = $r->SupplierName;
-    $supplier->PartNumber = $r->SupplierPartNumber??"";
-    $supplier->VendorId = intval($r->SupplierId);
+    $supplier->Name = $item->SupplierName;
+    $supplier->PartNumber = $item->SupplierPartNumber??"";
+    $supplier->VendorId = intval($item->SupplierId);
 
     $output->Supplier = $supplier;
 
     // Add purchase Information
-    $output->Purchase = \stock\stock::purchaseInformation(intval($r->PartStockId));
+    $output->Purchase = \Stock\Stock::purchaseInformation(intval($item->PartStockId));
 
     // Add part information
     $part = new stdClass();
-    $part->ManufacturerName = $r->ManufacturerName;
-    $part->ManufacturerId = intval($r->ManufacturerId);
-    $part->ManufacturerPartNumber = $r->ManufacturerPartNumber;
-    if($r->ManufacturerPartNumberId !== null) $part->ManufacturerPartNumberId = intval($r->ManufacturerPartNumberId);
+    $part->ManufacturerName = $item->ManufacturerName;
+    $part->ManufacturerId = intval($item->ManufacturerId);
+    $part->ManufacturerPartNumber = $item->ManufacturerPartNumber;
+    if($item->ManufacturerPartNumberId !== null) $part->ManufacturerPartNumberId = intval($item->ManufacturerPartNumberId);
     else $part->ManufacturerPartNumberId = null;
-    if($r->ManufacturerPartItemId !== null) $part->ManufacturerPartItemId = intval($r->ManufacturerPartItemId);
+    if($item->ManufacturerPartItemId !== null) $part->ManufacturerPartItemId = intval($item->ManufacturerPartItemId);
     else $part->ManufacturerPartItemId = null;
-    if($r->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($r->SpecificationPartRevisionId);
+    if($item->SpecificationPartRevisionId !== null) $part->SpecificationPartRevisionId = intval($item->SpecificationPartRevisionId);
     else $part->SpecificationPartRevisionId = null;
 
     $weight = new stdClass();
-    $weight->SinglePartWeight = $r->SinglePartWeight;
+    $weight->SinglePartWeight = $item->SinglePartWeight;
     $unitOfMeasurement = new stdClass();
     $unitOfMeasurement->Unit = "Gram";
     $unitOfMeasurement->Symbol = "g";
@@ -144,21 +140,21 @@ if($api->isGet(\Permission::Stock_View))
 
     // Add Quantity
     $quantity = new stdClass();
-    $quantity->Quantity = floatval($r->Quantity);
-    $quantity->CreateQuantity = floatval($r->CreateQuantity);
-    $quantity->CreateData = $r->CreateData;
-    $quantity->Certainty = \stock\stock::certainty(intval($r->PartStockId));
+    $quantity->Quantity = floatval($item->Quantity);
+    $quantity->CreateQuantity = floatval($item->CreateQuantity);
+    $quantity->CreateData = $item->CreateData;
+    $quantity->Certainty = \Stock\Stock::certainty(intval($item->PartStockId));
     $countingRequest = new stdClass();
-    $countingRequest->Date = $r->CountingRequestDate;
-    $countingRequest->UserInitials = $r->CountingRequest;
+    $countingRequest->Date = $item->CountingRequestDate;
+    $countingRequest->UserInitials = $item->CountingRequest;
     $quantity->CountingRequest = $countingRequest;
     $output->Quantity = $quantity;
 
     // Add Location
     $location = new Location();
-    $output->Location = $location->locationItem($r->LocationId, $r->HomeLocationId);
+    $output->Location = $location->locationItem($item->LocationId, $item->HomeLocationId);
 
-	if($r->DeleteRequestUserId !== null)$output->Deleted = true;
+	if($item->DeleteRequestUserId !== null)$output->Deleted = true;
 	else $output->Deleted = false;
 
     $api->returnData($output);
@@ -189,11 +185,11 @@ else if($api->isPost(\Permission::Stock_Create))
         $data->LocationCode = $defaultLocationBarcode;
     }
     
-    $location = barcodeParser_LocationNumber($data->LocationCode ?? null);
+    $location = \Numbering\parser(\Numbering\Category::Location, $data?->LocationCode??null);
 	
 	if(isset($data->ReceivalId))  // If part is created based on purchase receival id
 	{
-        $stockNumber = \stock\stock::createOnReceival(
+        $stockNumber = \Stock\Stock::createOnReceival(
             intval($data->ReceivalId),
             $location,
             $quantity,
@@ -203,7 +199,7 @@ else if($api->isPost(\Permission::Stock_Create))
 	}
 	else // If new part is created
 	{
-        $stockNumber = \stock\stock::create(
+        $stockNumber = \Stock\Stock::create(
             intval($data->ManufacturerId),
             $data->ManufacturerPartNumber,
             $location,
@@ -217,36 +213,35 @@ else if($api->isPost(\Permission::Stock_Create))
 
     $stockPart = $database->query(_stockPartQuery("'$stockNumber'"))[0];
 
-    $stockPart->ItemCode = barcodeFormatter_StockNumber($stockPart->StockNumber);
+    $stockPart->ItemCode = \Numbering\format(\Numbering\Category::Stock, $stockPart->StockNumber);
 
     $api->returnData($stockPart);
 }
 else if($api->isPatch(\Permission::Stock_Edit))
 {
     $data = $api->getPostData();
-    if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
-    $stockNumber = barcodeParser_StockNumber($data->StockCode);
-    if($stockNumber === false) $api->returnParameterError("StockNumber");
+    if(!isset($data->StockCode)) $api->returnData(\Error\parameterMissing("StockCode"));
+    $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $data->StockCode);
+    if($stockNumber === null) $api->returnData(\Error\parameter("StockCode"));
 
     $stockNumber = $database->escape($stockNumber);
-    $countryNumericCode = intval($data->CountryOfOriginNumericCode);
-    $data->LotNumber = $data->LotNumber??null;
-    $data->Date = $data->Date??null;
+    $countryNumericCode = intval($data?->CountryOfOriginNumericCode??0);
+    $data->LotNumber = $data?->LotNumber??null;
+    $data->Date = $data?->Date??null;
 
     $sqlData['CountryOfOriginCountryId']['raw'] = "(SELECT Id FROM country WHERE NumericCode = '$countryNumericCode')";
     $sqlData['LotNumber	'] = $data->LotNumber;
     $sqlData['Date'] = $data->Date;
 
-    $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
-
-    $api->returnEmpty();
+    $result = $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
+    $api->returnData($result);
 }
 else if($api->isDelete(\Permission::Stock_Delete))
 {
 	$data = $api->getPostData();
-    if(!isset($data->StockCode)) $api->returnParameterMissingError("StockCode");
-	$stockNumber = barcodeParser_StockNumber($data->StockCode);
-	if($stockNumber === false) $api->returnParameterError("StockNumber");
+    if(!isset($data->StockCode)) $api->returnData(\Error\parameterMissing("StockCode"));
+	$stockNumber = \Numbering\parser(\Numbering\Category::Stock, $data->StockCode);
+	if($stockNumber === null) $api->returnData(\Error\parameter("StockCode"));
 
     $stockNumber = $database->escape($stockNumber);
 
@@ -254,7 +249,6 @@ else if($api->isDelete(\Permission::Stock_Delete))
 	$sqlData['DeleteRequestDate']['raw'] = "current_timestamp()";
 	$sqlData['DeleteRequestNote'] = $data->Note;
 
-    $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
-
-    $api->returnEmpty();
+    $result = $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
+    $api->returnData($result);
 }

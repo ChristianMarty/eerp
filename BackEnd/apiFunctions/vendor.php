@@ -18,6 +18,8 @@ if($api->isGet(Permission::Vendor_List))
 	$query = <<< QUERY
         SELECT
             vendor.Id,
+            CONCAT("Ven-",VendorNumber) AS ItemCode,
+            VendorNumber,
             FullName,
             ShortName,
             AbbreviatedName,
@@ -40,9 +42,10 @@ if($api->isGet(Permission::Vendor_List))
     if($parameter->Carrier??false === true) $queryParam[] = "IsCarrier = b'1'";
     if($parameter->Customer??false === true) $queryParam[] = "IsCustomer = b'1'";
 
-    $data = $database->query($query,$queryParam, " GROUP BY vendor.Id ORDER BY `FullName` ASC ");
+    $result = $database->query($query,$queryParam, " GROUP BY vendor.Id ORDER BY `FullName` ASC ");
+    \Error\checkErrorAndExit($result);
 
-    foreach ($data as &$line) {
+    foreach ($result as &$line) {
         Database::toBool($line->IsSupplier);
         Database::toBool($line->IsManufacturer);
         Database::toBool($line->IsContractor);
@@ -54,9 +57,9 @@ if($api->isGet(Permission::Vendor_List))
     $output = [];
     if($parameter->IncludeChildren??false === true){
         $classId = 0;
-        $output = buildTree($data,$classId);
+        $output = buildTree($result,$classId);
     }else{
-        $output = $data;
+        $output = $result;
     }
 
     $api->returnData($output);
@@ -64,8 +67,7 @@ if($api->isGet(Permission::Vendor_List))
 
 function hasChild(array $rows, int $id): bool
 {
-	foreach ($rows as $row) 
-	{
+	foreach ($rows as $row) {
 		if ($row->ParentId == $id)return true;
 	}
 	return false;

@@ -12,8 +12,6 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/location/_location.php";
-require_once __DIR__ . "/util/_barcodeParser.php";
-require_once __DIR__ . "/util/_barcodeFormatter.php";
 
 if($api->isGet(Permission::Stock_List))
 {
@@ -42,45 +40,42 @@ if($api->isGet(Permission::Stock_List))
         LEFT JOIN vendor ON vendor.Id <=> manufacturerPart_item.VendorId OR vendor.Id <=> manufacturerPart_partNumber.VendorId OR vendor.Id <=> manufacturerPart_series.VendorId
     STR;
 
-	$queryParam = array();
+	$queryParam = [];
 	
-	if(isset($parameters->StockNumber))
-	{
-		$stockNo = barcodeParser_StockNumber($parameters->StockNumber);
-		if($stockNo)
-		{
+	if(isset($parameters->StockNumber)) {
+		$stockNo = \Numbering\format(\Numbering\Category::Stock, $parameters->StockNumber);
+		if($stockNo) {
 			$queryParam[] = "partStock.StockNo = '" . $stockNo . "'";
 		}
 	}
 
-	if(isset($parameters->ManufacturerPartNumberId))
-	{
+	if(isset($parameters->ManufacturerPartNumberId)) {
 		$temp = intval($parameters->ManufacturerPartNumberId);
 		$queryParam[] = "manufacturerPart_partNumber.Id = {$temp}";
 	}
 	
-	if(isset($parameters->HideEmpty) && $parameters->HideEmpty === true)
-	{
+	if(isset($parameters->HideEmpty) && $parameters->HideEmpty === true) {
 		$queryParam[] = "partStock.Cache_Quantity != '0'";
 	}
 
-    if(isset($parameters->CountingRequest) && $parameters->CountingRequest === true)
-    {
+    if(isset($parameters->CountingRequest) && $parameters->CountingRequest === true) {
         $queryParam[] = "partStock.CountingRequestUserId IS NOT NULL";
     }
 
     $queryParam[] = "partStock.DeleteRequestUserId IS NULL";
 
-	$data = $database->query($baseQuery,$queryParam);
+    $result = $database->query($baseQuery,$queryParam);
+    \Error\checkErrorAndExit($result);
+
     $location = new Location();
-	foreach ($data as $line) {
-        $line->ItemCode = barcodeFormatter_StockNumber($line->StockNumber);
+	foreach ($result as $line) {
+        $line->ItemCode = \Numbering\format(\Numbering\Category::Stock, $line->StockNumber);
         $line->LocationName = $location->name(intval($line->LocationId));
         $line->LocationCode = $location->itemCode(intval($line->LocationId));
         $line->Description ="";
         unset($line->LocationId);
 	}
 
-	$api->returnData($data);
+	$api->returnData($result);
 }
 

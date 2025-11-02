@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::PurchaseOrder_View))
 {
     $parameter = $api->getGetData();
@@ -33,7 +31,7 @@ if($api->isGet(\Permission::PurchaseOrder_View))
     foreach($result as $r)
 	{
         $temp = array();
-        $temp['ItemCode'] = barcodeFormatter_StockNumber($r->StockNumber);
+        $temp['ItemCode'] = \Numbering\format(\Numbering\Category::Stock, $r->StockNumber);
         $temp['Type'] = "Part Stock";
         $temp['Description'] = null;
         $temp['CreateQuantity'] = $r->CreateQuantity;
@@ -51,7 +49,7 @@ if($api->isGet(\Permission::PurchaseOrder_View))
     foreach($result as $r)
     {
         $temp = array();
-        $temp['ItemCode'] = barcodeFormatter_InventoryNumber($r->InventoryNumber);
+        $temp['ItemCode'] = \Numbering\format(\Numbering\Category::Inventory, $r->InventoryNumber);
         $temp['Type'] = "Inventory";
         $temp['CreateQuantity'] = null;
         $temp['Description'] = $r->Title;

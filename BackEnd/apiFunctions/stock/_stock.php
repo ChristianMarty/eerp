@@ -1,9 +1,8 @@
 <?php
 
-namespace stock;
-require_once __DIR__ . "/../util/_barcodeParser.php";
+namespace Stock;
 
-class stock
+class Stock
 {
     static function createOnReceival(
         int         $receivalId,
@@ -253,7 +252,7 @@ class stock
         $output = $output[0];
 
         $output->PurchaseOrderNumber = intval($output->PurchaseOrderNumber);
-        $output->ItemCode = barcodeFormatter_PurchaseOrderNumber($output->PurchaseOrderNumber, $output->LineNumber);
+        $output->ItemCode = \Numbering\format(\Numbering\Category::PurchaseOrder, $output->PurchaseOrderNumber, $output->LineNumber);
 
         $output->LineNumber = intval($output->LineNumber);
         $output->Price = floatval($output->Price);
@@ -273,10 +272,10 @@ class stock
     static function createCountingRequest(
         int|null    $stockId,
         string|null $stockNumber = null
-    ): void
+    ): null|\Error\Data
     {
         if($stockId === null and $stockNumber === null){
-            return;
+            return \Error\generic("No input");
         }
 
         global $database;
@@ -286,10 +285,10 @@ class stock
         $sqlData['CountingRequestDate']['raw'] = "current_timestamp()";
 
         if($stockId !== null){
-            $database->update("partStock", $sqlData, "Id = $stockId");
+            return $database->update("partStock", $sqlData, "Id = $stockId");
         }else if($stockNumber !== null){
             $stockNumber = $database->escape($stockNumber);
-            $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
+            return $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
         }
     }
 

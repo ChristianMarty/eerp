@@ -12,16 +12,13 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet(Permission::WorkOrder_View))
 {
     $parameter = $api->getGetData();
 
-	if(!isset($parameter->WorkOrderNumber)) $api->returnParameterMissingError("WorkOrderNumber");
-    $workOrderNumber = barcodeParser_WorkOrderNumber($parameter->WorkOrderNumber);
-    if($workOrderNumber === null) $api->returnParameterError("WorkOrderNumber");
+	if(!isset($parameter->WorkOrderNumber)) $api->returnData(\Error\parameterMissing("WorkOrderNumber"));
+    $workOrderNumber = \Numbering\parser(\Numbering\Category::WorkOrder, $parameter->WorkOrderNumber);
+    if($workOrderNumber === null) $api->returnData(\Error\parameter("WorkOrderNumber"));
 
     $query = <<< STR
         SELECT 
@@ -35,24 +32,21 @@ if($api->isGet(Permission::WorkOrder_View))
         FROM workOrder
         LEFT JOIN project On project.Id = workOrder.ProjectId
         WHERE workOrder.WorkOrderNumber = $workOrderNumber
-        LIMIT 1;
     STR;
-
     $workOrderData = $database->query($query);
-    if(count($workOrderData) === 0) $api->returnError("WorkOrderNumber not found");
+    \Error\checkErrorAndExit($workOrderData);
+    \Error\checkNoResultAndExit($workOrderData, $parameter->WorkOrderNumber);
 
     $workOrderId = $workOrderData[0]->WorkOrderId;
 
-    $output = array();
-    $output['ItemCode'] = barcodeFormatter_WorkOrderNumber($workOrderData[0]->WorkOrderNumber);
+    $output = [];
+    $output['ItemCode'] = \Numbering\format(\Numbering\Category::WorkOrder, $workOrderData[0]->WorkOrderNumber);
     $output['WorkOrderNumber'] = $workOrderData[0]->WorkOrderNumber;
     $output['Title'] = $workOrderData[0]->Title;
-    $output['ProjectCode'] = barcodeFormatter_Project( $workOrderData[0]->ProjectNumber);
+    $output['ProjectCode'] = \Numbering\format(\Numbering\Category::Project, $workOrderData[0]->ProjectNumber);
     $output['ProjectTitle'] = $workOrderData[0]->ProjectTitle;
     $output['Quantity'] = $workOrderData[0]->Quantity;
     $output['Status'] = $workOrderData[0]->Status;
-
-	$partUsed = array();
 
     $query = <<<STR
     SELECT  
@@ -84,11 +78,13 @@ if($api->isGet(Permission::WorkOrder_View))
     )prodPart On prodPart.ManufacturerPartNumberId = partStock.ManufacturerPartNumberId OR prodPart.SpecificationPartRevisionId = partStock.SpecificationPartRevisionId
     WHERE partStock_history.workOrderId = $workOrderId
     STR;
-
 	$result = $database->query($query);
-	foreach($result as $item)
-	{
-        if($item->ProductionPartNumber != null) $item->ProductionPartNumber = explode(",", $item->ProductionPartNumber);
+    \Error\checkErrorAndExit($result);
+
+	foreach($result as $item) {
+        if($item->ProductionPartNumber != null){
+            $item->ProductionPartNumber = explode(",", $item->ProductionPartNumber);
+        }
 	}
 
     $output['PartsUsed'] = $result;
@@ -99,10 +95,10 @@ else if($api->isPost(Permission::WorkOrder_Create))
 {
     $data = $api->getPostData();
 
-    if(!isset($data->Quantity)) $api->returnParameterMissingError("Quantity");
-    if(!isset($data->Name)) $api->returnParameterMissingError("Name");
+    if(!isset($data->Quantity)) $api->returnData(\Error\parameterMissing("Quantity"));
+    if(!isset($data->Name)) $$api->returnData(\Error\parameterMissing("Name"));
 
-    if(!isset($data->ProjectCode))$projectNumber =  barcodeParser_Project($data->ProjectCode);
+    if(!isset($data->ProjectCode)) $projectNumber =  \Numbering\format(\Numbering\Category::Project, $data->ProjectCode);
     else $projectNumber = null;
 
     $insertData = [];
@@ -113,29 +109,32 @@ else if($api->isPost(Permission::WorkOrder_Create))
     $insertData['CreationUserId'] = $user->userId();
 
     $workOrderId = $database->insert("workOrder", $insertData);
+    \Error\checkErrorAndExit($workOrderId);
 
     $query = "SELECT WorkOrderNumber FROM workOrder WHERE Id = $workOrderId;";
     $result = $database->query($query);
+    \Error\checkErrorAndExit($result);
 
     $workOrder = [];
     $workOrder['WorkOrderNumber'] = $result[0]->WorkOrderNumber;
-    $workOrder['ItemCode'] =  barcodeFormatter_WorkOrderNumber($workOrder['WorkOrderNumber']);
+    $workOrder['ItemCode'] =  \Numbering\format(\Numbering\Category::WorkOrder, $workOrder['WorkOrderNumber']);
 
     $api->returnData($workOrder);
 }
 else if($api->isPatch(Permission::WorkOrder_Edit))
 {
     $data = $api->getPostData();
-    if(!isset($data->WorkOrderNumber)) $api->returnParameterMissingError("WorkOrderNumber");
-    if(!isset($data->Status)) $api->returnParameterMissingError("Status");
+    if(!isset($data->WorkOrderNumber)) $api->returnData(\Error\parameterMissing("WorkOrderNumber"));
+    if(!isset($data->Status)) $api->returnData(\Error\parameterMissing("Status"));
 
-    $workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber);
-    if($workOrderNumber === null)$api->returnParameterError("WorkOrderNumber");
+    $workOrderNumber = \Numbering\format(\Numbering\Category::WorkOrder, $data->WorkOrderNumber);
+    if($workOrderNumber === null) $api->returnData(\Error\parameter("WorkOrderNumber"));
 
     $woData = array();
     $woData['Status'] = $data->Status;
 
-    $database->update("workOrder", $woData, "WorkOrderNumber = $workOrderNumber");
+    $result = $database->update("workOrder", $woData, "WorkOrderNumber = $workOrderNumber");
+    \Error\checkErrorAndExit($result);
 
     $api->returnEmpty();
 }

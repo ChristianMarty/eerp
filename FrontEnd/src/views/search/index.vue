@@ -22,7 +22,6 @@
       </el-table-column>
       <el-table-column prop="Category" label="Category" width="200" />
       <el-table-column prop="Description" label="Description" />
-      <el-table-column prop="LocationPath" label="Current Location" />
     </el-table>
   </div>
 </template>
@@ -82,21 +81,21 @@ export default {
               break
             case 'Inventory': item.link = '/inventory/item/'
               break
-            case 'PurchaseOrder': item.link = '/purchasing/edit/'
+            case 'Purchase Order': item.link = '/purchasing/edit/'
               break
-            case 'WorkOrder': item.link = '/workOrder/workOrderView/'
+            case 'Work Order': item.link = '/workOrder/workOrderView/'
               break
             case 'Vendor': item.link = '/vendor/view/'
               break
-            case 'ProductionPart': item.link = '/productionPart/item/'
+            case 'Production Part': item.link = '/productionPart/item/'
               break
-            case 'AssemblyUnit': item.link = '/assembly/unit/item/'
+            case 'Assembly Unit': item.link = '/assembly/unit/item/'
               break
-            case 'ManufacturerPartItem': item.link = '/manufacturerPart/item/'
+            case 'Manufacturer Part': item.link = '/manufacturerPart/item/'
               break
-            case 'ManufacturerPartNumber': item.link = '/manufacturerPart/partNumber/item/'
+            case 'Manufacturer Part Number': item.link = '/manufacturerPart/partNumber/item/'
               break
-            case 'SupplierPartNumber': item.link = '/manufacturerPart/partNumber/item/'
+            case 'Supplier Part': item.link = '/manufacturerPart/partNumber/item/'
               break
           }
           item.link += item.RedirectCode

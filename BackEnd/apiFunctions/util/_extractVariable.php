@@ -36,5 +36,3 @@ function extractVariable(string $path, string $variableName): string
 	
 	return $file_contents;
 }
-
-?>

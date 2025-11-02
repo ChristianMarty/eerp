@@ -9,7 +9,6 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
 require_once __DIR__ . "/item/_line.php";
 
 require_once __DIR__ . "/../document/_document.php";
@@ -73,7 +72,7 @@ function getPurchaseOrderData($purchaseOrderNo): ?array
 
 
     $purchaseOrderNumber= $r->PurchaseOrderNumber;
-    $r->ItemCode = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber);
+    $r->ItemCode = \Numbering\format(\Numbering\Category::PurchaseOrder, $purchaseOrderNumber);
     $purchaseOrderId = $r->PoId;
     $status = $r->Status;
 

@@ -9,8 +9,6 @@
 //*************************************************************************************************
 declare(strict_types=1);
 require_once "_renderer.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 require_once __DIR__ . "/../../util/escpos/autoload.php";
 use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
@@ -32,7 +30,7 @@ class assemblyHistoryBon extends \renderer\renderer
 
         $items = [];
         foreach ($data as $item){
-            $items[] = barcodeParser_AssemblyUnitHistoryNumber($item);
+            $items[] = \Numbering\parser(\Numbering\Category::AssemblyUnitHistory, $item);
         }
 
         $itemListString = "'".implode("','",$items)."'";
@@ -64,7 +62,7 @@ class assemblyHistoryBon extends \renderer\renderer
         $printer -> initialize();
 
         foreach($assemblyHistoryItems as $item) {
-            $itemCode = barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
+            $itemCode = \Numbering\format(\Numbering\Category::AssemblyUnitHistory, $item->AssemblyUnitHistoryNumber);
             $printer->selectPrintMode(Printer::MODE_FONT_B);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setTextSize(2, 2);

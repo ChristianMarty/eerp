@@ -11,9 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
@@ -47,7 +44,7 @@ if($api->isGet(\Permission::BillOfMaterial_View))
 
 	foreach ($bom as $line)
 	{
-        $line->ProductionPartBarcode = barcodeFormatter_ProductionPart($line->ProductionPartPrefix . "-" . $line->ProductionPartNumber);
+        $line->ProductionPartBarcode = \Numbering\format(\Numbering\Category::ProductionPart,$line->ProductionPartPrefix . "-" . $line->ProductionPartNumber);
         $line->ProductionPartNumber = $line->ProductionPartBarcode; // TODO: Legacy -> remove
 
         $referencePrice = array();

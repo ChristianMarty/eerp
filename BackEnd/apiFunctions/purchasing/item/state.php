@@ -11,13 +11,11 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-
 if($api->isPatch(\Permission::PurchaseOrder_Edit))
 {
 	$parameters = $api->getGetData();
 	if(!isset($parameters->PurchaseOrderNumber))$api->returnParameterMissingError('PurchaseOrderNumber');
-	$purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+	$purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
 	if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
 	$data = $api->getPostData();

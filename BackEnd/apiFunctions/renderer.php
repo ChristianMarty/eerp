@@ -38,6 +38,7 @@ if($api->isGet(Permission::Renderer_List))
     if($dataset !== 0) $queryParameters[] = "DatasetId = '$dataset'";
 
     $result = $database->query($query, $queryParameters, "ORDER BY Name ASC");
+    \Error\checkErrorAndExit($result);
 
     $output = [];
     if($flat === false){

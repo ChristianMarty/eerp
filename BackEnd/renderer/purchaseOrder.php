@@ -7,18 +7,19 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+global $api;
 
 require_once __DIR__ . "/../apiFunctions/purchasing/_function.php";
 require_once __DIR__ . "/../apiFunctions/vendor/_vendor.php";
+require_once __DIR__ . "/../core/numbering.php";
 
-if(!isset($_GET["PurchaseOrderNumber"]))
-{
-    echo "<p>Parameter error</p>";
-    exit;
-}
+$parameter = $api->getGetData();
 
-$poData = getPurchaseOrderData($_GET["PurchaseOrderNumber"]);
+if(!isset($parameter->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
+$purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameter->PurchaseOrderNumber);
+if($purchaseOrderNumber == null) $api->returnParameterError("PurchaseOrderNumber");
 
+$poData = getPurchaseOrderData($purchaseOrderNumber);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -175,13 +176,13 @@ $poData = getPurchaseOrderData($_GET["PurchaseOrderNumber"]);
 
 global $addressId;
 
-$vendor = \vendor\vendor::getContact($poData["MetaData"]->VendorContactId);
-$shipping = \vendor\vendor::getContact($poData["MetaData"]->ShippingContactId);
-$billing = \vendor\vendor::getContact($poData["MetaData"]->BillingContactId);
-$buyer = \vendor\vendor::getContact($poData["MetaData"]->PurchaseContactId);
+$vendor = \Vendor\vendor::getContact($poData["MetaData"]->VendorContactId);
+$shipping = \Vendor\vendor::getContact($poData["MetaData"]->ShippingContactId);
+$billing = \Vendor\vendor::getContact($poData["MetaData"]->BillingContactId);
+$buyer = \Vendor\vendor::getContact($poData["MetaData"]->PurchaseContactId);
 
 
-$footer = \vendor\vendor::getAddress($addressId);
+$footer = \Vendor\vendor::getAddress($addressId);
 
 $meta = new stdClass;
 

@@ -8,8 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
 
 class Location
 {
@@ -35,7 +33,7 @@ class Location
 	{
 		$locationData = new stdClass();
 		$locationData->LocationNumber = intval(self::$locationData[$locationId]->LocationNumber);
-		$locationData->ItemCode = barcodeFormatter_LocationNumber($locationData->LocationNumber);
+		$locationData->ItemCode = \Numbering\format(\Numbering\Category::Location, $locationData->LocationNumber);
 		$locationData->Name = self::name($locationId);
 		$locationData->Path = self::path($locationId);
 		$locationData->HomeName = self::name($homeLocationId);
@@ -58,7 +56,9 @@ class Location
 	{
 		if($locationId === null) return "";
 
-		if(array_key_exists($locationId, self::$locationData)) $output = barcodeFormatter_LocationNumber(self::$locationData[$locationId]->LocationNumber);
+		if(array_key_exists($locationId, self::$locationData)){
+			$output = \Numbering\format(\Numbering\Category::Location, self::$locationData[$locationId]->LocationNumber);
+		}
 		else $output = "Error: Location dose not exist";
 
 		if($output == null) $output = "";
@@ -79,7 +79,7 @@ class Location
 	public function idsWithChildren(string|int|null $locationNumber): array
 	{
 		if($locationNumber === null) return [];
-		$locationNumber = barcodeParser_LocationNumber($locationNumber);
+		$locationNumber = \Numbering\format(\Numbering\Category::Location, $locationNumber);
 		if($locationNumber === null) return [];
 
 		foreach (self::$locationData  as $row) {
@@ -104,7 +104,7 @@ class Location
 				$temp->Title = $row->Title;
 				$temp->Description = $row->Description;
 				$temp->LocationNumber = intval($row->LocationNumber);
-				$temp->ItemCode = barcodeFormatter_LocationNumber($row->LocationNumber);
+				$temp->ItemCode = \Numbering\format(\Numbering\Category::Location, $row->LocationNumber);
 
 				$temp->Attribute = new stdClass;
 				$temp->Attribute->EsdSave = boolval($row->ESD);
@@ -166,7 +166,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] =  barcodeFormatter_StockNumber($item->StockNumber);
+		$data["Item"] =  \Numbering\format(\Numbering\Category::Stock, $item->StockNumber);
 		$data["Category"] = "Stock";
 		$data["Description"] = "$item->ManufacturerName $item->ManufacturerPartNumber, $item->Date Qty: $item->Cache_Quantity";
 		$items[] = $data;
@@ -187,7 +187,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_InventoryNumber($item->InventoryNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::Inventory, $item->InventoryNumber);
 		$data["Category"] = "Inventory";
 		$data["Description"] = "$item->Title - $item->Manufacturer $item->Type";
 		$items[] = $data;
@@ -209,7 +209,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::AssemblyUnit, $item->AssemblyUnitNumber);
 		$data["Category"] = "Assembly Unit";
 		$data["Description"] = "$item->Name - $item->Description SN: $item->SerialNumber";
 		$items[] = $data;
@@ -227,7 +227,7 @@ function location_getItems(int|null $locationId) : array
 	foreach ($result as $item)
 	{
 		$data = array();
-		$data["Item"] = barcodeFormatter_LocationNumber($item->LocationNumber);
+		$data["Item"] = \Numbering\format(\Numbering\Category::Location, $item->LocationNumber);
 		$data["Category"] = "Location";
 		$data["Description"] = "$item->Name";
 		$items[] = $data;

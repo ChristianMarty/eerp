@@ -7,83 +7,71 @@
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
+declare(strict_types=1);
+global $database;
+global $api;
 
-require_once __DIR__ . "/../databaseConnector.php";
-require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/siFormatter.php";
-require_once __DIR__ . "/../part/manufacturerPart/_function.php";
+require_once __DIR__ . "/../apiFunctions/part/manufacturerPart/_function.php";
 
 $title = "Resolve Part Item Duplicates by Series";
 $description = "Resolve Part Item Duplicates based on Series";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET')
-{
-    $dbLink = dbConnect();
 
 // Get Series
-    echo "Get Duplicates \n";
+echo "Get Duplicates \n";
+$query = <<<STR
+    SELECT Id, SeriesId, VendorId, Number, GROUP_CONCAT(Id), GROUP_CONCAT(Number), COUNT(*)
+    FROM manufacturerPart_item
+    WHERE SeriesId IS NOT NULL
+    GROUP BY SeriesId,  Number
+    HAVING COUNT(*) > 1
+STR;
+$duplicates = $database->execute($query);
+
+foreach($duplicates as $duplicateLine)
+{
+    $chosenId = 0;
+
+    echo "Get Items \n";
+    $duplicateIds =  $duplicateLine['GROUP_CONCAT(Id)'];
     $query = <<<STR
-        SELECT Id, SeriesId, VendorId, Number, GROUP_CONCAT(Id), GROUP_CONCAT(Number), COUNT(*)
+        SELECT *
         FROM manufacturerPart_item
-        WHERE SeriesId IS NOT NULL
-        GROUP BY SeriesId,  Number
-        HAVING COUNT(*) > 1
+        WHERE Id IN($duplicateIds)
     STR;
-    $results = dbRunQuery($dbLink, $query);
+    $items = $database->execute($query);
 
-    $duplicates = array();
-    while($r = mysqli_fetch_assoc($results))
+    foreach ($items as $r)
     {
-        $duplicates[] = $r;
-    }
-
-    foreach($duplicates as $duplicateLine)
-    {
-        $chosenId = 0;
-
-        echo "Get Items \n";
-        $duplicateIds =  $duplicateLine['GROUP_CONCAT(Id)'];
-        $query = <<<STR
-            SELECT *
-            FROM manufacturerPart_item
-            WHERE Id IN($duplicateIds)
-        STR;
-
-        $results = dbRunQuery($dbLink, $query);
-        while($r = mysqli_fetch_assoc($results))
-        {
-            if($r['VerifiedByUserId'] !== null){
-                $chosenId = intval($r['Id']);
-                break;
-            }
+        if($r['VerifiedByUserId'] !== null){
+            $chosenId = intval($r['Id']);
+            break;
         }
-
-        if($chosenId == 0) continue;
-        // Update part number
-        $query = <<<STR
-            UPDATE manufacturerPart_partNumber SET ItemId = $chosenId
-            WHERE ItemId IN($duplicateIds)
-        STR;
-        dbRunQuery($dbLink, $query);
-
-        // Mark for delete
-        $query = <<<STR
-            UPDATE manufacturerPart_item SET ToDelete = b'1'
-            WHERE Id IN($duplicateIds)
-        STR;
-        dbRunQuery($dbLink, $query);
-        $query = <<<STR
-            UPDATE manufacturerPart_item SET ToDelete = b'0'
-            WHERE Id = $chosenId
-        STR;
-        dbRunQuery($dbLink, $query);
-
-
     }
 
-    dbClose($dbLink);
+    if($chosenId == 0) continue;
+    // Update part number
+    $query = <<<STR
+        UPDATE manufacturerPart_partNumber SET ItemId = $chosenId
+        WHERE ItemId IN($duplicateIds)
+    STR;
+    $database->execute($query);
 
-    echo "Done \n";
-    exit;
+    // Mark for delete
+    $query = <<<STR
+        UPDATE manufacturerPart_item SET ToDelete = b'1'
+        WHERE Id IN($duplicateIds)
+    STR;
+    $database->execute($query);
+
+    $query = <<<STR
+        UPDATE manufacturerPart_item SET ToDelete = b'0'
+        WHERE Id = $chosenId
+    STR;
+    $database->execute($query);
+
+
 }
-?>
+
+echo "Done";
+exit;

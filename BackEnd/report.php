@@ -13,8 +13,13 @@ global $user;
 
 $api = new ApiRouter($user, Entrypoint::REPORT, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
-try {
-	require $api->getRunPath();
-} catch (Exception $e) {
-    echo $e->getMessage();
+if($api->isGet(Permission::Report_Run)){
+    try {
+        $path = $api->getRunPath();
+        require $path;
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+}else{
+    $api->returnMethodNotAllowedError("Report must be used via the GET methode");
 }

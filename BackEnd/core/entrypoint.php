@@ -12,15 +12,16 @@ require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/user/userAuthentication.php";
 require_once __DIR__ . "/apiRouter.php";
+require_once __DIR__ . "/numbering.php";
 
 if(session_status() === PHP_SESSION_NONE){
     session_start();
 }
 global $database;
-$database = new database();
+$database = new Database();
 
 global $user;
-$user = new userAuthentication();
+$user = new UserAuthentication();
 
 if(isset($_GET["user"]) && isset($_GET["token"]))
 {

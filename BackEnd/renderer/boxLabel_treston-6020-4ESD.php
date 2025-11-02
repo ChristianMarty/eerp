@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../apiFunctions/util/_barcodeParser.php";
-require_once __DIR__ . "/../apiFunctions/util/_barcodeFormatter.php";
 require_once __DIR__ . "/../config.php";
 
 ?>
@@ -96,76 +94,72 @@ require_once __DIR__ . "/../config.php";
 <div class="page">
 
 <?php
-if($api->isGet())
-{
-    $parameter = $api->getGetData();
 
-    $locationNumbers = [];
-	if (isset($parameter->LocationNumber)) {
-        $locationNumbers = explode(",", $parameter->LocationNumber);
+$parameter = $api->getGetData();
 
-        if(!count($locationNumbers)){
-            echo "Location number list empty";
-            exit;
-        }
+$locationNumbers = [];
+if (isset($parameter->LocationNumber)) {
+    $locationNumbers = explode(",", $parameter->LocationNumber);
 
-        foreach ($locationNumbers as &$item) {
-            $item = barcodeParser_LocationNumber($item);
-            unset($item);
-        }
-    }
-
-    $field_offset = 0;
-    if (isset($parameter->Offset)) {
-        $field_offset = $parameter->Offset;
-    }
-
-    $locationNumbersString = implode(", ", $locationNumbers);
-    if(strlen($locationNumbersString)=== 0){
-        echo "Location number list is empty.";
+    if(!count($locationNumbers)){
+        echo "Location number list empty";
         exit;
     }
-    $query = <<< STR
-        SELECT 
-            LocationNumber,
-            Name,
-            Title,
-            Description
-        FROM location
-        WHERE LocationNumber IN( $locationNumbersString );
-    STR;
 
-    $rows = $database->query($query);
-
-	for ($i = 0; $i < $field_offset; $i++) {
-        echo "<div class='label'>";
-        echo "</div>";
+    foreach ($locationNumbers as &$item) {
+        $item = \Numbering\parser(\Numbering\Category::Location, $item);
+        unset($item);
     }
+}
 
-    global $rendererRootPath;
+$field_offset = 0;
+if (isset($parameter->Offset)) {
+    $field_offset = $parameter->Offset;
+}
 
-	foreach ($rows as $row)
-    {
-        $title = $row->Title;
-        $description = $row->Description;
-        $name = $row->Name;
-        
-        $content  = "<div class='title'>";
-        $content .= "<h1 class='title'>$title</h1>";
-        $content .= "<h2 class='title'>$description</h2>";
-        $content .= "</div>";
-        
-        $content .= "<div class='box'>";
-        $content .= "<h1 class='box'>Box</h1>";
-        $content .= "<h2 class='box'>$name</h2>";
-        $content .= "</div>";
+$locationNumbersString = implode(", ", $locationNumbers);
+if(strlen($locationNumbersString)=== 0){
+    echo "Location number list is empty.";
+    exit;
+}
+$query = <<< STR
+    SELECT 
+        LocationNumber,
+        Name,
+        Title,
+        Description
+    FROM location
+    WHERE LocationNumber IN( $locationNumbersString );
+STR;
 
-        echo "<div class='margin'></div><div class='label'>";
-        echo $content;
-        echo "</div><div class='margin'></div>";
-    }
-    
-    
+$rows = $database->query($query);
+
+for ($i = 0; $i < $field_offset; $i++) {
+    echo "<div class='label'>";
+    echo "</div>";
+}
+
+global $rendererRootPath;
+
+foreach ($rows as $row)
+{
+    $title = $row->Title;
+    $description = $row->Description;
+    $name = $row->Name;
+
+    $content  = "<div class='title'>";
+    $content .= "<h1 class='title'>$title</h1>";
+    $content .= "<h2 class='title'>$description</h2>";
+    $content .= "</div>";
+
+    $content .= "<div class='box'>";
+    $content .= "<h1 class='box'>Box</h1>";
+    $content .= "<h2 class='box'>$name</h2>";
+    $content .= "</div>";
+
+    echo "<div class='margin'></div><div class='label'>";
+    echo $content;
+    echo "</div><div class='margin'></div>";
 }
 
 ?>

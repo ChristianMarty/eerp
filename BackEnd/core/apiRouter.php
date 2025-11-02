@@ -42,7 +42,7 @@ class ApiRouter
     private bool $hasDelete = false;
 
 
-    function __construct(userAuthentication $user, Entrypoint $entrypoint, string $path, string $methodString)
+    function __construct(UserAuthentication $user, Entrypoint $entrypoint, string $path, string $methodString)
     {
         global $user;
 
@@ -223,7 +223,11 @@ class ApiRouter
     #[NoReturn] function returnData(array|stdClass|null|string|\Error\Data $data, string|null $errorMessage = null): void
     {
         if($data instanceof \Error\Data){
-            $this->returnError($data->error);
+            if($data->type == \Error\Type::Permission){
+                $this-> returnUnauthorizedError($data->error);
+            }else {
+                $this->returnError($data->error);
+            }
         }
 
         header("Content-Type:application/json; charset=UTF-8");

@@ -11,10 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeParser.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
-
 require_once __DIR__ . "/../document/_document.php";
 
 if ($api->isGet(\Permission::Document_Attach_Edit))
@@ -30,7 +26,7 @@ if ($api->isGet(\Permission::Document_Attach_Edit))
 
     if($attachToTable === "PurchaseOrderDocument")
     {
-        $poBarcode =  barcodeParser_PurchaseOrderNumber($attachToBarcode);
+        $poBarcode = \Numbering\parser(\Numbering\Category::PurchaseOrder, $attachToBarcode);
         if($poBarcode == null) $api->returnParameterError("AttachBarcode");
 
         $query = "SELECT DocumentIds FROM purchaseOrder WHERE PurchaseOrderNumber = '$poBarcode' LIMIT 1";
@@ -65,7 +61,7 @@ else if($api->isPost( \Permission::Document_Attach_Edit))
 	
 	foreach($data->DocumentBarcodes as $key => $line)
 	{
-        $docNumber = barcodeParser_DocumentNumber($line);
+        $docNumber = \Numbering\parser(\Numbering\Category::Document, $line);
 		$docList .= $docNumber.",";
 	}
     $docList = substr($docList, 0, -1);
@@ -80,7 +76,7 @@ else if($api->isPost( \Permission::Document_Attach_Edit))
 
     if($attachToTable === "PurchaseOrderDocument")
     {
-        $poCode =  barcodeParser_PurchaseOrderNumber($attachToBarcode);
+        $poCode =  \Numbering\parser(\Numbering\Category::PurchaseOrder, $attachToBarcode);
         if($poCode == null) $api->returnParameterError("AttachBarcode");
 
         $updateData = [];

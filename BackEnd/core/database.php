@@ -11,7 +11,7 @@ declare(strict_types=1);
 require_once __DIR__ . "/../config.php";
 require_once __DIR__ . "/error.php";
 
-class database
+class Database
 {
     private object $pdo;
 
@@ -126,7 +126,7 @@ class database
         return null;
     }
 
-    public function insert(string $tableName, array $data, bool $ignore = false): int
+    public function insert(string $tableName, array $data, bool $ignore = false): int | \Error\Data
     {
         $keys ="";
         $values ="";
@@ -156,9 +156,8 @@ class database
         
         try {
             $this->pdo->exec($query);
-        }
-        catch (PDOException $e) {
-            throw new Exception($e->getMessage());
+        } catch (PDOException $e) {
+            return \Error\database($e->getMessage());
         }
 
         return intval($this->pdo->lastInsertId());
@@ -168,7 +167,6 @@ class database
     {
         if($condition === null OR strlen($condition) == 0){
             trigger_error("DB Update -> will not run update without condition", E_USER_ERROR);
-            return null;
         }
 
         $pairs ="";

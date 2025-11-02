@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__."/../util/_barcodeParser.php";
-
 if($api->isPost(\Permission::Location_Transfer))
 {
 	$data = $api->getPostData();
@@ -20,8 +18,8 @@ if($api->isPost(\Permission::Location_Transfer))
 	if(!isset($data->SourceLocationNumber)) $api->returnParameterMissingError("SourceLocationNumber");
 	if(!isset($data->DestinationLocationNumber)) $api->returnParameterMissingError("DestinationLocationNumber");
 
-	$oldLocationNr = barcodeParser_LocationNumber($data->SourceLocationNumber);
-	$newLocationNr = barcodeParser_LocationNumber($data->DestinationLocationNumber);
+	$oldLocationNr = \Numbering\parser(\Numbering\Category::Location, $data->SourceLocationNumber);
+	$newLocationNr = \Numbering\parser(\Numbering\Category::Location, $data->DestinationLocationNumber);
 
 	if($oldLocationNr == null)  $api->returnParameterError("SourceLocationNumber");
 	if($newLocationNr == null)  $api->returnParameterError("DestinationLocationNumber");

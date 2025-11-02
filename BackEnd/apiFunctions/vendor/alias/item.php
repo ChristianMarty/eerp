@@ -11,58 +11,60 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__. "/_alias.php";
-
 if($api->isGet(Permission::Vendor_View))
 {
-    $data = $api->getGetData();
-    if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
-    if(!is_int($data->AliasId))$api->returnParameterError("AliasId is not a integer");
+    $parameter = $api->getGetData();
+    if(!isset($parameter->AliasId)) $api->returnData(\Error\parameterMissing("AliasId"));
+    $aliasId = intval($parameter->AliasId);
+    if($aliasId === 0) $api->returnData(\Error\parameter("AliasId"));
 
-    try {
-        $alias = vendor\alias::alias($data->AliasId);
-    } catch (\Exception $e) {
-        $api->returnError($e->getMessage());
-    }
-    $api->returnData($alias);
+    $query = "SELECT * FROM vendor_alias WHERE Id = $aliasId";
+    $result = $database->query($query);
+    \Error\checkNoResultAndExit($result, $parameter->AliasId);
+
+    $api->returnData($result);
 }
 else if($api->isPost(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
-    if(!isset($data->VendorId))$api->returnParameterMissingError("VendorId");
-    if(!isset($data->Name))$api->returnParameterMissingError("Name");
-    if(!is_int($data->VendorId))$api->returnParameterError("VendorId is not a integer");
+    if(!isset($data->VendorId)) $api->returnData(\Error\parameterMissing("VendorId"));
+    if(!isset($data->Name)) $api->returnData(\Error\parameterMissing("Name"));
+    $vendorId = intval($data->VendorId);
+    if($vendorId === 0) $api->returnData(\Error\parameter("AliasId"));
 
-    try {
-        vendor\alias::createAlias($data->VendorId, $data->Name, $data->Note??null);
-    } catch (\Exception $e) {
-        $api->returnError($e->getMessage());
-    }
-    $api->returnEmpty();
+    global $user;
+
+    $insertData = [];
+    $insertData['VendorId']= $vendorId;
+    $insertData['Name']  = $data->Name;
+    $insertData['Note']  = $data->Note;
+    $insertData['CreationUserId'] = $user->userId();
+    $result = $database->insert("vendor_alias", $insertData);
+
+    $api->returnData($result);
 }
 else if($api->isPatch(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
-    if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
-    if(!is_int($data->AliasId))$api->returnParameterError("AliasId is not a integer");
+    if(!isset($data->AliasId)) $api->returnData(\Error\parameterMissing("AliasId"));
+    if(!isset($data->Name)) $api->returnData(\Error\parameterMissing("Name"));
+    $aliasId = intval($data->AliasId);
+    if($aliasId === 0) $api->returnData(\Error\parameter("AliasId"));
 
-    try {
-        vendor\alias::updateAlias($data->AliasId,$data->Name??"", $data->Note??null);
-    } catch (\Exception $e) {
-        $api->returnError($e->getMessage());
-    }
-    $api->returnEmpty();
+    $updateData = [];
+    $updateData['Name']  = $data->Name;
+    $updateData['Note']  = $data->Note;
+
+    $api->returnData( $database->update("vendor_alias", $updateData, "Id = $aliasId"));
 }
 else if($api->isDelete(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
-    if(!isset($data->AliasId))$api->returnParameterMissingError("AliasId");
-    if(!is_int($data->AliasId))$api->returnParameterError("AliasId is not a integer");
+    if(!isset($data->AliasId)) $api->returnData(\Error\parameterMissing("AliasId"));
+    $aliasId = intval($data->AliasId);
+    if($aliasId === 0) $api->returnData(\Error\parameter("AliasId"));
 
-    try {
-        vendor\alias::deleteAlias($data->AliasId);
-    } catch (\Exception $e) {
-        $api->returnError($e->getMessage());
-    }
-    $api->returnEmpty();
+    $result = $database->delete("vendor_alias", "Id = $aliasId");
+
+    $api->returnData($result);
 }

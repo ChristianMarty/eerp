@@ -369,13 +369,13 @@ class Vendor {
         SkuSearchSupported: false
       }
     },
-    information(SupplierId) {
+    information(VendorId) {
       return new Promise((resolve, reject) => {
         eerpApi({
           method: 'get',
           url: '/vendor/api/information',
           params: {
-            SupplierId: SupplierId
+            VendorId: VendorId
           }
         }).then(response => {
           if (response.error == null) {

@@ -13,8 +13,6 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../util/_barcodeParser.php";
 require_once __DIR__ . "/../location/_location.php";
 
 if($api->isGet(\Permission::Assembly_View))
@@ -22,7 +20,7 @@ if($api->isGet(\Permission::Assembly_View))
     $parameter = $api->getGetData();
 
 	if(!isset($parameter->AssemblyNumber)) $api->returnParameterMissingError("AssemblyNumber");
-	$assemblyNumber = barcodeParser_AssemblyNumber($parameter->AssemblyNumber);
+	$assemblyNumber = \Numbering\parser(\Numbering\Category::Assembly, $parameter->AssemblyNumber);
     if($assemblyNumber === null) $api->returnParameterError("AssemblyNumber");
 
 	$query = <<<STR
@@ -62,7 +60,7 @@ if($api->isGet(\Permission::Assembly_View))
 
 	foreach($result as $item)
     {
-        $item->ItemCode = barcodeFormatter_AssemblyUnitNumber($item->AssemblyUnitNumber);
+        $item->ItemCode = \Numbering\format(\Numbering\Category::AssemblyUnit, $item->AssemblyUnitNumber);
         $item->AssemblyUnitNumber = intval($item->AssemblyUnitNumber);
 
         if($item->Note === null) $item->Note = '';
@@ -71,7 +69,7 @@ if($api->isGet(\Permission::Assembly_View))
         $item->LocationCode = $location->itemCode($item->LocationId);
         unset($item->LocationId);
 
-        $item->WorkOrderCode = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+        $item->WorkOrderCode = \Numbering\format(\Numbering\Category::WorkOrder, $item->WorkOrderNumber);
         unset($item->WorkOrderNumber);
 
         $item->ShippingClearance = filter_var($item->ShippingClearance, FILTER_VALIDATE_BOOLEAN);
@@ -104,18 +102,15 @@ if($api->isGet(\Permission::Assembly_View))
         LEFT JOIN numbering ON productionPart.NumberingPrefixId = numbering.Id
         WHERE AssemblyNumber = '$assemblyNumber' LIMIT 1
     STR;
-
     $result = $database->query($query);
-    if(count($result) == 0) {
-        $api->returnError("Item nit found");
-    }else{
-        $item = $result[0];
-    }
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->AssemblyNumber);
+    $item = $result[0];
 
 	$output['AssemblyNumber'] = intval($item->AssemblyNumber);
-	$output['ItemCode'] = barcodeFormatter_AssemblyNumber($item->AssemblyNumber);
+	$output['ItemCode'] = \Numbering\format(\Numbering\Category::Assembly, $item->AssemblyNumber);
     if($item->ProductionPartNumber !== null){
-        $output['ProductionPartCode'] = barcodeFormatter_ProductionPart($item->ProductionPartNumber, $item->ProductionPartNumberPrefix);
+        $output['ProductionPartCode'] = \Numbering\format(\Numbering\Category::ProductionPart, $item->ProductionPartNumberPrefix."-".$item->ProductionPartNumber);
     }else{
         $output['ProductionPartCode'] = null;
     }
@@ -139,7 +134,7 @@ else if($api->isPost(\Permission::Assembly_Create))
 
 	$query ="SELECT AssemblyNumber AS Number  FROM assembly WHERE Id = $id;";
 	$output = [];
-	$output['AssemblyBarcode'] = barcodeFormatter_AssemblyNumber($database->query($query)[0]->Number);
+	$output['AssemblyBarcode'] = \Numbering\format(\Numbering\Category::Assembly, $database->query($query)[0]->Number);
 	$api->returnData($output);
 }
 

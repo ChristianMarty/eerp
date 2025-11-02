@@ -45,7 +45,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	$digikeyAuthData = json_decode($result,true);
 	
-	echo var_dump($digikeyAuthData);
+	var_dump($digikeyAuthData);
 	
 	session_start();
 	$_SESSION['digikeyAccessToken'] = $digikeyAuthData["access_token"];
@@ -57,5 +57,3 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 	
 	echo "done";
 }
-
-?>

@@ -13,8 +13,6 @@ global $api;
 
 
 require_once __DIR__ . "/../_function.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 function save_line($purchaseOrderNumber, $line): int
 {
@@ -41,8 +39,8 @@ function save_line($purchaseOrderNumber, $line): int
 
     $sqlData['SpecificationPartRevisionId'] = null;
    if(array_key_exists('SpecificationPartRevisionCode', $line) && $line['SpecificationPartRevisionCode'] !== null) {
-        $specificationPartNumber = barcodeParser_SpecificationPart($line['SpecificationPartRevisionCode']);
-        $specificationPartRevision = barcodeParser_SpecificationPartRevision($line['SpecificationPartRevisionCode']);
+        $specificationPartNumber = \Numbering\parser(\Numbering\Category::SpecificationPart, $line['SpecificationPartRevisionCode']);
+        $specificationPartRevision = \Numbering\parser(\Numbering\Category::SpecificationPartRevision, $line['SpecificationPartRevisionCode']);
         if($specificationPartNumber !== null and $specificationPartRevision !== null) {
 
             $specificationPartRevision = $database->escape($specificationPartRevision);
@@ -114,9 +112,8 @@ function update_costCenter(int $lineId, array | null $costCenterList): void
 
     foreach ($costCenterList as $cc)
     {
-        $costCenterNumber = barcodeParser_CostCenter($cc->Barcode);
-        $quota =
-        $sqlData = array();
+        $costCenterNumber = \Numbering\parser(\Numbering\Category::CostCenter, $cc->Barcode);
+        $sqlData = [];
         $sqlData['CostCenterId']['raw'] = "(SELECT Id FROM finance_costCenter WHERE CostCenterNumber = $costCenterNumber)";
         $sqlData['ItemOrderId'] = $lineId;
         $sqlData['Quota'] = floatval($cc->Quota);
@@ -151,7 +148,7 @@ else if($api->isPost(\Permission::PurchaseOrder_Edit) OR $api->isPatch(\Permissi
 {
     $parameters = $api->getGetData();
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError('PurchaseOrderNumber');
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
     if(!$purchaseOrderNumber) $api->returnParameterError('PurchaseOrderNumber');
 
     $lines = $api->getPostData();
@@ -169,7 +166,7 @@ else if($api->isDelete(\Permission::PurchaseOrder_Edit))
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError('PurchaseOrderNumber');
     if(!isset($parameters->LineId)) $api->returnParameterMissingError('LineId');
 
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
     $lineId = intval($parameters->LineId);
     if(!$purchaseOrderNumber)  $api->returnParameterError('PurchaseOrderNumber');
     if($lineId == 0)  $api->returnParameterError('LineId');

@@ -12,8 +12,6 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
 require_once __DIR__ . "/../../location/_location.php";
 
 if($api->isGet(\Permission::Assembly_Unit_View))
@@ -21,7 +19,7 @@ if($api->isGet(\Permission::Assembly_Unit_View))
     $parameter = $api->getGetData();
 
     if(!isset($parameter->AssemblyUnitNumber)) $api->returnParameterMissingError("AssemblyUnitNumber");
-    $assemblyUnitNumber = barcodeParser_AssemblyUnitNumber($parameter->AssemblyUnitNumber);
+    $assemblyUnitNumber = \Numbering\parser(\Numbering\Category::AssemblyUnit, $parameter->AssemblyUnitNumber);
     if($assemblyUnitNumber === null) $api->returnParameterError("AssemblyUnitNumber");
 
 	// Get History Data
@@ -57,7 +55,7 @@ if($api->isGet(\Permission::Assembly_Unit_View))
 		if($item->ShippingProhibited) $shippingProhibited = true;
 
         $item->AssemblyUnitHistoryNumber = intval($item->AssemblyUnitHistoryNumber);
-        $item->ItemCode =  barcodeFormatter_AssemblyUnitHistoryNumber($item->AssemblyUnitHistoryNumber);
+        $item->ItemCode =  \Numbering\format(\Numbering\Category::AssemblyUnitHistory, $item->AssemblyUnitHistoryNumber);
 	}
 	
 	if($shippingProhibited) $shippingClearance = false;
@@ -81,11 +79,10 @@ if($api->isGet(\Permission::Assembly_Unit_View))
     STR;
 
     $result = $database->query($query);
-    if(count($result) == 0) {
-        $api->returnError("Item not found");
-    }else{
-        $output = $result[0];
-    }
+    \Error\checkErrorAndExit($result);
+    \Error\checkNoResultAndExit($result, $parameter->AssemblyUnitNumber);
+
+    $output = $result[0];
 
     $location = new Location();
 
@@ -93,10 +90,10 @@ if($api->isGet(\Permission::Assembly_Unit_View))
     $output->LocationCode = $location->itemCode(intval($output->LocationId));
     unset($output->LocationId);
 
-    $output->ItemCode =  barcodeFormatter_AssemblyUnitNumber($output->AssemblyUnitNumber);
-    $output->AssemblyCode =  barcodeFormatter_AssemblyNumber($output->AssemblyNumber);
+    $output->ItemCode =  \Numbering\format(\Numbering\Category::AssemblyUnit, $output->AssemblyUnitNumber);
+    $output->AssemblyCode =  \Numbering\format(\Numbering\Category::Assembly, $output->AssemblyNumber);
     unset($output->AssemblyNumber);
-    $output->WorkOrderCode =  barcodeFormatter_WorkOrderNumber($output->WorkOrderNumber);
+    $output->WorkOrderCode =  \Numbering\format(\Numbering\Category::WorkOrder, $output->WorkOrderNumber);
     unset($output->WorkOrderNumber);
     $output->AssemblyUnitNumber = intval($output->AssemblyUnitNumber);
 	$output->ShippingClearance =  $shippingClearance;
@@ -111,8 +108,8 @@ else if($api->isPost(\Permission::Assembly_Unit_Create))
     if(!isset($data->AssemblyNumber)) $api->returnParameterMissingError("AssemblyNumber");
     if(!isset($data->SerialNumber)) $api->returnParameterMissingError("SerialNumber");
 
-    $assemblyNumber = barcodeParser_AssemblyNumber($data->AssemblyNumber);
-    $workOrderNumber = barcodeParser_WorkOrderNumber($data->WorkOrderNumber??null);
+    $assemblyNumber = \Numbering\parser(\Numbering\Category::Assembly, $data->AssemblyNumber);
+    $workOrderNumber = \Numbering\parser(\Numbering\Category::WorkOrder, $data->WorkOrderNumber??null);
 
 	$sqlData = array();
 	$sqlData['SerialNumber'] = $data->SerialNumber;

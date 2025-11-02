@@ -9,22 +9,17 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
-namespace vendor;
+namespace Vendor;
 
-class contact
+class Contact
 {
 
-    static function contactByVendor(int|null $vendorId = null): array
+    static function contactByVendor(int|null $vendorId = null): array|\Error\Data
     {
         return self::query(null, $vendorId);
     }
 
-    static function contact(int $contactId): \stdClass
-    {
-        return (object)self::query($contactId, null)[0];
-    }
-
-    private static function query(int|null $contactId, int|null $vendorId): array
+    static function query(int|null $contactId, int|null $vendorId = null): array|\Error\Data
     {
         global $database;
 
@@ -43,46 +38,26 @@ class contact
             FROM vendor_contact 
         QUERY;
 
-        if($contactId !== null)
-        {
-            $query .= "WHERE Id = {$contactId} LIMIT 1;";
-        }
-        else if ($vendorId !== null) {
-            $query .= "WHERE VendorId = {$vendorId};";
+        $queryParameter = [];
+        if($contactId !== null) {
+            $queryParameter[] = "Id = $contactId";
+        } else if ($vendorId !== null) {
+            $queryParameter[] = "VendorId = $vendorId";
         }
 
-        try {
-            $data = $database->pdo()->query($query);
-            return $data->fetchAll();
-        }
-        catch (\PDOException $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
+        return $database->query($query, $queryParameter);
     }
 
-    static function createContact(int $vendorId, \stdClass $data): int
+    static function createContact(int $vendorId, \stdClass $data): int|\Error\Data
     {
         global $database;
-        try {
-            return $database->insert("vendor_contact", self::inputDataVerification($data, true));
-        }
-        catch (\Exception $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
+        return $database->insert("vendor_contact", self::inputDataVerification($data, true));
     }
 
-    static function updateContact(int $contactId, \stdClass $data):void
+    static function updateContact(int $contactId, \stdClass $data):null|\Error\Data
     {
         global $database;
-        try {
-            $database->update("vendor_contact", self::inputDataVerification($data), "Id = {$contactId}");
-        }
-        catch (\Exception $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
+        return $database->update("vendor_contact", self::inputDataVerification($data), "Id = $contactId");
     }
 
     static private function inputDataVerification(\stdClass $data, bool $isCreate = false):array

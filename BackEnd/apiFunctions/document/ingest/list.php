@@ -27,8 +27,6 @@ if($api->isGet(Permission::Document_Ingest_List))
 		$tmp["FileName"] = $line;
 		$tmp["Date"] = "";
 		$tmp["Size"] = "";
-		//$tmp["Path"] = $dataRootPath.$documentIngestPath."/".$line;
-		
 		$tmp["Path"] = $dataRootPath.$ingestPath."/".$line;
 		
 		$output[] = $tmp;

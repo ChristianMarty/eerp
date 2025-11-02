@@ -13,7 +13,6 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../../vendor/api/_vendorInterface.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
 
 if($api->isGet(\Permission::PurchaseOrder_Edit))
 {
@@ -49,7 +48,7 @@ else if($api->isPost(\Permission::PurchaseOrder_Edit))
     $parameters = $api->getGetData();
 
     if(!isset($parameters->PurchaseOrderNumber)) $api->returnParameterMissingError("PurchaseOrderNumber");
-    $purchaseOrderNumber = barcodeParser_PurchaseOrderNumber($parameters->PurchaseOrderNumber);
+    $purchaseOrderNumber = \Numbering\parser(\Numbering\Category::PurchaseOrder, $parameters->PurchaseOrderNumber);
     if($purchaseOrderNumber == null) $api->returnParameterError("PurchaseOrderNumber");
 
     if(!isset($parameters->OrderNumber)) $api->returnParameterMissingError("OrderNumber");

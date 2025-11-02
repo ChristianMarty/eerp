@@ -313,7 +313,7 @@ import ManufacturerPart from '@/api/manufacturerPart'
 const manufacturerPart = new ManufacturerPart()
 
 export default {
-  name: 'PartDetail',
+  name: 'Vendor',
   components: { editDialog, aliasDialog, addressDialog, contactDialog },
   props: {
     isEdit: {

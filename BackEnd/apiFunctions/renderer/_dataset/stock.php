@@ -8,11 +8,9 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
+
 namespace renderer;
 require_once "_dataset.php";
-
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 class StockData {
     public string $itemCode;
@@ -47,8 +45,8 @@ class Stock extends \renderer\dataset
         $items = [];
         if(is_array($stockHistoryItem)) {
             foreach ($stockHistoryItem as $item) {
-                $stockNumber = barcodeParser_StockNumber($item);
-                $historyItem = barcodeParser_StockHistoryNumber($item);
+                $stockNumber = \Numbering\parser(\Numbering\Category::Stock, $item);
+                $historyItem = \Numbering\parser(\Numbering\Category::StockHistoryIndex, $item);
                 if($stockNumber !== null && $historyItem !== null) {
                     $items[] = $stockNumber . "-" . $historyItem;
                 }
@@ -125,7 +123,7 @@ class Stock extends \renderer\dataset
             }
             $stockData->quantity = abs($item->Quantity);
 
-            $stockData->itemCode = barcodeFormatter_StockHistoryNumber($item->StockNumber, $item->ChangeIndex);
+            $stockData->itemCode = \Numbering\format(\Numbering\Category::Stock, $item->StockNumber, $item->ChangeIndex);
             $stockData->stockNumber = $item->StockNumber;
             $stockData->changeIndex = $item->ChangeIndex;
 
@@ -138,7 +136,7 @@ class Stock extends \renderer\dataset
             $stockData->manufacturerName = $item->ManufacturerName;
             $stockData->manufacturerPartNumber = $item->ManufacturerPartNumber;
 
-            $stockData->workOrderNumber = barcodeFormatter_WorkOrderNumber($item->WorkOrderNumber);
+            $stockData->workOrderNumber = \Numbering\format(\Numbering\Category::WorkOrder, $item->WorkOrderNumber);
             $stockData->workOrderName = $item->WorkOrderName;
 
             if($item->PartNumberDescription){

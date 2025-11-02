@@ -24,11 +24,12 @@ function files_listFiles(string $path, string|null $entrypoint = null): array
         {
             if(pathinfo($path.$file,PATHINFO_EXTENSION ) == "php" && !str_starts_with ($file,'_'))
             {
-                $output[] = files_getInfo($localPath, $path, $file, $entrypoint);
+                $output[] = files_getInfo($localPath, $path, "", $file, $entrypoint);
             }
         }
         else if(is_dir($localPath.$file))
         {
+
             $files2 = scandir($localPath.$file);
             $files = array_diff($files, array('.', '..'));
 
@@ -36,7 +37,7 @@ function files_listFiles(string $path, string|null $entrypoint = null): array
             {
                 if(pathinfo($path.$file."/".$file2,PATHINFO_EXTENSION ) == "php" && !str_starts_with ($file,'_'))
                 {
-                    $output[] = files_getInfo($localPath.$file,$path.$file, $file2, $entrypoint);
+                    $output[] = files_getInfo($localPath.$file,$path.$file, $file."/",$file2, $entrypoint);
                 }
             }
         }
@@ -44,13 +45,12 @@ function files_listFiles(string $path, string|null $entrypoint = null): array
     return $output;
 }
 
-function files_getInfo(string $localPath, string $path, string $file, string|null $entrypoint = null): array
+function files_getInfo(string $localPath, string $path, string $folder, string $file, string|null $entrypoint = null): array
 {
-    global $apiRootPath;
 
     $filePath = $localPath."/".$file;
 	if($entrypoint === null) $externalPath = $path."/".pathinfo($filePath,PATHINFO_FILENAME);
-    else $externalPath = $entrypoint."/".pathinfo($filePath,PATHINFO_FILENAME);
+    else $externalPath = $entrypoint."/".$folder.pathinfo($filePath,PATHINFO_FILENAME);
 
     $output = array();
     $output["FileName"] = $file;
@@ -60,4 +60,3 @@ function files_getInfo(string $localPath, string $path, string $file, string|nul
 
     return $output;
 }
-?>

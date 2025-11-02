@@ -8,13 +8,12 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************<?php
 
-require_once __DIR__ . "/../../../config.php";
-require_once __DIR__ . "/../../location/_location.php";
+require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../apiFunctions/location/_location.php";
 
 $title = "Update Location Cache";
 $description = "Update Location Cache ";
 $parameter = null;
-
 
 $locations = location_getLocations();
 
@@ -22,14 +21,14 @@ echo "<pre>";
 
 foreach($locations as $location)
 {
-    var_dump(location_buildLocation($locations,$location['Id']));
+    var_dump(location_buildLocation($locations, $location['Id']));
 }
 
 echo "</br>";
 
 foreach($locations as $location)
 {
-    var_dump(location_buildLocationPath($locations,$location['Id'],100));
+    var_dump(location_buildLocationPath($locations, $location['Id'],100));
 }
 
 //var_dump(location_buildTree($locations,0));

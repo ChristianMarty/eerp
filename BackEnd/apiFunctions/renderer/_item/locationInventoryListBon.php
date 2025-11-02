@@ -10,9 +10,6 @@
 declare(strict_types=1);
 require_once "_renderer.php";
 require_once __DIR__ . "/../../location/_location.php";
-require_once __DIR__ . "/../../util/_barcodeParser.php";
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
-
 require_once __DIR__ . "/../../util/escpos/autoload.php";
 use \Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use \Mike42\Escpos\Printer;
@@ -31,7 +28,7 @@ class locationInventoryListBon extends \renderer\renderer
 
         $items = [];
         foreach ($data as $item){
-            $items[] = barcodeParser_LocationNumber($item);
+            $items[] = \Numbering\parser(\Numbering\Category::Location, $item);
         }
 
         $itemListString = "'".implode("','",$items)."'";
@@ -63,7 +60,7 @@ class locationInventoryListBon extends \renderer\renderer
             $printer->text($companyName . "\n");
             $printer->feed(1);
 
-            $locationCode = barcodeFormatter_LocationNumber($line->LocationNumber);
+            $locationCode = \Numbering\format(\Numbering\Category::Location, $line->LocationNumber);
 
             $printer->selectPrintMode(Printer::MODE_EMPHASIZED);
             $printer->setTextSize(2, 2);

@@ -11,8 +11,6 @@ declare(strict_types=1);
 global $database;
 global $api;
 
-require_once __DIR__ . "/../util/_barcodeFormatter.php";
-
 if($api->isGet(\Permission::BillOfMaterial_View))
 {
     $parameter = $api->getGetData();
@@ -39,7 +37,7 @@ if($api->isGet(\Permission::BillOfMaterial_View))
     $result = $database->query($query);
     foreach ($result as $r)
     {
-        $r->ProductionPartNumber = barcodeFormatter_ProductionPart($r->ProductionPartPrefix."-".$r->ProductionPartNumber);
+        $r->ProductionPartNumber = \Numbering\format(\Numbering\Category::ProductionPart,$r->ProductionPartPrefix."-".$r->ProductionPartNumber);
     }
 
     $api->returnData($result);

@@ -11,15 +11,16 @@ declare(strict_types=1);
 require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../database.php";
 require_once __DIR__ . "/user.php";
+require_once __DIR__ . "/../error.php";
 
-class userAuthentication
+class UserAuthentication
 {
     private string $ldapServer;
     private string $ldapBase;
 
     public userSettings|null $settings = null;
 
-    function __construct( database|null $database = null) {
+    function __construct(Database|null $database = null) {
         global $adServer;
         global $ldapBase;
 
@@ -56,11 +57,11 @@ class userAuthentication
         return $this->loggedIn();
     }
 
-    function login(string $username, #[\SensitiveParameter] string $password ): string|bool
+    function login(string $username, #[\SensitiveParameter] string $password ): stdClass | \Error\Data
     {
         $ldap = ldap_connect($this->ldapServer);
         if(!$ldap){
-            return "LDAP connection error";
+            return \Error\generic("LDAP connection error");
         }
 
         ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -72,15 +73,22 @@ class userAuthentication
 
         if (!$bind){
             $this->logout();
-            return "Username or password wrong";
+            return \Error\generic( "Username or password wrong");
         }
 
         if(!self::getUserInfoFromDb($username)){
             $this->logout();
-            return "Username not in user list";
+            return \Error\generic( "Username not in user list");
         }
 
-        return $this->loggedIn();
+        if(!$this->loggedIn()){
+            return \Error\generic( "Login error");
+        }
+
+        $loginReplyData = new stdClass();
+        $loginReplyData->DisplayName = $this->displayName();
+        $loginReplyData->UserRoles = $this->roles();
+        return $loginReplyData;
     }
 
     function logout(): void
@@ -147,7 +155,7 @@ class userAuthentication
         return $_SESSION['user']->settings->settings->Default->PurchaseOrder->ValueAddedTaxId;
     }
 
-    function userData(): user|null
+    function userData(): User|null
     {
         if(!isset($_SESSION['user'])) return null;
         else return $_SESSION['user'];
@@ -205,7 +213,7 @@ class userAuthentication
 
     private function setUserSession(stdClass $userQueryResult): void
     {
-        $user = new user();
+        $user = new User();
         $user->id = intval($userQueryResult->Id);
         $user->name = $userQueryResult->UserId;
         $user->initials = $userQueryResult->Initials;

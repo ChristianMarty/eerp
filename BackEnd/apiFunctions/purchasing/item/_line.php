@@ -8,7 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../util/_barcodeFormatter.php";
 
 function purchaseOrderItem_getLineQuery($purchaseOrderId, $lineId = null):string
 {
@@ -85,9 +84,8 @@ function purchaseOrderItem_getCostCenterData(array|null $result):array
     $output = array();
     foreach ($result as $r)
     {
-
         $temp = array();
-        $temp['Barcode'] = barcodeFormatter_CostCenter($r->CostCenterNumber);
+        $temp['Barcode'] = \Numbering\format(\Numbering\Category::CostCenter, $r->CostCenterNumber);
         $temp['Quota'] = floatval($r->Quota);
 
         $output[] = $temp;
@@ -109,7 +107,7 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
 
     $lineNumber = intval($data['LineNumber']);
 
-    $output["PurchaseOrderBarcode"] = barcodeFormatter_PurchaseOrderNumber($purchaseOrderNumber, $lineNumber);
+    $output["PurchaseOrderBarcode"] = \Numbering\format(\Numbering\Category::PurchaseOrder, $purchaseOrderNumber, $lineNumber);
     $output['LineNumber'] = $lineNumber;
     $output['Price'] = floatval($data['Price']);
     $output['SupplierSku'] = $data['Sku']; // TODO: legacy -> remove
@@ -140,8 +138,8 @@ function purchaseOrderItem_getDataFromQueryResult(string|int $purchaseOrderNumbe
 
     if($data['SpecificationPartRevision'] !== null){
         $output['SpecificationPartNumber'] = intval($data['SpecificationPartNumber']);
-        $output['SpecificationPartCode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber']);
-        $output['SpecificationPartRevisionCode'] = barcodeFormatter_SpecificationPart($data['SpecificationPartNumber'], $data['SpecificationPartRevision']);
+        $output['SpecificationPartCode'] = \Numbering\format(\Numbering\Category::SpecificationPart, $data['SpecificationPartNumber']);
+        $output['SpecificationPartRevisionCode'] = \Numbering\format(\Numbering\Category::SpecificationPart,  $data['SpecificationPartNumber'], $data['SpecificationPartRevision']);
     }else{
         $output['SpecificationPartNumber'] = null;
         $output['SpecificationPartCode'] = null;
