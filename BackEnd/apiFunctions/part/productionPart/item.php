@@ -12,8 +12,6 @@ global $database;
 global $api;
 global $user;
 
-require_once __DIR__ . "/../../../interface/productionPart.php";
-
 require_once __DIR__ . "/../../stock/_stock.php";
 require_once __DIR__ . "/../_part.php";
 require_once __DIR__ . "/../../location/_location.php";
