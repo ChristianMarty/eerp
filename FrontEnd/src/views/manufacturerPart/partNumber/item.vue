@@ -57,10 +57,16 @@
             </template>
           </el-table-column>
           <el-table-column prop="ManufacturerName" label="Manufacturer" width="200" sortable />
-          <el-table-column prop="ManufacturerPartNumber" label="Part Number" width="200" sortable />
-          <el-table-column prop="Date" label="Date" sortable />
-          <el-table-column prop="Quantity" label="Quantity" sortable />
-          <el-table-column prop="Location" label="Location" sortable />
+          <el-table-column prop="ManufacturerPartNumber" label="Part Number" sortable />
+          <el-table-column prop="Date" label="Date" width="150" sortable />
+          <el-table-column prop="Quantity" label="Quantity" width="150" sortable />
+          <el-table-column prop="LocationName" label="Location" width="150">
+            <template slot-scope="{ row }">
+              <router-link :to="'/location/item/' + row.LocationCode" class="link-type">
+                <span>{{ row.LocationName }}</span>
+              </router-link>
+            </template>
+          </el-table-column>
         </el-table>
 
         <el-divider />
