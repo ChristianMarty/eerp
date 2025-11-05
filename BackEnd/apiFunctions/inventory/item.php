@@ -129,7 +129,7 @@ if($api->isGet(\Permission::Inventory_View))
 		else $totalMaintenance += ($price*$r->ExchangeRate);
 	}
 	
-	if(count($purchase) == 0) // Fallback to legacy data
+	if($output->PurchasePrice !== NULL) // Fallback to legacy data
 	{
 		$row = [];
 		$row["PurchaseOrderNumber"] = null;
@@ -146,7 +146,7 @@ if($api->isGet(\Permission::Inventory_View))
 		$row["CostType"] = 'Legacy Purchase';
 		$row["Description"] = "";
 
-        $totalPurchase = $row["Price"];
+        $totalPurchase += $row["Price"];
 		
 		$purchase[] = $row;
 	}
