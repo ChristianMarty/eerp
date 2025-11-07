@@ -41,7 +41,7 @@ namespace Document {
         global $dataRootPath;
         global $documentPath;
         if ($item->LinkType === "Internal") {
-            $output->Path =  $dataRootPath . $documentPath . "/" . \Numbering\format(\Numbering\Category::Document,$item->DocumentNumber, $item->RevisionNumber) . ".pdf";
+            $output->Path =  $dataRootPath . $documentPath . "/" . \Numbering\format(\Numbering\Category::Document,$item->DocumentNumber, $item->RevisionNumber) . ".".$item->Extension;
         } else if ($item->LinkType === "External") {
             $output->Path =  $item->Path;
         }
@@ -72,6 +72,7 @@ namespace Document {
                 Category,
                 document_revision.LinkType,
                 document_revision.Hash,
+                document_revision.Extension,
                 document_revision.Description AS RevisionDescription,
                 user.Initials AS CreatedByInitials,
                 user.UserId AS CreatedByName,
@@ -201,6 +202,7 @@ namespace Document {
                document_revision.RevisionNumber,
                document_revision.Path,
                document_revision.LinkType,
+               document_revision.Extension,
                document.Description AS Description,
                document_revision.Description,
                document_revision.CreationDate AS CreationDate
@@ -235,7 +237,7 @@ namespace Document {
 
         $query = <<< QUERY
         SELECT
-            CONCAT("DOC-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode
+            CONCAT("Doc-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode
         FROM document_revision
         RIGHT JOIN document ON document.Id = document_revision.DocumentNumberId
         WHERE Hash = $documentHash;
@@ -594,6 +596,7 @@ namespace Document\Ingest
                 return \Error\generic("This file already exists as ".$preexisting);
             }
             $fileExtension = pathinfo($sourcePath, PATHINFO_EXTENSION);
+            $fileExtension = strtolower($fileExtension);
         }
 
         global $database;
@@ -651,7 +654,7 @@ namespace Document\Ingest
             $sqlData['LinkType'] = "Internal";
             $sqlData['Extension'] = $fileExtension;
             $sqlData['Path'] = null;
-            $sqlData['Hash'] = $fileHashCheck['hash'];
+            $sqlData['Hash'] = $documentHash;
         }elseif($data->linkType === \Document\LinkType::External){
             $sqlData['LinkType'] = "External";
             $sqlData['Extension'] = null;
@@ -671,7 +674,7 @@ namespace Document\Ingest
         }
 
         $query = <<< QUERY
-            SELECT CONCAT("DOC-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode, document.DocumentNumber
+            SELECT CONCAT("Doc-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode, document.DocumentNumber
             FROM document_revision 
             LEFT JOIN document ON document.Id = document_revision.DocumentNumberId
             WHERE document_revision.Id = $documentRevisionId

@@ -41,8 +41,8 @@ if($api->isGet(Permission::Vendor_View))
 else if($api->isPost(Permission::Vendor_Edit))
 {
     $data = $api->getPostData();
-    if(!isset($data->AddressId)) $api->returnData(\Error\parameterMissing("VendorId"));
-    $vendorId = intval($data->AddressId);
+    if(!isset($data->VendorId)) $api->returnData(\Error\parameterMissing("VendorId"));
+    $vendorId = intval($data->VendorId);
     if($vendorId === 0) $api->returnData(\Error\parameter("VendorId"));
 
     $countryNumericCode = intval($data->CountryNumericCode);
@@ -53,8 +53,8 @@ else if($api->isPost(Permission::Vendor_Edit))
     $insertData['Street'] = $data->Street;
     $insertData['PostalCode'] = $data->PostalCode;
     $insertData['City'] = $data->City;
-    $insertData['VatTaxNumber'] = $data->VatTaxNumber;
-    $insertData['CustomsAccountNumber'] = $data->CustomsAccountNumber;
+    $insertData['VatTaxNumber'] = $data?->VatTaxNumber??null;
+    $insertData['CustomsAccountNumber'] = $data?->CustomsAccountNumber??null;
     $insertData['CreationUserId'] = $user->userId();
 
     $result = $database->insert("vendor_address", $insertData);

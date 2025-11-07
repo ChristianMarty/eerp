@@ -227,7 +227,7 @@ class Vendor {
     },
     save(saveParameters) {
       let method = null
-      if (saveParameters.AddressId == null) { // Make new entry if no AddressId is specified
+      if (saveParameters.AddressId === null) { // Make new entry if no AddressId is specified
         method = 'post'
       } else {
         method = 'patch'

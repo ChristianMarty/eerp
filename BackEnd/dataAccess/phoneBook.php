@@ -33,6 +33,13 @@ if(!$user->loggedIn())
     exit;
 }
 
+if($user->checkPermission(Permission::Vendor_Contact_View))
+{
+    http_response_code(401);
+    echo "401 Unauthorized";
+    exit;
+}
+
 function escape(string|null $input):string
 {
     if($input === null) return "";
