@@ -4,7 +4,7 @@
     <el-divider />
 
     <h2>New Location</h2>
-    <p>Select the location to which the Items should be transfered.</p>
+    <p>Select the location to which the Items should be transferred.</p>
 
     <p>
       <el-input
