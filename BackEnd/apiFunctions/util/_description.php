@@ -17,9 +17,6 @@ function description_generateSummary(string $itemCode): array | \Error\Data
     global $database;
     global $user;
 
-	$response['data'] = null;
-	$response['error'] = null;
-
 	$temp = explode("-", $itemCode);
 	$itemPrefix = strtolower($temp[0]);
 	$itemNr = $database->escape(trim(strtolower($temp[1])));
@@ -199,6 +196,5 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 		$data["LocationName"] = (new Location())->name($itemData->Id);
 	}
 
-	$response['data'] = $data;
-	return $response;
+	return $data;
 }
