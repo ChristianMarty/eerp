@@ -59,20 +59,20 @@ require_once __DIR__ . "/../config.php";
     h2.title{
 		text-align: center;
 		font-size: 8mm;
-        margin-top: 4mm;
-        margin-bottom:2mm;
+        margin-top: 5mm;
+        margin-bottom:1mm;
 	}
     h1.box{
 		text-align: center;
 		font-size: 10mm;
-        margin-top: 5mm;
+        margin-top: 3mm;
         margin-bottom:2mm;
 	}
     h2.box{
 		text-align: center;
 		font-size: 10mm;
-        margin-top: 4mm;
-        margin-bottom:2mm;
+        margin-top: 1mm;
+        margin-bottom:1mm;
 	}
     div.title {
         table-layout: fixed;
@@ -88,6 +88,19 @@ require_once __DIR__ . "/../config.php";
         width:19%;
         height:100%;
         border-left: 5px solid;
+    }
+    img.barcode {
+        margin: 0;
+        padding: 0;
+        width:100%;
+        height:25px;
+    }
+    p.barcode {
+        padding: 0;
+        text-align: center;
+        font-size: 2mm;
+        margin-top: 0;
+        margin-bottom:0.5mm;
     }
 </style>
 
@@ -146,6 +159,7 @@ foreach ($rows as $row)
     $title = $row->Title;
     $description = $row->Description;
     $name = $row->Name;
+    $locationBarcode = \Numbering\format(\Numbering\Category::Location, $row->LocationNumber);
 
     $content  = "<div class='title'>";
     $content .= "<h1 class='title'>$title</h1>";
@@ -155,6 +169,12 @@ foreach ($rows as $row)
     $content .= "<div class='box'>";
     $content .= "<h1 class='box'>Box</h1>";
     $content .= "<h2 class='box'>$name</h2>";
+
+    $content .= "<div class='barcode'>";
+    $content .= "<p class='barcode'>$locationBarcode</p>";
+    $content .= "<img class='barcode' src='" . $rendererRootPath . "/barcode/barcode?text=" . $locationBarcode . "'/>";
+    $content .= "</div>";
+
     $content .= "</div>";
 
     echo "<div class='margin'></div><div class='label'>";
