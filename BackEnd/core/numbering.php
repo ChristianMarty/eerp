@@ -111,7 +111,7 @@ function format(Category $category, string|int|null $number = null, string|int|n
 
     $return ="";
     if($category !== Category::ProductionPart) {
-        $return = prefix($category) . "-";
+        $return = prefix($category)."-";
     }
 
     if($category === Category::Stock){
@@ -190,6 +190,10 @@ function parser(Category $category, string|int|null $input): string|int|null
         return checkNumber($category, $numberParts[1]);
 
     }else if(count($numberParts) === 3){
+        if($category == Category::PurchaseOrder){
+            return intval($numberParts[1]);
+        }
+
         if(    $category == Category::StockHistoryIndex
             || $category == Category::InventoryAccessory
             || $category == Category::SpecificationPartRevision
