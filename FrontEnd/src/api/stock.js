@@ -253,6 +253,24 @@ class Stock {
         })
       })
     }
+    split(ItemCode, Quantity) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/stock/item/split',
+          data: {
+            StockCode: ItemCode,
+            Quantity: Quantity
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    }
     delete(ItemCode, Note = null) {
       return new Promise((resolve, reject) => {
         eerpApi({

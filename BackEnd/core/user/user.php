@@ -74,6 +74,7 @@ enum Permission
     case Stock_Edit;
     case Stock_Delete;
     case Stock_RequestCounting;
+    case Stock_Split;
 
     case Stock_History_View;
     case Stock_History_Add;

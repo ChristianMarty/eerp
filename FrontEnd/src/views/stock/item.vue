@@ -188,6 +188,14 @@
       >Request Counting
       </el-button>
 
+      <el-button
+        v-permission="['Stock_Split']"
+        style="float: right; margin-right: 20px"
+        icon="el-icon-document-copy"
+        @click="splitStockDialogVisible = true"
+      >Stock Split
+      </el-button>
+
       <el-divider />
 
       <p v-if="partData.Quantity.CountingRequest.UserInitials" v-permission="['Stock_History_Count']">
@@ -273,6 +281,8 @@
     <countStockDialog :visible.sync="countStockDialogVisible" :item="partData" />
     <countByWeight :visible.sync="scaleStockDialogVisible" :item="partData.ItemCode" />
 
+    <stockSplitDialog :visible.sync="splitStockDialogVisible" :item="partData.ItemCode" />
+
     <locationTransferDialog
       :barcode="partData.ItemCode"
       :visible.sync="locationTransferDialogVisible"
@@ -290,6 +300,7 @@ import editItemDialog from './components/editItemDialog.vue'
 
 import printDialog from './components/printDialog'
 import addStockDialog from './components/addStockDialog'
+import stockSplitDialog from './components/stockSplitDialog'
 import removeStockDialog from './components/removeStockDialog'
 import countStockDialog from './components/countStockDialog'
 import stockHistory from './components/stockHistory'
@@ -322,7 +333,8 @@ export default {
     stockHistory,
     locationTransferDialog,
     countByWeight,
-    editItemDialog
+    editItemDialog,
+    stockSplitDialog
   },
   directives: { permission },
   data() {
@@ -342,6 +354,7 @@ export default {
       removeStockDialogVisible: false,
       countStockDialogVisible: false,
       scaleStockDialogVisible: false,
+      splitStockDialogVisible: false,
       editStockHistoryDialogVisible: false,
       stockHistoryKey: 0,
       locationTransferDialogVisible: false,
