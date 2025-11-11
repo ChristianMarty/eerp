@@ -154,8 +154,10 @@ else if($api->isPost(Permission::Vendor_Create))
 {
     $data = $api->getPostData();
 
-    $output =[];
-    $output['VendorId'] = \Vendor\vendor::create($data->FullName, $data->IsSupplier ?? false, $data->IsManufacturer ?? false, $data->IsContractor ?? false, $data->IsCarrier ?? false, $data->IsCustomer ?? false);
+    $result = \Vendor\vendor::create($data->FullName,$data?->IsSupplier??false,$data?->IsManufacturer??false,$data?->IsContractor??false,$data?->IsCarrier??false,$data?->IsCustomer??false);
+    \Error\checkErrorAndExit($result);
 
+    $output=[];
+    $output['VendorId'] = $result;
     $api->returnData($output);
 }

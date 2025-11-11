@@ -13,13 +13,18 @@ namespace Vendor;
 
 class vendor
 {
-    static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor, bool $isCarrier, bool $isCustomer): int
+    static function create(string $fullName, bool $isSupplier, bool $isManufacturer, bool $isContractor, bool $isCarrier, bool $isCustomer): int|\Error\Data
     {
+        $fullName = trim($fullName);
+        $existing = self::getIdByName($fullName);
+        if($existing instanceof \Error\Data OR $existing!==null){
+            return $existing;
+        }
+
         global $database;
         global $user;
-
         $insertData = [];
-        $insertData['FullName'] = trim($fullName);
+        $insertData['FullName'] = $fullName;
         $insertData['IsSupplier']  = $isSupplier;
         $insertData['IsManufacturer']  = $isManufacturer;
         $insertData['IsContractor'] = $isContractor;
@@ -27,35 +32,35 @@ class vendor
         $insertData['IsCustomer'] = $isCustomer;
         $insertData['CreationUserId'] = $user->userId();
 
-        try {
-            return $database->insert("vendor", $insertData);
-        }
-        catch (\Exception $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
+        return $database->insert("vendor", $insertData);
     }
 
-    static function getIdByName(string $name): int|null
+    static function getIdByName(string $name): int|null|\Error\Data
     {
         global $database;
+        $nameEscaped = $database->escape($name);
+        $query = <<<STR
+            SELECT 
+                Id 
+            FROM vendor_names 
+            WHERE Name = $nameEscaped
+        STR;
+        $existing = $database->query($query);
 
-        $query = "CALL `vendor_idFromName`('$name');";
-        try {
-            $data = $database->pdo()->query($query);
-            $result = $data->fetch();
-            if(is_bool($result)) return null;
-            return $result->Id;
-        }
-        catch (\PDOException $e)
-        {
-            throw new \Exception($e->getMessage());
+        if($existing instanceof \Error\Data) {
+            return $existing;
+        }else if(count($existing)){
+            return $existing[0]->Id;
+        }else {
+            return null;
         }
     }
 
-    static function getContact(int|null $vendorContactId): \stdClass
+    static function getContact(int|null $vendorContactId): \stdClass|\Error\Data
     {
-        if($vendorContactId == null) return new \stdClass();
+        if($vendorContactId === null){
+            return new \stdClass();
+        }
 
         global $database;
         $query = <<<STR
@@ -69,17 +74,21 @@ class vendor
             LEFT JOIN country ON country.Id = vendor_address.CountryId
             WHERE  vendor_contact.Id = $vendorContactId;
         STR;
-
-        try {
-            return $database->query($query)[0]??new \stdClass();
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        $result = $database->query($query);
+        if($result instanceof \Error\Data){
+            return $result;
         }
+        if(count($result)){
+            return $result[0];
+        }
+        return new \stdClass();
     }
 
-    static function getAddress(int|null $vendorAddressId): \stdClass
+    static function getAddress(int|null $vendorAddressId): \stdClass|\Error\Data
     {
-        if($vendorAddressId == null) return new \stdClass();
+        if($vendorAddressId == null){
+            return new \stdClass();
+        }
 
         global $database;
         $query = <<<STR
@@ -92,12 +101,14 @@ class vendor
             LEFT JOIN country ON country.Id = vendor_address.CountryId
             WHERE  vendor_address.Id = $vendorAddressId;
         STR;
-
-        try {
-            return $database->query($query)[0]??new \stdClass();
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        $result = $database->query($query);
+        if($result instanceof \Error\Data){
+            return $result;
         }
+        if(count($result)){
+            return $result[0];
+        }
+        return new \stdClass();
     }
 
     static function getAliases(int $vendorId): array|\Error\Data
