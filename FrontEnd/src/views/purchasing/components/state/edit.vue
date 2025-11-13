@@ -1,7 +1,7 @@
 <template>
   <div class="edit-container">
     <h2>Items:</h2>
-    <el-form v-permission="['purchasing.edit']" :inline="true" style="margin-top: 20px">
+    <el-form v-permission="['PurchaseOrder_Edit']" :inline="true" style="margin-top: 20px">
       <el-form-item>
         <el-button
           v-permission="['PurchaseOrder_Edit']"
