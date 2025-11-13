@@ -9,6 +9,7 @@
 //*************************************************************************************************
 
 require_once __DIR__ . "/../../config.php";
+require_once __DIR__ . "/../../core/user/user.php";
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
