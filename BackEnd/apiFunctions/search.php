@@ -180,7 +180,6 @@ function search_manufacturerPartItem(string $input): array
         $temp->category = \Numbering\Category::ManufacturerPart;
         $temp->item = $item->VendorName." - ".$item->Number;
         $temp->redirectCode = (string)$item->Id;
-        $temp->description = $item->Description;
 
 		$output[] = $temp;
 	}
@@ -301,7 +300,7 @@ function search_supplierPartNumber(string $input): array
         $temp = new SearchResult();
         $temp->category = \Numbering\Category::SupplierPart;
         $temp->item = $item->SupplierPartNumber;
-        $temp->redirectCode = $item->ManufacturerPartNumberId;
+        $temp->redirectCode = (string)$item->ManufacturerPartNumberId;
 
         $output[] = $temp;
     }
