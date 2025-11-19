@@ -76,7 +76,7 @@ else if($api->isPatch(\Permission::Inventory_Accessory_Edit))
 
     $api->returnEmpty();
 }
-else if($api->isPost(\Permission::Inventory_Edit))
+else if($api->isPost(\Permission::Inventory_Accessory_Edit))
 {
     $data = $api->getPostData();
     if(!isset($data->ItemCode)) $api->returnParameterMissingError("ItemCode");

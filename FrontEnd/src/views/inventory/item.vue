@@ -285,8 +285,7 @@ export default {
       this.inventoryData = await inventory.item(this.$route.params.invNo)
     },
     showEditAccessoryDialog(accessoryCode) {
-      if (accessoryCode === null) this.accessoryCode = this.inventoryData.ItemCode
-      else this.accessoryCode = accessoryCode
+      this.accessoryCode = accessoryCode
       this.accessoryEditDialogVisible = true
     },
     showEditHistoryDialog(editToken) {

@@ -51,6 +51,7 @@ enum Category implements \JsonSerializable
             Category::Vendor => "Vendor",
             Category::PurchaseOrder => "Purchase Order",
             Category::ProductionPart => "Production Part",
+            Category::SupplierPart => "Supplier Part",
             Category::WorkOrder => "Work Order",
             Category::PickingOrder => "Picking Order",
             Category::Document => "Document",
@@ -83,6 +84,7 @@ function prefix(Category $category = Category::Undefined): string|null
         Category::Vendor => "Ven",
         Category::PurchaseOrder => "PO",
         Category::ProductionPart => null,
+        Category::SupplierPart => "",
         Category::WorkOrder => "WO",
         Category::PickingOrder => "Pick",
         Category::Document => "Doc",
@@ -191,6 +193,9 @@ function parser(Category $category, string|int|null $input): string|int|null
 
     }else if(count($numberParts) === 3){
         if($category == Category::PurchaseOrder){
+            return intval($numberParts[1]);
+        }
+        if($category == Category::Inventory){
             return intval($numberParts[1]);
         }
 
