@@ -39,12 +39,10 @@ if($api->isGet( Permission::Search))
         $api->returnData([]);
     }
 	$parts = explode('-',$search);
-	
-	$data = array();
-	$found = false;
 
 	if(count($parts) >= 2)  // Search for barcodes
 	{
+        $found = false;
 		$category = "";	
 		$prefix = "";
 
@@ -58,9 +56,9 @@ if($api->isGet( Permission::Search))
 
 		foreach($result as $item)
 		{
-			if(strtolower($item->Prefix) == $parts[0])
+			if(strtolower($item->Prefix) === $parts[0])
 			{
-				$category = $item->Category;
+                $category = $item->Category;
 				$prefix = $item->Prefix;
 				$found = true;
 				break;
@@ -69,11 +67,12 @@ if($api->isGet( Permission::Search))
 
 		if($found)
 		{
-			$data["Category"] = $category;
-			$data["Item"] = $prefix . "-" . $parts[1];
-			$data["RedirectCode"] = $prefix . "-" . $parts[1];
+            $output = new SearchResult();
+            $output->category = \Numbering\matchCategory($category);
+            $output->item = $prefix . "-" . $parts[1];
+            $output->redirectCode = $prefix . "-" . $parts[1];
 
-			$api->returnData([$data]);
+			$api->returnData([$output]);
 		}
 	}
 

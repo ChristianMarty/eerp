@@ -75,6 +75,20 @@ enum Category implements \JsonSerializable
     }
 }
 
+function matchCategory(string $categoryName) : Category|null
+{
+    $categoryName = strtolower($categoryName);
+    $categoryName = str_replace(' ', '', $categoryName);
+
+
+    foreach (Category::cases() as $case) {
+        $caseName = strtolower($case->name);
+        $caseName = str_replace(' ', '', $caseName);
+        if($categoryName == $caseName)  return $case;
+    }
+    return null;
+}
+
 function prefix(Category $category = Category::Undefined): string|null
 {
     return match($category){
