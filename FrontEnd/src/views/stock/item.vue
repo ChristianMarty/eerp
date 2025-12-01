@@ -484,6 +484,8 @@ export default {
       if (this.productionPartData.length) {
         this.printData.ProductionPartNumber = this.productionPartData[0].ItemCode
         this.printData.Description = this.productionPartData[0].Description
+      } else if (this.partData.Purchase.Description !== null) {
+        this.printData.Description = this.partData.Purchase.Description
       }
 
       this.printDialogVisible = true
