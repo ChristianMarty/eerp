@@ -21,32 +21,30 @@ if (!$user->loggedIn()) {
 if($_SERVER['REQUEST_METHOD'] !== 'GET'){
 	http_response_code(405);
 	echo "<p>Error 405 - Method Not Allowed</p>";
+	exit;
 }
 
-$params = array();
 $apiRequestParts = explode('data.php/', $_SERVER['REQUEST_URI']);
 
 $filePath = $serverDataPath."/";
 $apiRequest = explode('?',rawurldecode($apiRequestParts[1]))[0];
 $filePath .= $apiRequest;
 
-if(file_exists($filePath)) {
-	$filename = pathinfo($filePath)['filename'];
-	$extension = pathinfo($filePath, PATHINFO_EXTENSION);
-
-	header('Content-Description: File Transfer');
-	header('Content-Type: application/'.$extension);
-	header('Content-Disposition: inline; filename="'.$filename.'"');
-	header('Expires: 0');
-	header('Cache-Control: must-revalidate');
-	header('Pragma: public');
-	header('Content-Length: ' . filesize($filePath));
-	readfile($filePath);
-	exit;
-} else {
+if(!file_exists($filePath)) {
 	http_response_code(404);
 	echo "<p>Error 404 - File not found</p>";
+	exit;
 }
 
-?>
+$filename = pathinfo($filePath)['filename'];
+$extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
+header('Content-Description: File Transfer');
+header('Content-Type: application/'.$extension);
+header('Content-Disposition: inline; filename="'.$filename.'"');
+header('Expires: 0');
+header('Cache-Control: must-revalidate');
+header('Pragma: public');
+header('Content-Length: ' . filesize($filePath));
+
+readfile($filePath);

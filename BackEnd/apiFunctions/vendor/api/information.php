@@ -41,6 +41,7 @@ if($api->isGet(Permission::Vendor_View))
     {
         if($vendorData->ApiData == null) $apiData = null;
         else $apiData = json_decode($vendorData->ApiData);
+
         require_once  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
         $vendor = new $name($apiData);
     }
