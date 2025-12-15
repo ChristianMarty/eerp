@@ -14,6 +14,10 @@ require_once __DIR__ . "/../_document.php";
 
 if($api->isPost(Permission::Document_Ingest_Upload))
 {
+    if(!isset($_FILES["file"])){
+        $api->returnData(\Error\generic("File upload failed."));
+    }
+
     $result = \Document\Ingest\upload($_FILES["file"]);
     $api->returnData($result);
 }
