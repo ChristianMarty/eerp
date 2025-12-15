@@ -193,7 +193,6 @@ function parser(Category $category, string|int|null $input): string|int|null
         || $category == Category::InventoryAccessory
         || $category == Category::SpecificationPartRevision
     ){
-
         if(count($numberParts) !== 3) return null;
     }
 
@@ -206,10 +205,18 @@ function parser(Category $category, string|int|null $input): string|int|null
         return checkNumber($category, $numberParts[1]);
 
     }else if(count($numberParts) === 3){
-        if($category == Category::PurchaseOrder){
-            return intval($numberParts[1]);
+
+        if(    $category == Category::Stock
+        ){
+            $code = $numberParts[1];
+            if(strlen($code) >4) return null;
+            return $code;
         }
-        if($category == Category::Inventory){
+
+        if(    $category == Category::PurchaseOrder
+            || $category == Category::Inventory
+            || $category == Category::Stock
+        ){
             return intval($numberParts[1]);
         }
 

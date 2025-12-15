@@ -54,7 +54,7 @@ if($api->isGet(\Permission::Stock_History_View)) {
     STR;
     $result = $database->query($query);
     \Error\checkErrorAndExit($result);
-    \Error\checkNoResultAndExit($result, $parameter->ContactId);
+    \Error\checkNoResultAndExit($result, $parameter->StockHistoryCode);
 
     $output = $result[0];
     $output->ItemCode = \Numbering\format(\Numbering\Category::Stock, $output->StockNumber, $output->ChangeIndex);
