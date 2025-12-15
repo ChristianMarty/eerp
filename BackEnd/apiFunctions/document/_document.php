@@ -666,11 +666,10 @@ namespace Document\Ingest
         $sqlData['RevisionNumber'] = $nextRevisionNumber;
         $sqlData['CreationUserId'] = $user->userId();;
 
-        try {
-            $documentRevisionId = $database->insert("document_revision", $sqlData);
-        } catch (\PDOException $e) {
+        $documentRevisionId = $database->insert("document_revision", $sqlData);
+        if($documentRevisionId instanceof \Error\Data){
             $database->rollBackTransaction();
-            return \Error\database($e->getMessage());
+            return $documentRevisionId;
         }
 
         $query = <<< QUERY
@@ -689,6 +688,7 @@ namespace Document\Ingest
         $documentNumber = $result[0]->DocumentNumber;
 
         if($data->linkType === \Document\LinkType::Internal){
+            $documentItemCode = str_pad(strval($documentItemCode),5,"0",STR_PAD_LEFT);
             $destinationPath = $serverDataPath.$documentPath. "/" .$documentItemCode.".".$fileExtension;
             if (!rename($sourcePath, $destinationPath)) {
                 $database->rollBackTransaction();

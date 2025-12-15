@@ -35,15 +35,15 @@ if($api->isPost(Permission::Document_Ingest_Save))
 	$fileNameIllegalCharactersRegex = '/[ %:"*?<>|\\/]+/';
 	$name = preg_replace($fileNameIllegalCharactersRegex, '', $name);
 
-    $ingestData = array();
-    $ingestData['FileName'] = $data->FileName;
-    $ingestData['Name'] = $name;
-    $ingestData['Type'] = 'Calibration';
-    $ingestData['Description'] = $data->Description;
+    $ingestData = new \Document\Ingest\Data();
+    $ingestData->ingestName = $data->FileName;
+    $ingestData->name = $name;
+    $ingestData->category = 'Calibration';
+    $ingestData->documentDescription = $data->Description??"";
+    $ingestData->linkType = \Document\LinkType::Internal;
 
-    $result = ingest($ingestData);
-
-	if(!is_int($result)) $api->returnError($result['error']);
+    $result = \Document\Ingest\save($ingestData);
+    if($result instanceof \Error\Data) return $result;
 
     $docIds = array();
     $docIds[] = $result;
