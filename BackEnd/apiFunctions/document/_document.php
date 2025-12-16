@@ -673,7 +673,9 @@ namespace Document\Ingest
         }
 
         $query = <<< QUERY
-            SELECT CONCAT("Doc-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode, document.DocumentNumber
+            SELECT 
+                document.DocumentNumber, 
+                document_revision.RevisionNumber
             FROM document_revision 
             LEFT JOIN document ON document.Id = document_revision.DocumentNumberId
             WHERE document_revision.Id = $documentRevisionId
@@ -684,11 +686,11 @@ namespace Document\Ingest
             $database->rollBackTransaction();
             return \Error\parameter("Document number doesn't exist");
         }
-        $documentItemCode = $result[0]->ItemCode;
         $documentNumber = $result[0]->DocumentNumber;
+        $revisionNumber = $result[0]->RevisionNumber;
 
         if($data->linkType === \Document\LinkType::Internal){
-            $documentItemCode = str_pad(strval($documentItemCode),5,"0",STR_PAD_LEFT);
+            $documentItemCode = \Numbering\format(\Numbering\Category::Document, $documentNumber, $revisionNumber);
             $destinationPath = $serverDataPath.$documentPath. "/" .$documentItemCode.".".$fileExtension;
             if (!rename($sourcePath, $destinationPath)) {
                 $database->rollBackTransaction();
