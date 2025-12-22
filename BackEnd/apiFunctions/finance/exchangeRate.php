@@ -12,7 +12,8 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/../../config.php";
-require_once __DIR__ ."/../externalApi/europeanCentralBank.php";
+require_once __DIR__ . "/../externalApi/europeanCentralBank.php";
+require_once __DIR__ . "/../../core/finance.php";
 
 if($api->isGet()) {
     $parameter = $api->getGetData();
@@ -23,23 +24,29 @@ if($api->isGet()) {
     $query = "SELECT CurrencyCode FROM finance_currency WHERE Id = " . intval($accountingCurrencyId) . " LIMIT 1;";
     $sourceCurrencyCode = $database->query($query)[0]->CurrencyCode;
 
-    $targetCurrencyCode = null;
+    $targetCurrencyCode = "";
     if (isset($parameter->CurrencyCode)) {
         $targetCurrencyCode = $parameter->CurrencyCode;
+
     } else if (isset($parameter->CurrencyId)) {
         $query = "SELECT CurrencyCode FROM finance_currency WHERE Id = " . intval($parameter->CurrencyId) . " LIMIT 1;";
         $targetCurrencyCode = $database->query($query)[0]->CurrencyCode;
+
     } else {
-        $api->returnError("CurrencyCode Error");
+        $api->returnData(\Error\generic("CurrencyCode Error"));
+    }
+
+    if ($targetCurrencyCode == $sourceCurrencyCode) $exchangeRate = 1.0;
+    else $exchangeRate = ecb_getExchangeRate(\Finance\Currency::fromCode($sourceCurrencyCode), \Finance\Currency::fromCode($targetCurrencyCode));
+
+    if($exchangeRate instanceof \Error\Data){
+        $api->returnData($exchangeRate);
     }
 
     $data = array();
-    if ($targetCurrencyCode == $sourceCurrencyCode) $data['ExchangeRate'] = 1.0;
-    else $data['ExchangeRate'] = ecb_getExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
-
-    if ($data['ExchangeRate'] === null) $api->returnError("Unable to retrieve exchange rate");
-
+    $data['ExchangeRate']  = $exchangeRate;
     $data['From'] = $sourceCurrencyCode;
     $data['To'] = $targetCurrencyCode;
+
     $api->returnData($data);
 }
