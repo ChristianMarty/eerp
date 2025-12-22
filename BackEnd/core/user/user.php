@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : user.php
-// FilePath : /core/user/
+// FilePath : core/user/
 // Author   : Christian Marty
 // Date		: 11.02.2025
 // Website  : www.christian-marty.ch

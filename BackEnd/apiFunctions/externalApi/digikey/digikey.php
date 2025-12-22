@@ -43,7 +43,6 @@ class digikey extends vendorInterface {
         if(isset($_SESSION['digikeyAccessToken'])) $digikeyAccessToken = $_SESSION['digikeyAccessToken'];
         else $digikeyAccessToken = null;
 
-
         if($digikeyAccessToken == null || $digikeyAccessTokenExpire <= time() )
         {
             $url  = $digikeyApiPath.'v1/oauth2/authorize?response_type=code';
@@ -51,11 +50,6 @@ class digikey extends vendorInterface {
             $url .= '&redirect_uri='.urlencode($digikeyCallbackPath);
 
             return $url;
-
-            /*header('Location: '.$url );
-            header('Access-Control-Allow-Origin: https://auth.digikey.com');
-            header('Access-Control-Allow-Origin: https://api.digikey.com');
-            exit;*/
         }
 
         return null;

@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : numbering.php
-// FilePath : apiFunctions/util/
+// FilePath : core/
 // Author   : Christian Marty
 // Date		: 01.11.2025
 // License  : MIT
@@ -137,7 +137,7 @@ function format(Category $category, string|int|null $number = null, string|int|n
     }else if($category === Category::ProductionPart){
         $return .= $number;
     }else{
-        $return .=str_pad(strval($number),5,"0", STR_PAD_LEFT);
+        $return .= str_pad(strval($number),5,"0", STR_PAD_LEFT);
     }
 
     if($index !== null){

@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : error.php
-// FilePath : /core
+// FilePath : core/
 // Author   : Christian Marty
 // Date		: 09.09.2025
 // Website  : www.christian-marty.ch

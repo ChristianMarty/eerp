@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : userSettings.php
-// FilePath : /core/user/
+// FilePath : core/user/
 // Author   : Christian Marty
 // Date		: 23.10.2023
 // Website  : www.christian-marty.ch

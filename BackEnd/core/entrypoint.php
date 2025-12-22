@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : entrypoint.php
-// FilePath : /core
+// FilePath : core/
 // Author   : Christian Marty
 // Date		: 23.10.2023
 // Website  : www.christian-marty.ch
