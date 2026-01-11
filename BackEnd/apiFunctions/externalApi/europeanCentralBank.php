@@ -8,7 +8,6 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
-require_once __DIR__ . "/../../config.php";
 require_once __DIR__ . "/../../core/finance.php";
 
 function ecb_getExchangeRate(\Finance\Currency $sourceCurrency, \Finance\Currency $targetCurrency): float | \Error\Data
@@ -19,6 +18,8 @@ function ecb_getExchangeRate(\Finance\Currency $sourceCurrency, \Finance\Currenc
 	// The ECB API can only convert from/to Euro. Therefore, this additional step is needed
 	if($targetCurrency != \Finance\Currency::EUR) {
 		$otherRate = ecb_getEcdData($targetCurrency, \Finance\Currency::EUR);
+        if($otherRate instanceof \Error\Data) return $otherRate;
+
         return (1/$euroRate) * $otherRate;
 	} else {
 		return 1/$euroRate;
@@ -27,7 +28,14 @@ function ecb_getExchangeRate(\Finance\Currency $sourceCurrency, \Finance\Currenc
 
 function ecb_getEcdData(\Finance\Currency $sourceCurrency, \Finance\Currency $targetCurrency): float | \Error\Data
 {
-    $url = "https://data-api.ecb.europa.eu/service/data/EXR/D.".$sourceCurrency->toCode().".".$targetCurrency->toCode().".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
+    $sourceCurrencyCode = $sourceCurrency->toCode();
+    $targetCurrencyCode = $targetCurrency->toCode();
+
+    if($sourceCurrencyCode === null) return \Error\generic('Source currency code unknown');
+    if($targetCurrencyCode === null) return \Error\generic('Target currency code unknown');
+
+
+    $url = "https://data-api.ecb.europa.eu/service/data/EXR/D.".$sourceCurrencyCode.".".$targetCurrencyCode.".SP00.A?format=jsondata&lastNObservations=1&detail=dataonly";
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
@@ -37,7 +45,6 @@ function ecb_getEcdData(\Finance\Currency $sourceCurrency, \Finance\Currency $ta
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // to fix "SSL certificate problem: self-signed certificate in certificate chain" error
 
     $result = curl_exec($curl);
-	curl_close($curl);
 
     if($result === false){
         return \Error\generic('ECB API Error: '.curl_error($curl));

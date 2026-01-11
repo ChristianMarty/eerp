@@ -17,6 +17,7 @@ enum Currency
     case CHF;
     case USD;
     case EUR;
+    case GBP;
 
     public function toCode(): string | null
     {
@@ -24,7 +25,8 @@ enum Currency
             Currency::CHF => "CHF",
             Currency::USD => "USD",
             Currency::EUR => "EUR",
-            Currency::Unknown => null
+            Currency::GBP => "GBP",
+            default => null
         };
     }
 
@@ -39,6 +41,7 @@ enum Currency
             "CHF" =>  Currency::CHF,
             "USD" => Currency::USD,
             "EUR" => Currency::EUR,
+            "GBP" => Currency::GBP,
             default => Currency::Unknown
         };
     }
