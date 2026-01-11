@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
-// FileName : purchaseOrder.php
-// FilePath : renderer/
+// FileName : yealinkPhoneBook.php
+// FilePath : /dataAccess
 // Author   : Christian Marty
 // Date		: 02.12.2023
 // License  : MIT
@@ -9,7 +9,6 @@
 //*************************************************************************************************
 declare(strict_types=1);
 global $database;
-global $api;
 global $user;
 
 require_once __DIR__ . "/../core/user/userAuthentication.php";
@@ -29,14 +28,14 @@ $user->loginWithToken($_GET["user"],$_GET["token"]);
 if(!$user->loggedIn())
 {
     http_response_code(401);
-    echo "401 Unauthorized";
+    echo "401 Unauthorized - username or token wrong";
     exit;
 }
 
-if($user->checkPermission(Permission::Vendor_Contact_View))
+if(!$user->checkPermission(Permission::Vendor_Contact_View))
 {
     http_response_code(401);
-    echo "401 Unauthorized";
+    echo "401 Unauthorized - no permission";
     exit;
 }
 
@@ -104,5 +103,3 @@ foreach ($result AS $r)
 }
 
 echo "</YealinkIPPhoneDirectory>";
-
-?>
