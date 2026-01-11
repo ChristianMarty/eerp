@@ -8,18 +8,15 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 declare(strict_types=1);
-global $database;
-global $user;
-
-require_once __DIR__ . "/../core/user/userAuthentication.php";
 
 if(!isset($_GET["user"]) || !isset($_GET["token"]))
 {
     http_response_code(400);
-    echo "400 Bad Request";
+    echo "400 Bad Request - user or token missing";
     exit;
 }
 
+require_once __DIR__ . "/../core/user/userAuthentication.php";
 $database = new Database();
 $user = new UserAuthentication();
 
@@ -28,7 +25,7 @@ $user->loginWithToken($_GET["user"],$_GET["token"]);
 if(!$user->loggedIn())
 {
     http_response_code(401);
-    echo "401 Unauthorized - username or token wrong";
+    echo "401 Unauthorized - user or token wrong";
     exit;
 }
 
