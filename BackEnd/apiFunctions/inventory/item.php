@@ -13,8 +13,8 @@ global $api;
 global $user;
 
 require_once __DIR__ . "/../location/_location.php";
-
 require_once __DIR__ . "/../document/_document.php";
+require_once __DIR__ . "/../../core/attribute.php";
 
 if($api->isGet(\Permission::Inventory_View))
 {
@@ -44,8 +44,7 @@ if($api->isGet(\Permission::Inventory_View))
             inventory.Description, 
             inventory.Note, 
             inventory.DocumentIds, 
-            MacAddressWired, 
-            MacAddressWireless, 
+            inventory.AttributeList,
             Status,  
             vendor_displayName(vendor.Id) AS SupplierName, 
             HomeLocationId, 
@@ -80,14 +79,9 @@ if($api->isGet(\Permission::Inventory_View))
     unset($output->HomeLocationId);
 
     // Add Attributes
-    $attributes = [];
-    $macWired = ["Name"=>"Mac Address Wired", "Value"=>$output->MacAddressWired??""];
-    unset($output->MacAddressWired);
-    $attributes[] = $macWired;
-    $macWireless = ["Name"=>"Mac Address Wireless", "Value"=>$output->MacAddressWireless??""];
-    unset($output->MacAddressWireless);
-    $attributes[] = $macWireless;
-    $output->Attribute = $attributes;
+    $attributeDecoder = new \Attribute\Attribute();
+    $output->Attribute = $attributeDecoder->decode($output->AttributeList);
+    unset($output->AttributeList);
 
 	// Get Purchase Information
 	$query = <<<STR

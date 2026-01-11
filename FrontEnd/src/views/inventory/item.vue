@@ -50,6 +50,7 @@
     <el-table :data="inventoryData.Attribute" style="width: 100%" border :cell-style="{ padding: '0', height: '20px' }">
       <el-table-column prop="Name" label="Name" sortable />
       <el-table-column prop="Value" label="Value" sortable />
+      <el-table-column prop="Description" label="Description" />
     </el-table>
 
     <el-divider />
