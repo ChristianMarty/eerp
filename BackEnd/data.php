@@ -37,11 +37,18 @@ if(!file_exists($filePath)) {
 }
 
 $filename = pathinfo($filePath)['filename'];
-$extension = pathinfo($filePath, PATHINFO_EXTENSION);
+$extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+$contentType = match($extension){
+    'pdf' => 'application/pdf',
+    'jpg',
+    'jpeg' => 'image/jpeg',
+    default => 'text/html'
+};
 
 header('Content-Description: File Transfer');
-header('Content-Type: application/'.$extension);
-header('Content-Disposition: inline; filename="'.$filename.'"');
+header('Content-Type: '.$contentType);
+header('Content-Disposition: inline; filename="'.$filename.'.'.$extension.'"');
 header('Expires: 0');
 header('Cache-Control: must-revalidate');
 header('Pragma: public');
