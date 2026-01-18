@@ -3,7 +3,6 @@ import Layout from '@/layout'
 const billOfMaterial = {
   path: '/billOfMaterial',
   component: Layout,
-  name: 'parts',
   meta: {
     title: 'Bill of Material',
     icon: 'component'
@@ -12,14 +11,12 @@ const billOfMaterial = {
     {
       path: 'billOfMaterialBrowser',
       component: () => import('@/views/billOfMaterial/browser'),
-      name: 'billOfMaterialBrowser',
       meta: { title: 'Bill Of Material', icon: 'list' }
     },
 
     {
       path: 'billOfMaterialView/:BillOfMaterialNumber(.*)',
       component: () => import('@/views/billOfMaterial/view'),
-      name: 'billOfMaterialView',
       meta: {
         title: 'Bill of Material View',
         noCache: true,
@@ -30,7 +27,6 @@ const billOfMaterial = {
     {
       path: 'bomView',
       component: () => import('@/views/billOfMaterial/bomView'),
-      name: 'bomView',
       meta: { title: 'Bom View', icon: 'list' }
     }
   ]

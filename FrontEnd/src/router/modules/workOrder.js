@@ -11,19 +11,16 @@ const projectRouter = {
     {
       path: '',
       component: () => import('@/views/workOrder/list'),
-      name: 'workOrder',
       meta: { title: 'Work Order', icon: 'el-icon-sold-out' }
     },
     {
       path: 'create/',
       component: () => import('@/views/workOrder/create'),
-      name: 'create',
       meta: { title: 'Create', icon: 'el-icon-plus', roles: ['WorkOrder_Create'] }
     },
     {
       path: 'item/:workOrderNo(.*)',
       component: () => import('@/views/workOrder/item/'),
-      name: 'workOrderView',
       meta: { title: 'Work Order View', icon: 'el-icon-sold-out' },
       hidden: true
     }
