@@ -34,9 +34,9 @@ eerpApi.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    const res = response.data
+    const responseData = response.data
 
-    let authenticated = res.authenticated
+    let authenticated = responseData.authenticated
     if (authenticated !== true) {
       authenticated = false
     }
@@ -45,34 +45,35 @@ eerpApi.interceptors.response.use(
       authenticated: authenticated
     })
 
-   /* if (!authenticated) {
+    /* if (!authenticated) {
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })
     }//*/
 
-    if (res.idempotency) {
+    if (responseData.idempotency) {
       store.dispatch('user/setIdempotency', {
-        idempotency: res.idempotency
+        idempotency: responseData.idempotency
       })
     }
 
-    if (res.error) {
+    if (responseData.error) {
+      console.error('EERP API Error: ' + responseData.error)
       Message({
         showClose: true,
-        message: res.error,
+        message: responseData.error,
         type: 'error',
         duration: 10 * 1000
       })
     }
 
-    return res
+    return responseData
   }, error => {
-   /* if (error.response.status === 401) {
+    if (error.response.status === 401) {
       store.dispatch('user/resetToken').then(() => {
         location.reload()
       })
-    }//*/
+    }
   }
 )
 

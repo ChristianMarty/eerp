@@ -55,6 +55,21 @@ module.exports = {
         target: 'http://192.168.1.138:8461',
         ws: true,
         changeOrigin: true
+      },
+      '/pushHandler/*': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      },
+      '/dataAccess/*': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
+      },
+      '/assets/*': {
+        target: 'http://192.168.1.138:8461',
+        ws: true,
+        changeOrigin: true
       }
     }
   },

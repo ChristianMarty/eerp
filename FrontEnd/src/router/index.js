@@ -88,13 +88,11 @@ export const constantRoutes = [
       {
         path: 'dashboard',
         component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
         meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
       },
       {
         path: 'search/:Search(.*)',
         component: () => import('@/views/search/index'),
-        name: 'Search',
         meta: { title: 'Search', icon: 'search', noCache: true },
         hidden: true
       }

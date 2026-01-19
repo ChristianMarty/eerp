@@ -17,15 +17,18 @@ class UserAuthentication
 {
     private string $ldapServer;
     private string $ldapBase;
+    private string $ldapUsernameAttribute;
 
     public userSettings|null $settings = null;
 
     function __construct(Database|null $database = null) {
-        global $adServer;
+        global $ldapServer;
         global $ldapBase;
+        global $ldapUsernameAttribute;
 
-        $this->ldapServer = $adServer;
+        $this->ldapServer = $ldapServer;
         $this->ldapBase = $ldapBase;
+        $this->ldapUsernameAttribute = $ldapUsernameAttribute;
         $this->settings = null;
     }
 
@@ -59,21 +62,25 @@ class UserAuthentication
 
     function login(string $username, #[\SensitiveParameter] string $password ): stdClass | \Error\Data
     {
-        $ldap = ldap_connect($this->ldapServer);
-        if(!$ldap){
-            return \Error\generic("LDAP connection error");
-        }
+        global $disablePasswords;
 
-        ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+        if($disablePasswords !== true) {
+            $ldap = ldap_connect($this->ldapServer);
+            if ($ldap === false) {// this does not check the connections, but return false if the URL is implausible
+                return \Error\generic("LDAP server url implausible");
+            }
 
-        $ldapDn =  "uid=".$username.",".$this->ldapBase ;
+            ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+            ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
-        $bind = @ldap_bind($ldap, $ldapDn, $password);
+            $ldapUsername = ldap_escape($username, "", LDAP_ESCAPE_FILTER);
+            $ldapDn = "$this->ldapUsernameAttribute=$ldapUsername,$this->ldapBase";
+            $bind = @ldap_bind($ldap, $ldapDn, $password);
 
-        if (!$bind){
-            $this->logout();
-            return \Error\generic( "Username or password wrong");
+            if (!$bind) {
+                $this->logout();
+                return \Error\generic("Username or password wrong");
+            }
         }
 
         if(!self::getUserInfoFromDb($username)){
@@ -184,11 +191,11 @@ class UserAuthentication
         return (array)$user?->rights;
     }
 
-    private function getUserInfoFromDb(string $username) :bool
+    private function getUserInfoFromDb(string $username): bool
     {
         global $database;
 
-        $username = $database->escape($username);
+        $username = $database->escape(trim($username));
 
         $query =  <<< QUERY
             SELECT 

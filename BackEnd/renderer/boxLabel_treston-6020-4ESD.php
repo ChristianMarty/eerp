@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : Treston_6020-4ESD.php
-// FilePath : renderer/
+// FilePath : renderer
 // Author   : Christian Marty
 // Date		: 02.12.2023
 // License  : MIT
