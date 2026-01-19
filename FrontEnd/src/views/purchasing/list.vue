@@ -27,18 +27,6 @@
         </el-table-column>
 
         <el-table-column
-          prop="OrderNumber"
-          label="Order Number"
-          sortable
-          width="180"
-        />
-        <el-table-column
-          prop="AcknowledgementNumber"
-          label="Acknowledgement Number"
-          sortable
-          width="240"
-        />
-        <el-table-column
           prop="PurchaseDate"
           label="Purchase Date"
           width="170"
@@ -50,6 +38,19 @@
             <span v-else>{{ row.Status }}</span>
           </template>
         </el-table-column>
+
+        <el-table-column
+          prop="OrderNumber"
+          label="Order Number"
+          sortable
+          width="180"
+        />
+        <el-table-column
+          prop="AcknowledgementNumber"
+          label="Acknowledgement Number"
+          sortable
+          width="240"
+        />
         <el-table-column
           prop="ExpectedCompletionDate"
           label="Exp. Completion"
