@@ -16,8 +16,8 @@ const projectRouter = {
     },
     {
       path: 'item/:ProjectNumber(.*)',
-      component: () => import('@/views/project/item/'),
-      name: 'item',
+      component: () => import('@/views/project/item'),
+      name: 'projectItem',
       meta: { title: 'Project', icon: 'el-icon-sold-out' },
       hidden: true
     }

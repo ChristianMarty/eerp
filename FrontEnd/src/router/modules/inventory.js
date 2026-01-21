@@ -11,7 +11,7 @@ const inventoryRouter = {
     {
       path: '',
       component: () => import('@/views/inventory/list'),
-      name: 'Inventorylist',
+      name: 'inventoryList',
       meta: { title: 'Inventory List', icon: 'search' }
     },
     {

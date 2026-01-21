@@ -3,7 +3,6 @@ import Layout from '@/layout'
 const metrologyRouter = {
   path: '/metrology',
   component: Layout,
-  name: 'metrology',
   meta: {
     title: 'Metrology',
     icon: 'el-icon-odometer'

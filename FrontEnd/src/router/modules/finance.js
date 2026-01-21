@@ -17,7 +17,7 @@ const financeRouter = {
     {
       path: 'costCenter/',
       component: () => import('@/views/finance/costCenterBrowser'),
-      name: 'finance',
+      name: 'costCenterList',
       meta: { title: 'Cost Center', icon: 'el-icon-sold-out', roles: ['Finance_CostCenter_View'] }
     },
     {

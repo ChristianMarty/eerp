@@ -3,7 +3,6 @@ import Layout from '@/layout'
 const stockRouter = {
   path: '/renderer',
   component: Layout,
-  name: 'label',
   meta: {
     title: 'Renderer',
     icon: 'component'
@@ -12,13 +11,13 @@ const stockRouter = {
     {
       path: '',
       component: () => import('@/views/renderer/list'),
-      name: 'label',
+      name: 'rendererList',
       meta: { title: 'Renderer', icon: 'list' }
     },
     {
       path: ':Id(.*)',
       component: () => import('@/views/renderer/item'),
-      name: 'Label',
+      name: 'rendererItem',
       meta: { title: 'Label', icon: 'list' },
       hidden: true
     }

@@ -3,7 +3,6 @@ import Layout from '@/layout'
 const partsMetaRouter = {
   path: '/partMetadata',
   component: Layout,
-  name: 'packages',
   meta: {
     title: 'Part Metadata',
     icon: 'component'

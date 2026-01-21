@@ -24,7 +24,7 @@ const inventoryRouter = {
     {
       path: 'summary',
       component: () => import('@/views/location/summary'),
-      name: 'summary',
+      name: 'summarySearch',
       meta: { title: 'Summary', noCache: true, icon: 'search' }
     },
     {

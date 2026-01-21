@@ -3,7 +3,6 @@ import Layout from '@/layout'
 const partsRouter = {
   path: '/manufacturerPart',
   component: Layout,
-  name: 'manufacturerPart',
   meta: {
     title: 'Manufacturer Part',
     icon: 'component'

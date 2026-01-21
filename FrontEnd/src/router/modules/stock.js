@@ -3,7 +3,6 @@ import Layout from '@/layout'
 const stockRouter = {
   path: '/stock',
   component: Layout,
-  name: 'stock',
   meta: {
     title: 'Stock',
     icon: 'el-icon-box'
@@ -18,31 +17,31 @@ const stockRouter = {
     {
       path: 'item',
       component: () => import('@/views/stock/item'),
-      name: 'itemNew',
+      name: 'stockNewItem',
       meta: { title: 'Item', icon: 'el-icon-finished', roles: ['Stock_View'] }
     },
     {
       path: 'create',
       component: () => import('@/views/stock/create'),
-      name: 'create',
+      name: 'stockCreate',
       meta: { title: 'Create', icon: 'el-icon-plus', roles: ['Stock_Create'] }
     },
     {
       path: 'bulkRemove',
       component: () => import('@/views/stock/bulkRemove'),
-      name: 'bulkRemove',
+      name: 'stockBulkRemove',
       meta: { title: 'Bulk Remove', icon: 'el-icon-minus', roles: ['Stock_History_Remove'] }
     },
     {
       path: 'countingRequest',
       component: () => import('@/views/stock/countingRequest'),
-      name: 'countingRequest',
+      name: 'stockCountingRequest',
       meta: { title: 'Counting Requests', icon: 'el-icon-files', roles: ['Stock_History_Count'] }
     },
     {
       path: 'item/:StockNumber(.*)',
       component: () => import('@/views/stock/item'),
-      name: 'item',
+      name: 'stockItem',
       meta: { title: 'Item', roles: ['Stock_View'] },
       hidden: true
     }

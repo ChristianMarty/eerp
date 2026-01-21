@@ -17,7 +17,7 @@ const assemblyRouter = {
     {
       path: 'item/:AssemblyNumber(.*)',
       component: () => import('@/views/assembly/item'),
-      name: 'assembly',
+      name: 'assemblyItem',
       meta: { title: 'Assembly', icon: 'el-icon-finished', roles: ['Assembly_View'] },
       hidden: true
     },

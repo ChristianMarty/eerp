@@ -17,13 +17,13 @@ const specificationPartRouter = {
     {
       path: 'create/',
       component: () => import('@/views/specificationPart/create'),
-      name: 'create',
+      name: 'specificationPartCreate',
       meta: { title: 'Create', icon: 'el-icon-plus', roles: ['SpecificationPart_Create'] }
     },
     {
       path: 'item/:SpecificationPartBarcode(.*)',
-      component: () => import('@/views/specificationPart/item/'),
-      name: 'item',
+      component: () => import('@/views/specificationPart/item'),
+      name: 'specificationPartItem',
       meta: { title: 'Specification Part View', roles: ['SpecificationPart_View'] },
       hidden: true
     }
