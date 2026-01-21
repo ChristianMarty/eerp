@@ -11,16 +11,19 @@ const specificationPartRouter = {
     {
       path: 'browser/',
       component: () => import('@/views/specificationPart/browser'),
+      name: 'specificationPart',
       meta: { title: 'Spec Part Search', icon: 'search', roles: ['SpecificationPart_View'] }
     },
     {
       path: 'create/',
       component: () => import('@/views/specificationPart/create'),
+      name: 'create',
       meta: { title: 'Create', icon: 'el-icon-plus', roles: ['SpecificationPart_Create'] }
     },
     {
       path: 'item/:SpecificationPartBarcode(.*)',
       component: () => import('@/views/specificationPart/item/'),
+      name: 'item',
       meta: { title: 'Specification Part View', roles: ['SpecificationPart_View'] },
       hidden: true
     }

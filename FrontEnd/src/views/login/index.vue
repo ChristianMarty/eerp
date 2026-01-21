@@ -115,6 +115,7 @@ export default {
         })
         .then(() => {
           this.$router.push({ path: 'dashboard' })
+
           this.loading = false
         })
         .catch(() => {
@@ -190,6 +191,19 @@ $light_gray: #eee;
     margin: 0 auto;
     overflow: hidden;
   }
+
+  .tips {
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 10px;
+
+    span {
+      &:first-of-type {
+        margin-right: 16px;
+      }
+    }
+  }
+
   .svg-container {
     padding: 6px 5px 6px 15px;
     color: $dark_gray;
@@ -218,6 +232,18 @@ $light_gray: #eee;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+
+  .thirdparty-button {
+    position: absolute;
+    right: 0;
+    bottom: 6px;
+  }
+
+  @media only screen and (max-width: 470px) {
+    .thirdparty-button {
+      display: none;
+    }
   }
 }
 </style>

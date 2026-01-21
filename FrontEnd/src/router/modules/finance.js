@@ -11,16 +11,19 @@ const financeRouter = {
     {
       path: 'summary/',
       component: () => import('@/views/finance/view'),
+      name: 'finance',
       meta: { title: 'Summary', icon: 'el-icon-sold-out', roles: ['Finance_View'] }
     },
     {
       path: 'costCenter/',
       component: () => import('@/views/finance/costCenterBrowser'),
+      name: 'finance',
       meta: { title: 'Cost Center', icon: 'el-icon-sold-out', roles: ['Finance_CostCenter_View'] }
     },
     {
       path: 'costCenter/item/:CostCenterNumber(.*)',
       component: () => import('@/views/finance/costCenterItem'),
+      name: 'CostCenter',
       meta: {
         title: 'Cost Center',
         noCache: true,

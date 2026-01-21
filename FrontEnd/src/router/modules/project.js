@@ -11,11 +11,13 @@ const projectRouter = {
     {
       path: '',
       component: () => import('@/views/project/list'),
+      name: 'projectSearch',
       meta: { title: 'Projects' }
     },
     {
       path: 'item/:ProjectNumber(.*)',
       component: () => import('@/views/project/item/'),
+      name: 'item',
       meta: { title: 'Project', icon: 'el-icon-sold-out' },
       hidden: true
     }
