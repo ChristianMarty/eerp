@@ -487,17 +487,12 @@ namespace Document {
 namespace Document\Ingest
 {
 
+    use Document\LinkType;
+
     function external(string $url): \stdClass | \Error\Data
     {
         global $serverDataPath;
         global $ingestPath;
-
-        $fileName = basename($url);
-        $file = $url;
-
-        if (!$file){
-            return \Error\generic("File download failed!");
-        }
 
         // Check if link already exists
         $preexisting = \Document\getExternalDocumentCodeByUrl($url);
@@ -506,7 +501,7 @@ namespace Document\Ingest
             return \Error\generic("This external link already exists as ".$preexisting);
         }
 
-        file_put_contents($serverDataPath.$ingestPath."/".$fileName."---external", $url);
+        file_put_contents($serverDataPath.$ingestPath."/".base64_encode($url)."---external", $url);
 
         $output = new \stdClass();
         $output->message = "File added successfully.";
@@ -567,12 +562,16 @@ namespace Document\Ingest
         return $output;
     }
 
-    function delete(string $fileName): null | \Error\Data
+    function delete(string $fileName, \Document\LinkType $linkType): null | \Error\Data
     {
         global $serverDataPath;
         global $ingestPath;
 
-        $filePath = $serverDataPath.$ingestPath."/".$fileName;
+        if($linkType === \Document\LinkType::External){
+            $filePath = $serverDataPath.$ingestPath."/".base64_encode($fileName)."---external";
+        }else{
+            $filePath = $serverDataPath.$ingestPath."/".$fileName;
+        }
 
         if (!unlink($filePath)) {
             return \Error\generic("File delete failed.");
@@ -740,6 +739,12 @@ namespace Document\Ingest
             if (!rename($sourcePath, $destinationPath)) {
                 $database->rollBackTransaction();
                 return \Error\generic("File copy failed.");
+            }
+        }elseif($data->linkType === \Document\LinkType::External){
+            $result = delete($data->ingestName,\Document\LinkType::External);
+            if($result instanceof \Error\Data){
+                $database->rollBackTransaction();
+                return $result;
             }
         }
 

@@ -25,6 +25,14 @@ else if($api->isDelete(Permission::Document_Ingest_Delete))
         $api->returnData(\Error\parameterMissing("FileName"));
     }
 
-    $result = \Document\Ingest\delete($data->FileName);
+    if(!isset($data->LinkType)){
+        $api->returnData(\Error\parameterMissing("LinkType"));
+    }
+    $linkType = \Document\DocumentLinkType($data->LinkType);
+    if($linkType === \Document\LinkType::Undefined){
+        $api->returnData(\Error\parameter("LinkType"));
+    }
+
+    $result = \Document\Ingest\delete($data->FileName, $linkType);
     $api->returnData($result);
 }

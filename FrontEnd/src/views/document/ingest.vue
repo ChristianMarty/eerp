@@ -9,7 +9,7 @@
       <el-button type="primary" icon="el-icon-download" @click="downloadFile()">Download</el-button>
     </template>
     <template v-permission="['Document_Ingest_Download']">
-      <el-button type="primary" icon="el-icon-download" @click="externalFile()">Link External</el-button>
+      <el-button type="primary" icon="el-icon-cloudy" @click="externalFile()">Link External</el-button>
     </template>
     <el-button type="primary" icon="el-icon-refresh-right" @click="getFileList()">Reload</el-button>
     <el-table
