@@ -115,7 +115,7 @@ class Document {
       Category: '',
       DocumentDescription: '',
       RevisionDescription: '',
-      LinkType: 'Internal'
+      LinkType: ''
     },
     ingest(ingestParameters) {
       return new Promise((resolve, reject) => {
@@ -137,6 +137,21 @@ class Document {
         eerpApi({
           method: 'post',
           url: '/document/ingest/download',
+          data: { Url: url }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
+    external(url) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/document/ingest/external',
           data: { Url: url }
         }).then(response => {
           if (response.error == null) {

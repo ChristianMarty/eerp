@@ -66,6 +66,7 @@ export default {
   async mounted() {
     this.documentCategoryOptions = await document.category()
     this.dialogData.IngestName = this.fileInfo.FileName
+    this.dialogData.LinkType = this.fileInfo.LinkType
     this.dialogData.Name = this.dialogData.IngestName.replace(/\.[^/.]+$/, '')
   },
   methods: {

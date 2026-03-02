@@ -8,16 +8,19 @@
     <template v-permission="['Document_Ingest_Download']">
       <el-button type="primary" icon="el-icon-download" @click="downloadFile()">Download</el-button>
     </template>
+    <template v-permission="['Document_Ingest_Download']">
+      <el-button type="primary" icon="el-icon-download" @click="externalFile()">Link External</el-button>
+    </template>
     <el-button type="primary" icon="el-icon-refresh-right" @click="getFileList()">Reload</el-button>
     <el-table
       :data="documentList"
       style="width: 100%"
       @row-click="(row, column, event) =>openDialog(row)"
     >
-
       <el-table-column prop="FileName" label="Name" sortable />
-      <el-table-column prop="Date" label="Date" width="200" sortable />
-      <el-table-column prop="Size" label="Size" width="200" sortable />
+      <el-table-column prop="LinkType" label="Link Type" width="120" sortable />
+      <el-table-column prop="Date" label="Date" width="160" sortable />
+      <el-table-column prop="Size" label="Size" width="120" sortable />
     </el-table>
 
     <el-dialog title="Ingest Document" :visible.sync="showDialog" center width="80%">
@@ -124,12 +127,18 @@
       @change="getFileList()"
     />
 
+    <externalDialog
+      :visible.sync="externalDialogVisible"
+      @change="getFileList()"
+    />
+
   </div>
 </template>
 
 <script>
 import uploadDialog from './components/uploadDialog'
 import downloadDialog from './components/downloadDialog'
+import externalDialog from './components/externalDialog'
 import checkPermission from '@/utils/permission'
 
 import genericIngest from './components/ingestTemplates/generic'
@@ -146,7 +155,7 @@ const document = new Document()
 
 export default {
   name: 'DocumentIngest',
-  components: { uploadDialog, downloadDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation, poQuoteApproval, invHistoryCalibration },
+  components: { uploadDialog, downloadDialog, externalDialog, genericIngest, poDeliveryNoteIngest, poInvoiceIngest, poReceiptIngest, poQuoteIngest, poQuoteConfirmation, poQuoteApproval, invHistoryCalibration },
   data() {
     return {
       documentList: [],
@@ -155,6 +164,7 @@ export default {
       filePreviewPath: '',
       uploadDialogVisible: false,
       downloadDialogVisible: false,
+      externalDialogVisible: false,
       selectedTemplate: null,
       templateOptions: [{
         value: 'generic',
@@ -193,6 +203,7 @@ export default {
       this.showDialog = true
       this.dialogData = Object.assign({}, document.ingest.ingestParameters)
       this.dialogData.FileName = row.FileName
+      this.dialogData.LinkType = row.LinkType
       this.filePreviewPath = row.Path
     },
     ingestFile() {
@@ -235,6 +246,9 @@ export default {
     },
     downloadFile() {
       this.downloadDialogVisible = true
+    },
+    externalFile() {
+      this.externalDialogVisible = true
     },
     openInTab(path) {
       window.open(path, '_blank').focus()

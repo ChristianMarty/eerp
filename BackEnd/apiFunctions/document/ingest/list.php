@@ -10,6 +10,8 @@
 declare(strict_types=1);
 global $api;
 
+require_once __DIR__ . "/../_document.php";
+
 if($api->isGet(Permission::Document_Ingest_List))
 {
 	global $serverDataPath;
@@ -22,12 +24,26 @@ if($api->isGet(Permission::Document_Ingest_List))
 	foreach($docs as $key => $line)
 	{
 		if($line == "." or $line == "..") continue;
-		
+        $serverFilePath =  $serverDataPath.$ingestPath."/".$line;
+
+        if(str_ends_with($line,"---external")){
+            $path = file_get_contents($serverFilePath);
+            $fileName = $path;
+            $linkType = \Document\LinkType::External;
+            $size = "";
+        }else{
+            $fileName = $line;
+            $path = $dataRootPath.$ingestPath."/".$line;
+            $linkType = \Document\LinkType::Internal;
+            $size = filesize($serverFilePath);
+        }
+
 		$tmp = array();
-		$tmp["FileName"] = $line;
-		$tmp["Date"] = "";
-		$tmp["Size"] = "";
-		$tmp["Path"] = $dataRootPath.$ingestPath."/".$line;
+		$tmp["FileName"] = $fileName;
+		$tmp["Date"] = date("Y-m-d H:i", filectime($serverFilePath));
+		$tmp["Size"] = $size;
+		$tmp["Path"] = $path;
+        $tmp['LinkType'] = $linkType;
 		
 		$output[] = $tmp;
 	}

@@ -39,6 +39,7 @@ export default {
   methods: {
     ingest() {
       this.dialogData.FileName = this.fileInfo.FileName
+      this.dialogData.LinkType = this.fileInfo.LinkType
       document.ingest.template.purchaseOrderApproval(this.dialogData).then(response => {
         this.$message({
           showClose: true,

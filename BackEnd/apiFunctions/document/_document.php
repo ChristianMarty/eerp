@@ -229,7 +229,26 @@ namespace Document {
         return $result;
     }
 
-    function getDocumentCodeByHash(string $documentHash ): string|null
+    function getExternalDocumentCodeByUrl(string $url ): string|null
+    {
+        global $database;
+
+        $url = $database->escape($url);
+
+        $query = <<< QUERY
+        SELECT
+            CONCAT("Doc-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode
+        FROM document_revision
+        RIGHT JOIN document ON document.Id = document_revision.DocumentNumberId
+        WHERE LinkType = 'External' AND Path = $url;
+        QUERY;
+        $result = $database->query($query);
+
+        if (count($result) === 0) return null;
+        else return $result[0]->ItemCode;
+    }
+
+    function getInternalDocumentCodeByHash(string $documentHash ): string|null
     {
         global $database;
 
@@ -240,7 +259,7 @@ namespace Document {
             CONCAT("Doc-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode
         FROM document_revision
         RIGHT JOIN document ON document.Id = document_revision.DocumentNumberId
-        WHERE Hash = $documentHash;
+        WHERE LinkType = 'Internal' Hash = $documentHash;
         QUERY;
         $result = $database->query($query);
 
@@ -468,6 +487,32 @@ namespace Document {
 namespace Document\Ingest
 {
 
+    function external(string $url): \stdClass | \Error\Data
+    {
+        global $serverDataPath;
+        global $ingestPath;
+
+        $fileName = basename($url);
+        $file = $url;
+
+        if (!$file){
+            return \Error\generic("File download failed!");
+        }
+
+        // Check if link already exists
+        $preexisting = \Document\getExternalDocumentCodeByUrl($url);
+
+        if($preexisting !== null) {
+            return \Error\generic("This external link already exists as ".$preexisting);
+        }
+
+        file_put_contents($serverDataPath.$ingestPath."/".$fileName."---external", $url);
+
+        $output = new \stdClass();
+        $output->message = "File added successfully.";
+        return $output;
+    }
+
     function download(string $url): \stdClass | \Error\Data
     {
         global $database;
@@ -483,7 +528,7 @@ namespace Document\Ingest
 
         // Check if file already exists
         $documentHash = md5($file);
-        $preexisting = \Document\getDocumentCodeByHash($documentHash);
+        $preexisting = \Document\getInternalDocumentCodeByHash($documentHash);
 
         if($preexisting !== null) {
             return \Error\generic("This file already exists as ".$preexisting);
@@ -510,7 +555,7 @@ namespace Document\Ingest
 
         // Check if file already exists
         $documentHash = md5_file($file);
-        $preexisting = \Document\getDocumentCodeByHash($documentHash);
+        $preexisting = \Document\getInternalDocumentCodeByHash($documentHash);
 
         if($preexisting !== null) {
             return \Error\generic("This file already exists as ".$preexisting);
@@ -590,7 +635,7 @@ namespace Document\Ingest
             if (!file_exists($sourcePath)) return \Error\generic("File path invalid.");
 
             $documentHash = md5_file($sourcePath);
-            $preexisting = \Document\getDocumentCodeByHash($documentHash);
+            $preexisting = \Document\getInternalDocumentCodeByHash($documentHash);
 
             if($preexisting !== null) {
                 return \Error\generic("This file already exists as ".$preexisting);
