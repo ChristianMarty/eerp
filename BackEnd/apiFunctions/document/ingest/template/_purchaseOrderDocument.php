@@ -43,16 +43,20 @@ function purchaseOrderDocumentIngest(stdClass $data, string $category): null|\Er
     $ingestData->name = $name;
     $ingestData->category = $category;
     $ingestData->documentDescription = $data->Description??"";
-    $ingestData->linkType = \Document\LinkType::Internal;
+    $ingestData->linkType = $data->LinkType;
 
     $result = \Document\Ingest\save($ingestData);
-    if($result instanceof \Error\Data) return $result;
+    if($result instanceof \Error\Data){
+        return $result;
+    }
 
     if($po->DocumentIds === null) $docIds = [];
     else $docIds = explode(",", $po->DocumentIds);
     $docIds[] = $result->documentId;
 
-    if (($key = array_search("", $docIds)) !== false) unset($docIds[$key]); // Remove empty string
+    if (($key = array_search("", $docIds)) !== false){
+        unset($docIds[$key]);// Remove empty string
+    }
 
     $docIdStr = implode(",",$docIds);
 

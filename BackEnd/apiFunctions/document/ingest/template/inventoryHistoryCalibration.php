@@ -40,7 +40,7 @@ if($api->isPost(Permission::Document_Ingest_Save))
     $ingestData->name = $name;
     $ingestData->category = 'Calibration';
     $ingestData->documentDescription = $data->Description??"";
-    $ingestData->linkType = \Document\LinkType::Internal;
+    $ingestData->linkType = $data->LinkType;
 
     $result = \Document\Ingest\save($ingestData);
     if($result instanceof \Error\Data) return $result;
