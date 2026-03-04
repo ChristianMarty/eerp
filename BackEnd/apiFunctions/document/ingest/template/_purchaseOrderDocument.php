@@ -43,7 +43,7 @@ function purchaseOrderDocumentIngest(stdClass $data, string $category): null|\Er
     $ingestData->name = $name;
     $ingestData->category = $category;
     $ingestData->documentDescription = $data->Description??"";
-    $ingestData->linkType = $data->LinkType;
+    $ingestData->linkType = \Document\documentLinkType($data->LinkType);
 
     $result = \Document\Ingest\save($ingestData);
     if($result instanceof \Error\Data){

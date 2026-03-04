@@ -28,7 +28,7 @@ else if($api->isDelete(Permission::Document_Ingest_Delete))
     if(!isset($data->LinkType)){
         $api->returnData(\Error\parameterMissing("LinkType"));
     }
-    $linkType = \Document\DocumentLinkType($data->LinkType);
+    $linkType = \Document\documentLinkType($data->LinkType);
     if($linkType === \Document\LinkType::Undefined){
         $api->returnData(\Error\parameter("LinkType"));
     }

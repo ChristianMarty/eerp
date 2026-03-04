@@ -108,10 +108,11 @@ namespace Document {
         }
     }
 
-    function DocumentLinkType(string $input): LinkType
+    function documentLinkType(string $input): LinkType
     {
-        if (strtolower($input) === 'internal') return LinkType::Internal;
-        if (strtolower($input) === 'external') return LinkType::External;
+        $input = strtolower($input);
+        if ($input === 'internal') return LinkType::Internal;
+        if ($input === 'external') return LinkType::External;
         return LinkType::Undefined;
     }
 
@@ -341,7 +342,7 @@ namespace Document {
             $document->path = $item->Path;
             $document->hash = $item->Hash;
             $document->extension = $item->Extension;
-            $document->type = DocumentLinkType($item->LinkType);
+            $document->type = documentLinkType($item->LinkType);
             $document->creationDate = $item->CreationDate;
 
             $document->createdBy = $userData;
@@ -614,9 +615,7 @@ namespace Document\Ingest
 
         $output->ingestName = $data->IngestName;
         $output->revisionDescription = $data->RevisionDescription??"";
-
-        if(strtolower($data->LinkType) == "internal") $output->linkType = \Document\LinkType::Internal;
-        if(strtolower($data->LinkType) == "external") $output->linkType = \Document\LinkType::External;
+        $output->linkType = \Document\documentLinkType($data->LinkType);
 
         return $output;
     }
