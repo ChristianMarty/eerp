@@ -29,13 +29,13 @@ class tme extends vendorInterface {
     public function parseOrderInformation(string $csvData): array|null
     {
         $lines = preg_split("/\r\n|\n|\r/", $csvData);
-        $header = str_getcsv($lines[0], ";", "\"");
+        $header = str_getcsv($lines[0], ";", "\"", "\\");
 
         $data = Array();
         $output = array();
         foreach($lines as $index=>$line)
         {
-            $lineData = str_getcsv($line, ";", "\"");
+            $lineData = str_getcsv($line, ";", "\"", "\\");
             if(count($lineData) !== count($header)) continue;
 
             if($index === 0) {
@@ -44,9 +44,10 @@ class tme extends vendorInterface {
                 $indexSku = array_search('Symbol', $header);
                 $indexManufacturerName = array_search('Hersteller', $header);
                 $indexMpn = array_search('Kennzeichnung des Herstellers', $header);
-                $indexQuantity = array_search('Menge', $header);
+				$indexName = array_search('Kurze Beschreibung des Produkts', $header);
+                $indexQuantity = array_search('Bestellmenge', $header);
                 $indexReference = array_search('Kundensymbol', $header);
-                $indexPrice = array_search('Bruttopreis', $header);
+                $indexPrice = array_search('Nettopreis', $header);
                 $indexCurrencyCode = array_search('Währung', $header);
                 continue;
 
@@ -61,12 +62,10 @@ class tme extends vendorInterface {
             $temp['SupplierDescription'] = $lineData[$indexName];
             $temp['OrderReference'] = $lineData[$indexReference];
             $temp['Quantity'] = $lineData[$indexQuantity];
-            $temp['Price'] = $lineData[$indexPrice];
+            $temp['Price'] = (float)str_replace(",",".",$lineData[$indexPrice]);
             $temp['TotalPrice'] = $temp['Quantity']*$temp['Price'];
             $temp['LineNumber'] =  $index;
             
-            
-
             $output[] = $temp;
         }
         $data['Lines'] = $output;
