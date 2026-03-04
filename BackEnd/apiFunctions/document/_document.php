@@ -259,7 +259,7 @@ namespace Document {
             CONCAT("Doc-",document.DocumentNumber,"-",document_revision.RevisionNumber) AS ItemCode
         FROM document_revision
         RIGHT JOIN document ON document.Id = document_revision.DocumentNumberId
-        WHERE LinkType = 'Internal' Hash = $documentHash;
+        WHERE LinkType = 'Internal' AND Hash = $documentHash;
         QUERY;
         $result = $database->query($query);
 
