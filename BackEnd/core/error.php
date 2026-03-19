@@ -70,22 +70,40 @@ function postDataMissing(): Data
     return new Data(Type::PostDataMissing, trace()."Parameter Error: POST field must not be empty");
 }
 
+function checkError(mixed $data): bool
+{
+    return $data instanceof Data;
+}
+
 function checkErrorAndExit(mixed $data): void
 {
     global $api;
-    if($data instanceof Data) {
+    if(checkError($data)) {
         $api->returnData($data);
     }
+}
+
+function checkNoResult(mixed $data): bool | \Error\Data
+{
+    global $api;
+    if(!is_array($data)){
+        return \Error\generic("Datatype error");
+    }
+
+    if(count($data) === 0) {
+       return true;
+    }
+
+    return false;
 }
 
 function checkNoResultAndExit(mixed $data, string $item): void
 {
     global $api;
-    if(!is_array($data)){
-        $api->returnData(\Error\generic("Datatype error"));
-    }
+    $noResult = checkNoResult($data);
+    checkErrorAndExit($noResult);
 
-    if(count($data) === 0) {
+    if($noResult) {
         $api->returnData(\Error\itemNotFound($item));
     }
 }

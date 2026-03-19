@@ -10,7 +10,7 @@ class Stock
         int         $quantity,
         string|null $date,
         string|null $lotNumber
-    ): string
+    ): string | \Error\Data
     {
         global $database;
         global $user;
@@ -23,35 +23,18 @@ class Stock
         QUERY;
 
         $insertData = [];
-        $insertData['StockNumber']['raw'] = "partStock_generateStockNumber()";
         $insertData['ManufacturerPartNumberId']['raw'] = "($queryManufacturerPartNumberId)";
         $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocationNumber`= $locationNumber)";
         $insertData['Date'] = $date;
         $insertData['ReceivalId'] = $receivalId;
         $insertData['LotNumber'] = $lotNumber;
-        $insertData['CreationUserId'] = $user->userId();
 
         $database->beginTransaction();
 
-        try {
-            $database->insert("partStock", $insertData);
-            $stockId = $database->lastInsertId();
-        } catch (\Exception $e) {
+        $stockId = self::createPartStockEntry($insertData, $quantity);
+        if(\Error\checkError($stockId)){
             $database->rollBackTransaction();
-            throw new \Exception($e->getMessage());
-        }
-
-        $insertData = [];
-        $insertData['StockId'] = $stockId;
-        $insertData['Quantity'] = $quantity;
-        $insertData['ChangeType'] = "Create";
-        $insertData['CreationUserId'] = $user->userId();
-
-        try {
-            $database->insert("partStock_history", $insertData);
-        } catch (\Exception $e) {
-            $database->rollBackTransaction();
-            throw new \Exception($e->getMessage());
+            return $stockId;
         }
 
         $database->commitTransaction();
@@ -68,7 +51,7 @@ class Stock
         string|null $lotNumber,
         int|null    $supplierId,
         string|null $supplierPartNumber
-    ): string
+    ): string | \Error\Data
     {
         global $database;
         global $user;
@@ -98,13 +81,13 @@ class Stock
             $insertData['Number'] = $manufacturerPartNumber;
             $insertData['CreationUserId'] = $user->userId();
 
-            try {
-                $database->insert("manufacturerPart_partNumber", $insertData);
-                $manufacturerPartNumberId = $database->lastInsertId();
-            } catch (\Exception $e) {
+            $result = $database->insert("manufacturerPart_partNumber", $insertData);
+            if(\Error\checkError($result)){
                 $database->rollBackTransaction();
-                throw new \Exception($e->getMessage());
+                return $result;
             }
+            $manufacturerPartNumberId = $database->lastInsertId();
+
         } else {
             $manufacturerPartNumberId = $manufacturerPartNumberData[0]->ManufacturerPartNumberId;
         }
@@ -125,35 +108,55 @@ class Stock
                 $insertData['SupplierPartNumber'] = $supplierPartNumber;
                 $insertData['CreationUserId'] = $user->userId();
 
-                try {
-                    $database->insert("supplierPart", $insertData);
-                    $supplierPartId = $database->lastInsertId();
-                } catch (\Exception $e) {
+                $result = $database->insert("supplierPart", $insertData);
+                if(\Error\checkError($result)){
                     $database->rollBackTransaction();
-                    throw new \Exception($e->getMessage());
+                    return $result;
                 }
+                $supplierPartId = $database->lastInsertId();
+
             } else {
                 $supplierPartId = $supplierPartData[0]->Id;
             }
         }
 
         $insertData = [];
-        $insertData['StockNumber']['raw'] = "partStock_generateStockNumber()";
         $insertData['ManufacturerPartNumberId'] = $manufacturerPartNumberId;
         $insertData['LocationId']['raw'] = "(SELECT `Id` FROM `location` WHERE `LocationNumber`= $locationNumber)";
         $insertData['Date'] = $date;
         $insertData['ReceivalId'] = null;
         $insertData['SupplierPartId'] = $supplierPartId;
         $insertData['LotNumber'] = $lotNumber;
-        $insertData['CreationUserId'] = $user->userId();
 
-        try {
-            $database->insert("partStock", $insertData);
-            $stockId = $database->lastInsertId();
-        } catch (\Exception $e) {
+        $stockId = self::createPartStockEntry($insertData, $quantity);
+        if(\Error\checkError($stockId)){
             $database->rollBackTransaction();
-            throw new \Exception($e->getMessage());
+            return $stockId;
         }
+
+        $database->commitTransaction();
+
+        return $database->query("SELECT StockNumber FROM partStock WHERE ID  = $stockId")[0]->StockNumber;
+    }
+
+    static private function createPartStockEntry(array $data, float $quantity): int | \Error\Data
+    {
+        global $database;
+        global $user;
+
+        $stockNumber = self::newStockCode();
+        if(\Error\checkError($stockNumber)){
+            return $stockNumber;
+        }
+
+        $data['StockNumber'] = $stockNumber;
+        $data['CreationUserId'] = $user->userId();
+
+        $result = $database->insert("partStock", $data);
+        if(\Error\checkError($result)){
+            return $result;
+        }
+        $stockId = $database->lastInsertId();
 
         $insertData = [];
         $insertData['StockId'] = $stockId;
@@ -161,16 +164,120 @@ class Stock
         $insertData['ChangeType'] = "Create";
         $insertData['CreationUserId'] = $user->userId();
 
-        try {
-            $database->insert("partStock_history", $insertData);
-        } catch (\Exception $e) {
+        $result = $database->insert("partStock_history", $insertData);
+        if(\Error\checkError($result)){
+            return $result;
+        }
+
+        return $stockId;
+    }
+
+    static function split(string $stockCode, float $quantity): string | \Error\Data
+    {
+        global $database;
+
+        $stockNumberQuoted = $database->escape($stockCode);
+        $query = <<<STR
+		SELECT 
+		    partStock_history.Id,
+			partStock_history.Quantity
+		FROM partStock_history 
+		LEFT JOIN partStock ON partStock_history.StockId = partStock.Id
+		WHERE partStock.StockNumber =  $stockNumberQuoted AND (ChangeType = 'Absolute' OR ChangeType = 'Create')
+	STR;
+        $historyResult = $database->query($query);
+
+        if(\Error\checkError($historyResult)){
+            return $historyResult;
+        }
+
+        if(\Error\checkNoResult($historyResult)){
+            return \Error\itemNotFound($stockCode);
+        }
+
+        foreach($historyResult as $item){
+            if($item->Quantity < $quantity){
+                return \Error\generic("Split quantity bigger as stock quantity");
+            }
+        }
+
+
+        $database->beginTransaction();
+
+        $query = <<<STR
+            SELECT 
+                ManufacturerPartNumberId,
+                SpecificationPartRevisionId,
+                AssemblyId,
+                Date,
+                CountryOfOriginCountryId,
+                LocationId,
+                HomeLocationId,
+                SupplierPartId,
+                ReceivalId,
+                LotNumber
+            FROM partStock 
+            WHERE partStock.StockNumber =  $stockNumberQuoted 
+        STR;
+        $result = $database->query($query);
+        if(\Error\checkError($result)){
+            return $result;
+        }
+        if(\Error\checkNoResult($result)){
+            return \Error\itemNotFound($stockCode);
+        }
+
+        $oldItem = $result[0];
+
+        $insertData = [];
+        $insertData['ManufacturerPartNumberId'] = $oldItem->ManufacturerPartNumberId;
+        $insertData['SpecificationPartRevisionId'] = $oldItem->SpecificationPartRevisionId;
+        $insertData['AssemblyId'] = $oldItem->AssemblyId;
+        $insertData['Date'] = $oldItem->Date;
+        $insertData['CountryOfOriginCountryId'] = $oldItem->CountryOfOriginCountryId;
+        $insertData['LocationId'] = $oldItem->LocationId;
+        $insertData['HomeLocationId'] = $oldItem->HomeLocationId;
+        $insertData['SupplierPartId'] = $oldItem->SupplierPartId;
+        $insertData['ReceivalId'] = $oldItem->ReceivalId;
+        $insertData['LotNumber'] = $oldItem->LotNumber;
+
+        $newStockId = self::createPartStockEntry($insertData, $quantity);
+        if(\Error\checkError($newStockId)){
             $database->rollBackTransaction();
-            throw new \Exception($e->getMessage());
+            return $newStockId;
+        }
+
+        foreach($historyResult as $item){
+            $id = $item->Id;
+            $updateData = [];
+            $updateData['Quantity'] = $item->Quantity - $quantity;
+            $updateResult = $database->update('partStock_history', $updateData, "Id = $id");
+            if(\Error\checkError($updateResult)) {
+                $database->rollBackTransaction();
+                return $updateResult;
+            }
+        }
+
+        $query = <<<STR
+            SELECT 
+                StockNumber
+            FROM partStock 
+            WHERE partStock.Id = $newStockId
+        STR;
+        $itemResult = $database->query($query);
+        if(\Error\checkError($itemResult)) {
+            $database->rollBackTransaction();
+            return $itemResult;
+        }
+
+        if(count($itemResult) !== 1) {
+            $database->rollBackTransaction();
+            return \Error\generic("Stock split failed");
         }
 
         $database->commitTransaction();
 
-        return $database->query("SELECT StockNumber FROM partStock WHERE ID  = $stockId")[0]->StockNumber;
+        return $itemResult[0]->StockNumber;
     }
 
     static function certainty(int $stockId): \stdClass
@@ -272,7 +379,7 @@ class Stock
     static function createCountingRequest(
         int|null    $stockId,
         string|null $stockNumber = null
-    ): null|\Error\Data
+    ): null | \Error\Data
     {
         if($stockId === null and $stockNumber === null){
             return \Error\generic("No input");
@@ -290,6 +397,7 @@ class Stock
             $stockNumber = $database->escape($stockNumber);
             return $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
         }
+        return null;
     }
 
     static function clearCountingRequest(
@@ -313,6 +421,41 @@ class Stock
             $database->update("partStock", $sqlData, "StockNumber = $stockNumber");
         }
     }
+
+    static private function newStockCode(): string | \Error\Data
+    {
+        global $database;
+
+        for ($i = 0; $i < 10; $i++) {
+            $string = self::newRandomStockCodeString();
+
+            $query = <<< QUERY
+                SELECT COUNT(Id) AS 'Exists' FROM partStock WHERE StockNumber = '$string';
+            QUERY;
+
+            $result = $database->query($query);
+            if (\Error\checkError($result)) {
+                return $result;
+            }
+
+            if ($result[0]->Exists === 0) {
+                return $string;
+            }
+        }
+
+        return \Error\generic("Unable to generate a new stock code");
+    }
+
+    static private function newRandomStockCodeString(): string
+    {
+        $characters = 'ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789';
+        $randomString = '';
+        for ($i = 0; $i < 4; $i++) {
+            $randomString .= $characters[rand(0,strlen($characters)-1)];
+        }
+        return $randomString;
+    }
+
 /*
     function formatHistoryItem(\stdClass $itemData): \stdClass|null
     {

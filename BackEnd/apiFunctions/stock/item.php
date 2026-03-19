@@ -210,6 +210,7 @@ else if($api->isPost(\Permission::Stock_Create))
             $data->SupplierPartNumber
         );
 	}
+    \Error\checkErrorAndExit($stockNumber);
 
     $stockPart = $database->query(_stockPartQuery("'$stockNumber'"))[0];
 
