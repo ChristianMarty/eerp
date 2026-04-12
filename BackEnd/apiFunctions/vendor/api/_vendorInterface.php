@@ -72,7 +72,7 @@ class vendorInterface
         return null;
     }
 
-    public function getOrderInformation(string $orderId): array|null
+    public function getOrderInformation(string $orderId): array|null|\Error\Data
     {
         return null;
     }

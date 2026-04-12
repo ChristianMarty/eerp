@@ -9,6 +9,7 @@
 //*************************************************************************************************
 declare(strict_types=1);
 use vendorInterface\vendorInterface;
+require_once __DIR__ . "/../../../core/error.php";
 
 class mouser extends vendorInterface {
 
@@ -59,8 +60,6 @@ class mouser extends vendorInterface {
 
         $result = curl_exec($curl);
 
-        curl_close($curl);
-
         $mouserData = json_decode($result,true);
 
         $data = Array();
@@ -84,7 +83,7 @@ class mouser extends vendorInterface {
         return $data;
     }
 
-    function getOrderInformation(string $mouserOrderNumber): array
+    function getOrderInformation(string $mouserOrderNumber): array | \Error\Data
     {
         $url = $this->apiData->ApiPath.'order/'.$mouserOrderNumber.'?apiKey='.$this->apiData->ApiKey;
 
@@ -95,11 +94,8 @@ class mouser extends vendorInterface {
         $result = curl_exec($curl);
 
         if($result === false){
-            echo 'Curl error: ' . curl_error($curl);
-            curl_close($curl);
-            exit;
+            return \Error\generic('Curl error: ' . curl_error($curl));
         }
-        curl_close($curl);
 
         $mouserData = json_decode($result,true);
 

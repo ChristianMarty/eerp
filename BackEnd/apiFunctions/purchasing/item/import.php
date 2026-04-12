@@ -39,7 +39,7 @@ if($api->isGet(\Permission::PurchaseOrder_Edit))
     require_once  __DIR__ . "/../../externalApi/".$name."/".$name.".php";
     $vendor = new $name($apiData);
   
-    $data  = $vendor->getOrderInformation($orderNumber);
+    $data = $vendor->getOrderInformation($orderNumber);
 
     $api->returnData($data);
 }
