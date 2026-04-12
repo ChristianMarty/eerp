@@ -1,22 +1,30 @@
 <template>
   <div class="app-container">
-    <h1>{{ partData.SpecificationPartBarcode }} - {{ partData.Type }} - {{ partData.Title }}</h1>
+    <h1>{{ partData.ItemCode }} - {{ partData.Type }} - {{ partData.Name }}</h1>
     <p>{{ partData.Description }}</p>
 
-    <h3>Production Parts</h3>
-    <el-table :data="partData.ProductionParts" style="width: 100%">
-      <el-table-column prop="ProductionPartBarcode" label="Part Number" sortable width="150">
-        <template slot-scope="{ row }">
-          <router-link
-            :to="'/productionPart/item/' + row.ProductionPartBarcode"
-            class="link-type"
-          >
-            <span>{{ row.ProductionPartBarcode }}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column prop="ProductionPartDescription" label="Description" sortable />
-    </el-table>
+    <template v-for="revision in partData.Revision">
+      <h2>Revision {{ revision.RevisionCode }}</h2>
+      <h3>Production Part</h3>
+      <el-table
+        :data="revision.ProductionPart"
+        style="width: 100%;"
+        :cell-style="{ padding: '0', height: '20px' }"
+        border
+      >
+        <el-table-column label="Production Part" prop="ItemCode" width="250px">
+          <template slot-scope="{ row }">
+            <router-link
+              :to="'/productionPart/item/' + row.ItemCode"
+              class="link-type"
+            >
+              <span>{{ row.ItemCode }}</span>
+            </router-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="Description" label="Description" />
+      </el-table>
+    </template>
   </div>
 </template>
 
@@ -24,11 +32,12 @@
 import permission from '@/directive/permission/index.js'
 
 import SpecificationPart from '@/api/specificationPart'
+import ProductionPartCreate from '@/views/productionPart/create.vue'
 const specificationPart = new SpecificationPart()
 
 export default {
-  name: 'LocationAssignment',
-  components: { },
+  name: 'SpecificationPartItem',
+  components: { ProductionPartCreate },
   directives: { permission },
   data() {
     return {

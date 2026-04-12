@@ -238,6 +238,12 @@ class UserInformation implements \JsonSerializable
     public string $initials;
     public string $name;
 
+    function __construct(string $name = "", string $initials  = "")
+    {
+        $this->name = $name;
+        $this->initials = $initials;
+    }
+
     public function jsonSerialize(): \stdClass
     {
         $output = new \stdClass();

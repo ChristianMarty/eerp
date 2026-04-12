@@ -216,6 +216,7 @@ function parser(Category $category, string|int|null $input): string|int|null
         if(    $category == Category::PurchaseOrder
             || $category == Category::Inventory
             || $category == Category::Stock
+            || $category == Category::SpecificationPart
         ){
             return intval($numberParts[1]);
         }

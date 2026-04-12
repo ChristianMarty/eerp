@@ -19,11 +19,8 @@ if($api->isGet(Permission::SpecificationPart_List))
         SELECT 
             SpecificationPartNumber,
             specificationPart.Type,
-            specificationPart.Name,
-            specificationPart_revision.Revision
+            specificationPart.Name
         FROM specificationPart
-        LEFT JOIN specificationPart_revision on specificationPart.Id = specificationPart_revision.SpecificationPartId
-        WHERE Revision IS NOT NULL
     STR;
     $result = $database->query($query);
     \Error\checkErrorAndExit($result);
@@ -31,8 +28,7 @@ if($api->isGet(Permission::SpecificationPart_List))
     foreach($result as $item)
     {
         $item->SpecificationPartNumber = intval($item->SpecificationPartNumber);
-        $item->ItemCode = \Numbering\format(\Numbering\Category::SpecificationPart, $item->SpecificationPartNumber, $item->Revision);
-        $item->Description = $item->Name." - Revision ".$item->Revision;
+        $item->ItemCode = \Numbering\format(\Numbering\Category::SpecificationPart, $item->SpecificationPartNumber);
     }
 
     $api->returnData($result);
