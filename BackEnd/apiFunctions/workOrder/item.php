@@ -31,7 +31,7 @@ if($api->isGet(Permission::WorkOrder_View))
             Status 
         FROM workOrder
         LEFT JOIN project On project.Id = workOrder.ProjectId
-        WHERE workOrder.WorkOrderNumber = $workOrderNumber
+        WHERE workOrder.WorkOrderNumber = '$workOrderNumber'
     STR;
     $workOrderData = $database->query($query);
     \Error\checkErrorAndExit($workOrderData);
@@ -127,13 +127,13 @@ else if($api->isPatch(Permission::WorkOrder_Edit))
     if(!isset($data->WorkOrderNumber)) $api->returnData(\Error\parameterMissing("WorkOrderNumber"));
     if(!isset($data->Status)) $api->returnData(\Error\parameterMissing("Status"));
 
-    $workOrderNumber = \Numbering\format(\Numbering\Category::WorkOrder, $data->WorkOrderNumber);
+    $workOrderNumber = \Numbering\parser(\Numbering\Category::WorkOrder, $data->WorkOrderNumber);
     if($workOrderNumber === null) $api->returnData(\Error\parameter("WorkOrderNumber"));
 
     $woData = array();
     $woData['Status'] = $data->Status;
 
-    $result = $database->update("workOrder", $woData, "WorkOrderNumber = $workOrderNumber");
+    $result = $database->update("workOrder", $woData, "WorkOrderNumber = '$workOrderNumber'");
     \Error\checkErrorAndExit($result);
 
     $api->returnEmpty();
