@@ -112,6 +112,8 @@ export default {
   },
   methods: {
     getOrderLines() {
+      this.specificationPartLines = []
+      this.genericLines = []
       purchase.item.search(this.$props.orderData.ItemCode).then(response => {
         response.Lines.forEach(element => {
           if (element.LineType === 'Generic') {
