@@ -46,11 +46,11 @@ if($api->isGet(Permission::Vendor_List))
     \Error\checkErrorAndExit($result);
 
     foreach ($result as &$line) {
-        Database::toBool($line->IsSupplier);
-        Database::toBool($line->IsManufacturer);
-        Database::toBool($line->IsContractor);
-        Database::toBool($line->IsCarrier);
-        Database::toBool($line->IsCustomer);
+        Database::makeBool($line->IsSupplier);
+        Database::makeBool($line->IsManufacturer);
+        Database::makeBool($line->IsContractor);
+        Database::makeBool($line->IsCarrier);
+        Database::makeBool($line->IsCustomer);
         $line->AliasName = str_replace(",", "; ", $line->AliasName??"");
 	}
 

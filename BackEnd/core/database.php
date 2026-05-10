@@ -216,10 +216,16 @@ class Database
         return null;
     }
 
-    static public function toBool(int &$value): void
+    static public function makeBool(int &$value): void
     {
         if($value != 0) $value = true;
         else $value = false;
+    }
+
+    static public function toBool(int &$value): bool
+    {
+        if($value != 0) return true;
+        else return false;
     }
 
     static public function dbToBit($value): string

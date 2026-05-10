@@ -42,6 +42,9 @@ namespace Document {
         if (isset($item->CreatedByName)) {
             $output->CreatedByName = $item->CreatedByName;
         }
+        if (isset($item->Pahe)) {
+            $output->Page = $item->Page;
+        }
 
         global $dataRootPath;
         global $documentPath;
@@ -101,13 +104,13 @@ namespace Document {
     {
         public int|null $pageNumber = null;
         public string $data;
-        public string $language;
+        public string $meta;
 
         public function jsonSerialize(): \stdClass
         {
             $output = new \stdClass();
             $output->Page = $this->pageNumber;
-            $output->Language = $this->language;
+            $output->Meta = $this->meta;
             $output->Data = $this->data;
             return $output;
         }
@@ -172,6 +175,8 @@ namespace Document {
         public string|null $hash;
         public \UserInformation $createdBy;
         public string $creationDate;
+        public bool $hasTranscript;
+        public string|null $transcriptPath;
 
         public function jsonSerialize(): \stdClass
         {
@@ -183,15 +188,21 @@ namespace Document {
             $output->CreatedBy = $this->createdBy;
             $output->CreationDate = $this->creationDate;
             $output->Extension = $this->extension;
+            $output->HasTranscript = $this->hasTranscript;
 
             global $dataRootPath;
             global $documentPath;
+            global $serverPath;
 
             $output->Path = match ($this->type) {
                 LinkType::Internal => $dataRootPath . $documentPath . "/" . \Numbering\format(\Numbering\Category::Document, $this->meta->documentNumber, $this->revision) . "." . $this->extension,
                 LinkType::External => $this->path,
                 LinkType::Undefined => ""
             };
+
+            if($output->HasTranscript){
+                $output->TranscriptPath = $serverPath . "transcript.php/document?ItemCode=" .\Numbering\format(\Numbering\Category::Document, $this->meta->documentNumber, $this->revision);
+            }
 
             return $output;
         }
@@ -211,6 +222,41 @@ namespace Document {
             $output->Description = $this->description;
             return $output;
         }
+    }
+
+    function searchDocumentContent(string $searchTerm): array
+    {
+        global $database;
+        $searchTerm = $database->escape($searchTerm);
+
+        $query = <<< QUERY
+            SELECT 
+                document.Name,
+                document.Category,
+                document.Description,
+                document.DocumentNumber,
+                document_revision.RevisionNumber,
+                document_revision.Path,
+                document_revision.LinkType,
+                document_revision.Extension,
+                document.Description AS Description,
+                document_revision.Description,
+                document_revision.CreationDate AS CreationDate,
+                pageData.Page
+            FROM document_revision
+            LEFT JOIN document on document_revision.DocumentNumberId = document.Id
+            JOIN JSON_TABLE(document_revision.Cache_Content,'$[*]' COLUMNS (Data LONGTEXT PATH '$.Data', Page LONGTEXT PATH '$.Page')) AS pageData
+            WHERE pageData.Data LIKE $searchTerm ;
+        QUERY;
+        $result = $database->query($query);
+        if(count($result) === 0){
+            return array();
+        }
+
+        foreach ($result as &$item) {
+            $item = _formatDocumentOutput($item);
+        }
+        return $result;
     }
 
     function getDocuments(): array
@@ -342,7 +388,8 @@ namespace Document {
                 CreationUserId,
                 CreationDate,
                 user.Initials AS CreatedByInitials,
-                user.UserId AS CreatedByName
+                user.UserId AS CreatedByName,
+                document_revision.Cache_Content IS NOT NULL AS HasTranscript
             FROM document_revision
             LEFT JOIN user on CreationUserId = user.Id
             WHERE DocumentNumberId = $documentMetaData->documentId
@@ -365,6 +412,7 @@ namespace Document {
             $document->extension = $item->Extension;
             $document->type = documentLinkType($item->LinkType);
             $document->creationDate = $item->CreationDate;
+            $document->hasTranscript = \Database::toBool($item->HasTranscript);
 
             $document->createdBy = $userData;
 

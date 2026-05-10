@@ -28,11 +28,17 @@
         width="120"
         sortable
       />
-      <el-table-column label="Link" width="200">
+      <el-table-column label="Link" width="360">
         <template slot-scope="{ row }">
           <a :href="row.Path" target="blank">
             <el-button icon="el-icon-document">
               Open Document
+            </el-button>
+          </a>
+
+          <a v-if="row.TranscriptPath" :href="row.TranscriptPath" target="blank">
+            <el-button icon="el-icon-document">
+              Open Transcript
             </el-button>
           </a>
         </template>

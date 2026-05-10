@@ -46,7 +46,7 @@ namespace LmStudio
         }
 
         $output = new \Document\DocumentOcrData();
-        $output->language = array_shift($dataParts);
+        $output->meta = array_shift($dataParts);
         $output->data = implode('---', $dataParts);
         return $output;
     }

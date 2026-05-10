@@ -25,6 +25,7 @@ enum Category implements \JsonSerializable
     case WorkOrder;
     case PickingOrder;
     case Document;
+    case DocumentRevision;
     case Location;
     case Stock;
     case StockHistoryIndex;
@@ -55,6 +56,7 @@ enum Category implements \JsonSerializable
             Category::WorkOrder => "Work Order",
             Category::PickingOrder => "Picking Order",
             Category::Document => "Document",
+            Category::DocumentRevision => "Document Revision",
             Category::Location => "Location",
             Category::Stock => "Stock",
             Category::StockHistoryIndex => "Stock History",
@@ -102,6 +104,7 @@ function prefix(Category $category = Category::Undefined): string|null
         Category::WorkOrder => "WO",
         Category::PickingOrder => "Pick",
         Category::Document => "Doc",
+        Category::DocumentRevision => "Doc",
         Category::Location => "Loc",
         Category::Stock => "STK",
         Category::StockHistoryIndex => "STK",
@@ -217,6 +220,7 @@ function parser(Category $category, string|int|null $input): string|int|null
             || $category == Category::Inventory
             || $category == Category::Stock
             || $category == Category::SpecificationPart
+            || $category == Category::Document
         ){
             return intval($numberParts[1]);
         }
@@ -224,6 +228,7 @@ function parser(Category $category, string|int|null $input): string|int|null
         if(    $category == Category::StockHistoryIndex
             || $category == Category::InventoryAccessory
             || $category == Category::SpecificationPartRevision
+            || $category == Category::DocumentRevision
         ){
             return intval($numberParts[2]);
         }

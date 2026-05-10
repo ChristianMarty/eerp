@@ -28,6 +28,7 @@ enum Entrypoint{
     case RENDERER;
     case REPORT;
     case PROCESS;
+    case TRANSCRIPT;
 }
 
 class ApiRouter
@@ -39,7 +40,6 @@ class ApiRouter
     private bool $hasPost = false;
     private bool $hasPatch = false;
     private bool $hasDelete = false;
-
 
     function __construct(UserAuthentication $user, Entrypoint $entrypoint, string $path, string $methodString)
     {
@@ -59,6 +59,7 @@ class ApiRouter
             Entrypoint::RENDERER => 'renderer.php/',
             Entrypoint::REPORT => 'report.php/',
             Entrypoint::PROCESS => 'process.php/',
+            Entrypoint::TRANSCRIPT => 'transcript.php/',
         };
 
         global $serverDataPath;
@@ -68,6 +69,7 @@ class ApiRouter
             Entrypoint::RENDERER => __DIR__.'/../renderer/',
             Entrypoint::REPORT => __DIR__.'/../report/',
             Entrypoint::PROCESS => __DIR__.'/../process/',
+            Entrypoint::TRANSCRIPT => __DIR__.'/../transcript/',
         };
 
         $requestParts = explode($entryPath, $path);

@@ -27,6 +27,7 @@ $query = <<<STR
     FROM document_revision
     LEFT JOIN document on document_revision.DocumentNumberId = document.Id
     WHERE document_revision.Cache_Content IS NULL
+    ORDER BY document_revision.Id DESC
     LIMIT 1;
 STR;
 $result = $database->query($query);
