@@ -17,6 +17,11 @@ namespace Document {
     require_once __DIR__ . "/../../core/error.php";
     require_once __DIR__ . "/../../core/numbering.php";
 
+    function _formatDocumentName(\stdClass $item): string
+    {
+       return  \Numbering\format(\Numbering\Category::Document,$item->DocumentNumber, $item->RevisionNumber) . ".".$item->Extension;
+    }
+
     function _formatDocumentOutput(\stdClass $item): \stdClass
     {
         $output = new \stdClass();
@@ -41,7 +46,7 @@ namespace Document {
         global $dataRootPath;
         global $documentPath;
         if ($item->LinkType === "Internal") {
-            $output->Path =  $dataRootPath . $documentPath . "/" . \Numbering\format(\Numbering\Category::Document,$item->DocumentNumber, $item->RevisionNumber) . ".".$item->Extension;
+            $output->Path =  $dataRootPath . $documentPath . "/" . _formatDocumentName($item);
         } else if ($item->LinkType === "External") {
             $output->Path =  $item->Path;
         }
@@ -90,6 +95,22 @@ namespace Document {
             $item = _formatDocumentOutput($item);
         }
         return $result;
+    }
+
+    class DocumentOcrData implements \JsonSerializable
+    {
+        public int|null $pageNumber = null;
+        public string $data;
+        public string $language;
+
+        public function jsonSerialize(): \stdClass
+        {
+            $output = new \stdClass();
+            $output->Page = $this->pageNumber;
+            $output->Language = $this->language;
+            $output->Data = $this->data;
+            return $output;
+        }
     }
 
     enum LinkType implements \JsonSerializable
