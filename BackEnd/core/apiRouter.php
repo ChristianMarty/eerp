@@ -33,7 +33,6 @@ enum Entrypoint{
 class ApiRouter
 {
     private ApiMethod $method;
-    private array|null $options = null;
     private string|null $runPath = null;
 
     private bool $hasGet = false;
@@ -303,22 +302,28 @@ class ApiRouter
         $this->returnData(null, $errorMessage);
     }
 
-    #[NoReturn] function returnNotFoundError(string $message = ""):void
+    #[NoReturn] function returnNotFoundError(string|null $message = null):void
     {
         http_response_code(404);
-        $this->returnError("Error 404 - Not Found:  ".$message);
+        $output = "Error 404 - Not Found";
+        if($message !== null) $output .= ": ".$message;
+        $this->returnError($output);
     }
 
-    #[NoReturn] function returnUnauthorizedError(string $message = ""):void
+    #[NoReturn] function returnUnauthorizedError(string|null $message = null):void
     {
         http_response_code(401);
-        $this->returnError("Error 401 - Unauthorized: ".$message);
+        $output = "Error 401 - Unauthorized";
+        if($message !== null) $output .= ": ".$message;
+        $this->returnError($output);
     }
 
-    #[NoReturn] function returnMethodNotAllowedError(string $message = ""):void
+    #[NoReturn] function returnMethodNotAllowedError(string|null $message = null):void
     {
         http_response_code(405);
-        $this->returnError("Error 405 - Method Not Allowed: ".$message);
+        $output = "Error 405 - Method Not Allowed";
+        if($message !== null) $output .= ": ".$message;
+        $this->returnError($output);
     }
 
     static private function generateIdempotenceToken(): string
