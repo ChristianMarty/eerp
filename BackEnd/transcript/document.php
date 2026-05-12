@@ -66,6 +66,11 @@ $pages = json_decode($result[0]->Data);
         margin: 20px;
         padding: 20px;
     }
+    pre{
+        white-space: pre-wrap;
+        max-width: 100%;
+        overflow-x: auto;
+    }
 </style>
 
 
@@ -73,9 +78,13 @@ $pages = json_decode($result[0]->Data);
     foreach ($pages as $data) {
         if(strlen($data->Data)===0) continue;
 
-        echo '<div class="page">';
-        echo '<h2>Page '.$data->Page.'</h2>';
-        echo nl2br($data->Data);
-        echo '</div>';
+        echo '<div class="page">'.PHP_EOL;
+        echo '<h2>Page '.$data->Page.'</h2>'.PHP_EOL;
+        echo '<pre>';
+        //echo nl2br($data->Data);
+        //echo str_replace( "\n", '<br />', $data->Data ).PHP_EOL;
+        echo $data->Data;
+        echo '</pre>';
+        echo '</div>'.PHP_EOL;
     }
 ?>

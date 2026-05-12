@@ -227,7 +227,7 @@ namespace Document {
     function searchDocumentContent(string $searchTerm): array
     {
         global $database;
-        $searchTerm = $database->escape($searchTerm);
+        $searchTerm = $database->escape('%'.$searchTerm.'%');
 
         $query = <<< QUERY
             SELECT 
@@ -246,7 +246,7 @@ namespace Document {
             FROM document_revision
             LEFT JOIN document on document_revision.DocumentNumberId = document.Id
             JOIN JSON_TABLE(document_revision.Cache_Content,'$[*]' COLUMNS (Data LONGTEXT PATH '$.Data', Page LONGTEXT PATH '$.Page')) AS pageData
-            WHERE pageData.Data LIKE $searchTerm ;
+            WHERE pageData.Data LIKE $searchTerm;
         QUERY;
         $result = $database->query($query);
         if(count($result) === 0){

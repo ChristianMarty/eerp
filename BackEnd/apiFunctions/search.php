@@ -402,9 +402,9 @@ function search_document(string $input): array
     foreach($result as $item)
     {
         $description = "On page ".$item->Page.": ";
-        $description .= $item->Category."; ";
+        $description .= $item->Category." -> ";
         $description .= $item->Name;
-        if(!strlen($item->Description)){
+        if(strlen($item->Description)){
             $description .= "; ".$item->Description;
         }
 
