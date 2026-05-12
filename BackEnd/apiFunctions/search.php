@@ -11,6 +11,8 @@ declare(strict_types=1);
 global $database;
 global $api;
 
+require_once __DIR__ . "/document/_document.php";
+
 class SearchResult implements \JsonSerializable
 {
     public \Numbering\Category $category;
@@ -33,6 +35,7 @@ if($api->isGet( Permission::Search))
 {
 	$parameter = $api->getGetData();
 	if(!isset($parameter->search)) $api->returnParameterMissingError("search");
+    $documentSearch = $parameter->documentSearch??false;
 
 	$search = trim(strtolower($parameter->search));
     if(strlen($search) === 0){
@@ -88,6 +91,13 @@ if($api->isGet( Permission::Search))
         search_purchaseOrder($search),
         search_inventory($search)
 	);
+
+    if($documentSearch===true){
+        $output = array_merge(
+            $output,
+            search_document($search)
+        );
+    }
 
 	$api->returnData($output);
 }
@@ -384,3 +394,27 @@ function search_inventory(string $input): array
     return $output;
 }
 
+function search_document(string $input): array
+{
+    $result = \Document\searchDocumentContent($input);
+
+    $output = [];
+    foreach($result as $item)
+    {
+        $description = "On page ".$item->Page.": ";
+        $description .= $item->Category."; ";
+        $description .= $item->Name;
+        if(!strlen($item->Description)){
+            $description .= "; ".$item->Description;
+        }
+
+        $temp = new SearchResult();
+        $temp->category = \Numbering\Category::Document;
+        $temp->item = \Numbering\format(\Numbering\Category::Document, $item->DocumentNumber, $item->DocumentRevision,);
+        $temp->redirectCode = $temp->item;
+        $temp->description = $description;
+
+        $output[] = $temp;
+    }
+    return $output;
+}

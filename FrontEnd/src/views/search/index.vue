@@ -1,10 +1,12 @@
 <template>
   <div class="app-container">
     <h1> Search Result for : {{ searchTerm }}</h1>
+
     <el-input ref="searchInput" v-model="searchInput" placeholder="Search" @keyup.enter.native="search(searchInput)">
       <el-button slot="append" icon="el-icon-search" @click="search(searchInput)" />
     </el-input>
     <p>Use SQL LIKE syntax for MPN search.</p>
+    <el-checkbox v-model="documentSearch">Search in Documents</el-checkbox>
 
     <el-table
       v-loading="loading"
@@ -42,7 +44,8 @@ export default {
       loading: true,
       searchInput: '',
       searchTerm: '',
-      result: []
+      result: [],
+      documentSearch: false
     }
   },
   mounted() {
@@ -68,7 +71,7 @@ export default {
       this.searchInput = term
       this.setTitle(term)
 
-      search.search(term).then(response => {
+      search.search(term, this.documentSearch).then(response => {
         this.loading = false
         this.result = response
         this.result.forEach((item) => {

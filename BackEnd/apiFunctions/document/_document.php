@@ -42,7 +42,7 @@ namespace Document {
         if (isset($item->CreatedByName)) {
             $output->CreatedByName = $item->CreatedByName;
         }
-        if (isset($item->Pahe)) {
+        if (isset($item->Page)) {
             $output->Page = $item->Page;
         }
 

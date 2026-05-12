@@ -26,7 +26,18 @@ $query = <<<STR
            document_revision.Id AS DocumentRevisionId
     FROM document_revision
     LEFT JOIN document on document_revision.DocumentNumberId = document.Id
-    WHERE document_revision.Cache_Content IS NULL
+    WHERE document_revision.Cache_Content IS NULL AND 
+          (document.Category = 'Datasheet' OR 
+           document.Category = 'Invoice' OR 
+           document.Category = 'Receipt' OR 
+           document.Category = 'Calibration' OR 
+           document.Category = 'Unknown' OR 
+           document.Category = 'Certificate' OR 
+           document.Category = 'Software' OR 
+           document.Category = 'Confirmation' OR 
+           document.Category = 'DeliveryNote' OR 
+           document.Category = 'Quote' OR 
+           document.Category = 'Business Card')
     ORDER BY document_revision.Id DESC
     LIMIT 1;
 STR;
@@ -57,6 +68,7 @@ for($i = 0; $i<$numberOfPages; $i++)
     \Error\checkErrorAndExit($pageData);
 
     $pageData->pageNumber = $i+1;
+    if(strlen($pageData->data)===0) continue;
     $pages[] = $pageData;
 }
 $updateData = [];

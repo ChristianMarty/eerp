@@ -1,7 +1,7 @@
 <?php
 //*************************************************************************************************
 // FileName : exportManufacturerParts.php
-// FilePath : apiFunctions/report/
+// FilePath : report/
 // Author   : Christian Marty
 // Date		: 13.11.2023
 // License  : MIT

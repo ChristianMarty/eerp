@@ -89,9 +89,20 @@ export const constantRoutes = [
         path: 'dashboard',
         component: () => import('@/views/dashboard/index'),
         meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
+    path: '/search',
+    component: Layout,
+    children: [
+      {
+        path: '/search',
+        component: () => import('@/views/search/index'),
+        meta: { title: 'Search', icon: 'search', noCache: true }
       },
       {
-        path: 'search/:Search(.*)',
+        path: '/search/:Search(.*)',
         component: () => import('@/views/search/index'),
         meta: { title: 'Search', icon: 'search', noCache: true },
         hidden: true
