@@ -41,7 +41,13 @@ $result = $database->query($query);
 
 if(count($result)===0){
     http_response_code(404 );
-    echo "Error 404  - Not Found -> ".$parameters->ItemCode;
+    echo "Error 404  - Item not found -> ".$parameters->ItemCode;
+    exit;
+}
+
+if($result[0]->Data===null){
+    http_response_code(404 );
+    echo "Error 404  - No data for item found -> ".$parameters->ItemCode;
     exit;
 }
 
@@ -49,14 +55,12 @@ $pages = json_decode($result[0]->Data);
 
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title><?php echo $parameters->ItemCode; ?> transcript</title>
-    <link  media="print" />
 </head>
-
 <style>
     body {
         background-color: LightGray;
@@ -72,19 +76,54 @@ $pages = json_decode($result[0]->Data);
         overflow-x: auto;
     }
 </style>
-
-
+<body>
 <?php
+
+    function fixHtmlTables(string $input): string
+    {
+        $output = $input;
+
+        $output = preg_replace('/<$/', '', $output);
+        $output = preg_replace('/<td$/', '', $output);
+        $output = preg_replace('/<tr$/', '', $output);
+
+        $tableOpen = substr_count($output,'<table>');
+        $tableClose = substr_count($output,'</table>');
+
+        $rowOpen = substr_count($output,'<tr>');
+        $rowClose = substr_count($output,'</tr>');
+
+        if(str_ends_with($output, '</tr') || str_ends_with($output, '</td')){
+            $output .= '>';
+        }
+
+        if($rowOpen !== $rowClose){
+            $output .= '</tr>';
+        }
+
+        if($tableOpen !== $tableClose){
+            $output .= '</table>';
+        }
+
+        return $output;
+    }
+
     foreach ($pages as $data) {
-        if(strlen($data->Data)===0) continue;
+        $content = trim($data->Data);
+        if(strlen($content)===0) continue;
+
+        $content = str_replace(' < ', ' &lt; ', $content);
+        $content = str_replace(' <= ', ' &lt;= ', $content);
+        $content = str_replace(' > ', ' &gt; ', $content);
+        $content = str_replace(' >= ', ' &gt;= ', $content);
 
         echo '<div class="page">'.PHP_EOL;
         echo '<h2>Page '.$data->Page.'</h2>'.PHP_EOL;
-        echo '<pre>';
-        //echo nl2br($data->Data);
-        //echo str_replace( "\n", '<br />', $data->Data ).PHP_EOL;
-        echo $data->Data;
-        echo '</pre>';
+        echo '<hr>'.PHP_EOL;
+        echo '<pre>'.PHP_EOL;
+        echo $content;
+        echo '</pre>'.PHP_EOL;
         echo '</div>'.PHP_EOL;
     }
 ?>
+</body>

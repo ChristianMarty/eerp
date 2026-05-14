@@ -58,19 +58,24 @@ $imagick->setResolution(150,150);
 $imagick->readImage($filePath);
 
 $numberOfPages = $imagick->getNumberImages();
+
 $pages = [];
 for($i = 0; $i<$numberOfPages; $i++)
 {
     $imagick->setIteratorIndex($i);
+    $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
     $imagick->setImageFormat("PNG");
     $image = $imagick->getImageBlob();
     $pageData = \LmStudio\ocr($image);
     \Error\checkErrorAndExit($pageData);
 
+    //$imagick->writeImage($filePath.'-'.$i.'.png');
+
     $pageData->pageNumber = $i+1;
     if(strlen($pageData->data)===0) continue;
     $pages[] = $pageData;
 }
+
 $updateData = [];
 $updateData['Cache_Content'] = json_encode($pages);
 
