@@ -106,7 +106,7 @@ namespace LmStudio
     {
         $data = [];
         $data['model'] = modelName(Model::OlmOcr);
-        $data['context_length'] = 8196;
+        $data['context_length'] = 12298; // 4096*3
 
         return apiPostRequest($data, ApiEndpoint::Load);
     }
