@@ -85,16 +85,15 @@ function checkErrorAndExit(mixed $data): void
 
 function checkNoResult(mixed $data): bool | \Error\Data
 {
-    global $api;
-    if(!is_array($data)){
+    if (!is_array($data)) {
         return \Error\generic("Datatype error");
     }
 
-    if(count($data) === 0) {
-       return true;
+    if (count($data) === 0) {
+        return true;
+    } else {
+        return false;
     }
-
-    return false;
 }
 
 function checkNoResultAndExit(mixed $data, string $item): void

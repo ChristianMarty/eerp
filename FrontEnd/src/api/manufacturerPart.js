@@ -71,6 +71,23 @@ class ManufacturerPart {
         })
       })
     },
+    createFromPartNumber(ManufacturerPartNumberId) {
+      return new Promise((resolve, reject) => {
+        eerpApi({
+          method: 'post',
+          url: '/part/manufacturerPart/item',
+          data: {
+            PartNumberId: ManufacturerPartNumberId
+          }
+        }).then(response => {
+          if (response.error == null) {
+            resolve(response.data)
+          } else {
+            reject(response.error)
+          }
+        })
+      })
+    },
     characteristics: {
       get(ManufacturerPartItemId) {
         return new Promise((resolve, reject) => {
@@ -313,25 +330,6 @@ class ManufacturerPart {
           data: {
             PartNumberId: PartNumberId,
             SinglePartWeight: SinglePartWeight
-          }
-        }).then(response => {
-          if (response.error == null) {
-            resolve(response.data)
-          } else {
-            reject(response.error)
-          }
-        })
-      })
-    },
-    availability(ManufacturerPartNumberId, AuthorizedOnly = true, Brokers = false) {
-      return new Promise((resolve, reject) => {
-        eerpApi({
-          method: 'get',
-          url: '/part/manufacturerPart/partNumber/availability',
-          params: {
-            ManufacturerPartNumberId: ManufacturerPartNumberId,
-            AuthorizedOnly: AuthorizedOnly,
-            Brokers: Brokers
           }
         }).then(response => {
           if (response.error == null) {

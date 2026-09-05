@@ -8,6 +8,7 @@
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
 
+
 function seriesDataFromNumber(int $vendorId, string $partNumber) :array | null
 {
     global $database;
@@ -31,8 +32,7 @@ function seriesDataFromNumber(int $vendorId, string $partNumber) :array | null
     if(count($result) == 0) return null;
 
     foreach ($result as $r) {
-        if($r->SeriesNameMatch !== null &&  preg_match($r->SeriesNameMatch, trim($partNumber)))
-        {
+        if($r->SeriesNameMatch !== null &&  preg_match($r->SeriesNameMatch, trim($partNumber))) {
             return (array)$r;
         }
     }

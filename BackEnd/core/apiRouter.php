@@ -221,7 +221,7 @@ class ApiRouter
         else return false;
     }
 
-    #[NoReturn] function returnData(array|stdClass|null|string|\Error\Data $data, string|null $errorMessage = null): void
+    #[NoReturn] function returnData(array|stdClass|null|string|int|\Error\Data $data, string|null $errorMessage = null): void
     {
         if($data instanceof \Error\Data){
             if($data->type == \Error\Type::Permission){
