@@ -1,9 +1,9 @@
 <?php
 //*************************************************************************************************
-// FileName : locationBoxDescription_A7.php
-// FilePath : renderer/
+// FileName : locationBoxDescription_treston6020-4esd.php
+// FilePath : renderer
 // Author   : Christian Marty
-// Date		: 05.09.2026
+// Date		: 02.12.2023
 // License  : MIT
 // Website  : www.christian-marty.ch
 //*************************************************************************************************
@@ -19,7 +19,7 @@ global $assetsRootPath;
 <!DOCTYPE html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Location Description 24x105</title>
+    <title>Location Description Treston 6020-4</title>
 
     <style>
         @font-face {
@@ -39,7 +39,7 @@ global $assetsRootPath;
             height:11mm;
         }
         div.page{
-            margin-left: 4mm;
+            margin-left: 11mm;
             border-top: 1px dotted;
             break-after: page;
         }
@@ -57,37 +57,40 @@ global $assetsRootPath;
         div.label{
             table-layout: fixed;
             float: left;
-            width: 94mm;
-            height: 24mm;
+            width:175mm;
+            height:41mm;
 
             border-bottom: 1px dotted;
-        }
-        div.margin{
-            table-layout: fixed;
-            float: left;
-            width: 5mm;
-            height:24mm;
-            border-bottom: 1px dotted;
-        }
-        div.marginLeft{
-            table-layout: fixed;
-            float: left;
-            width: 5mm;
-            height:24mm;
-
             border-left: 1px dotted;
-            border-bottom: 1px dotted;
+            border-right: 1px dotted;
         }
+
+        div.left {
+            table-layout: fixed;
+            float: left;
+
+            width:80%;
+            height:100%;
+        }
+        div.right {
+            table-layout: fixed;
+            float: left;
+
+            width:19%;
+            height:100%;
+            border-left: 5px solid;
+        }
+
         div.title{
-            height:12mm;
+            height:20mm;
             margin: 0;
 
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        h1.title{
-            font-size: 8mm;
+        p.title{
+            font-size: 16mm;
             font-weight: bold;
             width: 100%;
             margin: 0;
@@ -96,7 +99,7 @@ global $assetsRootPath;
             word-wrap: break-word;
         }
         div.description{
-            height:12mm;
+            height:20mm;
             margin: 0;
 
             display: flex;
@@ -104,12 +107,34 @@ global $assetsRootPath;
             align-items: center;
         }
         p.description{
-            font-size: 6mm;
+            font-size: 10mm;
             width: 100%;
             margin: 0;
 
             text-align: center;
             word-wrap: break-word;
+        }
+
+        p.box{
+            text-align: center;
+            font-size: 8mm;
+            margin-top: 2mm;
+            margin-bottom:1mm;
+            font-weight: bold;
+        }
+
+        img.barcode {
+            margin: 0;
+            padding: 0;
+            width:100%;
+            height:25px;
+        }
+        p.barcode {
+            padding: 0;
+            text-align: center;
+            font-size: 2mm;
+            margin-top: 0;
+            margin-bottom:0.5mm;
         }
     </style>
 </head>
@@ -117,6 +142,7 @@ global $assetsRootPath;
 <header></header>
 <div class='page'>
 <?php
+    global $rendererRootPath;
     $locationData = \Renderer\parseLocationParameter($api->getGetData());
     if($locationData->isEmpty()){
         echo "Location number list is empty.";
@@ -130,7 +156,9 @@ global $assetsRootPath;
 
     $locationNumbersString = $locationData->sqlInString();
     $query = <<< STR
-    SELECT 
+        SELECT 
+            LocationNumber,
+            Name,
             Title,
             Description
         FROM location
@@ -143,19 +171,32 @@ global $assetsRootPath;
     {
         $title = $row->Title??'';
         $description = $row->Description??'';
+        $name = $row->Name??'';
+        $locationBarcode = \Numbering\format(\Numbering\Category::Location, $row->LocationNumber??null);
 
-        echo "<div class='label'>";
-        echo "<div class='title'><h1 class='title'>$title</h1></div>";
-        echo "<div class='description'><p class='description'>$description</p></div>";
-        echo "</div>";
+        // Title / Description
+        $content  = "<div class='left'>";
+        $content .= "<div class='title'><p class='title'>$title</p></div>";
+        $content .= "<div class='description'><p class='description'>$description</p></div>";
+        $content .= "</div>";
 
-        if(!($i%2)) {
-            echo "<div class='margin'></div>";
-            echo "<div class='marginLeft'></div>";
+        // Box Name / Barcode
+        if($locationBarcode) {
+            $content .= "<div class='right'>";
+            $content .= "<p class='box'>Box</p>";
+            $content .= "<p class='box'>$name</p>";
+            $content .= "<div class='barcode'>";
+            $content .= "<p class='barcode'>$locationBarcode</p>";
+            $content .= "<img class='barcode' src='" . $rendererRootPath . "/barcode/barcode?text=" . $locationBarcode . "'/>";
+            $content .= "</div></div>";
         }
 
+        echo "<div class='label'>";
+        echo $content;
+        echo "</div>";
+
         $i++;
-        if(!($i%22) && $i !== count($items)) {
+        if(!($i%6) && $i !== count($items)) {
             echo "</div> <header></header> <div class='page'>";
         }
     }

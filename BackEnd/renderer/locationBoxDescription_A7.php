@@ -40,7 +40,7 @@ global $assetsRootPath;
             width:100%;
             height:11mm;
         }
-        div.print{
+        div.page{
             margin-left: 4mm;
             border-top: 1px dotted;
             break-after: page;
@@ -50,7 +50,7 @@ global $assetsRootPath;
             margin: 0;
         }
         @media not print {
-            div.print{
+            div.page{
                 width:200mm;
                 height:282mm;
             }
@@ -89,7 +89,7 @@ global $assetsRootPath;
             align-items: center;
         }
         h1.title{
-            font-size: 10mm;
+            font-size: 12mm;
             font-weight: bold;
             width: 100%;
             margin: 0;
@@ -106,7 +106,7 @@ global $assetsRootPath;
             align-items: center;
         }
         p.description{
-            font-size: 7mm;
+            font-size: 10mm;
             width: 100%;
             margin: 0;
 
@@ -117,54 +117,49 @@ global $assetsRootPath;
 </head>
 
 <header></header>
-<div class='print'>
+<div class='page'>
 <?php
-$parameter = $api->getGetData();
+    $locationData = \Renderer\parseLocationParameter($api->getGetData());
+    if($locationData->isEmpty()){
+        echo "Location number list is empty.";
+        exit;
+    }
 
-$locationNumbers = \Renderer\parseLocationList($parameter->LocationNumber??null);
-if($locationNumbers === null){
-    echo "Location number list is empty.";
-    exit;
-}
-
-$items =[];
-if (isset($parameter->Offset)) {
-    for ($i = 0; $i < $parameter->Offset; $i++) {
+    $items =[];
+    for ($i = 0; $i < $locationData->offset; $i++) {
         $items[] = [];
     }
-}
 
-$locationNumbersString = implode(", ", $locationNumbers);
-$query = <<< STR
-    SELECT 
-        Title,
-        Description
-    FROM location
-    WHERE LocationNumber IN( $locationNumbersString );
-STR;
+    $locationNumbersString = $locationData->sqlInString();
+    $query = <<< STR
+        SELECT 
+            Title,
+            Description
+        FROM location
+        WHERE LocationNumber IN( $locationNumbersString );
+    STR;
+    $items = array_merge($items, $database->query($query));
 
-$items = array_merge($items, $database->query($query));
+    $i = 0;
+    foreach ($items as $row)
+    {
+        $title = $row->Title??'';
+        $description = $row->Description??'';
 
-$i = 0;
-foreach ($items as $row)
-{
-    $title = $row->Title??'';
-    $description = $row->Description??'';
+        echo "<div class='label'>";
+        echo "<div class='title'><h1 class='title'>$title</h1></div>";
+        echo "<div class='description'><p  class='description'>$description</p></div>";
+        echo "</div>";
 
-    echo "<div class='label'>";
-    echo "<div class='title'><h1 class='title'>$title</h1></div>";
-    echo "<div class='description'><p  class='description'>$description</p></div>";
-    echo "</div>";
+        if(!($i%2)) {
+            echo "<div class='margin'></div>";
+            echo "<div class='marginLeft'></div>";
+        }
 
-    if(!($i%2)) {
-        echo "<div class='margin'></div>";
-        echo "<div class='marginLeft'></div>";
+        $i++;
+        if(!($i%6) && $i !== count($items)) {
+            echo "</div> <header></header> <div class='page'>";
+        }
     }
-
-    $i++;
-    if(!($i%6) && $i !== count($items)) {
-        echo "</div> <header></header> <div class='print'>";
-    }
-}
 ?>
 </div>

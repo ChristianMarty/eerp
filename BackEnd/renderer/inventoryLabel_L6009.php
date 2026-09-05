@@ -12,6 +12,7 @@ global $database;
 global $api;
 
 require_once __DIR__ . "/../config.php";
+require_once __DIR__ ."/_renderer.php";
 
 ?>
 
@@ -71,71 +72,53 @@ require_once __DIR__ . "/../config.php";
 
 <div class="page">
 <?php
-
-$parameter = $api->getGetData();
-
-$inventoryNumbers = [];
-if (isset($parameter->InventoryNumber)) {
-    $inventoryNumbers = explode(",", $parameter->InventoryNumber);
-
-    if(!count($inventoryNumbers)){
-        echo "Inventory number list empty";
+    $locationData = \Renderer\parseInventoryParameter($api->getGetData());
+    if($locationData->isEmpty()){
+        echo "Location number list is empty.";
         exit;
     }
 
-    foreach ($inventoryNumbers as &$item) {
-        $item = \Numbering\parser(\Numbering\Category::Inventory, $item);
-        unset($item);
+    $items =[];
+    for ($i = 0; $i < $locationData->offset; $i++) {
+        $items[] = null;
     }
-}
 
-$fieldOffset = 0;
-if (isset($parameter->Offset)) {
-    $fieldOffset = $parameter->Offset;
-}
+    $inventoryNumbersString = $locationData->sqlInString();
+    if(strlen($inventoryNumbersString)=== 0){
+        echo "Inventory number list is empty.";
+        exit;
+    }
+    $query = <<< STR
+        SELECT 
+            InventoryNumber,
+            Title,
+            Manufacturer,
+            Type
+        FROM inventory
+        WHERE InventoryNumber IN( $inventoryNumbersString );
+    STR;
+    $items = array_merge($items, $database->query($query));
 
-$inventoryNumbersString = implode(", ", $inventoryNumbers);
-if(strlen($inventoryNumbersString)=== 0){
-    echo "Inventory number list is empty.";
-    exit;
-}
+    global $companyName;
+    global $rendererRootPath;
+    foreach ($items as $row)
+    {
+        $content = "";
+        if($row !== null) {
+            $category = $row->Manufacturer . " " . $row->Type;
+            $invNo = $row->InventoryNumber . " ";
+            $title = $row->Title . " ";
 
-$query = <<< STR
-    SELECT 
-        InventoryNumber,
-        Title,
-        Manufacturer,
-        Type
-    FROM inventory
-    WHERE InventoryNumber IN( $inventoryNumbersString );
-STR;
+            $content = "<h1 class='label'>" . $companyName . "</h1>";
+            $content .= "<p class='label'>" . $title . " </p>";
+            $content .= "<p class='label'>" . $category . " </p>";
+            $content .= "<p class='label'>Inv Nr. " . $invNo . " </p>";
+            $content .= "<img class='label' src='" . $rendererRootPath . "/barcode/barcode?text=Inv-" . $invNo . "'/>";
+        }
 
-$rows = $database->query($query);
-
-for ($i = 0; $i < $fieldOffset; $i++) {
-    echo "<div class='label'>";
-    echo "</div>";
-}
-
-global $companyName;
-global $rendererRootPath;
-
-foreach ($rows as $row)
-{
-    $category = $row->Manufacturer . " " . $row->Type;
-    $invNo = $row->InventoryNumber . " ";
-    $title = $row->Title . " ";
-
-    $content = "<h1 class='label'>" . $companyName . "</h1>";
-    $content .= "<p class='label'>" . $title . " </p>";
-    $content .= "<p class='label'>" . $category . " </p>";
-    $content .= "<p class='label'>Inv Nr. " . $invNo . " </p>";
-    $content .= "<img class='label' src='" . $rendererRootPath . "/barcode/barcode?text=Inv-" . $invNo . "'/>";
-
-    echo "<div class='label'>";
-    echo $content;
-    echo "</div>";
-}
-
+        echo "<div class='label'>";
+        echo $content;
+        echo "</div>";
+    }
 ?>
 </div>
