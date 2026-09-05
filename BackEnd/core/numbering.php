@@ -180,6 +180,8 @@ function parser(Category $category, string|int|null $input): string|int|null
     if(is_numeric($input)) return intval($input);
 
     $input = trim($input);
+    if(strlen($input) === 0) return null;
+
     $input = strtolower($input);
 
     if($category == Category::ProductionPart){

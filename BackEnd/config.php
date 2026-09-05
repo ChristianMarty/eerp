@@ -34,7 +34,7 @@ $domainRootPath = "https://my domain.ch"; // Path without trailing /
 $apiRootPath      =  $serverPath.'api.php';
 $dataRootPath     =  $serverPath.'data.php';
 $rendererRootPath =  $serverPath.'renderer.php';
-$assetsRootPath   = $dataRootPath.'/assets';
+$assetsRootPath   =  $serverPath.'assets';
 
 $companyName = "Christian Marty";
 $accountingCurrencyId = 1;

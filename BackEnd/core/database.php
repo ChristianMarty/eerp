@@ -234,6 +234,17 @@ class Database
         else return "b'0'";
     }
 
+    static public function emptyStringToNull(string|null $value, bool $trim = true): string|null
+    {
+        if($value === null) return null;
+        if($trim){
+            $value = trim($value);
+        }
+
+        if(strlen($value) === 0) return null;
+        return $value;
+    }
+
     static public function stringEmptyOrNull(string|null $value): bool
     {
         if($value === null) return true;

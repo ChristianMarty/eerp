@@ -725,7 +725,7 @@ namespace Document\Ingest
 
             $sqlData = [];
             $sqlData['Name'] = $data->name;
-            $sqlData['Description'] = $data->documentDescription;
+            $sqlData['Description'] = \Database::emptyStringToNull($data->documentDescription);
             $sqlData['Category'] = $data->category;
             $sqlData['CreationUserId'] = $user->userId();;
             $sqlData['DocumentNumber']['raw'] = "(SELECT generateItemNumber())";
@@ -773,7 +773,7 @@ namespace Document\Ingest
             $sqlData['Path'] = $data->ingestName;
             $sqlData['Hash'] = null;
         }
-        $sqlData['Description'] = $data->revisionDescription;
+        $sqlData['Description'] = \Database::emptyStringToNull($data->revisionDescription);
         $sqlData['DocumentNumberId'] = $documentId;
         $sqlData['RevisionNumber'] = $nextRevisionNumber;
         $sqlData['CreationUserId'] = $user->userId();;
