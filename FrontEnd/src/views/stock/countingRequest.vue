@@ -48,11 +48,6 @@
 </template>
 
 <script>
-import Location from '@/api/location'
-const location = new Location()
-
-import Vendor from '@/api/vendor'
-const vendor = new Vendor()
 
 import Stock from '@/api/stock'
 const stock = new Stock()

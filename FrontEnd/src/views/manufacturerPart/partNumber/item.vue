@@ -27,7 +27,6 @@
     <p><b>Description:</b> {{ data.PartNumberDescription }}</p>
     <p><b>Package: </b>{{ data.PackageName }}</p>
 
-
     <h3>Production Parts</h3>
     <template v-permission="['ProductionPart_Edit']">
       <el-button

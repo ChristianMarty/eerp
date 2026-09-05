@@ -41,7 +41,7 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       searchInput: '',
       searchTerm: '',
       result: [],
@@ -66,6 +66,9 @@ export default {
       this.$store.dispatch('tagsView/delView', this.$route) // close search view
     },
     search(term) {
+      if (!term || term.length === 0) {
+        return
+      }
       this.loading = true
       this.searchTerm = term
       this.searchInput = term
