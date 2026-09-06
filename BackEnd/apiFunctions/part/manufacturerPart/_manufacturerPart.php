@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ManufacturerPart;
 
 require_once  "_function.php";
+require_once __DIR__ . "/../_class.php";
 require_once __DIR__ . "/../_part.php";
 require_once __DIR__ . "/../../document/_document.php";
 
@@ -31,7 +32,7 @@ function get(int $itemId): ManufacturerPartData | \Error\Data | \stdClass
             Attribute,
             manufacturerPart_partPackage.name AS Package, 
             manufacturerPart_class.Name AS PartClassName,
-            manufacturerPart_class.Name AS PartClassPath,
+            manufacturerPart_class.Id AS PartClassId,
             manufacturerPart_item.SeriesId AS SeriesId, 
             manufacturerPart_series.Id AS SeriesId,
             manufacturerPart_series.Title AS SeriesTitle, 
@@ -51,6 +52,9 @@ function get(int $itemId): ManufacturerPartData | \Error\Data | \stdClass
         return \Error\itemNotFound((string)$itemId);
     }
     $output = $output[0];
+
+    $output->PartClassPath = \PartClass\getPath($output->PartClassId);
+    unset($output->PartClassId);
 
     $parameter = array();
     if(isset($output->SeriesId)) {
@@ -170,6 +174,3 @@ function createFromPartNumberId(int $partNumberId): int | \Error\Data
 
     return $itemId;
 }
-
-
-
