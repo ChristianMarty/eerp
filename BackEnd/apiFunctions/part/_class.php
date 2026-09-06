@@ -37,9 +37,14 @@ function getPath(int|null $classId) : string | \Error\Data
 
     $output = [];
     $nextId = $classId;
+    $i = 0;
     while($nextId != null){
         $output[] = $map[$nextId]->Name;
         $nextId = $map[$nextId]->ParentId;
+        $i++;
+        if($i>100){
+            return \Error\generic("Class path too deep");
+        }
     }
 
     return implode(" → ",array_reverse($output));

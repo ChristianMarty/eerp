@@ -24,7 +24,16 @@ if($api->isGet())
     $includeParent = false;
     if(isset($parameter->IncludeParent)) $includeParent = boolval($parameter->IncludeParent);
 
-    $query = "SELECT * FROM manufacturerPart_class ";
+    $query = <<<STR
+        SELECT 
+            Id,
+            ParentId,
+            Name,
+            NoParts,
+            SymbolPath,
+            Prefix
+        FROM manufacturerPart_class
+    STR;
     $parameters = [];
     if(!$showHidden){
         $parameters[] = "Hidden = b'0'";
