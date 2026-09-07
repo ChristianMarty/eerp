@@ -107,7 +107,7 @@ if($api->isGet(\Permission::Location_View))
 	}
 	$output['Children'] = $children;
 
-    if($parameters->Items??null === true) $output['Items'] = location_getItems($locationId);
+    if($parameter->Items??null === true) $output['Items'] = location_getItems($locationId);
     else $output['Items'] = [];
 
 	$api->returnData($output);

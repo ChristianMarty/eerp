@@ -18,5 +18,5 @@ if($api->isGet())
 
     if(!isset($parameters->Item)) $api->returnParameterMissingError("Item");
 
-    $api->returnData(description_generateSummary($parameters->Item));
+    $api->returnData(json_decode(json_encode(description_generateSummary($parameters->Item)))); // todo: remove encode / decode
 }

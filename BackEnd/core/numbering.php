@@ -111,16 +111,41 @@ function prefix(Category $category = Category::Undefined): string|null
         Category::Assembly => "ASM",
         Category::AssemblyUnit => "ASU",
         Category::AssemblyUnitHistory => "ASH",
-        Category::ManufacturerPartNumber => "",
         Category::ManufacturerPartSeries => "",
+        Category::ManufacturerPart => "",
+        Category::ManufacturerPartNumber => "",
         Category::Shipment => "Shp",
         Category::CostCenter => "CC",
         Category::Project => "Pjct",
         Category::SpecificationPart => "Spec",
         Category::SpecificationPartRevision => "Spec",
         Category::TestSystem => "TSY",
-        Category::BillOfMaterial => "BOM",
+        Category::BillOfMaterial => "BOM"
     };
+}
+
+function prefixToCategory(string $prefix): Category | \Error\Data
+{
+    $prefix = strtolower($prefix);
+    if($prefix === "inv")  return Category::Inventory;
+    if($prefix === "ven")  return Category::Vendor;
+    if($prefix === "po")   return Category::PurchaseOrder;
+    if($prefix === "wo")   return Category::WorkOrder;
+    if($prefix === "pick") return Category::PickingOrder;
+    if($prefix === "doc")  return Category::Document;
+    if($prefix === "loc")  return Category::Location;
+    if($prefix === "stk")  return Category::Stock;
+    if($prefix === "asm")  return Category::Assembly;
+    if($prefix === "asu")  return Category::AssemblyUnit;
+    if($prefix === "ash")  return Category::AssemblyUnitHistory;
+    if($prefix === "shp")  return Category::Shipment;
+    if($prefix === "cc")   return Category::CostCenter;
+    if($prefix === "pjct") return Category::Project;
+    if($prefix === "spec") return Category::SpecificationPart;
+    if($prefix === "tsy")  return Category::TestSystem;
+    if($prefix === "bom")  return Category::BillOfMaterial;
+
+    return \Error\generic("Unknown Item Category");;
 }
 
 function format(Category $category, string|int|null $number = null, string|int|null $index = null, string|int|null $parameter = null): string|null

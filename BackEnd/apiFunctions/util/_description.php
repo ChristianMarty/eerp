@@ -9,10 +9,37 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
+use Numbering\Category;
+
 require_once __DIR__ . "/../location/_location.php";
 
+class ItemDescription implements \JsonSerializable
+{
+    public string|int $itemNumber;
+    public Category $category = Category::Undefined;
+    public string|int $description;
+    public bool $movable;
+    public int $locationId;
+
+    public function jsonSerialize(): \stdClass
+    {
+        $output = new \stdClass();
+        $output->Item = \Numbering\format($this->category, $this->itemNumber);
+        $output->Category = $this->category;
+        $output->Description = $this->description;
+        $output->Movable = $this->movable;
+
+        $locationData = new Location();
+        $output->LocationCode = $locationData->itemCode($this->locationId);
+        $output->LocationName = $locationData->name($this->locationId);
+
+        return $output;
+    }
+}
+
+
 //Generates a universal description of an item of any category
-function description_generateSummary(string $itemCode): array | \Error\Data
+function description_generateSummary(string $itemCode): ItemDescription | \Error\Data
 {
     global $database;
     global $user;
@@ -21,10 +48,13 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 	$itemPrefix = strtolower($temp[0]);
 	$itemNr = $database->escape(trim(strtolower($temp[1])));
 
-	$data = array();
-	$locationId = null;
+    $category = \Numbering\prefixToCategory($itemPrefix);
+    if(\Error\checkError($category)){
+        return $category;
+    }
 
-	if($itemPrefix == "stk")
+
+	if($category === Category::Stock)
 	{
         if(!$user->checkPermission(\Permission::Stock_View)){
             return \Error\permission(\Permission::Stock_View);
@@ -35,7 +65,7 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 		    StockNumber,
 			vendor_displayName(vendor.Id) AS ManufacturerName,
 			manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
-			Date, 
+			partStock.Date, 
 			Cache_Quantity AS Quantity, 
 			LocationId 
 		FROM partStock 
@@ -54,16 +84,20 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 		$itemData = $result[0];
 
 		$descriptor = $itemData->ManufacturerName." ".$itemData->ManufacturerPartNumber;
-		$descriptor .= ", ".$itemData->Date.", Qty: ".$itemData->Quantity;
+        if($itemData->Date) $descriptor .= ", ".$itemData->Date;
+		$descriptor .= ", Qty: ".$itemData->Quantity;
 
-		$locationId = $itemData->LocationId;
+        $output = new ItemDescription();
+        $output->itemNumber = $itemData->StockNumber;
+        $output->category = \Numbering\Category::Stock;
+        $output->description = $descriptor;
+        $output->movable = true;
+        $output->locationId = $itemData->LocationId;
 
-		$data["Item"] = \Numbering\format(\Numbering\Category::Stock, $itemData->StockNumber);
-		$data["Category"] = "Stock";
-		$data["Description"] = $descriptor;
-		$data["Movable"] = true;
+        return $output;
+
 	}
-	else if($itemPrefix == "inv")
+	else if($category === Category::Inventory)
 	{
         if(!$user->checkPermission(\Permission::Inventory_View)){
             return \Error\permission(\Permission::Inventory_View);
@@ -91,14 +125,17 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 		$descriptor = $itemData->Title;
 		$descriptor .= " - ".$itemData->Manufacturer." ".$itemData->Type;
 
-		$locationId = $itemData->LocationId;
 
-		$data["Item"] = \Numbering\format(\Numbering\Category::Inventory, $itemData->InventoryNumber);
-		$data["Category"] = "Inventory";
-		$data["Description"] = $descriptor;
-		$data["Movable"] = true;
+        $output = new ItemDescription();
+        $output->itemNumber = $itemData->InventoryNumber;
+        $output->category = \Numbering\Category::Inventory;
+        $output->description = $descriptor;
+        $output->movable = true;
+        $output->locationId = $itemData->LocationId;
+
+        return $output;
 	}
-	else if($itemPrefix == "asu")
+	else if($category === Category::AssemblyUnit)
 	{
         if(!$user->checkPermission(\Permission::Assembly_View)){
             return \Error\permission(\Permission::Assembly_View);
@@ -127,14 +164,16 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 		$descriptor = $itemData->Name;
 		$descriptor .= " - ".$itemData->Description." SN: ".$itemData->SerialNumber;
 
-		$locationId = $itemData->LocationId;
+        $output = new ItemDescription();
+        $output->itemNumber = $itemData->AssemblyUnitNumber;
+        $output->category = \Numbering\Category::AssemblyUnit;
+        $output->description = $descriptor;
+        $output->movable = true;
+        $output->locationId = $itemData->LocationId;
 
-		$data["Item"] = \Numbering\format(\Numbering\Category::AssemblyUnit, $itemData->AssemblyUnitNumber);
-		$data["Category"] = "Assembly Item";
-		$data["Description"] = $descriptor;
-		$data["Movable"] = true;
+        return $output;
 	}
-	else if($itemPrefix == "loc")
+	else if($category === Category::Location)
 	{
         if(!$user->checkPermission(\Permission::Location_View)){
             return \Error\permission(\Permission::Location_View);
@@ -160,41 +199,16 @@ function description_generateSummary(string $itemCode): array | \Error\Data
 
 		$location = new Location();
 
-		$data["Item"] = \Numbering\format(\Numbering\Category::Location, $itemData->LocationNumber);
-		$data["Category"] = "Location";
-		$data["Description"] = $location->name($itemData->Id);
-		$data["LocationNr"] = \Numbering\format(\Numbering\Category::Location, $itemData->LocationNumber);
-		$data["Location"] = $location->name($itemData->LocationId);
-		if($itemData->Movable == "1") $data["Movable"] = true;
-		else $data["Movable"] = false;
-	}
-	else
-	{
-        return \Error\generic("Unknown Item Category");
+        $output = new ItemDescription();
+        $output->itemNumber = $itemData->AssemblyUnitNumber;
+        $output->category = \Numbering\Category::AssemblyUnit;
+        $output->description = $location->name($itemData->Id);
+        if($itemData->Movable == "1") $output->movable = true;
+        else $output->movable = false;
+        $output->locationId = $itemData->LocationId;
+
+        return $output;
 	}
 
-	if($locationId != null)
-	{
-		$query = <<<STR
-			SELECT 
-			    Id,
-			    LocationNumber, 
-			    NAME
-			FROM location 
-			WHERE Id = $locationId
-		STR;
-        $result = $database->query($query);
-
-        if(count($result) == 0)
-        {
-            return \Error\generic("Item not found");
-        }
-
-        $itemData = $result[0];
-
-		$data["LocationCode"] = \Numbering\format(\Numbering\Category::Location, $itemData->LocationNumber);
-		$data["LocationName"] = (new Location())->name($itemData->Id);
-	}
-
-	return $data;
+    return \Error\generic("Unknown Item Category");
 }

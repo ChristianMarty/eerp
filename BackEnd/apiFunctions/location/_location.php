@@ -9,6 +9,8 @@
 //*************************************************************************************************
 declare(strict_types=1);
 
+require_once __DIR__."/../../core/numbering.php";
+
 class Location
 {
 	private static array $locationData;
@@ -17,7 +19,8 @@ class Location
 		if(empty($this->locationData)){
 			global $database;
 			$query = <<<STR
-				SELECT *
+				SELECT 
+				    *
 				FROM location
 				ORDER BY `Name` ASC
 			STR;
@@ -167,7 +170,7 @@ function location_getItems(int|null $locationId) : array
 	{
 		$data = array();
 		$data["Item"] =  \Numbering\format(\Numbering\Category::Stock, $item->StockNumber);
-		$data["Category"] = "Stock";
+		$data["Category"] = \Numbering\Category::Stock;
 		$data["Description"] = "$item->ManufacturerName $item->ManufacturerPartNumber, $item->Date Qty: $item->Cache_Quantity";
 		$items[] = $data;
 	}
@@ -188,7 +191,7 @@ function location_getItems(int|null $locationId) : array
 	{
 		$data = array();
 		$data["Item"] = \Numbering\format(\Numbering\Category::Inventory, $item->InventoryNumber);
-		$data["Category"] = "Inventory";
+		$data["Category"] = \Numbering\Category::Inventory;
 		$data["Description"] = "$item->Title - $item->Manufacturer $item->Type";
 		$items[] = $data;
 	}
@@ -210,7 +213,7 @@ function location_getItems(int|null $locationId) : array
 	{
 		$data = array();
 		$data["Item"] = \Numbering\format(\Numbering\Category::AssemblyUnit, $item->AssemblyUnitNumber);
-		$data["Category"] = "Assembly Unit";
+		$data["Category"] = \Numbering\Category::AssemblyUnit;
 		$data["Description"] = "$item->Name - $item->Description SN: $item->SerialNumber";
 		$items[] = $data;
 	}
@@ -228,7 +231,7 @@ function location_getItems(int|null $locationId) : array
 	{
 		$data = array();
 		$data["Item"] = \Numbering\format(\Numbering\Category::Location, $item->LocationNumber);
-		$data["Category"] = "Location";
+		$data["Category"] = \Numbering\Category::Location;
 		$data["Description"] = "$item->Name";
 		$items[] = $data;
 	}
@@ -309,7 +312,7 @@ function location_buildLocationPath(array $locationData, int $id, int $depth): s
 		if($nextLocationId == 0) break;
 		if(!location_hasChild($locationData, $nextLocationId))
 		{
-			$descriptionString = location_buildLocation($locationData, $nextLocationId)."".$descriptionString;
+			$descriptionString = location_buildLocation($locationData, $nextLocationId)." ".$descriptionString;
 		}
 
 		$nextParentId = $locationData[$nextLocationId]['ParentId'];
@@ -320,4 +323,3 @@ function location_buildLocationPath(array $locationData, int $id, int $depth): s
 
 	return trim($descriptionString);
 }
-?>
