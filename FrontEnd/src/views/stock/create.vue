@@ -128,7 +128,7 @@ export default {
     searchManufacturerPartNumber(queryString, cb) {
       const out = []
       this.partOptions.forEach(element => {
-        out.push({ value: element.ManufacturerPartNumber })
+        out.push({ value: element.PartNumber })
       })
       if (queryString === null) {
         cb(out)
@@ -144,7 +144,7 @@ export default {
     getParts(ManufacturerId) {
       const searchParameters = Object.assign({}, manufacturerPart.searchParameters)
       searchParameters.VendorId = ManufacturerId
-      manufacturerPart.search(searchParameters).then(response => {
+      manufacturerPart.PartNumber.search(searchParameters).then(response => {
         this.partOptions = response
       })
     },
@@ -153,11 +153,7 @@ export default {
     },
     isValid() {
       this.$refs.inputForm.validate(valid => {
-        if (valid) {
-          return true
-        } else {
-          return false
-        }
+        return valid
       })
     },
     save() {
