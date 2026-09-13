@@ -1,5 +1,4 @@
 import eerpApi from '@/api/apiQuery'
-import ProductionPart from './productionPart'
 
 class ManufacturerPart {
   searchParameters = {

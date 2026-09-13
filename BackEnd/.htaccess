@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# Allow access to api entrypoints
+RewriteRule ^api\.php(.*) - [L]
+RewriteRule ^data\.php(.*) - [L]
+RewriteRule ^process\.php(.*) - [L]
+RewriteRule ^renderer\.php(.*) - [L]
+RewriteRule ^report\.php(.*) - [L]
+
+# Allow access to assets, dataAccess and pushHandler
+RewriteRule ^assets/ - [L]
+RewriteRule ^dataAccess/ - [L]
+RewriteRule ^pushHandler/ - [L]
+
+# Block the rest
+RewriteRule ^(.*)$ - [R=404,L]

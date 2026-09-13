@@ -17,9 +17,7 @@ if(!isset($_GET["user"]) || !isset($_GET["token"]))
 }
 
 require_once __DIR__ . "/../core/user/userAuthentication.php";
-$database = new Database();
 $user = new UserAuthentication();
-
 $user->loginWithToken($_GET["user"],$_GET["token"]);
 
 if(!$user->loggedIn())
@@ -36,29 +34,20 @@ if(!$user->checkPermission(Permission::Vendor_Contact_View))
     exit;
 }
 
-function escape(string|null $input):string
-{
-    if($input === null) return "";
-
-    $input = str_replace('&', '&amp;', $input);
-    $input = str_replace('"', '&quot;', $input);
-    $input = str_replace("'", '&apos;', $input);
-    $input = str_replace('<', '&lt;', $input);
-    return str_replace('>', '&gt;', $input);
-}
+$database = new Database();
 
 $query = <<< QUERY
-    SELECT 
-        FullName, 
-        ShortName, 
+    SELECT
+        FullName,
+        ShortName,
         vendor_displayName(vendor.Id) AS DisplayName,
-        FirstName, 
-        LastName, 
-        CustomerNumber, 
-        Phone, 
-        Gender, 
-        Language, 
-        EMail  
+        FirstName,
+        LastName,
+        CustomerNumber,
+        Phone,
+        Gender,
+        Language,
+        EMail
     FROM vendor
     LEFT JOIN vendor_contact ON vendor_contact.VendorId = vendor.Id
 QUERY;
@@ -100,3 +89,14 @@ foreach ($result AS $r)
 }
 
 echo "</YealinkIPPhoneDirectory>";
+
+function escape(string|null $input):string
+{
+    if($input === null) return "";
+
+    $input = str_replace('&', '&amp;', $input);
+    $input = str_replace('"', '&quot;', $input);
+    $input = str_replace("'", '&apos;', $input);
+    $input = str_replace('<', '&lt;', $input);
+    return str_replace('>', '&gt;', $input);
+}
