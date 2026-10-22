@@ -45,24 +45,19 @@ if($api->isPost(Permission::Document_Ingest_Save))
     $result = \Document\Ingest\save($ingestData);
     if($result instanceof \Error\Data) return $result;
 
-    $docIds = array();
-    $docIds[] = $result;
-
-    if (($key = array_search("", $docIds)) !== false) unset($docIds[$key]); // Remove empty string
-
     if(empty($data->NextDate)) $data->NextDate = null;
 
-    $invId = $inv->Id;
-    $description = $database->escape($data->Description);
-    $docIdStr = implode(",",$docIds);
-    $date = $database->escape($data->Date);
-    $nextDate = $database->escape($data->NextDate);
-    $userId = $user->userId();
-    $query = <<<STR
-        INSERT INTO inventory_history (InventoryId, Description, DocumentIds, Date, NextDate, Type, CreationUserId)
-        VALUES ($invId,$description,$docIdStr,$date,$nextDate, 'Calibration', $userId); 
-    STR;
-    $database->execute($query);
+    $createHistory = array();
+    $createHistory['InventoryId'] = intval($inv->Id);
+    $createHistory['Description'] = $data->Description;
+    $createHistory['DocumentIds'] = $result->documentId;
+    $createHistory['Date'] = $data->Date;
+    $createHistory['NextDate'] = $data->NextDate;
+    $createHistory['Type'] = 'Calibration';
+    $createHistory['CreationUserId'] = $user->userId();
 
-    $api->returnData($docIdStr);
+    $database->insert("inventory_history", $createHistory);
+
+
+    $api->returnData($result->documentId);
 }

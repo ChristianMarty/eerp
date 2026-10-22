@@ -22,15 +22,20 @@ if($api->isGet())
 	$supplierData = array();
     $query = <<<STR
         SELECT *, 
-               manufacturerPart_partNumber.Number AS ManufacturerPartNumbe, 
-               vendor.Id AS SupplierId,
-               vendor_displayName(vendor.Id) AS SupplierName,
-               supplierPart.Id AS SupplierPartId 
+               manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
+               supplier.Id AS SupplierId,
+               vendor_displayName(supplier.Id) AS SupplierName,
+               supplierPart.Id AS SupplierPartId,
+               vendor_displayName(manufacturer.Id) AS ManufacturerName,
+               manufacturer.Id AS ManufacturerId
         FROM supplierPart 
-        LEFT JOIN vendor On vendor.Id = supplierPart.VendorId 
+        LEFT JOIN vendor AS supplier On supplier.Id = supplierPart.VendorId 
         LEFT JOIN manufacturerPart_partNumber On manufacturerPart_partNumber.Id = supplierPart.ManufacturerPartNumberId 
+        LEFT JOIN manufacturerPart_item On manufacturerPart_item.Id = manufacturerPart_partNumber.ItemId 
+        LEFT JOIN manufacturerPart_series On manufacturerPart_series.Id = manufacturerPart_item.SeriesId 
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id 
         LEFT JOIN productionPart ON productionPart.Id = productionPart_manufacturerPart_mapping.ProductionPartId 
+        LEFT JOIN vendor AS manufacturer On manufacturer.Id = COALESCE(manufacturerPart_partNumber.VendorId, manufacturerPart_item.VendorId, manufacturerPart_series.VendorId)
         LEFT JOIN numbering ON numbering.Id = productionPart.NumberingPrefixId
     STR;
 
