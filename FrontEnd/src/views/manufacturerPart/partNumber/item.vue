@@ -75,6 +75,11 @@
       </el-table-column>
     </el-table>
 
+    <p>
+      <b>Total Stock Quantity:</b>
+      {{ totalStockQuantity }}
+    </p>
+
     <el-divider />
     <h3>Purchase Orders</h3>
     <p>
@@ -179,6 +184,7 @@ export default {
       purchaseOrderData: [],
       productionPartData: [],
       stockData: [],
+      totalStockQuantity: 0,
       filterEmptyStock: true,
       data: {},
       productionPartDialogVisible: false
@@ -233,6 +239,10 @@ export default {
       stock.search(this.filterEmptyStock, null, this.data.PartNumberId).then(response => {
         this.stockData = response
         this.loading = false
+
+        this.totalStockQuantity = this.stockData.reduce((accumulator, currentValue) => {
+          return accumulator + currentValue.Quantity
+        }, 0)
       })
     },
     addManufacturerPart() {
