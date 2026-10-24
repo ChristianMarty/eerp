@@ -1,7 +1,7 @@
 import eerpApi from '@/api/apiQuery'
 
 class Stock {
-  search(HideEmpty = true, StockCode = null, ManufacturerPartNumberId = null) {
+  search(HideEmpty = true, StockCode = null, ManufacturerPartNumberId = null, ManufacturerPartId = null) {
     return new Promise((resolve, reject) => {
       eerpApi({
         url: '/stock',
@@ -9,7 +9,8 @@ class Stock {
         params: {
           HideEmpty: HideEmpty,
           StockCode: StockCode,
-          ManufacturerPartNumberId
+          ManufacturerPartNumberId,
+          ManufacturerPartId
         }
       }).then(response => {
         if (response.error == null) {

@@ -15,6 +15,7 @@ require_once  "_function.php";
 require_once __DIR__ . "/../_class.php";
 require_once __DIR__ . "/../_part.php";
 require_once __DIR__ . "/../../document/_document.php";
+require_once __DIR__ . "/../../purchasing/_purchasing.php";
 
 class ManufacturerPartData
 {
@@ -79,6 +80,7 @@ function get(int $itemId): ManufacturerPartData | \Error\Data | \stdClass
             manufacturerPart_partNumber.Id AS ManufacturerPartNumberId,
             manufacturerPart_partNumber.Number AS ManufacturerPartNumber, 
             productionPart.Number AS ProductionPartNumber, 
+            productionPart.Description AS ProductionPartDescription,
             numbering.Prefix AS ProductionPartNumberPrefix
         FROM manufacturerPart_partNumber
         LEFT JOIN productionPart_manufacturerPart_mapping ON productionPart_manufacturerPart_mapping.ManufacturerPartNumberId = manufacturerPart_partNumber.Id
@@ -108,6 +110,7 @@ function get(int $itemId): ManufacturerPartData | \Error\Data | \stdClass
 
         $r->ProductionPartItemCode = \Numbering\format(\Numbering\Category::ProductionPart, $r->ProductionPartNumberPrefix."-".$r->ProductionPartNumber);
         $r->ProductionPartBarcode = $r->ProductionPartItemCode; // TODO: legacy -> remove
+        $r->PurchaseOrder = \Purchasing\getPurchaseOrderFromPartNumberId(intval($r->ManufacturerPartNumberId));
         $partNumbers[$manufacturerPartNumber]['ProductionPart'][] = $r;
     }
     $output->PartNumberItem = array_values($partNumbers);

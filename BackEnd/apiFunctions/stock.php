@@ -53,6 +53,11 @@ if($api->isGet(Permission::Stock_List))
 		$temp = intval($parameters->ManufacturerPartNumberId);
 		$queryParam[] = "manufacturerPart_partNumber.Id = {$temp}";
 	}
+
+    if(isset($parameters->ManufacturerPartId)) {
+        $temp = intval($parameters->ManufacturerPartId);
+        $queryParam[] = "manufacturerPart_item.Id = {$temp}";
+    }
 	
 	if(isset($parameters->HideEmpty) && $parameters->HideEmpty === true) {
 		$queryParam[] = "partStock.Cache_Quantity != '0'";
@@ -70,9 +75,10 @@ if($api->isGet(Permission::Stock_List))
     $location = new Location();
 	foreach ($result as $line) {
         $line->ItemCode = \Numbering\format(\Numbering\Category::Stock, $line->StockNumber);
-        $line->LocationName = $location->name(intval($line->LocationId));
-        $line->LocationCode = $location->itemCode(intval($line->LocationId));
-        $line->Description ="";
+        $locationId = intval($line->LocationId);
+        $line->LocationName = $location->name($locationId);
+        $line->LocationCode = $location->itemCode($locationId);
+        $line->LocationPath = $location->path($locationId);
         unset($line->LocationId);
 	}
 
