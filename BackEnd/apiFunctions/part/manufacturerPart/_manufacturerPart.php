@@ -29,6 +29,7 @@ function get(int $itemId): ManufacturerPartData | \Error\Data | \stdClass
         SELECT 
             manufacturerPart_item.Id AS PartId, 
             vendor_displayName(vendor.Id) AS ManufacturerName, 
+            vendor.Id AS ManufacturerId, 
             manufacturerPart_item.Number AS PartNumber, 
             Attribute,
             manufacturerPart_partPackage.name AS Package, 

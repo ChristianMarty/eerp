@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
-    <h1>{{ partData.ManufacturerName }} - {{ partData.DisplayPartNumber }}</h1>
-    <!--<h2>{{ partData.Description }} </h2>-->
+    <h1>
+      <router-link :to="'/vendor/view/' + partData.ManufacturerId" class="link-type">
+        {{ partData.ManufacturerName }}
+      </router-link> - {{ partData.DisplayPartNumber }}</h1>
     <template v-if="partData.SeriesId != null">
       <p><b>Series:</b>
         <router-link :to="'/manufacturerPart/series/item/' + partData.SeriesId" class="link-type">
